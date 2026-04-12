@@ -20,6 +20,7 @@ from src_brain.senses.ear_stt import EarSTT
 from src_brain.senses.mouth_tts import MouthTTS
 from src_brain.ai_core.core_ai import BiAI
 from src_brain.memory_rag.rag_manager import RAGManager
+from src_brain.senses.eye_vision import EyeVision
 
 
 class RobotBiApp:
@@ -37,6 +38,13 @@ class RobotBiApp:
             target=self._audio_worker_loop, daemon=True
         )
         self._worker_thread.start()
+
+        # EyeVision: daemon thread song song, không block voice I/O
+        self.eye = EyeVision(
+            camera_index=0,
+            on_event_callback=self._on_vision_event,
+        )
+        self.eye.start()
 
         print("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
 
@@ -62,6 +70,16 @@ class RobotBiApp:
                 except FileNotFoundError:
                     pass
             self.audio_queue.task_done()
+
+    def _on_vision_event(self, event_type: str, clip_path: str | None) -> None:
+        """Callback khi EyeVision phát hiện sự kiện."""
+        if event_type == "stranger":
+            print(f"[Bi - Mắt] ⚠️ Phát hiện người lạ! Clip: {clip_path}")
+            # TODO Sprint 5: gửi notification đến Parent App qua WebSocket
+        elif event_type == "motion":
+            print(f"[Bi - Mắt] 🔍 Phát hiện chuyển động. Clip: {clip_path}")
+        elif event_type == "known_face":
+            print(f"[Bi - Mắt] 👤 Nhận ra: {clip_path}")  # clip_path = tên người ở case này
 
     def _cleanup_chunks(self):
         """Xóa tất cả file voice_chunk_*.mp3 còn sót lại."""
@@ -138,6 +156,7 @@ class RobotBiApp:
                     ).start()
 
         except KeyboardInterrupt:
+            self.eye.stop()
             self.audio_queue.put(None)
             self.audio_queue.join()
             self._cleanup_chunks()

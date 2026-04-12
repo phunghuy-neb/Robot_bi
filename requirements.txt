@@ -7,11 +7,20 @@
 # Ollama Python SDK — giao tiếp với Qwen 2.5 chạy hoàn toàn cục bộ
 ollama
 
-# ── Speech-to-Text ──────────────────────────────────────────
-# SpeechRecognition — nhận dạng giọng nói (Google STT, tạm thời chấp nhận)
-speechrecognition
-# PyAudio — dependency của SpeechRecognition để ghi âm từ mic
-pyaudio
+# ── Speech-to-Text (Offline) ────────────────────────────────
+# faster-whisper — Whisper quantized int8, chạy hoàn toàn offline
+faster-whisper
+# sounddevice — ghi âm từ microphone qua PortAudio
+sounddevice
+# soundfile — đọc/ghi WAV file
+soundfile
+# numpy — xử lý audio array
+numpy
+
+# speechrecognition — LEGACY, không dùng nữa (thay bằng faster-whisper)
+# speechrecognition
+# pyaudio — LEGACY
+# pyaudio
 
 # ── Text-to-Speech ──────────────────────────────────────────
 # edge-tts — Microsoft Edge TTS, giọng vi-VN-HoaiMyNeural
@@ -26,6 +35,10 @@ pygame>=2.5.0
 chromadb
 # sentence-transformers — embedding model cho tiếng Việt (paraphrase-multilingual-MiniLM-L12-v2)
 sentence-transformers
+
+# ── Computer Vision ─────────────────────────────────────────
+# opencv-python — camera capture, motion detection (MOG2), face recognition (histogram)
+opencv-python
 
 # ── Môi trường ──────────────────────────────────────────────
 # Đọc biến từ file .env
