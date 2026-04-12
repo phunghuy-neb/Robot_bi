@@ -7,21 +7,15 @@
 # Ollama Python SDK — giao tiếp với Qwen 2.5 chạy hoàn toàn cục bộ
 ollama
 
-# ── Speech-to-Text (Offline / CPU) ──────────────────────────
-# faster-whisper — OpenAI Whisper tối ưu cho CPU (CTranslate2)
-# Bắt buộc: device='cpu', compute_type='int8' để tiết kiệm RAM
-faster-whisper
-
-# ── Ghi âm từ Microphone ────────────────────────────────────
-# sounddevice — ghi âm WAV không cần PyAudio (ổn định trên Windows)
-sounddevice
-# soundfile  — đọc/ghi file WAV
-soundfile
+# ── Speech-to-Text ──────────────────────────────────────────
+# SpeechRecognition — nhận dạng giọng nói (Google STT, tạm thời chấp nhận)
+speechrecognition
+# PyAudio — dependency của SpeechRecognition để ghi âm từ mic
+pyaudio
 
 # ── Text-to-Speech ──────────────────────────────────────────
-# gTTS — Google Text-to-Speech (yêu cầu Internet cho TTS)
-# Thay thế offline: cài thêm 'pyttsx3' nếu cần TTS hoàn toàn cục bộ
-gTTS>=2.3.2
+# edge-tts — Microsoft Edge TTS, giọng vi-VN-HoaiMyNeural
+edge-tts
 
 # ── Phát âm thanh ───────────────────────────────────────────
 # pygame — phát MP3, có unload() để giải phóng file trên Windows

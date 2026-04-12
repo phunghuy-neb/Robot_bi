@@ -165,6 +165,63 @@ class BiAI:
             logger.error("Lỗi không mong đợi trong chat(): %s: %s", type(e).__name__, e)
             return error_msg
 
+    def stream_chat(self, user_input: str):
+        """
+        Streaming version: gửi câu hỏi, yield từng chunk text thô từ Ollama.
+        Cập nhật history sau khi stream hoàn tất.
+
+        Args:
+            user_input: Văn bản câu hỏi của người dùng.
+
+        Yields:
+            Từng chuỗi token nhỏ từ Ollama stream.
+        """
+        if not user_input or not user_input.strip():
+            yield "Bạn vừa nói gì đó mình chưa nghe rõ, bạn nói lại được không?"
+            return
+
+        user_input = user_input.strip()
+        logger.info("🧠 Bi đang stream suy nghĩ: '%s'", user_input)
+
+        full_reply = ""
+        try:
+            messages = self._build_messages(user_input)
+            stream = _ollama.chat(model=_MODEL, messages=messages, stream=True)
+
+            for chunk in stream:
+                token = chunk["message"]["content"]
+                full_reply += token
+                yield token
+
+            # Cập nhật history sau khi stream hoàn tất
+            self.history.append({"role": "user",      "content": user_input})
+            self.history.append({"role": "assistant", "content": full_reply.strip()})
+            self._trim_history()
+
+            self.total_turns += 1
+            logger.info("🤖 Bi stream xong (lượt %d): '%s'", self.total_turns, full_reply[:80])
+
+        except _ollama.ResponseError as e:
+            error_msg = (
+                f"Xin lỗi, model '{_MODEL}' chưa được tải về. "
+                f"Hãy chạy lệnh: ollama pull {_MODEL}"
+            )
+            logger.error("Ollama ResponseError: %s", e)
+            yield error_msg
+
+        except ConnectionRefusedError:
+            error_msg = (
+                "Xin lỗi, không kết nối được với Ollama. "
+                "Hãy mở terminal và chạy: ollama serve"
+            )
+            logger.error("Ollama chưa chạy — ConnectionRefusedError.")
+            yield error_msg
+
+        except Exception as e:
+            error_msg = "Xin lỗi, não bộ của mình đang gặp sự cố nhỏ. Bạn thử hỏi lại nhé!"
+            logger.error("Lỗi không mong đợi trong stream_chat(): %s: %s", type(e).__name__, e)
+            yield error_msg
+
     def reset_history(self) -> None:
         """Xóa toàn bộ lịch sử hội thoại trong RAM (giữ nguyên total_turns)."""
         self.history.clear()

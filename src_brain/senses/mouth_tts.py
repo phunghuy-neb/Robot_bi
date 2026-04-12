@@ -10,20 +10,22 @@ class MouthTTS:
         self.voice = "vi-VN-HoaiMyNeural"
         self.temp_file = "temp_bi_voice.mp3"
 
-    async def _generate_audio(self, text):
+    async def _generate_audio(self, text, chunk_index=0):
         communicate = edge_tts.Communicate(text, self.voice)
-        await communicate.save(self.temp_file)
+        filename = f"voice_chunk_{chunk_index}.mp3"
+        await communicate.save(filename)
+        return filename
 
     def speak(self, text):
         print(f"[Bi - Miệng] Đang nói: {text}")
-        asyncio.run(self._generate_audio(text))
-        pygame.mixer.music.load(self.temp_file)
+        audio_file = asyncio.run(self._generate_audio(text, chunk_index=0))
+        pygame.mixer.music.load(audio_file)
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
         pygame.mixer.music.unload()
         try:
-            os.remove(self.temp_file)
+            os.remove(audio_file)
         except FileNotFoundError:
             pass
 

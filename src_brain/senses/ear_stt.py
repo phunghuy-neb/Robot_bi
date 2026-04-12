@@ -15,6 +15,8 @@ class EarSTT:
                 audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=15)
                 text = self.recognizer.recognize_google(audio, language="vi-VN")
                 return text.lower()
+        except sr.WaitTimeoutError:
+            return ""
         except sr.UnknownValueError:
             return ""
         except sr.RequestError:
