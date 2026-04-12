@@ -21,6 +21,12 @@ edge-tts
 # pygame — phát MP3, có unload() để giải phóng file trên Windows
 pygame>=2.5.0
 
+# ── RAG / Trí nhớ dài hạn ───────────────────────────────────
+# ChromaDB — vector database offline, persistent local storage
+chromadb
+# sentence-transformers — embedding model cho tiếng Việt (paraphrase-multilingual-MiniLM-L12-v2)
+sentence-transformers
+
 # ── Môi trường ──────────────────────────────────────────────
 # Đọc biến từ file .env
 python-dotenv>=1.0.0

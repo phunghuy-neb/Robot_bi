@@ -19,6 +19,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src_brain.senses.ear_stt import EarSTT
 from src_brain.senses.mouth_tts import MouthTTS
 from src_brain.ai_core.core_ai import BiAI
+from src_brain.memory_rag.rag_manager import RAGManager
 
 
 class RobotBiApp:
@@ -26,6 +27,7 @@ class RobotBiApp:
         self.ear = EarSTT()
         self.mouth = MouthTTS()
         self.brain = BiAI()
+        self.rag = RAGManager()
         self.audio_queue = queue.Queue()
         self._chunk_counter = 0
         self._loop = asyncio.new_event_loop()
@@ -80,9 +82,21 @@ class RobotBiApp:
                 buffer = ""
                 self._chunk_counter = 0
 
+                # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
+                user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
+                rag_context = self.rag.retrieve(user_text)
+                if rag_context:
+                    user_text = (
+                        f"[Ngữ cảnh từ trí nhớ Bi]\n{rag_context}\n\n"
+                        f"Câu hỏi của bé: {user_text}"
+                    )
+                    print(f"[Bi - Trí nhớ] {rag_context}")
+
                 # Stream tokens từ LLM, tách câu theo . ? ! \n
+                full_reply_parts = []
                 for token in self.brain.stream_chat(user_text):
                     buffer += token
+                    full_reply_parts.append(token)
                     while True:
                         match = re.search(r'[.?!\n]', buffer)
                         if not match:
@@ -113,6 +127,15 @@ class RobotBiApp:
 
                 # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                 self.audio_queue.join()
+
+                # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
+                full_reply = "".join(full_reply_parts).strip()
+                if full_reply:
+                    threading.Thread(
+                        target=self.rag.extract_and_save,
+                        args=(user_text_goc, full_reply),
+                        daemon=True,
+                    ).start()
 
         except KeyboardInterrupt:
             self.audio_queue.put(None)
