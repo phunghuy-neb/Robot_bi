@@ -1,0 +1,23 @@
+[
+  {
+    "timestamp": "2026-04-12T00:10:22",
+    "user": "Bây giờ là mấy giờ rồi",
+    "bi": "Giờ này là 13 giờ chiều",
+    "emotion": "vui_ve",
+    "action": "none"
+  },
+  {
+    "timestamp": "2026-04-12T00:10:42",
+    "user": "một cộng một bằng mấy",
+    "bi": "Một cộng một là hai",
+    "emotion": "vui_ve",
+    "action": "gat_dau"
+  },
+  {
+    "timestamp": "2026-04-12T00:10:53",
+    "user": "Tôi cảm ơn",
+    "bi": "Không có vấn đề nào!",
+    "emotion": "vui_ve",
+    "action": "none"
+  }
+]

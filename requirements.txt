@@ -1,0 +1,32 @@
+# ============================================================
+#  Robot Bi — Dependencies (Offline Build)
+#  Cài đặt: pip install -r requirements.txt
+# ============================================================
+
+# ── AI Engine (Local / Offline) ─────────────────────────────
+# Ollama Python SDK — giao tiếp với Qwen 2.5 chạy hoàn toàn cục bộ
+ollama
+
+# ── Speech-to-Text (Offline / CPU) ──────────────────────────
+# faster-whisper — OpenAI Whisper tối ưu cho CPU (CTranslate2)
+# Bắt buộc: device='cpu', compute_type='int8' để tiết kiệm RAM
+faster-whisper
+
+# ── Ghi âm từ Microphone ────────────────────────────────────
+# sounddevice — ghi âm WAV không cần PyAudio (ổn định trên Windows)
+sounddevice
+# soundfile  — đọc/ghi file WAV
+soundfile
+
+# ── Text-to-Speech ──────────────────────────────────────────
+# gTTS — Google Text-to-Speech (yêu cầu Internet cho TTS)
+# Thay thế offline: cài thêm 'pyttsx3' nếu cần TTS hoàn toàn cục bộ
+gTTS>=2.3.2
+
+# ── Phát âm thanh ───────────────────────────────────────────
+# pygame — phát MP3, có unload() để giải phóng file trên Windows
+pygame>=2.5.0
+
+# ── Môi trường ──────────────────────────────────────────────
+# Đọc biến từ file .env
+python-dotenv>=1.0.0
