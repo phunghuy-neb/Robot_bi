@@ -11,15 +11,15 @@
 👂 Giai đoạn 2: Hệ thống Giao tiếp (Sprint 1)
 Mục tiêu: Robot có thể Nghe và Nói một cách tự nhiên.
 
-[ ] Module Đôi tai (Ear STT): - Cài đặt Whisper và SpeechRecognition.
+[x] Module Đôi tai (Ear STT): - Cài đặt Whisper và SpeechRecognition.
 
 Hoàn thiện file ear_stt.py (Nhận diện tiếng Việt, lọc tạp âm).
 
-[ ] Module Cái miệng (Mouth TTS): - Cài đặt Edge-TTS và Pygame.
+[x] Module Cái miệng (Mouth TTS): - Cài đặt Edge-TTS và Pygame.
 
 Hoàn thiện file mouth_tts.py (Giọng HoaiMyNeural, phát âm thanh offline).
 
-[ ] Tích hợp Não bộ (AI Core):
+[x] Tích hợp Não bộ (AI Core):
 
 Kết nối core_ai.py với Ollama (Qwen 2.5 7B).
 
