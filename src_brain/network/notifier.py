@@ -45,6 +45,7 @@ class EventNotifier:
     def __init__(self):
         self._lock = threading.Lock()
         self._connected_clients: list = []  # Placeholder cho Sprint 5
+        self._ws_broadcaster = None         # Set bởi api_server.init_server()
         self._queue_file = _QUEUE_FILE
         self._queue_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -100,9 +101,8 @@ class EventNotifier:
         icon = _ICONS.get(event_type, "[EVT]")
         print(f"[Notifier] {icon} {event_type.upper()}: {message}")
 
-        # Sprint 5: gửi WebSocket
-        if _WS_ENABLED:
-            self._send_ws(event)
+        # Gửi WebSocket nếu broadcaster đã được đăng ký (Sprint 5)
+        self._send_ws(event)
 
         return True
 
@@ -162,16 +162,21 @@ class EventNotifier:
         except Exception as e:
             logger.error("[Notifier] Khong luu duoc queue: %s", e)
 
-    def _send_ws(self, event: dict) -> None:
+    def set_ws_broadcaster(self, broadcaster_fn) -> None:
         """
-        TODO Sprint 5: Implement WebSocket push that.
-        Hien tai la stub — khong lam gi.
+        Đăng ký function broadcast WebSocket (gọi từ api_server.init_server()).
+        Sau khi đăng ký, mọi push_event() sẽ tự broadcast đến app phụ huynh.
+        """
+        self._ws_broadcaster = broadcaster_fn
+        logger.info("[Notifier] WS broadcaster đã đăng ký.")
 
-        Upgrade:
-            import asyncio, websockets
-            asyncio.run(self._broadcast(json.dumps(event)))
-        """
-        pass  # Sprint 5 implement
+    def _send_ws(self, event: dict) -> None:
+        """Gửi event tới tất cả WebSocket clients qua broadcaster đã đăng ký."""
+        if self._ws_broadcaster:
+            try:
+                self._ws_broadcaster(event)
+            except Exception as e:
+                logger.debug("[Notifier] _send_ws lỗi: %s", e)
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────

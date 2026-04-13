@@ -51,6 +51,12 @@ tflite-runtime
 # pyttsx3 — TTS offline fallback khi edge-tts không có internet
 pyttsx3
 
+# ── Parent App API Server (Sprint 5) ────────────────────────
+# FastAPI — REST API + WebSocket backend
+fastapi
+# uvicorn[standard] — ASGI server với websockets + httptools
+uvicorn[standard]
+
 # ── Môi trường ──────────────────────────────────────────────
 # Đọc biến từ file .env
 python-dotenv>=1.0.0

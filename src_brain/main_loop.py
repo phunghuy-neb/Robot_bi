@@ -24,6 +24,7 @@ from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
 from src_brain.network.notifier import get_notifier
+from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue
 
 
 class RobotBiApp:
@@ -51,12 +52,17 @@ class RobotBiApp:
 
         self.safety = SafetyFilter()
 
-        # Notifier (WebSocket stub — Sprint 5 upgrade)
+        # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
 
         # CryDetector — daemon thread song song
         self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
         self.cry_detector.start()
+
+        # Parent App API Server (Sprint 5)
+        init_server(self.notifier, self.rag)
+        start_api_server()
+        self._puppet_queue = get_puppet_queue()
 
         print("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
 
@@ -115,6 +121,34 @@ class RobotBiApp:
                 message=f"Nhan ra: {clip_path}",
             )
 
+    def _handle_puppet_queue(self) -> None:
+        """
+        Xử lý tất cả puppet commands đang chờ trong queue.
+        Được gọi sau mỗi lượt nói chuyện và khi listen() trả về rỗng.
+        SRS 4.5: "Phụ huynh gõ câu bất kỳ trên app, Bi đọc to ngay tại nhà"
+        """
+        queued = 0
+        while not self._puppet_queue.empty():
+            try:
+                puppet_text = self._puppet_queue.get_nowait()
+            except queue.Empty:
+                break
+            if not puppet_text:
+                continue
+            is_safe, clean = self.safety.check(puppet_text)
+            if not clean.strip():
+                continue
+            print(f"[Bi - Puppet] Đọc: {clean[:60]}")
+            audio_file = self._loop.run_until_complete(
+                self.mouth._generate_audio(clean, chunk_index=self._chunk_counter)
+            )
+            if audio_file:
+                self._chunk_counter += 1
+                self.audio_queue.put(audio_file)
+                queued += 1
+        if queued > 0:
+            self.audio_queue.join()
+
     def _cleanup_chunks(self):
         """Xóa tất cả file voice_chunk_*.mp3 còn sót lại."""
         for f in glob.glob("voice_chunk_*.mp3"):
@@ -132,6 +166,7 @@ class RobotBiApp:
                 #     if not detected: continue
                 user_text = self.ear.listen()
                 if not user_text:
+                    self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
                     continue
 
                 print("[Bi - Não] Đang suy nghĩ...")
@@ -188,6 +223,9 @@ class RobotBiApp:
 
                 # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                 self.audio_queue.join()
+
+                # Xử lý puppet sau khi Bi nói xong
+                self._handle_puppet_queue()
 
                 # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
                 full_reply = "".join(full_reply_parts).strip()

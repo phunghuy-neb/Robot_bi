@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Robot Bi</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: #f0f2f5; color: #222; font-size: 14px; }
+
+    /* ── Header ── */
+    .header { background: linear-gradient(135deg, #4a90d9, #2c6fad);
+              color: white; padding: 12px 16px;
+              display: flex; align-items: center; justify-content: space-between;
+              position: sticky; top: 0; z-index: 100;
+              box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+    .header-left { display: flex; align-items: center; gap: 8px; }
+    .header h1 { font-size: 17px; font-weight: 700; }
+    .status-pill { display: flex; align-items: center; gap: 5px;
+                   background: rgba(255,255,255,.15); border-radius: 20px;
+                   padding: 4px 10px; font-size: 12px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+    .dot.off { background: #f87171; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky; top: 48px; z-index: 99;
+            overflow-x: auto; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 1; min-width: 56px; padding: 11px 6px; text-align: center;
+           font-size: 11px; font-weight: 500; cursor: pointer; color: #6b7280;
+           border-bottom: 3px solid transparent; transition: all .2s;
+           white-space: nowrap; user-select: none; }
+    .tab.active { color: #4a90d9; border-bottom-color: #4a90d9; font-weight: 700; }
+    .tab .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+
+    /* ── Content ── */
+    .content { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 24px; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Cards ── */
+    .card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .card-title { font-size: 11px; font-weight: 700; color: #9ca3af;
+                  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+
+    /* ── Stats Grid ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .stat-box { background: white; border-radius: 14px; padding: 16px; text-align: center;
+                box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .stat-num { font-size: 30px; font-weight: 800; }
+    .stat-label { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+    /* ── Chat ── */
+    .chat-item { margin-bottom: 14px; }
+    .chat-row { display: flex; flex-direction: column; gap: 6px; }
+    .chat-who { font-size: 10px; color: #9ca3af; padding: 0 4px; }
+    .bubble { display: inline-block; padding: 9px 13px; border-radius: 16px;
+              font-size: 14px; line-height: 1.5; max-width: 88%; word-break: break-word; }
+    .bubble.user { background: #dbeafe; color: #1e40af; border-radius: 16px 16px 16px 4px; }
+    .bubble.bi   { background: #ede9fe; color: #5b21b6; border-radius: 16px 16px 4px 16px; }
+    .chat-time { font-size: 10px; color: #d1d5db; margin-top: 3px; padding: 0 4px; }
+
+    /* ── Events ── */
+    .evt-item { display: flex; gap: 12px; padding: 11px 0;
+                border-bottom: 1px solid #f3f4f6; align-items: flex-start; }
+    .evt-item:last-child { border-bottom: none; }
+    .evt-icon { font-size: 24px; min-width: 34px; text-align: center; margin-top: 1px; }
+    .evt-body { flex: 1; }
+    .evt-msg { font-size: 14px; line-height: 1.4; }
+    .evt-time { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+    .new-badge { display: inline-block; font-size: 9px; font-weight: 700;
+                 padding: 2px 6px; border-radius: 10px;
+                 background: #ef4444; color: white; margin-left: 6px;
+                 vertical-align: middle; }
+
+    /* ── Memory ── */
+    .mem-item { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0;
+                border-bottom: 1px solid #f3f4f6; }
+    .mem-item:last-child { border-bottom: none; }
+    .mem-body { flex: 1; }
+    .mem-text { font-size: 14px; line-height: 1.4; }
+    .mem-meta { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+    .btn-del { background: none; border: none; color: #f87171; cursor: pointer;
+               font-size: 19px; padding: 2px 4px; line-height: 1; flex-shrink: 0; }
+
+    /* ── Forms ── */
+    textarea, input[type=text] {
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 10px 12px; font-size: 14px; resize: none; font-family: inherit;
+      line-height: 1.5; transition: border-color .2s;
+    }
+    textarea:focus, input[type=text]:focus { outline: none; border-color: #4a90d9; }
+    .btn { padding: 11px 16px; border: none; border-radius: 10px; cursor: pointer;
+           font-size: 14px; font-weight: 600; transition: opacity .15s; }
+    .btn:active { opacity: .8; }
+    .btn-blue  { background: #4a90d9; color: white; }
+    .btn-green { background: #22c55e; color: white; }
+    .btn-full  { width: 100%; margin-top: 10px; }
+    .btn-outline { background: #f0f7ff; color: #4a90d9;
+                   border: 1.5px solid #bfdbfe; margin: 3px; }
+
+    /* ── Puppet result ── */
+    .puppet-ok  { margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+                  background: #dcfce7; color: #166534; font-size: 13px; display: none; }
+    .puppet-err { margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+                  background: #fee2e2; color: #991b1b; font-size: 13px; display: none; }
+
+    /* ── Empty / Loading ── */
+    .empty   { text-align: center; color: #d1d5db; padding: 30px 0; font-size: 14px; }
+    .loading { text-align: center; color: #d1d5db; padding: 20px 0; font-size: 13px; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+             background: #1f2937; color: white; padding: 10px 20px;
+             border-radius: 22px; font-size: 13px; white-space: nowrap;
+             opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 999; }
+    .toast.show { opacity: 1; }
+
+    /* ── Top action bar ── */
+    .action-bar { display: flex; justify-content: flex-end; align-items: center;
+                  margin-bottom: 8px; gap: 8px; }
+    .action-bar span { font-size: 12px; color: #9ca3af; flex: 1; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <span style="font-size:24px;">🤖</span>
+    <h1>Robot Bi</h1>
+  </div>
+  <div class="status-pill">
+    <span class="dot" id="dot"></span>
+    <span id="statusTxt">Đang kết nối...</span>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('status')">
+    <span class="tab-icon">📊</span>Trạng thái
+  </div>
+  <div class="tab" onclick="switchTab('chat')">
+    <span class="tab-icon">💬</span>Chat
+  </div>
+  <div class="tab" onclick="switchTab('events')">
+    <span class="tab-icon">🔔</span>Sự kiện
+  </div>
+  <div class="tab" onclick="switchTab('memory')">
+    <span class="tab-icon">🧠</span>Trí nhớ
+  </div>
+  <div class="tab" onclick="switchTab('puppet')">
+    <span class="tab-icon">🎤</span>Nhập vai
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- ── STATUS ── -->
+  <div class="section active" id="sec-status">
+    <div class="stats-grid" id="statsGrid">
+      <div class="loading" style="grid-column:1/-1;">Đang tải...</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sự kiện gần nhất</div>
+      <div id="recentEvt"><div class="loading">...</div></div>
+    </div>
+  </div>
+
+  <!-- ── CHAT ── -->
+  <div class="section" id="sec-chat">
+    <div id="chatList"><div class="loading">Đang tải...</div></div>
+  </div>
+
+  <!-- ── EVENTS ── -->
+  <div class="section" id="sec-events">
+    <div class="action-bar">
+      <span>Sự kiện robot ghi nhận</span>
+      <button class="btn btn-blue" onclick="markAllRead()" style="padding:7px 12px;font-size:12px;">
+        ✓ Đọc hết
+      </button>
+    </div>
+    <div class="card" id="evtList"><div class="loading">Đang tải...</div></div>
+  </div>
+
+  <!-- ── MEMORY ── -->
+  <div class="section" id="sec-memory">
+    <div class="card">
+      <div class="card-title">Thêm trí nhớ mới</div>
+      <textarea id="memInput" rows="2"
+        placeholder="Ví dụ: Cuối tuần này bé đi sinh nhật bạn Minh"></textarea>
+      <button class="btn btn-green btn-full" onclick="addMemory()">
+        ➕ Thêm vào bộ nhớ Bi
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        Danh sách trí nhớ
+        <span id="memCnt" style="color:#4a90d9; font-weight:800;"></span>
+      </div>
+      <div id="memList"><div class="loading">Đang tải...</div></div>
+    </div>
+  </div>
+
+  <!-- ── PUPPET ── -->
+  <div class="section" id="sec-puppet">
+    <div class="card">
+      <div class="card-title">🎭 Bi nói thay bạn</div>
+      <p style="color:#6b7280; font-size:13px; margin-bottom:10px; line-height:1.5;">
+        Nhập câu muốn Bi đọc to tại nhà. Lệnh được xếp hàng và đọc khi robot rảnh.
+      </p>
+      <textarea id="puppetInput" rows="3"
+        placeholder="Ví dụ: Con ơi, đến giờ ăn cơm rồi!"></textarea>
+      <button class="btn btn-blue btn-full" id="puppetBtn" onclick="sendPuppet()">
+        📢 Bi đọc ngay
+      </button>
+      <div class="puppet-ok"  id="puppetOk"></div>
+      <div class="puppet-err" id="puppetErr"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Câu mẫu nhanh</div>
+      <div>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Con ơi, đến giờ ăn cơm rồi!</button>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Chúc bé ngủ ngon nha!</button>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Bé ơi đi đánh răng đi nhé!</button>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Mẹ thương con lắm!</button>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Bé nhớ uống nước nhé!</button>
+        <button class="btn btn-outline" onclick="setTemplate(this)">Hôm nay bé học được gì rồi kể Bi nghe nào!</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .content -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const API = '';   // same origin
+
+// ══════════════════════════════════════════════════════════════
+//  WebSocket
+// ══════════════════════════════════════════════════════════════
+let ws = null, wsDelay = 1000;
+
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}/ws`);
+
+  ws.onopen = () => {
+    wsDelay = 1000;
+    setStatus(true);
+  };
+  ws.onmessage = e => {
+    try { onRealtimeEvent(JSON.parse(e.data)); } catch(_) {}
+  };
+  ws.onclose = () => {
+    setStatus(false);
+    setTimeout(connectWS, Math.min(wsDelay, 12000));
+    wsDelay = Math.min(wsDelay * 1.5, 12000);
+  };
+  ws.onerror = () => ws.close();
+}
+
+function setStatus(online) {
+  document.getElementById('dot').className = 'dot' + (online ? '' : ' off');
+  document.getElementById('statusTxt').textContent = online ? 'Đã kết nối' : 'Mất kết nối';
+}
+
+function onRealtimeEvent(evt) {
+  toast(`${evtIcon(evt.type)} ${evt.message}`);
+  if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
+  else { if (activeTab === 'events') loadEvents(); }
+  if (activeTab === 'status') loadStatus();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Tab
+// ══════════════════════════════════════════════════════════════
+let activeTab = 'status';
+const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'puppet'];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', TAB_NAMES[i] === name);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`sec-${name}`).classList.add('active');
+  activeTab = name;
+  loadTab(name);
+}
+
+function loadTab(name) {
+  const fn = { status: loadStatus, chat: loadChats, events: loadEvents, memory: loadMemories };
+  if (fn[name]) fn[name]();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  API helpers
+// ══════════════════════════════════════════════════════════════
+async function apiFetch(path, opts) {
+  try {
+    const r = await fetch(API + path, opts);
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Status
+// ══════════════════════════════════════════════════════════════
+async function loadStatus() {
+  const data = await apiFetch('/api/status');
+  if (!data) {
+    document.getElementById('statsGrid').innerHTML =
+      '<div class="empty" style="grid-column:1/-1;">Không kết nối được robot</div>';
+    return;
+  }
+  const n = data.notifier || {}, r = data.rag || {};
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-num" style="color:#4a90d9">${n.total_events ?? 0}</div>
+      <div class="stat-label">Sự kiện</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:#ef4444">${n.unread ?? 0}</div>
+      <div class="stat-label">Chưa đọc</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:#22c55e">${r.total_facts ?? 0}</div>
+      <div class="stat-label">Trí nhớ</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:#f59e0b">${data.ws_clients ?? 0}</div>
+      <div class="stat-label">Đang xem</div>
+    </div>`;
+
+  const evts = await apiFetch('/api/events?limit=4');
+  const el = document.getElementById('recentEvt');
+  if (evts && evts.events.length) {
+    el.innerHTML = evts.events.map(renderEvtItem).join('');
+  } else {
+    el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Chat
+// ══════════════════════════════════════════════════════════════
+async function loadChats() {
+  const data = await apiFetch('/api/chats?limit=60');
+  const el = document.getElementById('chatList');
+  if (!data || !data.chats.length) {
+    el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
+    return;
+  }
+  el.innerHTML = data.chats.map(c => {
+    const m = c.metadata || {};
+    const t = fmtTime(c.timestamp);
+    return `
+      <div class="card chat-item">
+        <div class="chat-row">
+          <span class="chat-who">👦 Bé — ${t}</span>
+          <span class="bubble user">${esc(m.user_text || c.message)}</span>
+        </div>
+        ${m.bi_response ? `
+        <div class="chat-row" style="margin-top:8px;">
+          <span class="chat-who">🤖 Bi</span>
+          <span class="bubble bi">${esc(m.bi_response)}</span>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Events
+// ══════════════════════════════════════════════════════════════
+async function loadEvents() {
+  const data = await apiFetch('/api/events?limit=100');
+  const el = document.getElementById('evtList');
+  if (!data) { el.innerHTML = '<div class="empty">Lỗi tải dữ liệu</div>'; return; }
+  const nonChat = data.events.filter(e => e.type !== 'chat' && e.type !== 'system');
+  if (!nonChat.length) {
+    el.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>';
+    return;
+  }
+  el.innerHTML = nonChat.map(renderEvtItem).join('');
+}
+
+function renderEvtItem(evt) {
+  return `
+    <div class="evt-item">
+      <div class="evt-icon">${evtIcon(evt.type)}</div>
+      <div class="evt-body">
+        <div class="evt-msg">
+          ${esc(evt.message)}
+          ${!evt.read ? '<span class="new-badge">MỚI</span>' : ''}
+        </div>
+        <div class="evt-time">${fmtTime(evt.timestamp)}</div>
+      </div>
+    </div>`;
+}
+
+async function markAllRead() {
+  await apiFetch('/api/events/read_all', { method: 'POST' });
+  loadEvents();
+  toast('✓ Đã đánh dấu tất cả đã đọc');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Memory
+// ══════════════════════════════════════════════════════════════
+async function loadMemories() {
+  const data = await apiFetch('/api/memories');
+  const el = document.getElementById('memList');
+  if (!data || !data.memories.length) {
+    el.innerHTML = '<div class="empty">Chưa có trí nhớ nào</div>';
+    document.getElementById('memCnt').textContent = '';
+    return;
+  }
+  document.getElementById('memCnt').textContent = `(${data.total})`;
+  el.innerHTML = data.memories.map(m => `
+    <div class="mem-item" id="m-${m.id}">
+      <div class="mem-body">
+        <div class="mem-text">${esc(m.fact)}</div>
+        <div class="mem-meta">
+          ${m.source === 'parent' ? '👨‍👩‍👧 Phụ huynh' :
+            m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại'}
+          · ${fmtTime(m.timestamp)}
+        </div>
+      </div>
+      <button class="btn-del" onclick="delMem('${m.id}')" title="Xóa">🗑</button>
+    </div>`).join('');
+}
+
+async function addMemory() {
+  const txt = document.getElementById('memInput').value.trim();
+  if (!txt) { toast('Nhập nội dung trí nhớ!'); return; }
+  const r = await apiFetch('/api/memories', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: txt })
+  });
+  if (r && r.status === 'ok') {
+    document.getElementById('memInput').value = '';
+    toast('✅ Đã thêm trí nhớ!');
+    loadMemories();
+    loadStatus();
+  } else {
+    toast('❌ Thêm thất bại, thử lại');
+  }
+}
+
+async function delMem(id) {
+  if (!confirm('Xóa trí nhớ này?')) return;
+  const r = await apiFetch(`/api/memories/${id}`, { method: 'DELETE' });
+  if (r) {
+    document.getElementById(`m-${id}`)?.remove();
+    toast('🗑 Đã xóa');
+    loadStatus();
+  } else {
+    toast('❌ Xóa thất bại');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Puppet
+// ══════════════════════════════════════════════════════════════
+async function sendPuppet() {
+  const txt = document.getElementById('puppetInput').value.trim();
+  if (!txt) { toast('Nhập câu muốn Bi đọc!'); return; }
+
+  const btn = document.getElementById('puppetBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang gửi...';
+
+  const ok  = document.getElementById('puppetOk');
+  const err = document.getElementById('puppetErr');
+  ok.style.display = err.style.display = 'none';
+
+  const r = await apiFetch('/api/puppet', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: txt })
+  });
+
+  btn.disabled = false;
+  btn.textContent = '📢 Bi đọc ngay';
+
+  if (r && r.status === 'queued') {
+    ok.textContent = `✅ Đã gửi: "${txt}"`;
+    ok.style.display = 'block';
+    document.getElementById('puppetInput').value = '';
+    setTimeout(() => ok.style.display = 'none', 4000);
+  } else {
+    err.textContent = '❌ Không gửi được. Robot có đang chạy không?';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 4000);
+  }
+}
+
+function setTemplate(btn) {
+  document.getElementById('puppetInput').value = btn.textContent.trim();
+  document.getElementById('puppetInput').focus();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Helpers
+// ══════════════════════════════════════════════════════════════
+const EVT_ICONS = { motion:'🚶', stranger:'🚨', cry:'😢', known_face:'👋', chat:'💬', system:'ℹ️' };
+function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
+
+function esc(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  try {
+    const d = new Date(ts);
+    return d.toLocaleString('vi-VN', {
+      day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'
+    });
+  } catch(_) { return ts; }
+}
+
+let _toastTimer;
+function toast(msg, ms=3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Init
+// ══════════════════════════════════════════════════════════════
+connectWS();
+loadStatus();
+setInterval(() => loadTab(activeTab), 30000);   // auto-refresh 30s
+</script>
+</body>
+</html>

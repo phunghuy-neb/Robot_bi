@@ -114,6 +114,7 @@ class EarSTT:
                 channels=CHANNELS,
                 dtype=DTYPE,
                 blocksize=_CHUNK_FRAMES,
+                device=None,  # Dùng device mặc định của Windows
             )
             stream.start()
 
@@ -159,9 +160,10 @@ class EarSTT:
             segments, _ = model.transcribe(
                 str(tmp_wav),
                 language="vi",
-                beam_size=1,
+                beam_size=5,                   # Tăng từ 1 lên 5 — chính xác hơn
+                initial_prompt="Bi là robot. Xin chào Bi. Hôm nay trời đẹp.",  # Giúp Whisper nhận đúng tên Bi
                 vad_filter=True,
-                vad_parameters=dict(min_silence_duration_ms=500),
+                vad_parameters=dict(min_silence_duration_ms=300),
             )
             text = " ".join(seg.text.strip() for seg in segments).strip()
 
@@ -223,6 +225,7 @@ class EarSTT:
                 channels=CHANNELS,
                 dtype=DTYPE,
                 blocksize=window_frames,
+                device=None,  # Dùng device mặc định của Windows
             )
             stream.start()
             try:

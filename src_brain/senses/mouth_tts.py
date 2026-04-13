@@ -45,6 +45,7 @@ class MouthTTS:
         """
         filename = f"voice_chunk_{chunk_index}.mp3"
         try:
+            await asyncio.sleep(0.1)  # Tránh gọi đồng thời quá nhanh
             communicate = edge_tts.Communicate(text, self.voice)
             await communicate.save(filename)
             return filename

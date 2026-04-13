@@ -20,5 +20,83 @@
       "word_count": 4
     },
     "read": false
+  },
+  {
+    "id": "1776084451210",
+    "timestamp": "2026-04-13T19:47:31.210696",
+    "type": "chat",
+    "message": "Be: xin chào và hẹn gặp lại trong video này!",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào và hẹn gặp lại trong video này!",
+      "bi_response": "Dạ chao em, hop tro ve lai trong video nay nhe!",
+      "word_count": 9
+    },
+    "read": false
+  },
+  {
+    "id": "1776084506172",
+    "timestamp": "2026-04-13T19:48:26.172305",
+    "type": "chat",
+    "message": "Be: kênh mình là lưu lý",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "kênh mình là lưu lý",
+      "bi_response": "Dạ chào bạn, rất vui được gặp lại trong kênh Lưu Lý của YouTube. Chúc bạn một ngày tràn đầy năng lượng!",
+      "word_count": 5
+    },
+    "read": false
+  },
+  {
+    "id": "1776084537114",
+    "timestamp": "2026-04-13T19:48:57.114251",
+    "type": "chat",
+    "message": "Be: tên mình ra huy",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "tên mình ra huy",
+      "bi_response": "Dạ, em hỏi tên mình là gì nhỉ? Nếu anh muốn gọi em là Huy thì em sẽ rất vui đó!",
+      "word_count": 4
+    },
+    "read": false
+  },
+  {
+    "id": "1776085524718",
+    "timestamp": "2026-04-13T20:05:24.718067",
+    "type": "chat",
+    "message": "Be: xin chào và hẹn gặp lại trong video tiếp theo!",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào và hẹn gặp lại trong video tiếp theo!",
+      "bi_response": "Xin chào bạn, rất vui được làm quen! Dạ, hẹn gặp lại bạn trong视频里的下一个视频哦！",
+      "word_count": 10
+    },
+    "read": false
+  },
+  {
+    "id": "1776086620284",
+    "timestamp": "2026-04-13T20:23:40.284597",
+    "type": "chat",
+    "message": "Be: xin chào và hẹn gặp lại trong video tiếp theo!",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào và hẹn gặp lại trong video tiếp theo!",
+      "bi_response": "Xin chào em, rất vui được gặp lại! Dạ, bé sẽ rất vui trong video tiếp theo nhé!",
+      "word_count": 10
+    },
+    "read": false
+  },
+  {
+    "id": "1776086751885",
+    "timestamp": "2026-04-13T20:25:51.885914",
+    "type": "chat",
+    "message": "Be: xin chào mẹ.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào mẹ.",
+      "bi_response": "Dạ bạn có gì cần chia sẻ với mẹ nhỉ? Nếu có khó khăn gì nhớ mách cho Bi nhé!",
+      "word_count": 3
+    },
+    "read": false
   }
 ]
