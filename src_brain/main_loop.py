@@ -21,6 +21,9 @@ from src_brain.senses.mouth_tts import MouthTTS
 from src_brain.ai_core.core_ai import BiAI
 from src_brain.memory_rag.rag_manager import RAGManager
 from src_brain.senses.eye_vision import EyeVision
+from src_brain.ai_core.safety_filter import SafetyFilter
+from src_brain.senses.cry_detector import CryDetector
+from src_brain.network.notifier import get_notifier
 
 
 class RobotBiApp:
@@ -45,6 +48,15 @@ class RobotBiApp:
             on_event_callback=self._on_vision_event,
         )
         self.eye.start()
+
+        self.safety = SafetyFilter()
+
+        # Notifier (WebSocket stub — Sprint 5 upgrade)
+        self.notifier = get_notifier()
+
+        # CryDetector — daemon thread song song
+        self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
+        self.cry_detector.start()
 
         print("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
 
@@ -71,15 +83,37 @@ class RobotBiApp:
                     pass
             self.audio_queue.task_done()
 
+    def _on_cry_detected(self) -> None:
+        """Callback khi CryDetector phát hiện tiếng khóc."""
+        print("[Bi - Tai khoc] Phat hien tieng khoc! Bi dang kiem tra...")
+        self.notifier.push_event(
+            event_type="cry",
+            message="Phat hien tieng khoc cua be",
+        )
+        # TODO Sprint 5: trigger robot di chuyen den vi tri be
+
     def _on_vision_event(self, event_type: str, clip_path: str | None) -> None:
         """Callback khi EyeVision phát hiện sự kiện."""
         if event_type == "stranger":
-            print(f"[Bi - Mắt] ⚠️ Phát hiện người lạ! Clip: {clip_path}")
-            # TODO Sprint 5: gửi notification đến Parent App qua WebSocket
+            print(f"[Bi - Mat] Phat hien nguoi la! Clip: {clip_path}")
+            self.notifier.push_event(
+                event_type="stranger",
+                message="Phat hien nguoi la trong nha",
+                clip_path=clip_path,
+            )
         elif event_type == "motion":
-            print(f"[Bi - Mắt] 🔍 Phát hiện chuyển động. Clip: {clip_path}")
+            print(f"[Bi - Mat] Phat hien chuyen dong. Clip: {clip_path}")
+            self.notifier.push_event(
+                event_type="motion",
+                message="Phat hien chuyen dong",
+                clip_path=clip_path,
+            )
         elif event_type == "known_face":
-            print(f"[Bi - Mắt] 👤 Nhận ra: {clip_path}")  # clip_path = tên người ở case này
+            print(f"[Bi - Mat] Nhan ra: {clip_path}")
+            self.notifier.push_event(
+                event_type="known_face",
+                message=f"Nhan ra: {clip_path}",
+            )
 
     def _cleanup_chunks(self):
         """Xóa tất cả file voice_chunk_*.mp3 còn sót lại."""
@@ -92,6 +126,10 @@ class RobotBiApp:
     def run(self):
         try:
             while True:
+                # TODO Sprint upgrade: thay bằng wake-word detection
+                # if self.ear.WAKEWORD_ENABLED:
+                #     detected = self.ear.listen_for_wakeword(timeout=30.0)
+                #     if not detected: continue
                 user_text = self.ear.listen()
                 if not user_text:
                     continue
@@ -104,10 +142,7 @@ class RobotBiApp:
                 user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
                 rag_context = self.rag.retrieve(user_text)
                 if rag_context:
-                    user_text = (
-                        f"[Ngữ cảnh từ trí nhớ Bi]\n{rag_context}\n\n"
-                        f"Câu hỏi của bé: {user_text}"
-                    )
+                    user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
                     print(f"[Bi - Trí nhớ] {rag_context}")
 
                 # Stream tokens từ LLM, tách câu theo . ? ! \n
@@ -123,25 +158,33 @@ class RobotBiApp:
                         sentence = buffer[:end_pos].strip()
                         buffer = buffer[end_pos:]
                         if sentence:
+                            is_safe, clean_sentence = self.safety.check(sentence)
+                            if not clean_sentence.strip():
+                                continue  # bỏ qua câu rỗng sau khi lọc
                             audio_file = self._loop.run_until_complete(
                                 self.mouth._generate_audio(
-                                    sentence, chunk_index=self._chunk_counter
+                                    clean_sentence, chunk_index=self._chunk_counter
                                 )
                             )
+                            if audio_file is None:
+                                continue  # TTS hoàn toàn fail → bỏ qua chunk này
                             self._chunk_counter += 1
                             self.audio_queue.put(audio_file)
-                            print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {sentence}")
+                            print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {clean_sentence}")
 
                 # Phần còn lại trong buffer (câu chưa kết thúc bằng dấu câu)
                 if buffer.strip():
-                    audio_file = self._loop.run_until_complete(
-                        self.mouth._generate_audio(
-                            buffer.strip(), chunk_index=self._chunk_counter
+                    is_safe, clean_buffer = self.safety.check(buffer.strip())
+                    if clean_buffer.strip():
+                        audio_file = self._loop.run_until_complete(
+                            self.mouth._generate_audio(
+                                clean_buffer, chunk_index=self._chunk_counter
+                            )
                         )
-                    )
-                    self._chunk_counter += 1
-                    self.audio_queue.put(audio_file)
-                    print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {buffer.strip()}")
+                        if audio_file is not None:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(audio_file)
+                            print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {clean_buffer}")
 
                 # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                 self.audio_queue.join()
@@ -154,8 +197,15 @@ class RobotBiApp:
                         args=(user_text_goc, full_reply),
                         daemon=True,
                     ).start()
+                    # Log hội thoại cho Parent App (non-blocking)
+                    threading.Thread(
+                        target=self.notifier.push_chat_log,
+                        args=(user_text_goc, full_reply),
+                        daemon=True,
+                    ).start()
 
         except KeyboardInterrupt:
+            self.cry_detector.stop()
             self.eye.stop()
             self.audio_queue.put(None)
             self.audio_queue.join()

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1776051797069",
+    "timestamp": "2026-04-13T10:43:17.069269",
+    "type": "motion",
+    "message": "Test motion event",
+    "clip_path": "/tmp/test.mp4",
+    "metadata": {},
+    "read": false
+  },
+  {
+    "id": "1776051797069",
+    "timestamp": "2026-04-13T10:43:17.069778",
+    "type": "chat",
+    "message": "Be: ten toi la An",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "ten toi la An",
+      "bi_response": "Bi nho roi, ban ten An!",
+      "word_count": 4
+    },
+    "read": false
+  }
+]

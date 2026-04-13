@@ -44,6 +44,12 @@ _MAX_CHUNKS     = int(MAX_SECONDS * 1000 / CHUNK_MS)       # 400 chunks
 
 _TEMP_DIR = Path(tempfile.gettempdir())
 
+# ── Wake-word configuration ───────────────────────────────────────────────────
+# STUB: Set True khi có openWakeWord model "bi_oi" (SRS 3.1).
+# Khi False (hiện tại), main_loop.py bỏ qua wake-word và gọi listen() trực tiếp.
+WAKEWORD_ENABLED = False
+WAKEWORD_PHRASE  = "bi ơi"  # Phrase cần phát hiện
+
 # ── Singleton WhisperModel (lazy load) ───────────────────────────────────────
 _whisper_instance = None
 
@@ -176,6 +182,64 @@ class EarSTT:
                     tmp_wav.unlink()
                 except OSError:
                     pass
+
+
+    def listen_for_wakeword(self, timeout: float = 30.0) -> bool:
+        """
+        Lắng nghe wake-word "Bi ơi" trong khoảng thời gian timeout.
+
+        Implementation hiện tại: STUB — dùng energy detection đơn giản.
+        Upgrade sau: thay bằng openWakeWord model "bi_oi" (SRS 3.1).
+
+        Cơ chế STUB:
+          - Đọc mic theo từng window 500ms
+          - Nếu RMS > SPEECH_THRESH trong bất kỳ window nào → coi là có wake-word
+          - Accuracy thấp (false positive cao) nhưng không crash
+
+        TODO: Thay bằng openWakeWord khi có model "bi_oi" được train từ audio samples.
+              pip install openwakeword
+              from openwakeword.model import Model
+              oww = Model(wakeword_models=["bi_oi.onnx"])
+
+        Args:
+            timeout: Thời gian chờ tối đa (giây) trước khi return False.
+
+        Returns:
+            True nếu phát hiện âm thanh nghi ngờ là wake-word,
+            False nếu timeout mà không có gì.
+        """
+        if not WAKEWORD_ENABLED:
+            # Khi stub disabled → luôn return True để pipeline hoạt động bình thường
+            return True
+
+        window_frames = int(SAMPLE_RATE * 0.5)   # 500ms window
+        max_windows   = int(timeout * 1000 / 500)  # số windows trong timeout
+
+        print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
+
+        try:
+            stream = sd.InputStream(
+                samplerate=SAMPLE_RATE,
+                channels=CHANNELS,
+                dtype=DTYPE,
+                blocksize=window_frames,
+            )
+            stream.start()
+            try:
+                for _ in range(max_windows):
+                    chunk, _ = stream.read(window_frames)
+                    rms = float(np.sqrt(np.mean(chunk ** 2)))
+                    if rms >= SPEECH_THRESH:
+                        print(f'[Bi - Tai] Phát hiện âm thanh (STUB wake-word).')
+                        return True
+            finally:
+                stream.stop()
+                stream.close()
+        except Exception as e:
+            print(f"[Bi - Tai] Cảnh báo wake-word: {e}")
+            return True  # Fallback: không crash, tiếp tục pipeline
+
+        return False  # Timeout, không có gì
 
 
 # ── Test độc lập ─────────────────────────────────────────────────────────────

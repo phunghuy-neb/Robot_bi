@@ -37,8 +37,19 @@ chromadb
 sentence-transformers
 
 # ── Computer Vision ─────────────────────────────────────────
-# opencv-python — camera capture, motion detection (MOG2), face recognition (histogram)
+# opencv-python — camera capture, motion detection (MOG2), face recognition (LBPH/histogram)
 opencv-python
+
+# ── Cry Detection ────────────────────────────────────────────
+# tflite-runtime — YAMNet TFLite inference (offline cry detection)
+# Cài: pip install tflite-runtime
+# Download model: https://storage.googleapis.com/mediapipe-assets/yamnet.tflite → src_brain/senses/models/
+# (Nếu không có tflite-runtime hoặc yamnet.tflite → CryDetector dùng energy fallback tự động)
+tflite-runtime
+
+# ── TTS Offline Fallback ─────────────────────────────────────
+# pyttsx3 — TTS offline fallback khi edge-tts không có internet
+pyttsx3
 
 # ── Môi trường ──────────────────────────────────────────────
 # Đọc biến từ file .env

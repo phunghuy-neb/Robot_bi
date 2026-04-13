@@ -196,43 +196,82 @@ class EyeVision:
     # ─────────────────────────── Internal ──────────────────────────────────
 
     def _load_face_resources(self) -> None:
-        """Load Haar cascade và tính histogram cho tất cả known_faces."""
+        """Load Haar cascade và build face recognizer (LBPH primary, histogram fallback)."""
         # Load Haar cascade (built-in OpenCV)
         cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         self._face_cascade = cv2.CascadeClassifier(cascade_path)
         if self._face_cascade.empty():
-            logger.warning("[Bi - Mắt] Không load được Haar cascade!")
+            logger.warning("[Bi - Mat] Khong load duoc Haar cascade!")
             self._face_cascade = None
 
-        # Build histogram database từ ảnh trong known_faces/
-        self._known_faces = {}
+        # Reset recognizer state
+        self._lbph_recognizer = None
+        self._label_to_name: dict[int, str] = {}
+        self._known_faces = {}       # histogram fallback: {name: [hist, ...]}
+
         if not self.known_faces_dir.exists():
             return
+
+        # Thu thập ảnh + label cho LBPH
+        faces_data: list[np.ndarray] = []
+        labels: list[int] = []
+        label_idx = 0
+        hist_db: dict[str, list] = {}  # histogram fallback database
 
         for person_dir in sorted(self.known_faces_dir.iterdir()):
             if not person_dir.is_dir():
                 continue
             name = person_dir.name
-            histograms = []
-            for img_file in sorted(person_dir.glob("*.jpg")) + sorted(
+            img_files = sorted(person_dir.glob("*.jpg")) + sorted(
                 person_dir.glob("*.png")
-            ):
+            )
+            face_count = 0
+            histograms = []
+            for img_file in img_files:
                 img = cv2.imread(str(img_file), cv2.IMREAD_GRAYSCALE)
                 if img is None:
                     continue
-                hist = self._compute_face_histogram(img)
+                resized = cv2.resize(img, (64, 64))
+                faces_data.append(resized)
+                labels.append(label_idx)
+                # Cũng tính histogram để backup
+                hist = self._compute_face_histogram(resized)
                 if hist is not None:
                     histograms.append(hist)
-            if histograms:
-                self._known_faces[name] = histograms
+                face_count += 1
+
+            if face_count > 0:
+                self._label_to_name[label_idx] = name
+                label_idx += 1
+                if histograms:
+                    hist_db[name] = histograms
                 logger.info(
-                    "[Bi - Mắt] Loaded %d ảnh cho: %s", len(histograms), name
+                    "[Bi - Mat] Loaded %d anh cho: %s (label=%d)",
+                    face_count, name, label_idx - 1,
                 )
 
-        if self._known_faces:
-            print(f"[Bi - Mắt] Face database: {list(self._known_faces.keys())}")
+        # Thử train LBPH (yêu cầu cv2.face từ opencv-contrib-python)
+        if faces_data:
+            try:
+                self._lbph_recognizer = cv2.face.LBPHFaceRecognizer_create()
+                self._lbph_recognizer.train(faces_data, np.array(labels))
+                print(
+                    f"[Bi - Mat] LBPH trained voi {len(faces_data)} anh, "
+                    f"{label_idx} nguoi"
+                )
+            except AttributeError:
+                # cv2.face không available (opencv-python không có contrib)
+                logger.info(
+                    "[Bi - Mat] cv2.face khong co — dung histogram fallback"
+                )
+                self._lbph_recognizer = None
+                self._known_faces = hist_db  # dùng histogram fallback
+
+        if self._label_to_name or self._known_faces:
+            names = list(self._label_to_name.values()) or list(self._known_faces.keys())
+            print(f"[Bi - Mat] Face database: {names}")
         else:
-            print("[Bi - Mắt] Chưa có khuôn mặt nào được đăng ký")
+            print("[Bi - Mat] Chua co khuon mat nao duoc dang ky")
 
     def _compute_face_histogram(self, gray_img: np.ndarray) -> np.ndarray | None:
         """Tính histogram chuẩn hóa của ảnh grayscale."""
@@ -246,15 +285,33 @@ class EyeVision:
 
     def _recognize_face(self, face_roi_gray: np.ndarray) -> tuple[str, float]:
         """
-        So sánh ROI khuôn mặt với known_faces bằng histogram correlation.
+        Nhận diện khuôn mặt. Ưu tiên LBPH (cv2.face), fallback histogram.
 
         Returns:
-            (name, similarity) — name="stranger" nếu không khớp.
+            (name, confidence) — name="stranger" nếu không khớp.
         """
+        resized = cv2.resize(face_roi_gray, (64, 64))
+
+        # Tầng 1: LBPH (nếu available — cần opencv-contrib-python)
+        if self._lbph_recognizer is not None and self._label_to_name:
+            try:
+                label, confidence = self._lbph_recognizer.predict(resized)
+                # LBPH: confidence thấp hơn = giống hơn (distance metric)
+                # Threshold: < 80 = nhận ra, >= 80 = stranger
+                if confidence < 80:
+                    name = self._label_to_name.get(label, "stranger")
+                    similarity = max(0.0, (100.0 - confidence) / 100.0)
+                    return name, similarity
+                else:
+                    return "stranger", 0.0
+            except Exception as e:
+                logger.debug("[Bi - Mat] LBPH predict loi: %s — fallback histogram", e)
+
+        # Tầng 2: Histogram fallback
         if not self._known_faces:
             return "stranger", 0.0
 
-        query_hist = self._compute_face_histogram(face_roi_gray)
+        query_hist = self._compute_face_histogram(resized)
         if query_hist is None:
             return "stranger", 0.0
 
@@ -268,7 +325,9 @@ class EyeVision:
                 )
                 if score > best_score:
                     best_score = score
-                    best_name = name if score >= self._FACE_SIMILARITY_THRESHOLD else "stranger"
+                    best_name = (
+                        name if score >= self._FACE_SIMILARITY_THRESHOLD else "stranger"
+                    )
 
         return best_name, best_score
 

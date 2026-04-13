@@ -1,5 +1,5 @@
 # CLAUDE.md — Robot Bi (Gia sư AI Offline)
-> Cập nhật: 2026-04-13 | Dựa trên codebase thực tế (Sprint 3 hoàn thành)
+> Cập nhật: 2026-04-13 | Dựa trên codebase thực tế (Session E hoàn thành)
 
 ## Mission
 Robot gia sư thông minh cho trẻ em (Bo). Chạy 100% Offline trên PC/Laptop i5, 16GB RAM.
@@ -14,8 +14,11 @@ Tài liệu đầy đủ: @docs/SRS_Robot_Bi.md | Lộ trình: @docs/kehoach.md
 | LLM | `ollama` → model `qwen2.5:7b` | BẮT BUỘC stream=True khi refactor |
 | STT | `faster-whisper` (Whisper small, int8) | File: `ear_stt.py` — offline hoàn toàn, model: small |
 | TTS | `edge-tts` + `pygame` | File: `mouth_tts.py` — giọng vi-VN-HoaiMyNeural |
+| TTS Fallback | `pyttsx3` | File: `mouth_tts.py` — offline fallback khi edge-tts mất internet |
+| Safety | regex blacklist + pattern matching | File: `safety_filter.py` — post-LLM, pre-TTS (NFR-12) |
 | RAG | `chromadb` + `sentence-transformers` | File: `rag_manager.py` — model: paraphrase-multilingual-MiniLM-L12-v2 |
-| Vision | `opencv-python` | File: `eye_vision.py` — motion detection, face recognition, clip recording |
+| Vision | `opencv-python` + `tflite-runtime` | File: `eye_vision.py` (LBPH+histogram), `cry_detector.py` (YAMNet+energy) |
+| Network | built-in (`websockets` Sprint 5) | File: `notifier.py` — event queue JSON + WebSocket stub |
 | Language | Python 3.10+ | |
 
 ---
@@ -37,17 +40,24 @@ Robot_Bi_Project/
     ├── main_loop.py                   ← ENTRY POINT CHÍNH (dùng cái này)
     ├── main.py                        ← CŨ/LEGACY — không dùng nữa
     ├── ai_core/
-    │   ├── core_ai.py                 ← Class BiAI, hàm: chat(text) → str
-    │   └── prompts.py                 ← Rỗng, chưa dùng
+    │   ├── core_ai.py                 ← Class BiAI, hàm: chat(text) → str, stream_chat(text) → generator
+    │   ├── safety_filter.py           ← Class SafetyFilter, hàm: check(text) → (bool, str) — post-LLM filter
+    │   └── prompts.py                 ← Prompt constants: MAIN_SYSTEM_PROMPT, REFUSAL_RESPONSE, GREETING
     ├── senses/
-    │   ├── ear_stt.py                 ← Class EarSTT, hàm: listen() → str
-    │   ├── mouth_tts.py               ← Class MouthTTS, hàm: speak(text)
+    │   ├── ear_stt.py                 ← Class EarSTT, hàm: listen() → str, listen_for_wakeword() → bool (stub)
+    │   ├── mouth_tts.py               ← Class MouthTTS, hàm: speak(text), _generate_audio() + pyttsx3 fallback
     │   ├── voice_io.py                ← LEGACY (faster-whisper + gTTS) — không dùng
-    │   ├── eye_vision.py              ← Class EyeVision: start/stop/set_surveillance_mode/register_face/get_stats
+    │   ├── eye_vision.py              ← Class EyeVision: start/stop/set_surveillance_mode/register_face/get_stats (LBPH+histogram)
+    │   ├── cry_detector.py            ← Class CryDetector: start/stop/get_stats (YAMNet TFLite + energy fallback)
+    │   ├── models/                    ← yamnet.tflite (download thủ công — xem README.md)
     │   └── vision_data/               ← known_faces/ (ảnh thành viên) + clips/ (clip sự kiện MP4)
+    ├── network/
+    │   ├── __init__.py
+    │   ├── notifier.py                ← Class EventNotifier: push_event/push_chat_log/get_unread_events
+    │   └── event_queue.json           ← Queue events cho Parent App (tự tạo khi chạy)
     └── memory_rag/
         ├── bi_memory.json             ← Log hội thoại thô
-        ├── rag_manager.py             ← Class RAGManager, 6 methods: extract_and_save, retrieve, list_memories, delete_memory, get_stats
+        ├── rag_manager.py             ← Class RAGManager, 10 methods: extract_and_save, retrieve, list_memories, delete_memory, get_stats, add_manual_memory, update_memory, export_memories, clear_all_memories
         └── chroma_db/                 ← ChromaDB persistent storage (tự tạo khi chạy)
 ```
 
@@ -61,7 +71,9 @@ Robot_Bi_Project/
 | 2 | ~~`requirements.txt` liệt kê `gTTS` + `faster-whisper`~~ | ~~`requirements.txt`~~ | ✅ Đã fix Sprint 1 |
 | 3 | `main.py` + `voice_io.py` là legacy, dùng stack khác — dễ gây nhầm lẫn | `main.py`, `voice_io.py` | Trung bình |
 | 4 | ~~`ear_stt.py` dùng Google STT (cần internet)~~ | ~~`ear_stt.py`~~ | ✅ Đã fix Session A |
-| 5 | `edge-tts` cần internet để generate — tạm thời chấp nhận | `mouth_tts.py` | Thấp |
+| 5 | ~~`edge-tts` cần internet — chưa có fallback~~ | ~~`mouth_tts.py`~~ | ✅ Đã fix Session C (pyttsx3 fallback) |
+| 6 | ~~Safety filter chưa implement (NFR-12)~~ | ~~`safety_filter.py`~~ | ✅ Đã fix Session C |
+| 7 | Wake-word "Bi ơi" chưa có model thật (chỉ stub) | `ear_stt.py` | Thấp — cần train openWakeWord model |
 
 ---
 
@@ -75,6 +87,7 @@ Robot_Bi_Project/
 6. KHÔNG gọi API ngoài cho hình ảnh/âm thanh/dữ liệu cá nhân (edge-tts tạm thời chấp nhận)
 7. KHÔNG thêm thư viện mới nếu không có trong bảng Stack ở trên
 8. Ghi kết quả vào `.claude/handoff.md` khi kết thúc session
+9. SafetyFilter PHẢI chạy TRƯỚC khi text đưa vào TTS — KHÔNG bỏ qua bước này
 
 ---
 
@@ -92,15 +105,22 @@ python -m src_brain.main_loop
 python src_brain/senses/ear_stt.py
 python src_brain/senses/mouth_tts.py
 python src_brain/ai_core/core_ai.py
+python src_brain/ai_core/safety_filter.py   # Test safety filter (5 cases)
 
 # Chat text (không cần mic/loa)
 python src_brain/train_text.py
 
 # Cài dependencies đúng
-pip install ollama edge-tts pygame speechrecognition chromadb sentence-transformers
+pip install ollama edge-tts pygame speechrecognition chromadb sentence-transformers pyttsx3 sounddevice tflite-runtime
 
 # Test RAG độc lập
 python src_brain/memory_rag/rag_manager.py
+
+# Test CryDetector độc lập
+python src_brain/senses/cry_detector.py
+
+# Test EventNotifier độc lập
+python src_brain/network/notifier.py
 ```
 
 ---
@@ -109,9 +129,12 @@ python src_brain/memory_rag/rag_manager.py
 
 | Giai đoạn | Nội dung | Trạng thái |
 |---|---|---|
-| Sprint 1 | STT + TTS + LLM + main_loop | ✅ Hoàn thành (cần fix lỗi ở bảng trên) |
+| Sprint 1 | STT + TTS + LLM + main_loop | ✅ Hoàn thành |
 | Sprint 2 | ChromaDB RAG | ✅ Hoàn thành |
 | Sprint 3 | OpenCV Camera | ✅ Hoàn thành |
+| Session C | Safety Filter + Wake-word stub + TTS fallback | ✅ Hoàn thành |
+| Session D | Nâng chất RAG: threshold 0.50, 6 pattern mới, 4 methods Parent App | ✅ Hoàn thành |
+| Session E | CryDetector (YAMNet+energy) + EventNotifier (WebSocket stub) + LBPH face recognition | ✅ Hoàn thành |
 | Sprint 4 | ESP32 / Cơ khí | 🚫 Chưa có phần cứng — BỎ QUA |
 | Sprint 5 | App phụ huynh | ⏳ Chưa bắt đầu |
 | Sprint 6 | Tối ưu & đóng gói | ⏳ Chưa bắt đầu |
