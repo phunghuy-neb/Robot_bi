@@ -1,5 +1,5 @@
 # CLAUDE.md — Robot Bi (Gia sư AI Offline)
-> Cập nhật: 2026-04-13 | Dựa trên codebase thực tế (Session E hoàn thành)
+> Cập nhật: 2026-04-14 | Dựa trên codebase thực tế (Session AUDIT hoàn thành)
 
 ## Mission
 Robot gia sư thông minh cho trẻ em (Bo). Chạy 100% Offline trên PC/Laptop i5, 16GB RAM.
@@ -121,6 +121,9 @@ python src_brain/senses/cry_detector.py
 
 # Test EventNotifier độc lập
 python src_brain/network/notifier.py
+
+# Chạy automated test suite (51 tests, không cần mic/loa/camera/Ollama)
+python run_tests.py
 ```
 
 ---
@@ -136,10 +139,11 @@ python src_brain/network/notifier.py
 | Session D | Nâng chất RAG: threshold 0.50, 6 pattern mới, 4 methods Parent App | ✅ Hoàn thành |
 | Session E | CryDetector (YAMNet+energy) + EventNotifier (WebSocket stub) + LBPH face recognition | ✅ Hoàn thành |
 | Sprint 4 | ESP32 / Cơ khí | 🚫 Chưa có phần cứng — BỎ QUA |
-| Sprint 5 | App phụ huynh | ⏳ Chưa bắt đầu |
-| Sprint 6 | Tối ưu & đóng gói | ⏳ Chưa bắt đầu |
+| Sprint 5 | App phụ huynh (FastAPI + WebSocket + Dashboard) | ✅ Hoàn thành |
+| Sprint 6 | PIN auth + Camera stream + TaskManager | ✅ Hoàn thành |
+| Session AUDIT | Code quality audit + 51 automated tests | ✅ Hoàn thành |
 
-**Việc tiếp theo (Sprint 5):** Implement Parent App — FastAPI backend + WebSocket + app mobile (xem @docs/SRS_Robot_Bi.md Phần 4)
+**Việc tiếp theo:** Test thật với phần cứng (mic, loa, camera). Sau đó Sprint 7 (tối ưu, đóng gói, stress test).
 
 ---
 

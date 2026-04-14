@@ -4,10 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Robot Bi</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Robot Bi">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
            background: #f0f2f5; color: #222; font-size: 14px; }
+
+    /* ── Login overlay ── */
+    .login-overlay {
+      position: fixed; inset: 0; background: linear-gradient(135deg, #4a90d9, #1a4f8a);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: white; border-radius: 20px; padding: 36px 28px; width: 320px;
+      max-width: 90vw; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+    }
+    .login-box h2 { font-size: 22px; font-weight: 800; color: #1e40af; margin-bottom: 6px; }
+    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 22px; }
+    .pin-input {
+      width: 100%; padding: 14px; text-align: center; font-size: 28px;
+      letter-spacing: 12px; border: 2px solid #e5e7eb; border-radius: 12px;
+      outline: none; margin-bottom: 14px; font-family: monospace;
+    }
+    .pin-input:focus { border-color: #4a90d9; }
+    .btn-login {
+      width: 100%; padding: 13px; background: #4a90d9; color: white;
+      border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .btn-login:active { opacity: .8; }
+    .login-err { margin-top: 10px; color: #ef4444; font-size: 13px; display: none; }
 
     /* ── Header ── */
     .header { background: linear-gradient(135deg, #4a90d9, #2c6fad);
@@ -17,11 +47,21 @@
               box-shadow: 0 2px 8px rgba(0,0,0,.25); }
     .header-left { display: flex; align-items: center; gap: 8px; }
     .header h1 { font-size: 17px; font-weight: 700; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .stars-badge {
+      display: flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,.15); border-radius: 20px;
+      padding: 4px 10px; font-size: 13px; font-weight: 700; cursor: default;
+    }
     .status-pill { display: flex; align-items: center; gap: 5px;
                    background: rgba(255,255,255,.15); border-radius: 20px;
                    padding: 4px 10px; font-size: 12px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
     .dot.off { background: #f87171; }
+    .btn-logout {
+      background: rgba(255,255,255,.2); border: none; color: white;
+      border-radius: 20px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+    }
 
     /* ── Tabs ── */
     .tabs { display: flex; background: white;
@@ -29,8 +69,8 @@
             position: sticky; top: 48px; z-index: 99;
             overflow-x: auto; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tab { flex: 1; min-width: 56px; padding: 11px 6px; text-align: center;
-           font-size: 11px; font-weight: 500; cursor: pointer; color: #6b7280;
+    .tab { flex: 1; min-width: 52px; padding: 11px 4px; text-align: center;
+           font-size: 10px; font-weight: 500; cursor: pointer; color: #6b7280;
            border-bottom: 3px solid transparent; transition: all .2s;
            white-space: nowrap; user-select: none; }
     .tab.active { color: #4a90d9; border-bottom-color: #4a90d9; font-weight: 700; }
@@ -77,6 +117,17 @@
                  background: #ef4444; color: white; margin-left: 6px;
                  vertical-align: middle; }
 
+    /* ── Camera ── */
+    .camera-feed { width: 100%; max-width: 640px; border-radius: 10px;
+                   display: block; background: #1f2937; }
+    .btn-cam-toggle {
+      display: flex; align-items: center; gap: 6px; justify-content: center;
+      padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer;
+      font-size: 14px; font-weight: 600; margin-top: 10px; width: 100%;
+      background: #1f2937; color: white; transition: background .2s;
+    }
+    .btn-cam-toggle.on { background: #ef4444; }
+
     /* ── Memory ── */
     .mem-item { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0;
                 border-bottom: 1px solid #f3f4f6; }
@@ -87,13 +138,44 @@
     .btn-del { background: none; border: none; color: #f87171; cursor: pointer;
                font-size: 19px; padding: 2px 4px; line-height: 1; flex-shrink: 0; }
 
+    /* ── Tasks ── */
+    .task-item {
+      display: flex; align-items: center; gap: 10px; padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-check {
+      width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: all .2s;
+    }
+    .task-check.done { background: #22c55e; border-color: #22c55e; color: white; font-size: 12px; }
+    .task-body { flex: 1; }
+    .task-name { font-size: 14px; font-weight: 600; }
+    .task-name.done { text-decoration: line-through; color: #9ca3af; }
+    .task-time-badge {
+      font-size: 11px; color: #4a90d9; background: #eff6ff;
+      padding: 2px 7px; border-radius: 8px; margin-top: 3px; display: inline-block;
+    }
+    .task-stars { font-size: 13px; color: #f59e0b; margin-right: 4px; }
+    .stars-total-big {
+      font-size: 36px; font-weight: 900; color: #f59e0b; text-align: center;
+      padding: 10px 0 4px;
+    }
+    .stars-label { font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 14px; }
+
     /* ── Forms ── */
-    textarea, input[type=text] {
+    textarea, input[type=text], input[type=time] {
       width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
       padding: 10px 12px; font-size: 14px; resize: none; font-family: inherit;
       line-height: 1.5; transition: border-color .2s;
     }
-    textarea:focus, input[type=text]:focus { outline: none; border-color: #4a90d9; }
+    textarea:focus, input[type=text]:focus, input[type=time]:focus {
+      outline: none; border-color: #4a90d9;
+    }
+    .form-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
+    .form-row input[type=text] { flex: 1; }
+    .form-row input[type=time] { width: 110px; flex-shrink: 0; }
     .btn { padding: 11px 16px; border: none; border-radius: 10px; cursor: pointer;
            font-size: 14px; font-weight: 600; transition: opacity .15s; }
     .btn:active { opacity: .8; }
@@ -128,15 +210,36 @@
 </head>
 <body>
 
+<!-- ═══ LOGIN OVERLAY ═══ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div style="font-size:48px; margin-bottom:10px;">🤖</div>
+    <h2>Robot Bi</h2>
+    <p>Nhập PIN 6 số để đăng nhập</p>
+    <input type="password" class="pin-input" id="pinInput"
+           maxlength="6" inputmode="numeric" pattern="[0-9]*"
+           placeholder="••••••"
+           onkeydown="if(event.key==='Enter') doLogin()">
+    <button class="btn-login" onclick="doLogin()">Đăng nhập</button>
+    <div class="login-err" id="loginErr">PIN không đúng. Thử lại.</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+
 <!-- Header -->
 <div class="header">
   <div class="header-left">
     <span style="font-size:24px;">🤖</span>
     <h1>Robot Bi</h1>
   </div>
-  <div class="status-pill">
-    <span class="dot" id="dot"></span>
-    <span id="statusTxt">Đang kết nối...</span>
+  <div class="header-right">
+    <div class="stars-badge" id="headerStars">⭐ 0</div>
+    <div class="status-pill">
+      <span class="dot" id="dot"></span>
+      <span id="statusTxt">Đang kết nối...</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Thoát</button>
   </div>
 </div>
 
@@ -153,6 +256,9 @@
   </div>
   <div class="tab" onclick="switchTab('memory')">
     <span class="tab-icon">🧠</span>Trí nhớ
+  </div>
+  <div class="tab" onclick="switchTab('tasks')">
+    <span class="tab-icon">✅</span>Nhiệm vụ
   </div>
   <div class="tab" onclick="switchTab('puppet')">
     <span class="tab-icon">🎤</span>Nhập vai
@@ -178,8 +284,17 @@
     <div id="chatList"><div class="loading">Đang tải...</div></div>
   </div>
 
-  <!-- ── EVENTS ── -->
+  <!-- ── EVENTS + CAMERA ── -->
   <div class="section" id="sec-events">
+    <!-- Camera live stream -->
+    <div class="card">
+      <div class="card-title">📹 Camera trực tiếp</div>
+      <img id="cameraFeed" class="camera-feed" alt="Camera" src="">
+      <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
+        📷 Bật camera
+      </button>
+    </div>
+    <!-- Events list -->
     <div class="action-bar">
       <span>Sự kiện robot ghi nhận</span>
       <button class="btn btn-blue" onclick="markAllRead()" style="padding:7px 12px;font-size:12px;">
@@ -205,6 +320,26 @@
         <span id="memCnt" style="color:#4a90d9; font-weight:800;"></span>
       </div>
       <div id="memList"><div class="loading">Đang tải...</div></div>
+    </div>
+  </div>
+
+  <!-- ── TASKS ── -->
+  <div class="section" id="sec-tasks">
+    <div class="card">
+      <div class="stars-total-big" id="starsBig">⭐ 0</div>
+      <div class="stars-label">sao tích lũy</div>
+      <div class="card-title">Thêm nhiệm vụ mới</div>
+      <div class="form-row">
+        <input type="text" id="taskName" placeholder="Tên nhiệm vụ, ví dụ: Đánh răng">
+        <input type="time" id="taskTime" value="07:00">
+      </div>
+      <button class="btn btn-green btn-full" onclick="addTask()">
+        ➕ Thêm nhiệm vụ
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title">Danh sách nhiệm vụ hôm nay</div>
+      <div id="taskList"><div class="loading">Đang tải...</div></div>
     </div>
   </div>
 
@@ -243,6 +378,85 @@
 <script>
 'use strict';
 const API = '';   // same origin
+
+// ══════════════════════════════════════════════════════════════
+//  Auth
+// ══════════════════════════════════════════════════════════════
+let _token = localStorage.getItem('bi_token') || '';
+
+function authHeader() {
+  return _token ? { 'Authorization': _token } : {};
+}
+
+async function doLogin() {
+  const pin = document.getElementById('pinInput').value.trim();
+  if (!pin) return;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin })
+    });
+    if (!r.ok) throw new Error('wrong');
+    const data = await r.json();
+    _token = data.token;
+    localStorage.setItem('bi_token', _token);
+    document.getElementById('loginOverlay').style.display = 'none';
+    connectWS();
+    loadStatus();
+  } catch(_) {
+    err.style.display = 'block';
+    document.getElementById('pinInput').value = '';
+  }
+}
+
+async function doLogout() {
+  if (_token) {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: _token })
+    }).catch(() => {});
+  }
+  _token = '';
+  localStorage.removeItem('bi_token');
+  // Tắt camera nếu đang bật
+  const img = document.getElementById('cameraFeed');
+  img.src = '';
+  _camOn = false;
+  document.getElementById('camBtn').textContent = '📷 Bật camera';
+  document.getElementById('camBtn').classList.remove('on');
+  // Hiện login overlay
+  document.getElementById('pinInput').value = '';
+  document.getElementById('loginOverlay').style.display = 'flex';
+}
+
+// Kiểm tra token khi load trang
+(function checkAuth() {
+  if (_token) {
+    // Verify token còn hợp lệ bằng cách gọi API
+    fetch('/api/status', { headers: { 'Authorization': _token } })
+      .then(r => {
+        if (r.ok) {
+          document.getElementById('loginOverlay').style.display = 'none';
+          connectWS();
+          loadStatus();
+        } else {
+          _token = '';
+          localStorage.removeItem('bi_token');
+        }
+      })
+      .catch(() => {
+        // Server chưa ready — vẫn ẩn overlay nếu có token
+        document.getElementById('loginOverlay').style.display = 'none';
+        connectWS();
+        loadStatus();
+      });
+  }
+  // Nếu không có token → overlay vẫn hiển thị (mặc định)
+})();
 
 // ══════════════════════════════════════════════════════════════
 //  WebSocket
@@ -284,7 +498,7 @@ function onRealtimeEvent(evt) {
 //  Tab
 // ══════════════════════════════════════════════════════════════
 let activeTab = 'status';
-const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'puppet'];
+const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet'];
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
@@ -297,17 +511,29 @@ function switchTab(name) {
 }
 
 function loadTab(name) {
-  const fn = { status: loadStatus, chat: loadChats, events: loadEvents, memory: loadMemories };
+  const fn = {
+    status: loadStatus, chat: loadChats, events: loadEvents,
+    memory: loadMemories, tasks: loadTasks
+  };
   if (fn[name]) fn[name]();
 }
 
 // ══════════════════════════════════════════════════════════════
 //  API helpers
 // ══════════════════════════════════════════════════════════════
-async function apiFetch(path, opts) {
+async function apiFetch(path, opts = {}) {
   try {
+    opts.headers = Object.assign({}, authHeader(), opts.headers || {});
     const r = await fetch(API + path, opts);
-    if (!r.ok) throw new Error(r.status);
+    if (!r.ok) {
+      if (r.status === 401) {
+        // Token hết hạn
+        _token = '';
+        localStorage.removeItem('bi_token');
+        document.getElementById('loginOverlay').style.display = 'flex';
+      }
+      throw new Error(r.status);
+    }
     return await r.json();
   } catch(e) {
     return null;
@@ -325,6 +551,8 @@ async function loadStatus() {
     return;
   }
   const n = data.notifier || {}, r = data.rag || {};
+  const stars = data.total_stars ?? 0;
+  updateStarsDisplay(stars);
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-box">
       <div class="stat-num" style="color:#4a90d9">${n.total_events ?? 0}</div>
@@ -339,8 +567,8 @@ async function loadStatus() {
       <div class="stat-label">Trí nhớ</div>
     </div>
     <div class="stat-box">
-      <div class="stat-num" style="color:#f59e0b">${data.ws_clients ?? 0}</div>
-      <div class="stat-label">Đang xem</div>
+      <div class="stat-num" style="color:#f59e0b">${stars} ⭐</div>
+      <div class="stat-label">Sao</div>
     </div>`;
 
   const evts = await apiFetch('/api/events?limit=4');
@@ -350,6 +578,12 @@ async function loadStatus() {
   } else {
     el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
   }
+}
+
+function updateStarsDisplay(n) {
+  document.getElementById('headerStars').textContent = `⭐ ${n}`;
+  const bigEl = document.getElementById('starsBig');
+  if (bigEl) bigEl.textContent = `⭐ ${n}`;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -416,6 +650,27 @@ async function markAllRead() {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  Camera
+// ══════════════════════════════════════════════════════════════
+let _camOn = false;
+
+function toggleCamera() {
+  const img = document.getElementById('cameraFeed');
+  const btn = document.getElementById('camBtn');
+  if (_camOn) {
+    img.src = '';
+    _camOn = false;
+    btn.textContent = '📷 Bật camera';
+    btn.classList.remove('on');
+  } else {
+    img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
+    _camOn = true;
+    btn.textContent = '⏹ Tắt camera';
+    btn.classList.add('on');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  Memory
 // ══════════════════════════════════════════════════════════════
 async function loadMemories() {
@@ -466,6 +721,77 @@ async function delMem(id) {
     document.getElementById(`m-${id}`)?.remove();
     toast('🗑 Đã xóa');
     loadStatus();
+  } else {
+    toast('❌ Xóa thất bại');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Tasks
+// ══════════════════════════════════════════════════════════════
+async function loadTasks() {
+  const data = await apiFetch('/api/tasks');
+  const el = document.getElementById('taskList');
+  // Refresh stars
+  const starsData = await apiFetch('/api/tasks/stars');
+  if (starsData) updateStarsDisplay(starsData.total_stars);
+
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty">Chưa có nhiệm vụ nào</div>';
+    return;
+  }
+  el.innerHTML = data.map(t => `
+    <div class="task-item" id="task-${t.id}">
+      <div class="task-check ${t.completed_today ? 'done' : ''}"
+           onclick="completeTask('${t.id}')"
+           title="${t.completed_today ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}">
+        ${t.completed_today ? '✓' : ''}
+      </div>
+      <div class="task-body">
+        <div class="task-name ${t.completed_today ? 'done' : ''}">${esc(t.name)}</div>
+        <span class="task-time-badge">⏰ ${t.remind_time}</span>
+      </div>
+      <span class="task-stars">⭐ ${t.stars}</span>
+      <button class="btn-del" onclick="deleteTask('${t.id}')" title="Xóa">🗑</button>
+    </div>`).join('');
+}
+
+async function addTask() {
+  const name = document.getElementById('taskName').value.trim();
+  const time = document.getElementById('taskTime').value;
+  if (!name) { toast('Nhập tên nhiệm vụ!'); return; }
+  if (!time) { toast('Chọn giờ nhắc!'); return; }
+  const r = await apiFetch('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, remind_time: time })
+  });
+  if (r && r.id) {
+    document.getElementById('taskName').value = '';
+    toast('✅ Đã thêm nhiệm vụ!');
+    loadTasks();
+  } else {
+    toast('❌ Thêm thất bại, thử lại');
+  }
+}
+
+async function completeTask(id) {
+  const r = await apiFetch(`/api/tasks/${id}/complete`, { method: 'POST' });
+  if (r && r.ok) {
+    toast(`✅ Hoàn thành! +1 ⭐`);
+    updateStarsDisplay(r.stars);
+    loadTasks();
+  } else {
+    toast('Nhiệm vụ đã hoàn thành rồi!');
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Xóa nhiệm vụ này?')) return;
+  const r = await apiFetch(`/api/tasks/${id}`, { method: 'DELETE' });
+  if (r && r.ok) {
+    document.getElementById(`task-${id}`)?.remove();
+    toast('🗑 Đã xóa');
   } else {
     toast('❌ Xóa thất bại');
   }
@@ -545,11 +871,14 @@ function toast(msg, ms=3000) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  Init
+//  Auto-refresh
 // ══════════════════════════════════════════════════════════════
-connectWS();
-loadStatus();
-setInterval(() => loadTab(activeTab), 30000);   // auto-refresh 30s
+setInterval(() => { if (_token) loadTab(activeTab); }, 30000);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/sw.js');
+}
 </script>
 </body>
 </html>

@@ -4,8 +4,10 @@ Không dùng mic hay loa. Chạy: python train_text.py
 """
 
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import ollama
-from core_ai import _SYSTEM_PROMPT
+from src_brain.ai_core.prompts import MAIN_SYSTEM_PROMPT as _SYSTEM_PROMPT
 
 MODEL = "qwen2.5:7b"
 

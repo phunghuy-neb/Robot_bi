@@ -25,7 +25,7 @@ import sounddevice as sd
 import soundfile as sf
 
 # ── Cấu hình ─────────────────────────────────────────────────────────────────
-WHISPER_MODEL    = "small"    # Cân bằng tốc độ/accuracy cho tiếng Việt (~244MB)
+WHISPER_MODEL    = "large-v2"  # Độ chính xác cao nhất cho tiếng Việt (~1.5GB)
 SAMPLE_RATE      = 16000      # Whisper yêu cầu 16kHz
 CHANNELS         = 1          # Mono
 DTYPE            = "float32"
@@ -44,6 +44,8 @@ _MAX_CHUNKS     = int(MAX_SECONDS * 1000 / CHUNK_MS)       # 400 chunks
 
 _TEMP_DIR = Path(tempfile.gettempdir())
 
+MIC_DEVICE = 1  # Microphone Array (Realtek) — Windows device index
+
 # ── Wake-word configuration ───────────────────────────────────────────────────
 # STUB: Set True khi có openWakeWord model "bi_oi" (SRS 3.1).
 # Khi False (hiện tại), main_loop.py bỏ qua wake-word và gọi listen() trực tiếp.
@@ -59,13 +61,21 @@ def _get_whisper_model():
     global _whisper_instance
     if _whisper_instance is None:
         from faster_whisper import WhisperModel
-        print(f"[Bi - Tai] Đang tải Whisper model '{WHISPER_MODEL}'... (lần đầu, có thể mất 10-30s)")
-        _whisper_instance = WhisperModel(
-            WHISPER_MODEL,
-            device="cpu",
-            compute_type="int8",
-        )
-        print("[Bi - Tai] Whisper model sẵn sàng.")
+        print(f"[Bi - Tai] Đang tải Whisper model '{WHISPER_MODEL}'... (lần đầu, có thể mất 30-60s)")
+        try:
+            _whisper_instance = WhisperModel(
+                WHISPER_MODEL,
+                device="cuda",
+                compute_type="float16",
+            )
+            print("[Bi - Tai] Whisper large-v2 chạy trên GPU (CUDA float16)")
+        except Exception:
+            _whisper_instance = WhisperModel(
+                WHISPER_MODEL,
+                device="cpu",
+                compute_type="int8",
+            )
+            print("[Bi - Tai] Whisper large-v2 chạy trên CPU (int8 fallback)")
     return _whisper_instance
 
 
@@ -114,7 +124,7 @@ class EarSTT:
                 channels=CHANNELS,
                 dtype=DTYPE,
                 blocksize=_CHUNK_FRAMES,
-                device=None,  # Dùng device mặc định của Windows
+                device=MIC_DEVICE,
             )
             stream.start()
 
@@ -225,7 +235,7 @@ class EarSTT:
                 channels=CHANNELS,
                 dtype=DTYPE,
                 blocksize=window_frames,
-                device=None,  # Dùng device mặc định của Windows
+                device=MIC_DEVICE,
             )
             stream.start()
             try:

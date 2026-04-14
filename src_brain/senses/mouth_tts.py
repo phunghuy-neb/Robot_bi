@@ -33,7 +33,7 @@ class MouthTTS:
         """
         Generate audio file từ text.
 
-        Thử edge-tts trước; nếu lỗi (mất internet hoặc API fail) thì
+        Thử edge-tts tối đa 3 lần với delay tăng dần; nếu vẫn fail thì
         fallback sang pyttsx3 offline.
 
         Args:
@@ -44,15 +44,17 @@ class MouthTTS:
             Đường dẫn file MP3/WAV đã generate, hoặc None nếu cả hai TTS đều fail.
         """
         filename = f"voice_chunk_{chunk_index}.mp3"
-        try:
-            await asyncio.sleep(0.1)  # Tránh gọi đồng thời quá nhanh
-            communicate = edge_tts.Communicate(text, self.voice)
-            await communicate.save(filename)
-            return filename
-        except Exception as e:
-            # Fallback: pyttsx3 offline nếu edge-tts fail (mất internet)
-            print(f"[Bi - Miệng] edge-tts lỗi ({e}), dùng fallback offline...")
-            return self._fallback_tts(text, chunk_index)
+        for attempt in range(3):
+            try:
+                if attempt > 0:
+                    await asyncio.sleep(0.3 * attempt)  # retry delay: 0.3s, 0.6s
+                communicate = edge_tts.Communicate(text, self.voice)
+                await communicate.save(filename)
+                return filename
+            except Exception as e:
+                if attempt == 2:  # Lần thử cuối fail → fallback
+                    print(f"[Bi - Miệng] edge-tts fail sau 3 lần, dùng fallback...")
+                    return self._fallback_tts(text, chunk_index)
 
     def _fallback_tts(self, text: str, chunk_index: int):
         """
@@ -78,7 +80,7 @@ class MouthTTS:
                 if 'vietnamese' in v.name.lower() or 'vi' in v.id.lower():
                     engine.setProperty('voice', v.id)
                     break
-            filename = f"voice_chunk_{chunk_index}.mp3"
+            filename = f"voice_chunk_{chunk_index}.wav"
             engine.save_to_file(text, filename)
             engine.runAndWait()
             return filename

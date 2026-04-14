@@ -333,8 +333,8 @@ class EyeVision:
 
     def _vision_loop(self) -> None:
         """Vòng lặp chính chạy trong daemon thread."""
-        # Mở camera
-        self._cap = cv2.VideoCapture(self.camera_index)
+        # Mở camera (CAP_DSHOW tránh log lỗi MSMF trên Windows)
+        self._cap = cv2.VideoCapture(self.camera_index, cv2.CAP_DSHOW)
         if not self._cap.isOpened():
             logger.warning(
                 "[Bi - Mắt] Không mở được camera (index=%d). "
@@ -480,26 +480,24 @@ class EyeVision:
             self._cap.release()
             self._cap = None
 
-    # ─────────────────────────── Standalone test ───────────────────────────
 
-    if __name__ == "__main__":
-        import sys
-        import time
 
-        print("=== EyeVision standalone test ===")
+# ── Standalone test ───────────────────────────────────────────────────────────
 
-        # Test với camera thật (index 0)
-        eye = EyeVision(camera_index=0, on_event_callback=lambda e, p: print(f"Event: {e} | {p}"))
-        eye.set_surveillance_mode(True)
-        eye.start()
+if __name__ == "__main__":
+    print("=== EyeVision standalone test ===")
 
-        print("Đang chạy 10 giây... (Ctrl+C để dừng sớm)")
-        try:
-            for i in range(10):
-                time.sleep(1)
-                print(f"[{i+1}s] Stats:", eye.get_stats())
-        except KeyboardInterrupt:
-            pass
+    eye = EyeVision(camera_index=0, on_event_callback=lambda e, p: print(f"Event: {e} | {p}"))
+    eye.set_surveillance_mode(True)
+    eye.start()
 
-        eye.stop()
-        print("Đã dừng. Stats cuối:", eye.get_stats())
+    print("Đang chạy 10 giây... (Ctrl+C để dừng sớm)")
+    try:
+        for i in range(10):
+            time.sleep(1)
+            print(f"[{i+1}s] Stats:", eye.get_stats())
+    except KeyboardInterrupt:
+        pass
+
+    eye.stop()
+    print("Đã dừng. Stats cuối:", eye.get_stats())

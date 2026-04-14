@@ -60,3 +60,9 @@ uvicorn[standard]
 # ── Môi trường ──────────────────────────────────────────────
 # Đọc biến từ file .env
 python-dotenv>=1.0.0
+
+# ── Monitoring & QR Code (Sprint 7) ─────────────────────────
+# psutil — đo RAM/CPU cho stress test
+psutil
+# qrcode — in QR code ra terminal khi khởi động
+qrcode

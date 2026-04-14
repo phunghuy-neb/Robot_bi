@@ -24,7 +24,7 @@ from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
 from src_brain.network.notifier import get_notifier
-from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue
+from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager
 
 
 class RobotBiApp:
@@ -64,7 +64,21 @@ class RobotBiApp:
         start_api_server()
         self._puppet_queue = get_puppet_queue()
 
+        # Task Manager với TTS callback (Sprint 6)
+        init_task_manager(tts_callback=self._speak_text)
+
         print("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
+
+    def _speak_text(self, text: str) -> None:
+        """Phát text qua TTS — dùng cho TaskManager reminder.
+        Dùng asyncio.run() thay vì self._loop để tránh xung đột khi gọi từ reminder thread.
+        """
+        audio_file = asyncio.run(
+            self.mouth._generate_audio(text, chunk_index=self._chunk_counter)
+        )
+        if audio_file:
+            self._chunk_counter += 1
+            self.audio_queue.put(audio_file)
 
     def _audio_worker_loop(self):
         """Worker thread: nhận audio file từ queue, phát, unload, xóa."""
@@ -74,6 +88,10 @@ class RobotBiApp:
                 self.audio_queue.task_done()
                 break
             audio_file = item
+            if not os.path.exists(audio_file) or os.path.getsize(audio_file) == 0:
+                print(f"[Bi - Miệng] File audio rỗng hoặc không tồn tại: {audio_file}")
+                self.audio_queue.task_done()
+                continue
             try:
                 pygame.mixer.music.load(audio_file)
                 pygame.mixer.music.play()
@@ -85,7 +103,7 @@ class RobotBiApp:
             finally:
                 try:
                     os.remove(audio_file)
-                except FileNotFoundError:
+                except (FileNotFoundError, PermissionError):
                     pass
             self.audio_queue.task_done()
 
@@ -150,11 +168,18 @@ class RobotBiApp:
             self.audio_queue.join()
 
     def _cleanup_chunks(self):
-        """Xóa tất cả file voice_chunk_*.mp3 còn sót lại."""
-        for f in glob.glob("voice_chunk_*.mp3"):
+        """Xóa tất cả file voice_chunk_*.mp3 và *.wav còn sót lại."""
+        try:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
+        except Exception:
+            pass
+        import time
+        time.sleep(0.3)
+        for f in glob.glob("voice_chunk_*.mp3") + glob.glob("voice_chunk_*.wav"):
             try:
                 os.remove(f)
-            except FileNotFoundError:
+            except (FileNotFoundError, PermissionError):
                 pass
 
     def run(self):
