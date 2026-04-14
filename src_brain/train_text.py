@@ -1,55 +1,51 @@
 """
-train_text.py — Text sandbox: chat trực tiếp với Qwen 2.5:1.5b trên terminal.
-Không dùng mic hay loa. Chạy: python train_text.py
+train_text.py — Text sandbox: chat trực tiếp với Robot Bi trên terminal.
+Không dùng mic hay loa. Chạy: python src_brain/train_text.py
 """
 
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import ollama
-from src_brain.ai_core.prompts import MAIN_SYSTEM_PROMPT as _SYSTEM_PROMPT
 
-MODEL = "qwen2.5:7b"
+from src_brain.ai_core.core_ai import stream_chat
 
-conversation_history = [{"role": "system", "content": _SYSTEM_PROMPT}]
+history = []
 
-print(f"🤖 Robot Bi — Text Sandbox ({MODEL})")
-print("   Gõ 'thoát', 'exit' hoặc 'quit' để kết thúc.\n")
+print("Robot Bi — Text Sandbox (Groq Llama 70B / Gemini Flash-Lite)")
+print("   Go 'thoat', 'exit' hoac 'quit' de ket thuc.\n")
 
 try:
     while True:
-        user_input = input("👦 Bạn: ").strip()
+        user_input = input("Ban: ").strip()
 
         if not user_input:
             continue
 
-        # Thoát sạch khi người dùng gõ lệnh thoát
-        if user_input.lower() in ("thoát", "exit", "quit"):
-            print("🤖 Bi: Tạm biệt bạn nhé! Hẹn gặp lại!")
+        if user_input.lower() in ("thoat", "exit", "quit"):
+            print("Bi: Tam biet ban nhe! Hen gap lai!")
             sys.exit(0)
 
-        conversation_history.append({"role": "user", "content": user_input})
+        history.append({"role": "user", "content": user_input})
 
+        print("Bi: ", end="", flush=True)
+        full_reply = ""
         try:
-            response = ollama.chat(model=MODEL, messages=conversation_history)
-            reply = response["message"]["content"].strip()
-        except ollama.ResponseError as e:
-            print(f"❌ Lỗi model: {e}\n   Hãy chạy: ollama pull {MODEL}")
-            conversation_history.pop()  # Huỷ user message vừa append vì không có reply
-            continue
-        except ConnectionRefusedError:
-            print("❌ Không kết nối được Ollama. Hãy chạy: ollama serve")
-            conversation_history.pop()
+            for token in stream_chat(history):
+                full_reply += token
+                print(token, end="", flush=True)
+            print()
+        except Exception as e:
+            print(f"\nLoi: {e}")
+            history.pop()
             continue
 
-        print(f"🤖 Bi: {reply}\n")
+        if full_reply:
+            history.append({"role": "assistant", "content": full_reply.strip()})
 
-        conversation_history.append({"role": "assistant", "content": reply})
-
-        # Sliding window: giữ system prompt (index 0) + 20 phần tử cuối (10 lượt)
-        if len(conversation_history) > 21:
-            conversation_history = [conversation_history[0]] + conversation_history[-20:]
+        # Sliding window: giu 10 luot gan nhat (20 messages)
+        if len(history) > 20:
+            history = history[-20:]
 
 except KeyboardInterrupt:
-    print("\n🤖 Bi: Tạm biệt bạn nhé! Hẹn gặp lại!")
+    print("\nBi: Tam biet ban nhe! Hen gap lai!")
     sys.exit(0)

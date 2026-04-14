@@ -3,9 +3,9 @@
 #  Cài đặt: pip install -r requirements.txt
 # ============================================================
 
-# ── AI Engine (Local / Offline) ─────────────────────────────
-# Ollama Python SDK — giao tiếp với Qwen 2.5 chạy hoàn toàn cục bộ
-ollama
+# ── AI Engine (Cloud API — Groq + Gemini) ───────────────────
+# requests — HTTP client để gọi Groq và Gemini REST API
+requests>=2.31.0
 
 # ── Speech-to-Text (Offline) ────────────────────────────────
 # faster-whisper — Whisper quantized int8, chạy hoàn toàn offline

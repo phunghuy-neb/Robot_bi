@@ -1,0 +1,12 @@
+{
+  "robot_name": "Bi",
+  "child_name": "",
+  "language_mode": "auto",
+  "english_practice_mode": false,
+  "max_history_turns": 10,
+  "primary_api": "groq",
+  "groq_model": "llama-3.3-70b-versatile",
+  "gemini_model": "gemini-2.5-flash-lite-preview-06-17",
+  "groq_cooldown_seconds": 60,
+  "daily_limit_warning": 13000
+}

@@ -79,5 +79,59 @@
     "stars": 1,
     "created_at": "2026-04-14T06:40:34.127209",
     "last_reminded": null
+  },
+  {
+    "id": "bedf52ca-ecdd-4126-a272-5a5947bff370",
+    "name": "Danh rang",
+    "remind_time": "07:30",
+    "completed_today": false,
+    "stars": 0,
+    "created_at": "2026-04-14T23:01:39.720649",
+    "last_reminded": null
+  },
+  {
+    "id": "885bdd24-5217-4cf1-b4ca-ab31e6ec6e6c",
+    "name": "Doc sach",
+    "remind_time": "20:00",
+    "completed_today": true,
+    "stars": 1,
+    "created_at": "2026-04-14T23:01:39.721752",
+    "last_reminded": null
+  },
+  {
+    "id": "6bc6fdd7-f030-46c3-bb82-9b5a3564c7f2",
+    "name": "Don phong",
+    "remind_time": "18:00",
+    "completed_today": true,
+    "stars": 1,
+    "created_at": "2026-04-14T23:01:39.723802",
+    "last_reminded": null
+  },
+  {
+    "id": "9fce56fc-4204-4281-a23e-139d5e8ee1bc",
+    "name": "Danh rang",
+    "remind_time": "07:30",
+    "completed_today": false,
+    "stars": 0,
+    "created_at": "2026-04-14T23:02:15.719035",
+    "last_reminded": null
+  },
+  {
+    "id": "61f2883c-5c95-4010-80e2-933937af308a",
+    "name": "Doc sach",
+    "remind_time": "20:00",
+    "completed_today": true,
+    "stars": 1,
+    "created_at": "2026-04-14T23:02:15.719035",
+    "last_reminded": null
+  },
+  {
+    "id": "bb32c2b2-bb9d-46d2-b37f-d57b7c1b33f8",
+    "name": "Don phong",
+    "remind_time": "18:00",
+    "completed_today": true,
+    "stars": 1,
+    "created_at": "2026-04-14T23:02:15.720557",
+    "last_reminded": null
   }
 ]

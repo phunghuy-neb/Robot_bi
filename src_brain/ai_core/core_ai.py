@@ -1,268 +1,284 @@
 """
-core_ai.py — Robot Bi: Não Bộ AI (Ollama + Qwen 2.5)
-======================================================
-Chức năng:
-  - Giao tiếp với Ollama chạy 100% cục bộ (offline).
-  - Duy trì lịch sử hội thoại theo cơ chế sliding window (tối đa 10 lượt).
-  - Định hình tính cách "Bi" qua System Prompt tiếng Việt.
-
-Xử lý lỗi:
-  - Ollama chưa chạy hoặc model chưa tải → trả về thông báo tiếng Việt.
-  - Mọi exception đều được bắt → không bao giờ để crash main loop.
-
-Test độc lập:
-    python core_ai.py
+core_ai.py — Robot Bi AI Core
+Kiến trúc: Groq (primary) → Gemini Flash-Lite (fallback)
+- Groq Llama 3.3 70B: ~400 token/giây, 14.400 request/ngày free
+- Gemini 2.5 Flash-Lite: fallback khi Groq hết quota, 1.000 req/ngày free
+- Tự động xoay vòng, không cần can thiệp thủ công
 """
 
 import os
-import logging
-from typing import Optional
-
+import json
+import time
+import requests
+from pathlib import Path
+from typing import Generator
 from dotenv import load_dotenv
 
+# Load .env
 load_dotenv()
 
-# ── Cấu hình logging ──────────────────────────────────────────────────────────
-logger = logging.getLogger("core_ai")
-
-# ── Cấu hình từ .env ──────────────────────────────────────────────────────────
-_MODEL       = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
-_MAX_HISTORY = 10  # Số lượt hội thoại tối đa giữ trong RAM (sliding window)
-
-# ── System Prompt — Tính cách của Bi ─────────────────────────────────────────
-_SYSTEM_PROMPT = """Bạn là Bi, một robot gia sư thông minh và gần gũi do sinh viên PTIT tạo ra. Bạn xưng là "Bi" và gọi người dùng là "bạn" hoặc "em".
-
-TUYỆT ĐỐI TUÂN THỦ 3 QUY TẮC SAU:
-1. LUÔN viết thành một đoạn văn xuôi duy nhất, KHÔNG BAO GIỜ xuống dòng, KHÔNG BAO GIỜ dùng gạch đầu dòng hay số thứ tự.
-2. Tối đa 3 đến 4 câu. Mọi kiến thức phức tạp đều BẮT BUỘC phải kèm theo ví dụ so sánh bằng những đồ vật quen thuộc hàng ngày. Dùng các từ đệm tự nhiên (Dạ, Vâng, Nhé).
-3. Nếu câu hỏi quá chuyên sâu hoặc Bi không chắc chắn, CHỈ ĐƯỢC PHÉP nói: "Bi chưa có dữ liệu về phần này."
-
-DƯỚI ĐÂY LÀ CÁC VÍ DỤ BẮT BUỘC BẠN PHẢI BẮT CHƯỚC CÁCH TRẢ LỜI:
-Người: Tại sao bầu trời có màu xanh thế Bi?
-Bi: Dạ, ánh sáng mặt trời có đủ 7 màu cầu vồng, nhưng khi chiếu xuống Trái Đất thì màu xanh bị các hạt không khí cản lại và bắn tung tóe ra khắp nơi. Nó giống hệt như khi bạn xịt vòi nước mạnh vào bức tường và những tia nước li ti văng ra vậy đó. Mắt chúng ta hứng trọn những tia sáng xanh văng ra này nên nhìn thấy bầu trời màu xanh nhé!
-
-Người: Liệt kê cho tôi 5 hành tinh trong hệ mặt trời.
-Bi: Vâng, 5 hành tinh trong hệ Mặt Trời bao gồm Sao Thủy, Sao Kim, Trái Đất, Sao Hỏa và Sao Mộc nhé. Bạn thích hành tinh nào nhất?
-
-Người: Giải thích thuật toán Transformer attention mechanism trong deep learning.
-Bi: Dạ, Bi chưa có dữ liệu về phần này. Bạn có câu hỏi nào khác không?
-"""
-
-# ── Import ollama ─────────────────────────────────────────────────────────────
+# Load config.json
+_CONFIG_PATH = Path(__file__).parent.parent.parent / "config.json"
 try:
-    import ollama as _ollama
-    _OLLAMA_AVAILABLE = True
-    logger.debug("ollama import thành công.")
-except ImportError:
-    logger.critical("Thiếu thư viện 'ollama'. Chạy: pip install ollama")
-    _OLLAMA_AVAILABLE = False
+    with open(_CONFIG_PATH, "r", encoding="utf-8") as _f:
+        _CONFIG = json.load(_f)
+except FileNotFoundError:
+    _CONFIG = {
+        "groq_model": "llama-3.3-70b-versatile",
+        "gemini_model": "gemini-2.5-flash-lite-preview-06-17",
+        "max_history_turns": 10,
+        "groq_cooldown_seconds": 60,
+    }
+
+# API Keys từ .env
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Endpoints
+_GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+_GEMINI_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{_CONFIG['gemini_model']}:streamGenerateContent"
+)
+
+# Trạng thái quota nội bộ
+_groq_fail_streak = 0
+_groq_cooldown_until = 0.0
+_GROQ_COOLDOWN = _CONFIG.get("groq_cooldown_seconds", 60)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-#  Class BiAI — Não bộ trung tâm
-# ═══════════════════════════════════════════════════════════════════════════════
+def _get_system_prompt() -> str:
+    """Lấy system prompt từ prompts.py và thêm rule ngôn ngữ."""
+    try:
+        from src_brain.ai_core.prompts import MAIN_SYSTEM_PROMPT
+        base = MAIN_SYSTEM_PROMPT
+    except ImportError:
+        try:
+            from src_brain.ai_core import prompts
+            base = prompts.MAIN_SYSTEM_PROMPT
+        except ImportError:
+            base = (
+                "Bạn là Bi, một robot gia sư thông minh và gần gũi. "
+                "Bạn xưng là 'Bi' và gọi người dùng là 'bạn' hoặc 'em'. "
+                "Luôn trả lời ngắn gọn 3-4 câu, vui vẻ, dễ hiểu."
+            )
+
+    language_rule = (
+        "\n\nNGÔN NGỮ PHẢN HỒI — BẮT BUỘC TUÂN THỦ:\n"
+        "- Phát hiện ngôn ngữ bé đang dùng trong tin nhắn cuối.\n"
+        "- Trả lời TOÀN BỘ bằng đúng ngôn ngữ đó. KHÔNG trộn ngôn ngữ khác.\n"
+        "- Bé nói tiếng Việt → trả lời 100% tiếng Việt.\n"
+        "- Bé nói tiếng Anh → trả lời 100% tiếng Anh.\n"
+        "- Ngoại lệ duy nhất: bé chủ động yêu cầu kết hợp 2 ngôn ngữ.\n"
+        "- TUYỆT ĐỐI không tự ý thêm tiếng Trung hoặc ngôn ngữ không được yêu cầu.\n"
+        "- Câu trả lời ngắn gọn, tự nhiên, phù hợp trẻ em."
+    )
+    return base + language_rule
+
+
+def _stream_groq(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    """Gọi Groq API, stream từng token."""
+    if not GROQ_API_KEY or GROQ_API_KEY.startswith("DIEN_"):
+        raise ValueError("GROQ_API_KEY chưa được cấu hình trong .env")
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": _CONFIG["groq_model"],
+        "messages": [{"role": "system", "content": system_prompt}] + messages,
+        "max_tokens": 512,
+        "temperature": 0.7,
+        "stream": True,
+    }
+
+    resp = requests.post(
+        _GROQ_URL, headers=headers, json=payload, stream=True, timeout=15
+    )
+    if resp.status_code == 429:
+        raise RuntimeError("Groq quota exceeded (429)")
+    if resp.status_code != 200:
+        raise RuntimeError(f"Groq HTTP {resp.status_code}: {resp.text[:200]}")
+
+    for raw in resp.iter_lines():
+        if not raw:
+            continue
+        line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        try:
+            chunk = json.loads(data)
+            delta = chunk["choices"][0]["delta"].get("content", "")
+            if delta:
+                yield delta
+        except (json.JSONDecodeError, KeyError, IndexError):
+            continue
+
+
+def _stream_gemini(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    """Gọi Gemini API, stream từng token."""
+    if not GEMINI_API_KEY or GEMINI_API_KEY.startswith("DIEN_"):
+        raise RuntimeError("GEMINI_API_KEY chưa được cấu hình trong .env")
+
+    contents = []
+    for msg in messages:
+        role = "user" if msg["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+
+    payload = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": 512, "temperature": 0.7},
+    }
+    url = f"{_GEMINI_URL}?key={GEMINI_API_KEY}&alt=sse"
+    resp = requests.post(url, json=payload, stream=True, timeout=20)
+
+    if resp.status_code == 429:
+        raise RuntimeError("Gemini quota exceeded (429)")
+    if resp.status_code != 200:
+        raise RuntimeError(f"Gemini HTTP {resp.status_code}: {resp.text[:200]}")
+
+    for raw in resp.iter_lines():
+        if not raw:
+            continue
+        line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        try:
+            chunk = json.loads(data)
+            parts = (
+                chunk.get("candidates", [{}])[0]
+                .get("content", {})
+                .get("parts", [])
+            )
+            for part in parts:
+                text = part.get("text", "")
+                if text:
+                    yield text
+        except (json.JSONDecodeError, KeyError, IndexError):
+            continue
+
+
+def stream_chat(messages: list) -> Generator[str, None, None]:
+    """
+    Public API — gọi hàm này từ main_loop.py.
+    Tự động: Groq → Gemini → thông báo lỗi.
+
+    Args:
+        messages: list of {"role": "user"|"assistant", "content": str}
+    """
+    global _groq_fail_streak, _groq_cooldown_until
+
+    # Trim history để tiết kiệm token
+    max_turns = _CONFIG.get("max_history_turns", 10)
+    if len(messages) > max_turns * 2:
+        messages = messages[-(max_turns * 2):]
+
+    system_prompt = _get_system_prompt()
+    now = time.time()
+
+    # --- Thử Groq trước (nhanh nhất) ---
+    if now > _groq_cooldown_until:
+        try:
+            print("[Bi - Não] Groq (Llama 70B)...")
+            yield from _stream_groq(messages, system_prompt)
+            _groq_fail_streak = 0
+            return
+        except Exception as e:
+            _groq_fail_streak += 1
+            print(f"[Bi - Não] Groq lỗi ({e}) — chuyển Gemini")
+            if _groq_fail_streak >= 3:
+                _groq_cooldown_until = now + _GROQ_COOLDOWN
+                _groq_fail_streak = 0
+                print(f"[Bi - Não] Groq tạm dừng {_GROQ_COOLDOWN}s")
+
+    # --- Fallback Gemini ---
+    try:
+        print("[Bi - Não] Gemini Flash-Lite...")
+        yield from _stream_gemini(messages, system_prompt)
+        return
+    except Exception as e:
+        print(f"[Bi - Não] Gemini lỗi ({e})")
+
+    # --- Cả 2 đều fail ---
+    yield "Xin lỗi bé, Bi đang gặp sự cố kết nối. Bé thử lại sau một chút nhé!"
+
+
+# ── Backward-compat class — giữ để không break main_loop.py ──────────────────
 
 class BiAI:
     """
-    Não bộ AI của Robot Bi, sử dụng Ollama (Qwen 2.5) chạy hoàn toàn offline.
-
-    Attributes:
-        history: Danh sách các lượt hội thoại gần nhất (sliding window).
-        total_turns: Tổng số lượt đã hội thoại kể từ khi khởi động.
+    Backward-compat wrapper. main_loop.py dùng BiAI().stream_chat(user_text).
+    Nội bộ gọi stream_chat() module-level và duy trì history.
     """
 
     def __init__(self) -> None:
-        if not _OLLAMA_AVAILABLE:
-            raise RuntimeError(
-                "Thư viện 'ollama' chưa được cài đặt. "
-                "Chạy: pip install ollama"
-            )
-
-        self.history: list[dict] = []
+        self.history: list = []
         self.total_turns: int = 0
-        logger.info(
-            "BiAI khởi tạo — model: '%s' | max history: %d lượt.",
-            _MODEL, _MAX_HISTORY,
-        )
 
-    # ── Private Helpers ───────────────────────────────────────────────────────
-
-    def _trim_history(self) -> None:
+    def stream_chat(self, user_input: str, history: list = None) -> Generator[str, None, None]:
         """
-        Áp dụng sliding window: chỉ giữ lại _MAX_HISTORY lượt gần nhất.
-        Mỗi lượt = 1 message user + 1 message assistant = 2 phần tử.
-        """
-        max_messages = _MAX_HISTORY * 2
-        if len(self.history) > max_messages:
-            self.history = self.history[-max_messages:]
-            logger.debug("Sliding window: cắt history còn %d messages.", max_messages)
-
-    def _build_messages(self, user_input: str) -> list[dict]:
-        """Xây dựng danh sách messages gửi cho Ollama, bao gồm system prompt."""
-        messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
-        messages.extend(self.history)
-        messages.append({"role": "user", "content": user_input})
-        return messages
-
-    # ── Public API ────────────────────────────────────────────────────────────
-
-    def chat(self, user_input: str) -> str:
-        """
-        Gửi câu hỏi của người dùng, nhận câu trả lời từ Ollama.
-
-        Luồng hoạt động:
-          1. Xây dựng messages (system + history + user input mới).
-          2. Gọi ollama.chat() với model đã cấu hình.
-          3. Lưu cặp (user, assistant) vào history.
-          4. Áp dụng sliding window.
-          5. Trả về chuỗi phản hồi thuần túy.
+        Stream phản hồi từ AI.
 
         Args:
             user_input: Văn bản câu hỏi của người dùng.
-
-        Returns:
-            Chuỗi câu trả lời của Bi, hoặc thông báo lỗi tiếng Việt.
+            history: Nếu truyền vào thì dùng history này (không cập nhật nội bộ).
+                     Nếu None thì dùng và cập nhật self.history.
         """
-        if not user_input or not user_input.strip():
-            return "Bạn vừa nói gì đó mình chưa nghe rõ, bạn nói lại được không?"
-
-        user_input = user_input.strip()
-        logger.info("🧠 Bi đang suy nghĩ: '%s'", user_input)
-
-        try:
-            messages = self._build_messages(user_input)
-            response = _ollama.chat(model=_MODEL, messages=messages)
-
-            reply: str = response["message"]["content"].strip()
-
-            # Cập nhật lịch sử hội thoại
-            self.history.append({"role": "user",      "content": user_input})
-            self.history.append({"role": "assistant", "content": reply})
-            self._trim_history()
-
-            self.total_turns += 1
-            logger.info("🤖 Bi trả lời (lượt %d): '%s'", self.total_turns, reply[:80])
-            return reply
-
-        except _ollama.ResponseError as e:
-            error_msg = (
-                f"Xin lỗi, model '{_MODEL}' chưa được tải về. "
-                f"Hãy chạy lệnh: ollama pull {_MODEL}"
-            )
-            logger.error("Ollama ResponseError: %s", e)
-            return error_msg
-
-        except ConnectionRefusedError:
-            error_msg = (
-                "Xin lỗi, không kết nối được với Ollama. "
-                "Hãy mở terminal và chạy: ollama serve"
-            )
-            logger.error("Ollama chưa chạy — ConnectionRefusedError.")
-            return error_msg
-
-        except Exception as e:
-            error_msg = "Xin lỗi, não bộ của mình đang gặp sự cố nhỏ. Bạn thử hỏi lại nhé!"
-            logger.error("Lỗi không mong đợi trong chat(): %s: %s", type(e).__name__, e)
-            return error_msg
-
-    def stream_chat(self, user_input: str):
-        """
-        Streaming version: gửi câu hỏi, yield từng chunk text thô từ Ollama.
-        Cập nhật history sau khi stream hoàn tất.
-
-        Args:
-            user_input: Văn bản câu hỏi của người dùng.
-
-        Yields:
-            Từng chuỗi token nhỏ từ Ollama stream.
-        """
-        if not user_input or not user_input.strip():
-            yield "Bạn vừa nói gì đó mình chưa nghe rõ, bạn nói lại được không?"
-            return
-
-        user_input = user_input.strip()
-        logger.info("🧠 Bi đang stream suy nghĩ: '%s'", user_input)
+        if history is not None:
+            msgs = list(history)
+        else:
+            msgs = list(self.history)
+        msgs.append({"role": "user", "content": user_input})
 
         full_reply = ""
-        try:
-            messages = self._build_messages(user_input)
-            stream = _ollama.chat(model=_MODEL, messages=messages, stream=True)
+        for token in stream_chat(msgs):
+            full_reply += token
+            yield token
 
-            for chunk in stream:
-                token = chunk["message"]["content"]
-                full_reply += token
-                yield token
-
-            # Cập nhật history sau khi stream hoàn tất
-            self.history.append({"role": "user",      "content": user_input})
+        # Cập nhật history nội bộ khi không có history bên ngoài truyền vào
+        if history is None and full_reply:
+            self.history.append({"role": "user", "content": user_input})
             self.history.append({"role": "assistant", "content": full_reply.strip()})
-            self._trim_history()
-
+            max_turns = _CONFIG.get("max_history_turns", 10)
+            if len(self.history) > max_turns * 2:
+                self.history = self.history[-(max_turns * 2):]
             self.total_turns += 1
-            logger.info("🤖 Bi stream xong (lượt %d): '%s'", self.total_turns, full_reply[:80])
-
-        except _ollama.ResponseError as e:
-            error_msg = (
-                f"Xin lỗi, model '{_MODEL}' chưa được tải về. "
-                f"Hãy chạy lệnh: ollama pull {_MODEL}"
-            )
-            logger.error("Ollama ResponseError: %s", e)
-            yield error_msg
-
-        except ConnectionRefusedError:
-            error_msg = (
-                "Xin lỗi, không kết nối được với Ollama. "
-                "Hãy mở terminal và chạy: ollama serve"
-            )
-            logger.error("Ollama chưa chạy — ConnectionRefusedError.")
-            yield error_msg
-
-        except Exception as e:
-            error_msg = "Xin lỗi, não bộ của mình đang gặp sự cố nhỏ. Bạn thử hỏi lại nhé!"
-            logger.error("Lỗi không mong đợi trong stream_chat(): %s: %s", type(e).__name__, e)
-            yield error_msg
 
     def reset_history(self) -> None:
-        """Xóa toàn bộ lịch sử hội thoại trong RAM (giữ nguyên total_turns)."""
+        """Xóa toàn bộ lịch sử hội thoại."""
         self.history.clear()
-        logger.info("Lịch sử hội thoại đã được reset.")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-#  Test độc lập
-# ═══════════════════════════════════════════════════════════════════════════════
+# ── Test độc lập ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import sys
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%H:%M:%S",
-    )
-
     print("=" * 60)
-    print("  TEST core_ai.py — Ollama + Qwen 2.5")
+    print("  TEST core_ai.py — Groq + Gemini")
     print("=" * 60)
-    print(f"  Model: {_MODEL}")
-    print(f"  Max history: {_MAX_HISTORY} lượt\n")
+    print(f"  Groq model : {_CONFIG['groq_model']}")
+    print(f"  Gemini model: {_CONFIG['gemini_model']}")
+    print(f"  GROQ_API_KEY: {'OK' if GROQ_API_KEY and not GROQ_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
+    print(f"  GEMINI_API_KEY: {'OK' if GEMINI_API_KEY and not GEMINI_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}\n")
 
-    try:
-        bi = BiAI()
-    except RuntimeError as e:
-        print(f"\n❌ {e}")
-        sys.exit(1)
-
+    bi = BiAI()
     test_questions = [
         "Xin chào Bi!",
-        "Trái đất quay quanh mặt trời mất bao lâu?",
         "Tại sao bầu trời màu xanh?",
-        "Tóm tắt lại những gì chúng ta vừa nói.",  # Test memory
     ]
 
     for q in test_questions:
-        print(f"\n👦 Bạn: {q}")
-        answer = bi.chat(q)
-        print(f"🤖 Bi: {answer}")
+        print(f"\nBan: {q}")
+        print("Bi: ", end="", flush=True)
+        for token in bi.stream_chat(q):
+            print(token, end="", flush=True)
+        print()
 
-    print(f"\n✅ Test hoàn thành — Tổng {bi.total_turns} lượt hội thoại.")
+    print(f"\nTest hoàn thành — {bi.total_turns} lượt hội thoại.")

@@ -1,9 +1,10 @@
 # Huong Dan Chay Robot Bi
 
 ## Yeu cau truoc khi chay
-1. Ollama dang chay: `ollama serve` (terminal rieng)
-2. Model da tai: `ollama pull qwen2.5:7b`
-3. Co ket noi internet (edge-tts can internet lan dau)
+1. Dien API key vao file `.env`:
+   - `GROQ_API_KEY` — lay tai console.groq.com (free tier: 14.400 req/ngay)
+   - `GEMINI_API_KEY` — lay tai aistudio.google.com (free tier: 1.000 req/ngay)
+2. Co ket noi internet (Groq + Gemini API + edge-tts can internet)
 
 ## Cach chay
 
@@ -24,7 +25,7 @@ start_robot.bat
 4. PIN mac dinh: `123456`
 
 ## Doi PIN mac dinh
-Tao file `.env` trong thu muc goc:
+Them vao file `.env`:
 ```
 PIN_CODE=pin_moi_cua_ban
 ```
@@ -38,22 +39,21 @@ PIN_CODE=pin_moi_cua_ban
 ## Cau truc thu muc chinh
 ```
 Robot_Bi_Project/
+  .env                         <- API keys (KHONG commit)
+  config.json                  <- Cau hinh robot
   src_brain/
-    main_loop.py          <- Entry point chinh
-    ai_core/core_ai.py    <- LLM (Qwen 2.5 7B)
-    senses/ear_stt.py     <- STT (Whisper small)
-    senses/mouth_tts.py   <- TTS (edge-tts + pyttsx3 fallback)
-    memory_rag/           <- ChromaDB RAG
-    network/api_server.py <- Parent App API
-  start_robot.bat         <- Auto-restart script
-  requirements.txt        <- Dependencies
+    main_loop.py               <- Entry point chinh
+    ai_core/core_ai.py         <- LLM (Groq Llama 70B / Gemini Flash-Lite)
+    senses/ear_stt.py          <- STT (Whisper large-v2 CUDA)
+    senses/mouth_tts.py        <- TTS (edge-tts + pyttsx3 fallback)
+    memory_rag/                <- ChromaDB RAG
+    network/api_server.py      <- Parent App API
+  start_robot.bat              <- Auto-restart script
+  requirements.txt             <- Dependencies
 ```
 
 ## Debug
 ```bash
-# Kiem tra Ollama
-ollama list
-
 # Test tung module
 python src_brain/senses/ear_stt.py
 python src_brain/senses/mouth_tts.py

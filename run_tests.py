@@ -47,6 +47,31 @@ test("import TaskManager",    lambda: __import__('src_brain.network.task_manager
 test("import MouthTTS",       lambda: __import__('src_brain.senses.mouth_tts',        fromlist=['MouthTTS']))
 test("import EarSTT",         lambda: __import__('src_brain.senses.ear_stt',          fromlist=['EarSTT']))
 
+
+def test_stream_chat_import():
+    from src_brain.ai_core.core_ai import stream_chat
+    assert callable(stream_chat)
+
+
+def test_core_ai_no_ollama():
+    import importlib
+    import src_brain.ai_core.core_ai  # noqa: F401 — đảm bảo module đã load
+    import sys
+    assert "ollama" not in sys.modules, "ollama khong duoc import trong core_ai"
+
+
+def test_core_ai_config_keys():
+    from src_brain.ai_core import core_ai
+    assert hasattr(core_ai, "GROQ_API_KEY")
+    assert hasattr(core_ai, "GEMINI_API_KEY")
+    assert hasattr(core_ai, "stream_chat")
+    assert hasattr(core_ai, "BiAI")
+
+
+test("core_ai: stream_chat importable",   test_stream_chat_import)
+test("core_ai: ollama not in modules",    test_core_ai_no_ollama)
+test("core_ai: config vars exist",        test_core_ai_config_keys)
+
 # == GROUP 2: SafetyFilter ==================================================
 print("\n[Group 2] SafetyFilter")
 from src_brain.ai_core.safety_filter import SafetyFilter, _REFUSAL_RESPONSE as SF_REFUSAL
@@ -435,12 +460,13 @@ def test_manifest_valid():
 def test_requirements_complete():
     reqs = open('requirements.txt', encoding='utf-8').read()
     required = [
-        'ollama', 'faster-whisper', 'edge-tts', 'pygame',
+        'requests', 'faster-whisper', 'edge-tts', 'pygame',
         'chromadb', 'sentence-transformers', 'opencv-python',
         'fastapi', 'pyttsx3', 'sounddevice', 'numpy',
     ]
     for r in required:
         assert r in reqs, f"Missing from requirements.txt: {r}"
+    assert 'ollama' not in reqs, "ollama van con trong requirements.txt"
 
 
 test("Integration: main_loop importable",     test_main_loop_import)
