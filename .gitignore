@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .claude/
 .env
+ssl/
+*.pem
+cloudflared.exe

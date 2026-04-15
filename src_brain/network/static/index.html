@@ -293,6 +293,20 @@
       <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
         📷 Bật camera
       </button>
+      <!-- Mic mẹ nói trực tiếp -->
+      <div id="mom-talk-section" style="margin-top:16px;text-align:center;padding:12px;background:#fef3c7;border-radius:12px;border:1px solid #f59e0b;">
+        <p style="margin:0 0 8px 0;font-size:13px;color:#92400e;font-weight:600;">
+          📞 Nói chuyện trực tiếp với bé
+        </p>
+        <button id="btn-mom-mic"
+          onclick="toggleMomMic()"
+          style="background:#f59e0b;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:600;">
+          🎤 Bật mic — Nói với bé
+        </button>
+        <p id="mom-mic-status" style="margin:8px 0 0 0;font-size:12px;color:#78716c;">
+          Bi đang hoạt động bình thường
+        </p>
+      </div>
     </div>
     <!-- Events list -->
     <div class="action-bar">
@@ -422,6 +436,10 @@ async function doLogout() {
   }
   _token = '';
   localStorage.removeItem('bi_token');
+  // Dừng mic mẹ nếu đang bật
+  if (momMicActive) stopMomMic();
+  // Tắt audio monitor
+  stopAudioMonitor();
   // Tắt camera nếu đang bật
   const img = document.getElementById('cameraFeed');
   img.src = '';
@@ -662,11 +680,15 @@ function toggleCamera() {
     _camOn = false;
     btn.textContent = '📷 Bật camera';
     btn.classList.remove('on');
+    // Auto-stop audio khi tắt cam
+    stopAudioMonitor();
   } else {
     img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
     _camOn = true;
     btn.textContent = '⏹ Tắt camera';
     btn.classList.add('on');
+    // Auto-start audio khi bật cam
+    startAudioMonitor();
   }
 }
 
@@ -874,6 +896,191 @@ function toast(msg, ms=3000) {
 //  Auto-refresh
 // ══════════════════════════════════════════════════════════════
 setInterval(() => { if (_token) loadTab(activeTab); }, 30000);
+
+// ── Audio Monitoring (auto — gọi từ toggleCamera) ────────────────────────────
+let audioContext = null;
+let audioWs = null;
+let audioPlaying = false;
+
+function startAudioMonitor() {
+  if (audioPlaying) return;
+
+  const token = _token || localStorage.getItem('bi_token') || '';
+  if (!token) return;
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)({
+    sampleRate: 16000
+  });
+
+  // Force phát qua loa ngoài thay vì earpiece
+  if (audioContext.setSinkId) {
+      audioContext.setSinkId('default').catch(() => {});
+  }
+
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${location.host}/api/audio/stream?auth=${encodeURIComponent(token)}`;
+  audioWs = new WebSocket(wsUrl);
+  audioWs.binaryType = 'arraybuffer';
+
+  let nextPlayTime = 0;
+  const CHUNK_DURATION = 0.1; // 100ms mỗi chunk
+
+  audioWs.onopen = () => {
+    audioPlaying = true;
+    nextPlayTime = audioContext.currentTime + 0.3; // Buffer 300ms
+  };
+
+  audioWs.onmessage = (event) => {
+    if (!audioPlaying || !audioContext) return;
+    const arrayBuffer = event.data;
+    if (!arrayBuffer || arrayBuffer.byteLength === 0) return; // ping frame
+
+    const int16Array = new Int16Array(arrayBuffer);
+    const float32Array = new Float32Array(int16Array.length);
+    for (let i = 0; i < int16Array.length; i++) {
+      float32Array[i] = int16Array[i] / 32768.0;
+    }
+
+    const audioBuffer = audioContext.createBuffer(1, float32Array.length, 16000);
+    audioBuffer.copyToChannel(float32Array, 0);
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 2.0; // Tăng volume
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    const startTime = Math.max(nextPlayTime, audioContext.currentTime);
+    source.start(startTime);
+    nextPlayTime = startTime + CHUNK_DURATION;
+  };
+
+  audioWs.onclose = () => { stopAudioMonitor(); };
+  audioWs.onerror = () => { stopAudioMonitor(); };
+}
+
+function stopAudioMonitor() {
+  audioPlaying = false;
+  if (audioWs) { audioWs.close(); audioWs = null; }
+  if (audioContext) { audioContext.close(); audioContext = null; }
+}
+// ── End Audio Monitoring ──────────────────────────────────────
+
+// ── Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────────
+let momMicActive = false;
+let momMediaStream = null;
+let momAudioWs = null;
+let momScriptProcessor = null;
+let momAudioCtx = null;
+
+async function toggleMomMic() {
+  if (!momMicActive) {
+    await startMomMic();
+  } else {
+    stopMomMic();
+  }
+}
+
+async function startMomMic() {
+  const token = _token || localStorage.getItem('bi_token') || '';
+  if (!token) { alert('Vui lòng đăng nhập trước'); return; }
+
+  // Kiểm tra browser support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert(
+      'Trình duyệt không hỗ trợ mic.\n\n' +
+      'Giải pháp:\n' +
+      '1. Dùng Chrome hoặc Firefox\n' +
+      '2. Truy cập qua HTTPS (https://...)\n' +
+      '3. Android: vào chrome://flags → tìm "insecure" → thêm địa chỉ này'
+    );
+    return;
+  }
+
+  try {
+    // Xin quyền mic điện thoại
+    momMediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true }
+    });
+
+    // Báo server: mẹ bắt đầu nói
+    await fetch('/api/mom/start', {
+      method: 'POST',
+      headers: { 'Authorization': token }
+    });
+
+    // Mở WebSocket gửi audio về server
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?auth=${encodeURIComponent(token)}`);
+    momAudioWs.binaryType = 'arraybuffer';
+
+    await new Promise((resolve, reject) => {
+      momAudioWs.onopen = resolve;
+      momAudioWs.onerror = reject;
+    });
+
+    // Stream audio từ mic → WebSocket
+    momAudioCtx = new AudioContext({ sampleRate: 16000 });
+    if (momAudioCtx.setSinkId) {
+      momAudioCtx.setSinkId('default').catch(() => {});
+    }
+    const source = momAudioCtx.createMediaStreamSource(momMediaStream);
+    const gainNode = momAudioCtx.createGain();
+    gainNode.gain.value = 2.0; // Tăng volume
+    momScriptProcessor = momAudioCtx.createScriptProcessor(4096, 1, 1);
+
+    momScriptProcessor.onaudioprocess = (event) => {
+      if (!momMicActive || !momAudioWs || momAudioWs.readyState !== WebSocket.OPEN) return;
+      const float32 = event.inputBuffer.getChannelData(0);
+      momAudioWs.send(float32.buffer.slice(0));
+    };
+
+    source.connect(gainNode);
+    gainNode.connect(momScriptProcessor);
+    momScriptProcessor.connect(momAudioCtx.destination);
+
+    momMicActive = true;
+    document.getElementById('btn-mom-mic').textContent = '🔴 Tắt mic — Trả lại cho Bi';
+    document.getElementById('btn-mom-mic').style.background = '#ef4444';
+    document.getElementById('mom-mic-status').textContent = '🟠 Mẹ đang nói — Bi đang tạm dừng';
+    document.getElementById('mom-mic-status').style.color = '#dc2626';
+
+  } catch (err) {
+    console.error('Lỗi bật mic mẹ:', err);
+    alert('Không thể bật mic: ' + err.message);
+    stopMomMic();
+  }
+}
+
+function stopMomMic() {
+  momMicActive = false;
+
+  if (momScriptProcessor) { momScriptProcessor.disconnect(); momScriptProcessor = null; }
+  if (momAudioCtx) { momAudioCtx.close(); momAudioCtx = null; }
+  if (momMediaStream) { momMediaStream.getTracks().forEach(t => t.stop()); momMediaStream = null; }
+  if (momAudioWs) { momAudioWs.close(); momAudioWs = null; }
+
+  // Báo server: mẹ dừng nói
+  const token = _token || localStorage.getItem('bi_token') || '';
+  if (token) {
+    fetch('/api/mom/stop', {
+      method: 'POST',
+      headers: { 'Authorization': token }
+    }).catch(() => {});
+  }
+
+  const btn = document.getElementById('btn-mom-mic');
+  const status = document.getElementById('mom-mic-status');
+  if (btn) { btn.textContent = '🎤 Bật mic — Nói với bé'; btn.style.background = '#f59e0b'; }
+  if (status) { status.textContent = 'Bi đang hoạt động bình thường'; status.style.color = '#78716c'; }
+}
+
+// Tự động dừng mic mẹ khi đóng tab/thoát web
+window.addEventListener('beforeunload', () => {
+  if (momMicActive) stopMomMic();
+});
+// ── End Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────
 </script>
 <script>
 if ('serviceWorker' in navigator) {

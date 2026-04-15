@@ -356,13 +356,18 @@ class EyeVision:
         frame_count = 0
         writer: cv2.VideoWriter | None = None
         clip_path: str | None = None
+        _last_frame_error_log = 0.0
+        _FRAME_ERROR_LOG_INTERVAL = 10.0
 
         print(f"[Bi - Mắt] Camera index={self.camera_index} đã kết nối.")
 
         while self._running:
             ret, frame = self._cap.read()
             if not ret:
-                logger.warning("[Bi - Mắt] Mất frame từ camera — bỏ qua")
+                _now = time.time()
+                if _now - _last_frame_error_log > _FRAME_ERROR_LOG_INTERVAL:
+                    _last_frame_error_log = _now
+                    logger.warning("[Bi - Mắt] Mất frame từ camera — bỏ qua (log mỗi 10s)")
                 time.sleep(0.05)
                 continue
 

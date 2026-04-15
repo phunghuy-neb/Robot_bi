@@ -36,11 +36,20 @@ import asyncio
 import hashlib
 import logging
 import queue
+import re
 import secrets
 import socket
+import subprocess
 import threading
 from pathlib import Path
 from typing import Optional
+
+try:
+    import numpy as np
+    import sounddevice as sd
+    _SD_AVAILABLE = True
+except ImportError:
+    _SD_AVAILABLE = False
 
 
 def get_local_ip() -> str:
@@ -79,6 +88,17 @@ _api_loop: Optional[asyncio.AbstractEventLoop] = None
 PIN_CODE = "123456"           # Default PIN — thay đổi trong .env nếu cần
 SESSION_TOKENS: set = set()   # In-memory session store
 
+# ── Audio monitoring config ────────────────────────────────────────────────────
+AUDIO_SAMPLE_RATE  = 16000   # Hz — khớp với ear_stt.py
+AUDIO_CHANNELS     = 1       # Mono
+AUDIO_CHUNK_MS     = 100     # Gửi mỗi 100ms
+AUDIO_CHUNK_FRAMES = int(AUDIO_SAMPLE_RATE * AUDIO_CHUNK_MS / 1000)  # 1600 frames
+AUDIO_MIC_DEVICE   = 1       # Microphone Array Realtek
+
+# ── Trạng thái "mẹ đang nói chuyện trực tiếp" ────────────────────────────────
+_mom_talking = False
+_mom_audio_clients: list = []  # WebSocket clients đang stream audio từ điện thoại mẹ
+
 
 def _hash_pin(pin: str) -> str:
     return hashlib.sha256(pin.encode()).hexdigest()
@@ -106,6 +126,16 @@ def init_task_manager(tts_callback) -> None:
     _task_manager = TaskManager(tts_callback=tts_callback)
     logger.info("[API] TaskManager injected.")
 
+
+# ── SSL config ────────────────────────────────────────────────────────────────
+_SSL_DIR  = Path(__file__).parent.parent.parent / "ssl"
+_SSL_CERT = _SSL_DIR / "cert.pem"
+_SSL_KEY  = _SSL_DIR / "key.pem"
+_USE_HTTPS = _SSL_CERT.exists() and _SSL_KEY.exists()
+
+# ── Cloudflare Tunnel config ──────────────────────────────────────────────────
+_CLOUDFLARED_ENABLED = True   # Set False để tắt tunnel
+_CLOUDFLARED_EXE = "cloudflared"  # hoặc đường dẫn tuyệt đối nếu cần
 
 # ── Thư mục static (dashboard HTML) ──────────────────────────────────────────
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -446,6 +476,193 @@ async def delete_task(task_id: str, _auth: str = Depends(require_auth)):
     raise HTTPException(404, "Task không tìm thấy")
 
 
+# ── WebSocket: Audio Monitoring (Session K) ──────────────────────────────────
+
+@app.websocket("/api/audio/stream")
+async def audio_stream(websocket: WebSocket):
+    """
+    Stream audio từ mic phòng → browser (1 chiều).
+    Format: PCM 16-bit little-endian, 16kHz, mono.
+    Browser nhận raw PCM → phát qua Web Audio API.
+    Auth qua query param: /api/audio/stream?auth=TOKEN
+    """
+    token = websocket.query_params.get("auth", "")
+    if token not in SESSION_TOKENS:
+        await websocket.close(code=1008)
+        return
+
+    await websocket.accept()
+    logger.info("[Bi - Tai Giam Sat] Client ket noi audio stream")
+
+    if not _SD_AVAILABLE:
+        logger.warning("[Bi - Tai Giam Sat] sounddevice/numpy khong co san — dong stream")
+        await websocket.close(code=1011)
+        return
+
+    loop = asyncio.get_event_loop()
+    audio_queue: asyncio.Queue = asyncio.Queue(maxsize=10)
+
+    def audio_callback(indata, frames, time_info, status):
+        """Callback sounddevice — chạy trong thread riêng."""
+        # Convert float32 → int16 PCM
+        pcm = (indata[:, 0] * 32767).astype(np.int16)
+        raw_bytes = pcm.tobytes()
+        try:
+            loop.call_soon_threadsafe(audio_queue.put_nowait, raw_bytes)
+        except asyncio.QueueFull:
+            pass  # Drop frame nếu client chậm
+
+    stream = None
+    try:
+        stream = sd.InputStream(
+            samplerate=AUDIO_SAMPLE_RATE,
+            channels=AUDIO_CHANNELS,
+            dtype="float32",
+            blocksize=AUDIO_CHUNK_FRAMES,
+            device=AUDIO_MIC_DEVICE,
+            callback=audio_callback,
+        )
+        stream.start()
+        logger.info("[Bi - Tai Giam Sat] Bat dau stream audio mic")
+
+        while True:
+            try:
+                raw_bytes = await asyncio.wait_for(audio_queue.get(), timeout=5.0)
+                await websocket.send_bytes(raw_bytes)
+            except asyncio.TimeoutError:
+                # Gửi ping rỗng để giữ kết nối
+                try:
+                    await websocket.send_bytes(b"")
+                except Exception:
+                    break
+            except Exception:
+                break
+
+    except Exception as e:
+        logger.error("[Bi - Tai Giam Sat] Loi mic: %s", e)
+    finally:
+        if stream is not None:
+            try:
+                stream.stop()
+                stream.close()
+            except Exception:
+                pass
+        logger.info("[Bi - Tai Giam Sat] Client ngat ket noi audio stream")
+
+
+# ── REST + WebSocket: Mom Direct Talk (Session L) ─────────────────────────────
+
+def is_mom_talking() -> bool:
+    """Public helper — main_loop.py import để check trạng thái mẹ."""
+    return _mom_talking
+
+
+@app.post("/api/mom/start")
+async def mom_start_talking(_auth: str = Depends(require_auth)):
+    """Mẹ bắt đầu nói — Bi tạm dừng AI, chờ nhận audio từ mẹ."""
+    global _mom_talking
+    _mom_talking = True
+    logger.info("[Me] Me bat dau noi chuyen truc tiep")
+    return {"status": "mom_talking", "message": "Bi đang nhường loa cho mẹ"}
+
+
+@app.post("/api/mom/stop")
+async def mom_stop_talking(_auth: str = Depends(require_auth)):
+    """Mẹ dừng nói — Bi hoạt động bình thường lại."""
+    global _mom_talking
+    _mom_talking = False
+    logger.info("[Me] Me ngung noi — Bi hoat dong binh thuong")
+    return {"status": "bi_active", "message": "Bi đang hoạt động trở lại"}
+
+
+@app.get("/api/mom/status")
+async def mom_status():
+    """Trả về trạng thái hiện tại (không cần auth — main_loop poll nội bộ)."""
+    return {"mom_talking": _mom_talking}
+
+
+@app.websocket("/api/mom/audio")
+async def mom_audio_receive(websocket: WebSocket):
+    """
+    Nhận audio PCM float32 từ browser điện thoại mẹ → phát qua loa robot.
+    Format: PCM float32, 16000Hz, mono (Web Audio API getUserMedia).
+    Auth: /api/mom/audio?auth=TOKEN
+    """
+    global _mom_talking
+
+    token = websocket.query_params.get("auth", "")
+    if token not in SESSION_TOKENS:
+        await websocket.close(code=1008)
+        return
+
+    await websocket.accept()
+    _mom_audio_clients.append(websocket)
+    logger.info("[Me] Ket noi audio tu dien thoai me")
+
+    try:
+        import pygame
+        import numpy as np
+
+        # Đảm bảo pygame mixer đã init (main_loop đã init, chỉ init nếu chưa có)
+        if not pygame.mixer.get_init():
+            pygame.mixer.init(frequency=16000, size=-16, channels=1, buffer=512)
+
+        while True:
+            try:
+                data = await asyncio.wait_for(websocket.receive_bytes(), timeout=10.0)
+                if not data or len(data) == 0:
+                    continue
+                if not _mom_talking:
+                    continue  # Bỏ qua audio nếu mẹ chưa bật mic
+
+                # Convert PCM float32 → int16 → ghi WAV tạm → phát qua pygame
+                import wave
+                import tempfile
+                import os as _os
+
+                float_array = np.frombuffer(data, dtype=np.float32)
+                if len(float_array) == 0:
+                    continue
+                float_array = np.clip(float_array, -1.0, 1.0)
+                int16_array = (float_array * 32767).astype(np.int16)
+
+                tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
+                _os.close(tmp_fd)
+                with wave.open(tmp_path, 'wb') as wf:
+                    wf.setnchannels(1)
+                    wf.setsampwidth(2)
+                    wf.setframerate(16000)
+                    wf.writeframes(int16_array.tobytes())
+
+                if not pygame.mixer.get_init():
+                    pygame.mixer.init(frequency=16000, size=-16, channels=1, buffer=1024)
+                sound = pygame.mixer.Sound(tmp_path)
+                sound.set_volume(1.0)
+                sound.play()
+
+                async def _cleanup(path):
+                    await asyncio.sleep(2)
+                    try:
+                        _os.unlink(path)
+                    except Exception:
+                        pass
+                asyncio.create_task(_cleanup(tmp_path))
+
+            except asyncio.TimeoutError:
+                try:
+                    await websocket.send_text("ping")
+                except Exception:
+                    break
+            except Exception as e:
+                logger.error("[Me] Loi nhan audio: %s", e)
+                break
+
+    finally:
+        if websocket in _mom_audio_clients:
+            _mom_audio_clients.remove(websocket)
+        logger.info("[Me] Ngat ket noi audio tu me")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 #  Helpers — gọi từ thread khác (notifier)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -484,9 +701,66 @@ def get_puppet_queue() -> queue.Queue:
     return _puppet_queue
 
 
-def _print_qr_code(ip: str, port: int = 8000) -> None:
+def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
+    """Khởi động cloudflared tunnel trong background thread."""
+    def _run():
+        try:
+            result = subprocess.run(
+                [_CLOUDFLARED_EXE, "--version"],
+                capture_output=True, timeout=5
+            )
+            if result.returncode != 0:
+                print("[Tunnel] cloudflared khong tim thay — bo qua tunnel")
+                return
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            print("[Tunnel] cloudflared chua cai — bo qua tunnel")
+            print("[Tunnel] Tai tai: https://github.com/cloudflare/cloudflared/releases")
+            return
+
+        scheme = "https" if use_https else "http"
+        print(f"[Tunnel] Dang khoi dong Cloudflare Tunnel -> {scheme}://localhost:{port}...")
+        cmd = [_CLOUDFLARED_EXE, "tunnel", "--url", f"{scheme}://localhost:{port}"]
+        if use_https:
+            cmd.append("--no-tls-verify")
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            for line in proc.stdout:
+                line = line.strip()
+                if "trycloudflare.com" in line or "https://" in line:
+                    urls = re.findall(r'https://[a-z0-9\-]+\.trycloudflare\.com', line)
+                    if urls:
+                        public_url = urls[0]
+                        print("\n" + "="*60)
+                        print(f"  URL CONG KHAI (dung tu bat cu dau):")
+                        print(f"  {public_url}")
+                        print("="*60 + "\n")
+                        try:
+                            import qrcode, io
+                            qr = qrcode.QRCode(border=1)
+                            qr.add_data(public_url)
+                            qr.make(fit=True)
+                            f = io.StringIO()
+                            qr.print_ascii(out=f, invert=True)
+                            print(f.getvalue())
+                        except ImportError:
+                            pass
+        except Exception as e:
+            print(f"[Tunnel] Loi: {e}")
+
+    t = threading.Thread(target=_run, daemon=True, name="cloudflared-tunnel")
+    t.start()
+
+
+def _print_qr_code(ip: str, port: int = 8000, scheme: str = "http") -> None:
     """In QR code ra terminal để phụ huynh quét."""
-    url = f"http://{ip}:{port}"
+    url = f"{scheme}://{ip}:{port}"
     try:
         import qrcode, io
         qr = qrcode.QRCode(border=1)
@@ -496,6 +770,8 @@ def _print_qr_code(ip: str, port: int = 8000) -> None:
         qr.print_ascii(out=f)
         print(f"\n{'='*50}")
         print(f"  Parent App: {url}")
+        if scheme == "https":
+            print(f"  (Lan dau bam 'Advanced' -> 'Proceed' vi self-signed cert)")
         print(f"  Quet QR tren dien thoai cung mang WiFi:")
         print(f.getvalue())
         print('='*50)
@@ -511,12 +787,30 @@ def start_api_server(host: str = "0.0.0.0", port: int = 8000) -> None:
     Khởi động FastAPI + uvicorn trong background daemon thread.
     Non-blocking — không ảnh hưởng đến main_loop.py.
     """
+    use_https = _USE_HTTPS
+    actual_port = 8443 if use_https else port
+
     def _run():
-        uvicorn.run(app, host=host, port=port, log_level="warning")
+        if use_https:
+            print(f"[Server] HTTPS enabled — https://localhost:{actual_port}")
+            uvicorn.run(
+                app,
+                host=host,
+                port=actual_port,
+                ssl_certfile=str(_SSL_CERT),
+                ssl_keyfile=str(_SSL_KEY),
+                log_level="warning",
+            )
+        else:
+            print(f"[Server] HTTP mode — chay generate_ssl.py de bat HTTPS")
+            uvicorn.run(app, host=host, port=actual_port, log_level="warning")
 
     t = threading.Thread(target=_run, daemon=True, name="api-server")
-
     t.start()
 
+    if _CLOUDFLARED_ENABLED:
+        _start_cloudflare_tunnel(actual_port, use_https)
+
     local_ip = get_local_ip()
-    _print_qr_code(local_ip, port)
+    scheme = "https" if use_https else "http"
+    _print_qr_code(local_ip, actual_port, scheme)

@@ -24,7 +24,7 @@ from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
 from src_brain.network.notifier import get_notifier
-from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager
+from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
 
 
 class RobotBiApp:
@@ -183,8 +183,14 @@ class RobotBiApp:
                 pass
 
     def run(self):
+        import time as _time
         try:
             while True:
+                # Skip listen khi mẹ đang nói trực tiếp qua /api/mom/audio
+                if is_mom_talking():
+                    _time.sleep(0.5)
+                    continue
+
                 # TODO Sprint upgrade: thay bằng wake-word detection
                 # if self.ear.WAKEWORD_ENABLED:
                 #     detected = self.ear.listen_for_wakeword(timeout=30.0)

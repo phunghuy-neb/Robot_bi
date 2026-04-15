@@ -273,5 +273,180 @@
       "word_count": 3
     },
     "read": true
+  },
+  {
+    "id": "1776183428913",
+    "timestamp": "2026-04-14T23:17:08.913110",
+    "type": "chat",
+    "message": "Be: xin chào bi.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào bi.",
+      "bi_response": "Dạ, chào Tử Không nhé, Bi rất vui được gặp em, hôm nay em có cần Bi giúp gì không, hay là muốn chơi đùa và học hỏi một chút gì đó thú vị?",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776183445344",
+    "timestamp": "2026-04-14T23:17:25.344492",
+    "type": "cry",
+    "message": "Phat hien tieng khoc cua be",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776183553368",
+    "timestamp": "2026-04-14T23:19:13.368940",
+    "type": "chat",
+    "message": "Be: xin chào.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào.",
+      "bi_response": "Xin chào bạn, Bi rất vui khi gặp lại bạn, hôm nay bạn cần giúp đỡ gì không nhé?",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776184095583",
+    "timestamp": "2026-04-14T23:28:15.583599",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776184095586",
+    "timestamp": "2026-04-14T23:28:15.586128",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776184208904",
+    "timestamp": "2026-04-14T23:30:08.904239",
+    "type": "chat",
+    "message": "Be: xin chào bi. hôm nay trời đẹp.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào bi. hôm nay trời đẹp.",
+      "bi_response": "Dạ, chào em, hôm nay trời đẹp thật đấy, giống như một bức tranh tuyệt đẹp được vẽ bởi bàn tay của thiên nhiên, với bầu trời xanh trong veo và những đám mây trắng bồng bềnh, thật là một ngày lý tưởng để đi chơi ngoài trời nhé!",
+      "word_count": 7
+    },
+    "read": true
+  },
+  {
+    "id": "1776216585743",
+    "timestamp": "2026-04-15T08:29:45.743026",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776216585745",
+    "timestamp": "2026-04-15T08:29:45.745633",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776216780532",
+    "timestamp": "2026-04-15T08:33:00.532985",
+    "type": "chat",
+    "message": "Be: xin chào tất cả các bạn.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào tất cả các bạn.",
+      "bi_response": "Dạ, chào em, hôm nay thật là một ngày tuyệt vời với bầu trời xanh trong và nắng ấm, giống như khi em mở cửa sổ để đón ánh nắng vào phòng, thật là vui vẻ phải không nào, Bi sẵn sàng giúp đỡ em nếu cần gì đó nhé.",
+      "word_count": 6
+    },
+    "read": true
+  },
+  {
+    "id": "1776217660249",
+    "timestamp": "2026-04-15T08:47:40.249567",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776217660251",
+    "timestamp": "2026-04-15T08:47:40.251297",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776218193671",
+    "timestamp": "2026-04-15T08:56:33.671888",
+    "type": "chat",
+    "message": "Be: xin chào.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào.",
+      "bi_response": "Dạ, chào em, hôm nay mình có thể đi chơi ngoài trời được vì trời đẹp quá, giống như một bức tranh tuyệt đẹp vậy đó, em thích đi đâu nhé?",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776218302743",
+    "timestamp": "2026-04-15T08:58:22.743627",
+    "type": "chat",
+    "message": "Be: cảm ơn.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "cảm ơn.",
+      "bi_response": "Vâng, không có vấn đề em, hôm nay trời đẹp thật đấy, giống như một ngày lý tưởng để đi chơi ngoài trời, em có thể đi dạo hoặc chơi với bạn bè nhé, Bi chúc em có một ngày vui vẻ.",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776218684852",
+    "timestamp": "2026-04-15T09:04:44.852017",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776218684854",
+    "timestamp": "2026-04-15T09:04:44.854404",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
   }
 ]

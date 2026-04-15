@@ -71,11 +71,11 @@ def _get_whisper_model():
             print("[Bi - Tai] Whisper large-v2 chạy trên GPU (CUDA float16)")
         except Exception:
             _whisper_instance = WhisperModel(
-                WHISPER_MODEL,
+                "small",
                 device="cpu",
                 compute_type="int8",
             )
-            print("[Bi - Tai] Whisper large-v2 chạy trên CPU (int8 fallback)")
+            print("[Bi - Tai] Whisper small chạy trên CPU (laptop mode)")
     return _whisper_instance
 
 
