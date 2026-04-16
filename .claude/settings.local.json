@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m py_compile voice_io.py)",
+      "Bash(python:*)",
+      "Bash(touch docs/SRS_Robot_Bi.md)",
+      "Bash(touch src_brain/ai_core/prompts.py)",
+      "Bash(touch src_brain/senses/mouth_tts.py)",
+      "Bash(touch src_brain/senses/eye_vision.py)",
+      "Bash(touch src_brain/memory_rag/rag_manager.py)",
+      "Bash(awk '{:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(pip install:*)",
+      "Bash(ls *.py *.wav *.mp3)"
+    ]
+  }
+}

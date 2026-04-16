@@ -1,7 +1,22 @@
+# Python cache - vẫn ignore
 __pycache__/
 *.pyc
-.claude/
+*.pyo
+*.pyd
+
+# Folder .claude - BẮT BUỘC PHẢI PUSH (handoff.md)
+.claude/          # tạm ignore
+!.claude/         # bỏ ignore folder .claude
+!.claude/handoff.md   # bắt buộc push file handoff.md
+
+# Các file nhạy cảm - vẫn ignore
 .env
 ssl/
 *.pem
 cloudflared.exe
+
+# Thêm một số ignore hữu ích (khuyến nghị)
+chroma_db/        # database RAG (không cần push)
+*.log
+.DS_Store
+Thumbs.db
