@@ -86,16 +86,108 @@ def _get_whisper_model():
     return _whisper_instance
 
 
+def _normalize_input_channels(device_info) -> int:
+    """Trả về số input channels hợp lệ của thiết bị."""
+    try:
+        channels = int(device_info.get("max_input_channels", 0))
+    except (TypeError, ValueError, AttributeError):
+        return 0
+    return max(0, channels)
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 class EarSTT:
     """Tai nghe của Robot Bi — nhận dạng giọng nói offline bằng faster-whisper."""
 
     def __init__(self):
+        self.mic_device = MIC_DEVICE
+        self.mic_channels = CHANNELS
+        self.mic_name = "Silent mode"
+        self.silent_mode = False
+        self._mic_error_logged = False
+        self._probe_microphone()
+
         # Trigger lazy load ngay khi khởi tạo để không bị lag lần đầu nghe
         try:
             _get_whisper_model()
         except Exception as e:
             print(f"[Bi - Tai] Cảnh báo: không load được Whisper model: {e}")
+
+    def _probe_microphone(self) -> None:
+        """Tìm cấu hình microphone có thể mở được mà không làm crash pipeline."""
+        print("[Bi - Tai] Đang tìm microphone...")
+
+        try:
+            devices = sd.query_devices()
+        except Exception as e:
+            self._enable_silent_mode(f"không thể liệt kê thiết bị âm thanh: {e}")
+            return
+
+        preferred_indexes = []
+        if 0 <= MIC_DEVICE < len(devices):
+            preferred_indexes.append(MIC_DEVICE)
+        preferred_indexes.extend(
+            index for index, info in enumerate(devices)
+            if _normalize_input_channels(info) > 0 and index not in preferred_indexes
+        )
+
+        for index in preferred_indexes:
+            device_info = devices[index]
+            max_input_channels = _normalize_input_channels(device_info)
+            if max_input_channels <= 0:
+                continue
+
+            for channels in (1, 2):
+                if channels > max_input_channels:
+                    continue
+                try:
+                    stream = sd.InputStream(
+                        samplerate=SAMPLE_RATE,
+                        channels=channels,
+                        dtype=DTYPE,
+                        blocksize=_CHUNK_FRAMES,
+                        device=index,
+                    )
+                    stream.close()
+                    self.mic_device = index
+                    self.mic_channels = channels
+                    self.mic_name = str(device_info.get("name", f"Device {index}"))
+                    self.silent_mode = False
+                    print(f"[Bi - Tai] Sử dụng microphone index {index}: {self.mic_name}")
+                    return
+                except Exception:
+                    continue
+
+        self._enable_silent_mode()
+
+    def _enable_silent_mode(self, reason: Optional[str] = None) -> None:
+        """Fallback an toàn khi không có microphone nào dùng được."""
+        self.silent_mode = True
+        self.mic_name = "Silent mode"
+        if reason and not self._mic_error_logged:
+            print(f"[Bi - Tai] Cảnh báo: {reason}")
+            self._mic_error_logged = True
+        print("[Bi - Tai] Không tìm thấy microphone hợp lệ, chuyển sang chế độ im lặng")
+
+    def _create_input_stream(self, blocksize: int):
+        """Tạo InputStream theo microphone đã probe; nếu fail thì chuyển silent mode."""
+        if self.silent_mode:
+            return None
+
+        try:
+            return sd.InputStream(
+                samplerate=SAMPLE_RATE,
+                channels=self.mic_channels,
+                dtype=DTYPE,
+                blocksize=blocksize,
+                device=self.mic_device,
+            )
+        except Exception as e:
+            if not self._mic_error_logged:
+                print(f"[Bi - Tai] Cảnh báo: không mở được microphone đã chọn: {e}")
+                self._mic_error_logged = True
+            self._enable_silent_mode()
+            return None
 
     def listen(self) -> str:
         """
@@ -116,6 +208,8 @@ class EarSTT:
         model = _get_whisper_model()
         if model is None:
             return ""
+        if self.silent_mode:
+            return ""
 
         print(f"[Bi - Tai] Đang lắng nghe... (tối đa {MAX_SECONDS}s)")
 
@@ -126,13 +220,9 @@ class EarSTT:
         tmp_wav: Optional[Path] = None
 
         try:
-            stream = sd.InputStream(
-                samplerate=SAMPLE_RATE,
-                channels=CHANNELS,
-                dtype=DTYPE,
-                blocksize=_CHUNK_FRAMES,
-                device=MIC_DEVICE,
-            )
+            stream = self._create_input_stream(_CHUNK_FRAMES)
+            if stream is None:
+                return ""
             stream.start()
 
             try:
@@ -237,13 +327,9 @@ class EarSTT:
         print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
 
         try:
-            stream = sd.InputStream(
-                samplerate=SAMPLE_RATE,
-                channels=CHANNELS,
-                dtype=DTYPE,
-                blocksize=window_frames,
-                device=MIC_DEVICE,
-            )
+            stream = self._create_input_stream(window_frames)
+            if stream is None:
+                return True
             stream.start()
             try:
                 for _ in range(max_windows):

@@ -150,7 +150,8 @@ _USE_HTTPS = _SSL_CERT.exists() and _SSL_KEY.exists()
 
 # ── Cloudflare Tunnel config ──────────────────────────────────────────────────
 _CLOUDFLARED_ENABLED = True   # Set False để tắt tunnel
-_CLOUDFLARED_EXE = "cloudflared"  # hoặc đường dẫn tuyệt đối nếu cần
+import os as _os
+_CLOUDFLARED_EXE = "cloudflared.exe" if _os.name == 'nt' else "cloudflared"
 
 # ── Thư mục static (dashboard HTML) ──────────────────────────────────────────
 _STATIC_DIR = Path(__file__).parent / "static"
@@ -830,13 +831,7 @@ def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
                         print(f"  {public_url}")
                         print("="*60 + "\n")
                         try:
-                            import qrcode, io
-                            qr = qrcode.QRCode(border=1)
-                            qr.add_data(public_url)
-                            qr.make(fit=True)
-                            f = io.StringIO()
-                            qr.print_ascii(out=f, invert=True)
-                            print(f.getvalue())
+                            print(_build_ascii_qr(public_url, invert=True))
                         except ImportError:
                             pass
         except Exception as e:
@@ -846,22 +841,49 @@ def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
     t.start()
 
 
+def _build_ascii_qr(data: str, border: int = 1, invert: bool = False) -> str:
+    """Render QR code bang ky tu ASCII thuan va ANSI color de hien thi ro rang."""
+    import os
+    import qrcode
+
+    # Bat ANSI escape codes tren Windows cmd/powershell
+    if os.name == 'nt':
+        os.system("")
+
+    qr = qrcode.QRCode(border=border)
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    matrix = qr.get_matrix()
+    
+    # Su dung ANSI background colors (47=Trang, 40=Den)
+    # Dung 2 dau cach (spaces) de tao thanh khoi vuong
+    white = "\033[47m  \033[0m"
+    black = "\033[40m  \033[0m"
+
+    # Mac dinh in chu den nen trang de camera phone de dang nhan dien
+    # Giam rui ro loi khi scan tu man hinh terminal
+    # Tham so `invert` chi la thu tuc de khong bi crash voi nhung code goi ham cu.
+    dark = black
+    light = white
+
+    return "\n".join(
+        "".join(dark if cell else light for cell in row)
+        for row in matrix
+    )
+
+
 def _print_qr_code(ip: str, port: int = 8000, scheme: str = "http") -> None:
     """In QR code ra terminal để phụ huynh quét."""
     url = f"{scheme}://{ip}:{port}"
     try:
-        import qrcode, io
-        qr = qrcode.QRCode(border=1)
-        qr.add_data(url)
-        qr.make(fit=True)
-        f = io.StringIO()
-        qr.print_ascii(out=f)
+        qr_text = _build_ascii_qr(url)
         print(f"\n{'='*50}")
         print(f"  Parent App: {url}")
         if scheme == "https":
             print(f"  (Lan dau bam 'Advanced' -> 'Proceed' vi self-signed cert)")
         print(f"  Quet QR tren dien thoai cung mang WiFi:")
-        print(f.getvalue())
+        print(qr_text)
         print('='*50)
     except ImportError:
         print(f"\n{'='*50}")

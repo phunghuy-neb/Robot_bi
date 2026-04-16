@@ -1,68 +1,30 @@
 # ============================================================
-#  Robot Bi — Dependencies (Offline Build)
-#  Cài đặt: pip install -r requirements.txt
+#  Robot Bi — Dependencies (Updated for new PC)
+#  Cài đặt: pip install -r requirements.txt --break-system-packages
 # ============================================================
 
-# ── AI Engine (Cloud API — Groq + Gemini) ───────────────────
-# requests — HTTP client để gọi Groq và Gemini REST API
+# Core dependencies
 requests>=2.31.0
-
-# ── Speech-to-Text (Offline) ────────────────────────────────
-# faster-whisper — Whisper quantized int8, chạy hoàn toàn offline
-faster-whisper
-# sounddevice — ghi âm từ microphone qua PortAudio
-sounddevice
-# soundfile — đọc/ghi WAV file
-soundfile
-# numpy — xử lý audio array
-numpy
-
-# speechrecognition — LEGACY, không dùng nữa (thay bằng faster-whisper)
-# speechrecognition
-# pyaudio — LEGACY
-# pyaudio
-
-# ── Text-to-Speech ──────────────────────────────────────────
-# edge-tts — Microsoft Edge TTS, giọng vi-VN-HoaiMyNeural
-edge-tts
-
-# ── Phát âm thanh ───────────────────────────────────────────
-# pygame — phát MP3, có unload() để giải phóng file trên Windows
+cryptography
 pygame>=2.5.0
-
-# ── RAG / Trí nhớ dài hạn ───────────────────────────────────
-# ChromaDB — vector database offline, persistent local storage
-chromadb
-# sentence-transformers — embedding model cho tiếng Việt (paraphrase-multilingual-MiniLM-L12-v2)
-sentence-transformers
-
-# ── Computer Vision ─────────────────────────────────────────
-# opencv-python — camera capture, motion detection (MOG2), face recognition (LBPH/histogram)
+fastapi
+uvicorn[standard]
+websockets
+sounddevice
+soundfile
+numpy
+scipy
 opencv-python
+python-dotenv>=1.0.0
+psutil
+qrcode
 
-# ── Cry Detection ────────────────────────────────────────────
-# tflite-runtime — YAMNet TFLite inference (offline cry detection)
-# Cài: pip install tflite-runtime
-# Download model: https://storage.googleapis.com/mediapipe-assets/yamnet.tflite → src_brain/senses/models/
-# (Nếu không có tflite-runtime hoặc yamnet.tflite → CryDetector dùng energy fallback tự động)
-tflite-runtime
-
-# ── TTS Offline Fallback ─────────────────────────────────────
-# pyttsx3 — TTS offline fallback khi edge-tts không có internet
+# Speech & AI
+faster-whisper
+edge-tts
+sentence-transformers
+chromadb
 pyttsx3
 
-# ── Parent App API Server (Sprint 5) ────────────────────────
-# FastAPI — REST API + WebSocket backend
-fastapi
-# uvicorn[standard] — ASGI server với websockets + httptools
-uvicorn[standard]
-
-# ── Môi trường ──────────────────────────────────────────────
-# Đọc biến từ file .env
-python-dotenv>=1.0.0
-
-# ── Monitoring & QR Code (Sprint 7) ─────────────────────────
-# psutil — đo RAM/CPU cho stress test
-psutil
-# qrcode — in QR code ra terminal khi khởi động
-qrcode
+# Cry detection (optional but recommended)
+tflite-runtime

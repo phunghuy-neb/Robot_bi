@@ -22,6 +22,10 @@
 - Các file archive được giữ nguyên mục đích tra cứu, không phải nguồn chuẩn để chỉnh tay.
 - `run_tests.py` hiện sạch 3 warning mục tiêu: pygame `pkg_resources`, Hugging Face cache permission và YAMNet fallback warning spam.
 - `run_tests.py` hiện cũng đã sạch banner `pygame`, progress/model-load output của `sentence-transformers`, và log headless `no-camera`.
+- `EarSTT` hiện tự dò microphone input khả dụng theo mono rồi stereo; nếu không mở được mic sẽ vào silent mode thay vì crash PortAudio.
+- `sync.py` hiện đã an toàn với Windows CP1252: ép `stdout` sang UTF-8 và bỏ emoji trong output.
+- QR của Parent App hiện render bằng ASCII thuần trong terminal nên đã hiện lại ổn định sau bước sync/khởi động trên Windows console.
+- `CryDetector` hiện chỉ log `info` một lần khi không có microphone hợp lệ rồi tự dừng, không còn spam `Error querying device -1`.
 
 ## VIỆC CẦN LÀM TIẾP
 - Test thực tế end-to-end với mic, loa, camera trên máy Windows thật.
@@ -39,7 +43,7 @@
 - YAMNet TFLite có thể không tải được nếu thiếu TensorFlow.
 - Hành vi audio trên mobile browser vẫn cần xác nhận thủ công trên thiết bị thật.
 - Các luồng mic/loa/camera phụ thuộc phần cứng nên chưa thể xác nhận hoàn toàn bằng test tự động.
-- `sync.py` phụ thuộc console encoding khi in emoji; trên Windows CP1252 có thể cần `PYTHONIOENCODING=utf-8`.
+- Chưa ghi nhận bug mở nào mới cho `sync.py` sau khi bỏ emoji output và ép `stdout` sang UTF-8.
 
 ##  PROTECTED FIXES
 - Audio mom talk: resample 16k -> 44.1k, in-memory WAV, `pygame.Channel(7)`.
@@ -56,17 +60,11 @@
 
 ## SESSION GẦN NHẤT
 - Ngày: 2026-04-16
-- Mục tiêu: làm sạch console khi chạy `python run_tests.py` mà không đổi logic protected.
-- Đã đọc `PROJECT.md`, `handoff.md` và toàn bộ file đích trước khi chỉnh sửa.
-- Đã thêm warning filter cho `pygame` trong `mouth_tts.py`, `api_server.py`, `main_loop.py`.
-- Đã cấu hình Hugging Face env/cache trong `rag_manager.py` và `ear_stt.py`.
-- `RAGManager` hiện ưu tiên snapshot embedding local sẵn có để tránh warning cache/network khi test.
-- Đã đổi thông báo thiếu YAMNet trong `cry_detector.py` sang 1 dòng info sạch và chỉ in một lần.
-- Đã ẩn `PYGAME_HIDE_SUPPORT_PROMPT` trước các import `pygame` liên quan.
-- Đã redirect stdout/stderr khi load `SentenceTransformer` để bỏ progress bar và load report khỏi console.
-- Đã chuyển log no-camera headless trong `eye_vision.py` xuống `DEBUG`.
-- Đã suppress output test headless của `EyeVision`, `CryDetector` và `EventNotifier` trong `run_tests.py`.
+- Mục tiêu: sửa lại phần hiển thị QR Code để hiển thị đúng dạng mã QR thật (hình vuông đen/trắng) dễ quét cho Parent App.
+- Đã đọc `PROJECT.md`, `handoff.md` và file đích trước khi chỉnh sửa.
+- Đã cập nhật `_build_ascii_qr` trong `src_brain/network/api_server.py` để sử dụng mã màu ANSI background (`\033[47m`, `\033[40m`) hiển thị thành khối vuông đặc đen/trắng thực thụ thay vì ký tự `#` và khoảng trắng.
+- Cập nhật này giúp hiển thị thành QR Code chuẩn (chữ đen nền trắng), các thiết bị di động quét thẳng dễ dàng, không gặp lỗi "không nhận diện" hay sai màu.
+- Thêm `os.system("")` để thiết lập kích hoạt console Windows/PowerShell hỗ trợ chuỗi ANSI mặc định.
 - Đã chạy `python run_tests.py`: kết quả vẫn `54/54 PASS`.
-- Console test hiện chỉ còn output quan trọng: tiêu đề nhóm test, `PASS`, và kết quả tổng.
-- Các file được chỉnh trong session này: `PROJECT.md`, `.claude/handoff.md`, `run_tests.py`, `src_brain/senses/mouth_tts.py`, `src_brain/network/api_server.py`, `src_brain/main_loop.py`, `src_brain/memory_rag/rag_manager.py`, `src_brain/senses/ear_stt.py`, `src_brain/senses/cry_detector.py`, `src_brain/senses/eye_vision.py`.
-- Cần chạy `python sync.py` sau khi cập nhật tài liệu để đồng bộ file auto-generated.
+- Các file được chỉnh trong session này: `src_brain/network/api_server.py`, `PROJECT.md`, `.claude/handoff.md`.
+- Cần giữ bước `python sync.py` ở cuối để đồng bộ `CLAUDE.md` và `AGENTS.md`.

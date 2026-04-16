@@ -20,6 +20,7 @@ from pathlib import Path
 
 logger = logging.getLogger("cry_detector")
 _yamnet_fallback_notice_printed = False
+_mic_unavailable_notice_printed = False
 
 # ── Cấu hình ─────────────────────────────────────────────────────────────────
 SAMPLE_RATE        = 16000    # YAMNet yêu cầu 16kHz
@@ -99,8 +100,30 @@ class CryDetector:
         global _yamnet_fallback_notice_printed
         if _yamnet_fallback_notice_printed:
             return
-        print("[CryDetector] YAMNet TFLite không khả dụng, dùng energy fallback.")
+        print("[CryDetector] YAMNet TFLite khong kha dung, dung energy fallback.")
         _yamnet_fallback_notice_printed = True
+
+    def _handle_mic_unavailable_once(self, error: Exception) -> bool:
+        """Log 1 lan khi khong co microphone hop le, roi dung detector."""
+        global _mic_unavailable_notice_printed
+        error_text = str(error)
+        mic_error_markers = (
+            "Error querying device",
+            "Invalid device",
+            "No input device",
+            "Error opening InputStream",
+            "PortAudioError",
+        )
+        if not any(marker in error_text for marker in mic_error_markers):
+            return False
+        if not _mic_unavailable_notice_printed:
+            logger.info(
+                "[Bi - Tai khoc] Khong tim thay microphone hop le (%s) - dung CryDetector.",
+                error_text,
+            )
+            _mic_unavailable_notice_printed = True
+        self._running = False
+        return True
 
     def _yamnet_predict(self, audio: np.ndarray) -> float:
         """
@@ -226,6 +249,8 @@ class CryDetector:
                             logger.error("[Bi - Tai khoc] callback loi: %s", e)
 
             except Exception as e:
+                if self._handle_mic_unavailable_once(e):
+                    return
                 logger.warning(
                     "[Bi - Tai khoc] Loi trong detection loop: %s — tiep tuc", e
                 )
