@@ -1,22 +1,43 @@
-# Python cache - vẫn ignore
+# Virtual Environments - Không push lên Git
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables
+.env
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Folder .claude - BẮT BUỘC PHẢI PUSH (handoff.md)
-.claude/          # tạm ignore
-!.claude/         # bỏ ignore folder .claude
-!.claude/handoff.md   # bắt buộc push file handoff.md
+# Hugging Face & Model cache
+.hf_cache/
+**/.hf_cache/
+src_brain/senses/.hf_cache/
+src_brain/memory_rag/.hf_cache/
 
-# Các file nhạy cảm - vẫn ignore
-.env
+# ChromaDB database & test data
+chroma_db/
+src_brain/memory_rag/chroma_db/
+src_brain/memory_rag/_audit_test_db/
+
+# Temporary & log files
+*.log
+tmp_*
+*.tmp
+
+# Project specific
 ssl/
 *.pem
 cloudflared.exe
 
-# Thêm một số ignore hữu ích (khuyến nghị)
-chroma_db/        # database RAG (không cần push)
-*.log
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Folder .claude - BẮT BUỘC PHẢI PUSH
+!.claude/
+!.claude/handoff.md
