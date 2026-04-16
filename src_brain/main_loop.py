@@ -5,6 +5,11 @@ import queue
 import glob
 import asyncio
 import re
+import warnings
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources.*")
 
 # Fix encoding cho console Windows (cp1252 không hỗ trợ tiếng Việt)
 if hasattr(sys.stdout, 'reconfigure'):

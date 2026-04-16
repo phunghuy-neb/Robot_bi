@@ -4,6 +4,8 @@ echo ========================================
 echo    Robot Bi - Khoi dong he thong
 echo ========================================
 
+python sync.py
+
 :: Tao SSL certificate neu chua co
 if not exist "ssl\cert.pem" (
     echo [SSL] Tao SSL certificate...

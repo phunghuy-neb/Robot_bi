@@ -336,14 +336,10 @@ class EyeVision:
         # Mở camera (CAP_DSHOW tránh log lỗi MSMF trên Windows)
         self._cap = cv2.VideoCapture(self.camera_index, cv2.CAP_DSHOW)
         if not self._cap.isOpened():
-            logger.warning(
+            logger.debug(
                 "[Bi - Mắt] Không mở được camera (index=%d). "
                 "EyeVision chạy ở chế độ no-camera.",
                 self.camera_index,
-            )
-            print(
-                f"[Bi - Mắt] ⚠️ Không tìm thấy camera (index={self.camera_index}). "
-                "Bỏ qua vision."
             )
             self._running = False
             return

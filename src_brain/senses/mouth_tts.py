@@ -18,6 +18,11 @@ Interface:
 
 import asyncio
 import os
+import warnings
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources.*")
 
 import edge_tts
 import pygame
@@ -25,6 +30,14 @@ import pygame
 
 class MouthTTS:
     def __init__(self):
+        # Pre-init 44100Hz stereo — chuẩn cho edge-tts MP3
+        # Phải gọi trước pygame.init() / mixer.init() để có hiệu lực
+        pygame.mixer.pre_init(
+            frequency=44100,
+            size=-16,       # 16-bit signed
+            channels=2,     # Stereo — chuẩn cho MP3
+            buffer=2048,    # ~46ms buffer, tránh underrun
+        )
         pygame.mixer.init()
         self.voice = "vi-VN-HoaiMyNeural"
         self.temp_file = "temp_bi_voice.mp3"

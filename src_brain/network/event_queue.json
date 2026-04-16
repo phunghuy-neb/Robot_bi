@@ -448,5 +448,224 @@
       "word_count": 3
     },
     "read": true
+  },
+  {
+    "id": "1776273915101",
+    "timestamp": "2026-04-16T00:25:15.101923",
+    "type": "chat",
+    "message": "Be: xin chào mọi người. xin chào mọi người. xin chào mọi người.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào mọi người. xin chào mọi người. xin chào mọi người.",
+      "bi_response": "Dạ, chào em, sao em chào mọi người nhiều lần thế, giống như em đang mở một buổi biểu diễn và muốn chào đón tất cả khán giả đến tham gia nhé.",
+      "word_count": 12
+    },
+    "read": true
+  },
+  {
+    "id": "1776274587686",
+    "timestamp": "2026-04-16T00:36:27.686992",
+    "type": "chat",
+    "message": "Be: hello. hello. hello. hello. hello. hello.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "hello. hello. hello. hello. hello. hello.",
+      "bi_response": "Dạ, chào bạn, hôm nay trời đẹp thật đấy, giống như khi bạn mở cửa sổ và thấy ánh nắng ấm áp chiếu vào phòng, nó mang lại cảm giác vui tươi và thoải mái, đúng không bạn?",
+      "word_count": 6
+    },
+    "read": true
+  },
+  {
+    "id": "1776275019417",
+    "timestamp": "2026-04-16T00:43:39.417394",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776275019419",
+    "timestamp": "2026-04-16T00:43:39.419477",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776275168841",
+    "timestamp": "2026-04-16T00:46:08.841540",
+    "type": "chat",
+    "message": "Be: xin chào.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào.",
+      "bi_response": "Xin chào bạn, bạn đang cần gì đó không, hay chỉ muốn nói chuyện nhé?",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776275203668",
+    "timestamp": "2026-04-16T00:46:43.668560",
+    "type": "chat",
+    "message": "Be: xin chào.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào.",
+      "bi_response": "Xin chào bạn, hôm nay bạn muốn đi đâu chơi nhé, có phải bạn đang nhớ những lần đi chơi trước và muốn đi lại không?",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776275798510",
+    "timestamp": "2026-04-16T00:56:38.510290",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776275798511",
+    "timestamp": "2026-04-16T00:56:38.511822",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776276091636",
+    "timestamp": "2026-04-16T01:01:31.637846",
+    "type": "chat",
+    "message": "Be: xin chào.",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chào.",
+      "bi_response": "Xin chào bạn, hôm nay mình có thể giúp gì cho bạn không nhé, bạn muốn đi đâu chơi hay cần giúp đỡ gì đó không?",
+      "word_count": 2
+    },
+    "read": true
+  },
+  {
+    "id": "1776276607380",
+    "timestamp": "2026-04-16T01:10:07.380773",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776276607383",
+    "timestamp": "2026-04-16T01:10:07.383186",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776319773095",
+    "timestamp": "2026-04-16T13:09:33.095430",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776319773097",
+    "timestamp": "2026-04-16T13:09:33.097931",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776320414487",
+    "timestamp": "2026-04-16T13:20:14.487362",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776320414490",
+    "timestamp": "2026-04-16T13:20:14.490098",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776321007661",
+    "timestamp": "2026-04-16T13:30:07.661940",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776321007663",
+    "timestamp": "2026-04-16T13:30:07.663526",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
+  },
+  {
+    "id": "1776321069316",
+    "timestamp": "2026-04-16T13:31:09.316952",
+    "type": "motion",
+    "message": "Test motion",
+    "clip_path": null,
+    "metadata": {},
+    "read": true
+  },
+  {
+    "id": "1776321069319",
+    "timestamp": "2026-04-16T13:31:09.319496",
+    "type": "chat",
+    "message": "Be: xin chao Bi",
+    "clip_path": null,
+    "metadata": {
+      "user_text": "xin chao Bi",
+      "bi_response": "Da xin chao ban!",
+      "word_count": 3
+    },
+    "read": true
   }
 ]

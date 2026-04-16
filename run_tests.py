@@ -9,6 +9,9 @@ import sys
 import os
 import time
 import traceback
+import io
+import contextlib
+import logging
 
 sys.path.insert(0, '.')
 
@@ -18,6 +21,13 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 passed = []
 failed = []
+logging.getLogger("src_brain.senses.eye_vision").setLevel(logging.ERROR)
+logging.getLogger("src_brain.senses.cry_detector").setLevel(logging.ERROR)
+
+
+def _run_quiet(fn):
+    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        return fn()
 
 
 def test(name, fn):
@@ -233,12 +243,12 @@ notifier = EventNotifier()
 
 
 def test_notifier_push_event():
-    ok = notifier.push_event("motion", "Test motion")
+    ok = _run_quiet(lambda: notifier.push_event("motion", "Test motion"))
     assert ok is True
 
 
 def test_notifier_push_chat():
-    ok = notifier.push_chat_log("xin chao Bi", "Da xin chao ban!")
+    ok = _run_quiet(lambda: notifier.push_chat_log("xin chao Bi", "Da xin chao ban!"))
     assert ok is True
 
 
@@ -330,19 +340,19 @@ from src_brain.senses.eye_vision import EyeVision
 
 
 def test_eye_init_no_camera():
-    eye = EyeVision(camera_index=99)
+    eye = _run_quiet(lambda: EyeVision(camera_index=99))
     assert eye is not None
 
 
 def test_eye_start_no_camera():
-    eye = EyeVision(camera_index=99)
-    eye.start()
+    eye = _run_quiet(lambda: EyeVision(camera_index=99))
+    _run_quiet(eye.start)
     time.sleep(0.5)
-    eye.stop()
+    _run_quiet(eye.stop)
 
 
 def test_eye_stats():
-    eye = EyeVision(camera_index=99)
+    eye = _run_quiet(lambda: EyeVision(camera_index=99))
     stats = eye.get_stats()
     assert 'frames_processed' in stats
     assert 'events_detected' in stats
@@ -350,10 +360,10 @@ def test_eye_stats():
 
 
 def test_eye_surveillance_mode():
-    eye = EyeVision(camera_index=99)
-    eye.set_surveillance_mode(True)
+    eye = _run_quiet(lambda: EyeVision(camera_index=99))
+    _run_quiet(lambda: eye.set_surveillance_mode(True))
     assert eye._surveillance_mode is True
-    eye.set_surveillance_mode(False)
+    _run_quiet(lambda: eye.set_surveillance_mode(False))
     assert eye._surveillance_mode is False
 
 
@@ -369,21 +379,21 @@ import numpy as np
 
 
 def test_cry_init():
-    d = CryDetector()
+    d = _run_quiet(CryDetector)
     stats = d.get_stats()
     assert 'yamnet_available' in stats
     assert 'total_detections' in stats
 
 
 def test_cry_start_stop():
-    d = CryDetector()
-    d.start()
+    d = _run_quiet(CryDetector)
+    _run_quiet(d.start)
     time.sleep(0.3)
-    d.stop()
+    _run_quiet(d.stop)
 
 
 def test_cry_energy_detect():
-    d = CryDetector()
+    d = _run_quiet(CryDetector)
     silent = np.zeros(16000, dtype=np.float32)
     result = d._energy_based_detect(silent)
     assert result is False, "Silent audio should not trigger cry detection"

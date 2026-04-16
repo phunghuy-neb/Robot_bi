@@ -35,6 +35,8 @@ Endpoints (Sprint 6 — Session G):
 import asyncio
 import hashlib
 import logging
+import os
+import warnings
 import queue
 import re
 import secrets
@@ -44,12 +46,22 @@ import threading
 from pathlib import Path
 from typing import Optional
 
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources.*")
+
 try:
     import numpy as np
     import sounddevice as sd
     _SD_AVAILABLE = True
 except ImportError:
     _SD_AVAILABLE = False
+
+try:
+    from scipy import signal as _scipy_signal
+    _SCIPY_AVAILABLE = True
+except ImportError:
+    _SCIPY_AVAILABLE = False
 
 
 def get_local_ip() -> str:
@@ -110,6 +122,9 @@ def require_auth(
 ) -> str:
     """Dependency: kiểm tra token hợp lệ từ header hoặc query param."""
     token = authorization or auth
+    # Hỗ trợ cả "Bearer xxx" lẫn token thẳng
+    if token and token.startswith("Bearer "):
+        token = token[7:]
     if not token or token not in SESSION_TOKENS:
         raise HTTPException(status_code=401, detail="Chưa đăng nhập")
     return token
@@ -385,25 +400,47 @@ async def puppet_say(body: PuppetIn, _auth: str = Depends(require_auth)):
 
 # ── REST: Camera MJPEG (SRS 4.1) ──────────────────────────────────────────────
 
-async def _mjpeg_generator():
-    """Generator yield MJPEG frames từ camera."""
-    if not _CV2_AVAILABLE:
-        # Placeholder khi không có opencv
-        placeholder = (
-            b'--frame\r\nContent-Type: image/jpeg\r\n\r\n'
-            + b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00'
-            + b'\r\n'
-        )
-        while True:
-            yield placeholder
-            await asyncio.sleep(1.0)
-        return
-
+def _camera_capture_thread(frame_queue: queue.Queue, stop_event: threading.Event):
+    """Thread riêng capture frame — không block event loop."""
+    import time as _time
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     if not cap.isOpened():
-        # Trả về frame placeholder khi không có camera
+        stop_event.set()
+        return
+
+    # Buffer = 1 để luôn lấy frame mới nhất, tránh frame cũ tích lũy
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    cap.set(cv2.CAP_PROP_FPS, 30)
+
+    while not stop_event.is_set():
+        ret, frame = cap.read()
+        if not ret:
+            _time.sleep(0.01)
+            continue
+
+        frame = cv2.resize(frame, (640, 480))
+        _, jpg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+        frame_bytes = jpg.tobytes()
+
+        # Chỉ giữ frame mới nhất — xóa frame cũ nếu queue đầy
+        if frame_queue.full():
+            try:
+                frame_queue.get_nowait()
+            except queue.Empty:
+                pass
+        try:
+            frame_queue.put_nowait(frame_bytes)
+        except queue.Full:
+            pass
+
+    cap.release()
+
+
+async def _mjpeg_generator():
+    """Generator yield MJPEG frames — camera capture chạy trong thread riêng."""
+    if not _CV2_AVAILABLE:
         blank = np.zeros((480, 640, 3), dtype=np.uint8)
-        cv2.putText(blank, "Camera khong kha dung", (50, 240),
+        cv2.putText(blank, 'Camera not available', (80, 240),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         _, jpg = cv2.imencode('.jpg', blank)
         frame_bytes = jpg.tobytes()
@@ -413,18 +450,34 @@ async def _mjpeg_generator():
             await asyncio.sleep(0.5)
         return
 
+    frame_queue: queue.Queue = queue.Queue(maxsize=2)
+    stop_event = threading.Event()
+
+    t = threading.Thread(
+        target=_camera_capture_thread,
+        args=(frame_queue, stop_event),
+        daemon=True,
+        name="camera-capture",
+    )
+    t.start()
+
     try:
         while True:
-            ret, frame = cap.read()
-            if not ret:
+            try:
+                # Lấy frame từ thread qua executor — không block event loop
+                frame_bytes = await asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda: frame_queue.get(timeout=0.1),
+                )
+                yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n'
+                       + frame_bytes + b'\r\n')
+                await asyncio.sleep(0)   # yield control về event loop
+            except queue.Empty:
+                await asyncio.sleep(0.033)   # 30fps target nếu chưa có frame
+            except GeneratorExit:
                 break
-            frame = cv2.resize(frame, (640, 480))
-            _, jpg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
-            yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n'
-                   + jpg.tobytes() + b'\r\n')
-            await asyncio.sleep(0.05)   # ~20fps
     finally:
-        cap.release()
+        stop_event.set()
 
 
 @app.get("/api/camera")
@@ -562,6 +615,7 @@ async def mom_start_talking(_auth: str = Depends(require_auth)):
     """Mẹ bắt đầu nói — Bi tạm dừng AI, chờ nhận audio từ mẹ."""
     global _mom_talking
     _mom_talking = True
+    print("[Me] ===== ME BAT DAU NOI — BI TAM DUNG =====")
     logger.info("[Me] Me bat dau noi chuyen truc tiep")
     return {"status": "mom_talking", "message": "Bi đang nhường loa cho mẹ"}
 
@@ -571,6 +625,7 @@ async def mom_stop_talking(_auth: str = Depends(require_auth)):
     """Mẹ dừng nói — Bi hoạt động bình thường lại."""
     global _mom_talking
     _mom_talking = False
+    print("[Me] ===== ME DUNG NOI — BI HOAT DONG LAI =====")
     logger.info("[Me] Me ngung noi — Bi hoat dong binh thuong")
     return {"status": "bi_active", "message": "Bi đang hoạt động trở lại"}
 
@@ -599,54 +654,87 @@ async def mom_audio_receive(websocket: WebSocket):
     _mom_audio_clients.append(websocket)
     logger.info("[Me] Ket noi audio tu dien thoai me")
 
+    # Khởi tạo pygame Sound channel riêng cho audio mẹ
+    # Channel 7 — không đụng channel music của Bi (Bi dùng mixer.music)
+    import pygame
+    import numpy as np
+    import io as _io
+    import wave as _wave
+
+    MOM_CHANNEL = 7  # Channel riêng, không xung đột TTS Bi
+
+    def _get_mixer_freq():
+        """Lấy sample rate thực tế của mixer (44100Hz nếu mouth_tts đã init)."""
+        info = pygame.mixer.get_init()
+        return info[0] if info else 44100
+
+    # Fallback nếu mixer chưa init (mouth_tts chưa chạy)
+    if not pygame.mixer.get_init():
+        pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=2048)
+        pygame.mixer.init()
+
+    # Đảm bảo đủ channels
+    if pygame.mixer.get_num_channels() <= MOM_CHANNEL:
+        pygame.mixer.set_num_channels(MOM_CHANNEL + 1)
+
+    mom_channel = pygame.mixer.Channel(MOM_CHANNEL)
+
     try:
-        import pygame
-        import numpy as np
-
-        # Đảm bảo pygame mixer đã init (main_loop đã init, chỉ init nếu chưa có)
-        if not pygame.mixer.get_init():
-            pygame.mixer.init(frequency=16000, size=-16, channels=1, buffer=512)
-
         while True:
             try:
-                data = await asyncio.wait_for(websocket.receive_bytes(), timeout=10.0)
+                data = await asyncio.wait_for(
+                    websocket.receive_bytes(), timeout=10.0
+                )
                 if not data or len(data) == 0:
                     continue
                 if not _mom_talking:
-                    continue  # Bỏ qua audio nếu mẹ chưa bật mic
+                    continue
 
-                # Convert PCM float32 → int16 → ghi WAV tạm → phát qua pygame
-                import wave
-                import tempfile
-                import os as _os
-
+                # Parse float32 PCM từ browser (16000Hz mono)
                 float_array = np.frombuffer(data, dtype=np.float32)
-                if len(float_array) == 0:
+                if len(float_array) < 16:
                     continue
                 float_array = np.clip(float_array, -1.0, 1.0)
-                int16_array = (float_array * 32767).astype(np.int16)
 
-                tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
-                _os.close(tmp_fd)
-                with wave.open(tmp_path, 'wb') as wf:
-                    wf.setnchannels(1)
+                # Lấy sample rate mixer hiện tại (thường 44100Hz)
+                mixer_freq = _get_mixer_freq()
+                src_freq = 16000  # browser luôn gửi 16000Hz
+
+                # Resample 16000 → mixer_freq nếu cần
+                if mixer_freq != src_freq:
+                    if _SCIPY_AVAILABLE:
+                        num_samples = int(len(float_array) * mixer_freq / src_freq)
+                        float_array = _scipy_signal.resample(float_array, num_samples)
+                    else:
+                        # numpy fallback khi không có scipy
+                        num_samples = int(len(float_array) * mixer_freq / src_freq)
+                        indices = np.linspace(0, len(float_array) - 1, num_samples)
+                        float_array = np.interp(indices, np.arange(len(float_array)), float_array)
+
+                # Convert float32 → int16
+                int16_mono = (float_array * 32767).astype(np.int16)
+
+                # Convert mono → stereo nếu mixer dùng stereo
+                mixer_channels = pygame.mixer.get_init()[2] if pygame.mixer.get_init() else 2
+                if mixer_channels == 2:
+                    int16_stereo = np.column_stack([int16_mono, int16_mono])
+                    pcm_bytes = int16_stereo.tobytes()
+                else:
+                    pcm_bytes = int16_mono.tobytes()
+
+                # Tạo WAV trong memory với đúng sample rate — KHÔNG ghi file
+                buf = _io.BytesIO()
+                with _wave.open(buf, 'wb') as wf:
+                    wf.setnchannels(mixer_channels)
                     wf.setsampwidth(2)
-                    wf.setframerate(16000)
-                    wf.writeframes(int16_array.tobytes())
+                    wf.setframerate(mixer_freq)
+                    wf.writeframes(pcm_bytes)
+                buf.seek(0)
 
-                if not pygame.mixer.get_init():
-                    pygame.mixer.init(frequency=16000, size=-16, channels=1, buffer=1024)
-                sound = pygame.mixer.Sound(tmp_path)
+                # Phát qua pygame Sound từ buffer
+                sound = pygame.mixer.Sound(buf)
                 sound.set_volume(1.0)
-                sound.play()
-
-                async def _cleanup(path):
-                    await asyncio.sleep(2)
-                    try:
-                        _os.unlink(path)
-                    except Exception:
-                        pass
-                asyncio.create_task(_cleanup(tmp_path))
+                mom_channel.play(sound)
 
             except asyncio.TimeoutError:
                 try:

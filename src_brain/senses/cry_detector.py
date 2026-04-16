@@ -19,6 +19,7 @@ import numpy as np
 from pathlib import Path
 
 logger = logging.getLogger("cry_detector")
+_yamnet_fallback_notice_printed = False
 
 # ── Cấu hình ─────────────────────────────────────────────────────────────────
 SAMPLE_RATE        = 16000    # YAMNet yêu cầu 16kHz
@@ -90,8 +91,16 @@ class CryDetector:
             logger.info("[Bi - Tai khoc] YAMNet TFLite model da san sang.")
 
         except Exception as e:
-            logger.warning("[Bi - Tai khoc] Khong load duoc YAMNet: %s — dung fallback.", e)
+            self._log_yamnet_fallback_once()
+            logger.debug("[Bi - Tai khoc] Khong load duoc YAMNet: %s", e)
             self._yamnet_available = False
+
+    def _log_yamnet_fallback_once(self) -> None:
+        global _yamnet_fallback_notice_printed
+        if _yamnet_fallback_notice_printed:
+            return
+        print("[CryDetector] YAMNet TFLite không khả dụng, dùng energy fallback.")
+        _yamnet_fallback_notice_printed = True
 
     def _yamnet_predict(self, audio: np.ndarray) -> float:
         """

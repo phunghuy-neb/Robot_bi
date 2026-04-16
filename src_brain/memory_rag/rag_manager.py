@@ -16,6 +16,18 @@ Chạy test độc lập:
 """
 
 import os
+_hf_cache_dir = os.path.abspath("src_brain/memory_rag/.hf_cache")
+os.makedirs(_hf_cache_dir, exist_ok=True)
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TRANSFORMERS_CACHE"] = _hf_cache_dir
+os.environ["HF_HOME"] = _hf_cache_dir
+os.environ["HUGGINGFACE_HUB_CACHE"] = _hf_cache_dir
+os.environ["SENTENCE_TRANSFORMERS_HOME"] = _hf_cache_dir
+import contextlib
+import io
 import re
 import uuid
 import logging
@@ -23,6 +35,9 @@ from datetime import datetime
 from typing import Optional
 
 logger = logging.getLogger("rag_manager")
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 # ── Cấu hình ──────────────────────────────────────────────────────────────────
 _DEFAULT_DB_PATH      = "src_brain/memory_rag/chroma_db"
@@ -31,6 +46,18 @@ _COLLECTION_NAME      = "bi_memory"
 _MIN_SIMILARITY       = 0.50   # cosine similarity tối thiểu để xem là "liên quan" (0.0–1.0)
 _MIN_SIMILARITY_STRICT = 0.65  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
 _MAX_FACTS_PER_QUERY  = 3      # Tối đa 3 facts inject vào context (tránh làm LLM confused)
+
+
+def _resolve_local_embed_model_path() -> str:
+    """Ưu tiên snapshot local đã có để tránh warning cache/network khi test."""
+    local_snapshot = os.path.expanduser(
+        "~/.cache/huggingface/hub/models--sentence-transformers--"
+        "paraphrase-multilingual-MiniLM-L12-v2/snapshots/"
+        "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
+    )
+    if os.path.exists(os.path.join(local_snapshot, "config.json")):
+        return local_snapshot
+    return _EMBED_MODEL_NAME
 
 # ── Patterns trích xuất facts ─────────────────────────────────────────────────
 # Mỗi pattern: (tên_loại_fact, list_regex)
@@ -138,7 +165,12 @@ class RAGManager:
         try:
             from sentence_transformers import SentenceTransformer
             logger.info("Đang tải embedding model '%s'...", _EMBED_MODEL_NAME)
-            self._embed_model = SentenceTransformer(_EMBED_MODEL_NAME)
+            embed_model_path = _resolve_local_embed_model_path()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self._embed_model = SentenceTransformer(
+                    embed_model_path,
+                    local_files_only=(embed_model_path != _EMBED_MODEL_NAME),
+                )
             logger.info("Embedding model sẵn sàng.")
         except ImportError:
             raise RuntimeError(

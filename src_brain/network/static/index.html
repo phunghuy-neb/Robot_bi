@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,568 +11,1034 @@
   <meta name="apple-mobile-web-app-title" content="Robot Bi">
   <link rel="apple-touch-icon" href="/static/icon-192.png">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-           background: #f0f2f5; color: #222; font-size: 14px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #222;
+      font-size: 14px;
+    }
 
     /* ── Login overlay ── */
     .login-overlay {
-      position: fixed; inset: 0; background: linear-gradient(135deg, #4a90d9, #1a4f8a);
-      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #4a90d9, #1a4f8a);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     .login-box {
-      background: white; border-radius: 20px; padding: 36px 28px; width: 320px;
-      max-width: 90vw; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+      background: white;
+      border-radius: 20px;
+      padding: 36px 28px;
+      width: 320px;
+      max-width: 90vw;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, .3);
     }
-    .login-box h2 { font-size: 22px; font-weight: 800; color: #1e40af; margin-bottom: 6px; }
-    .login-box p  { font-size: 13px; color: #6b7280; margin-bottom: 22px; }
+
+    .login-box h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1e40af;
+      margin-bottom: 6px;
+    }
+
+    .login-box p {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 22px;
+    }
+
     .pin-input {
-      width: 100%; padding: 14px; text-align: center; font-size: 28px;
-      letter-spacing: 12px; border: 2px solid #e5e7eb; border-radius: 12px;
-      outline: none; margin-bottom: 14px; font-family: monospace;
+      width: 100%;
+      padding: 14px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      outline: none;
+      margin-bottom: 14px;
+      font-family: monospace;
     }
-    .pin-input:focus { border-color: #4a90d9; }
+
+    .pin-input:focus {
+      border-color: #4a90d9;
+    }
+
     .btn-login {
-      width: 100%; padding: 13px; background: #4a90d9; color: white;
-      border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-      cursor: pointer; transition: opacity .15s;
+      width: 100%;
+      padding: 13px;
+      background: #4a90d9;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
     }
-    .btn-login:active { opacity: .8; }
-    .login-err { margin-top: 10px; color: #ef4444; font-size: 13px; display: none; }
+
+    .btn-login:active {
+      opacity: .8;
+    }
+
+    .login-err {
+      margin-top: 10px;
+      color: #ef4444;
+      font-size: 13px;
+      display: none;
+    }
 
     /* ── Header ── */
-    .header { background: linear-gradient(135deg, #4a90d9, #2c6fad);
-              color: white; padding: 12px 16px;
-              display: flex; align-items: center; justify-content: space-between;
-              position: sticky; top: 0; z-index: 100;
-              box-shadow: 0 2px 8px rgba(0,0,0,.25); }
-    .header-left { display: flex; align-items: center; gap: 8px; }
-    .header h1 { font-size: 17px; font-weight: 700; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .stars-badge {
-      display: flex; align-items: center; gap: 4px;
-      background: rgba(255,255,255,.15); border-radius: 20px;
-      padding: 4px 10px; font-size: 13px; font-weight: 700; cursor: default;
+    .header {
+      background: linear-gradient(135deg, #4a90d9, #2c6fad);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
     }
-    .status-pill { display: flex; align-items: center; gap: 5px;
-                   background: rgba(255,255,255,.15); border-radius: 20px;
-                   padding: 4px 10px; font-size: 12px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
-    .dot.off { background: #f87171; }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header h1 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stars-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+    }
+
+    .dot.off {
+      background: #f87171;
+    }
+
     .btn-logout {
-      background: rgba(255,255,255,.2); border: none; color: white;
-      border-radius: 20px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+      background: rgba(255, 255, 255, .2);
+      border: none;
+      color: white;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
     }
 
     /* ── Tabs ── */
-    .tabs { display: flex; background: white;
-            border-bottom: 1px solid #e5e7eb;
-            position: sticky; top: 48px; z-index: 99;
-            overflow-x: auto; scrollbar-width: none; }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab { flex: 1; min-width: 52px; padding: 11px 4px; text-align: center;
-           font-size: 10px; font-weight: 500; cursor: pointer; color: #6b7280;
-           border-bottom: 3px solid transparent; transition: all .2s;
-           white-space: nowrap; user-select: none; }
-    .tab.active { color: #4a90d9; border-bottom-color: #4a90d9; font-weight: 700; }
-    .tab .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 48px;
+      z-index: 99;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 52px;
+      padding: 11px 4px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #6b7280;
+      border-bottom: 3px solid transparent;
+      transition: all .2s;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: #4a90d9;
+      border-bottom-color: #4a90d9;
+      font-weight: 700;
+    }
+
+    .tab .tab-icon {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
 
     /* ── Content ── */
-    .content { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 24px; }
-    .section { display: none; }
-    .section.active { display: block; }
+    .content {
+      padding: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding-bottom: 24px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
 
     /* ── Cards ── */
-    .card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-    .card-title { font-size: 11px; font-weight: 700; color: #9ca3af;
-                  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
 
     /* ── Stats Grid ── */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .stat-box { background: white; border-radius: 14px; padding: 16px; text-align: center;
-                box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-    .stat-num { font-size: 30px; font-weight: 800; }
-    .stat-label { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .stat-box {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    }
+
+    .stat-num {
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
 
     /* ── Chat ── */
-    .chat-item { margin-bottom: 14px; }
-    .chat-row { display: flex; flex-direction: column; gap: 6px; }
-    .chat-who { font-size: 10px; color: #9ca3af; padding: 0 4px; }
-    .bubble { display: inline-block; padding: 9px 13px; border-radius: 16px;
-              font-size: 14px; line-height: 1.5; max-width: 88%; word-break: break-word; }
-    .bubble.user { background: #dbeafe; color: #1e40af; border-radius: 16px 16px 16px 4px; }
-    .bubble.bi   { background: #ede9fe; color: #5b21b6; border-radius: 16px 16px 4px 16px; }
-    .chat-time { font-size: 10px; color: #d1d5db; margin-top: 3px; padding: 0 4px; }
+    .chat-item {
+      margin-bottom: 14px;
+    }
+
+    .chat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-who {
+      font-size: 10px;
+      color: #9ca3af;
+      padding: 0 4px;
+    }
+
+    .bubble {
+      display: inline-block;
+      padding: 9px 13px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 88%;
+      word-break: break-word;
+    }
+
+    .bubble.user {
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .bubble.bi {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .chat-time {
+      font-size: 10px;
+      color: #d1d5db;
+      margin-top: 3px;
+      padding: 0 4px;
+    }
 
     /* ── Events ── */
-    .evt-item { display: flex; gap: 12px; padding: 11px 0;
-                border-bottom: 1px solid #f3f4f6; align-items: flex-start; }
-    .evt-item:last-child { border-bottom: none; }
-    .evt-icon { font-size: 24px; min-width: 34px; text-align: center; margin-top: 1px; }
-    .evt-body { flex: 1; }
-    .evt-msg { font-size: 14px; line-height: 1.4; }
-    .evt-time { font-size: 11px; color: #9ca3af; margin-top: 3px; }
-    .new-badge { display: inline-block; font-size: 9px; font-weight: 700;
-                 padding: 2px 6px; border-radius: 10px;
-                 background: #ef4444; color: white; margin-left: 6px;
-                 vertical-align: middle; }
+    .evt-item {
+      display: flex;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f3f4f6;
+      align-items: flex-start;
+    }
+
+    .evt-item:last-child {
+      border-bottom: none;
+    }
+
+    .evt-icon {
+      font-size: 24px;
+      min-width: 34px;
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    .evt-body {
+      flex: 1;
+    }
+
+    .evt-msg {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .evt-time {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    .new-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #ef4444;
+      color: white;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     /* ── Camera ── */
-    .camera-feed { width: 100%; max-width: 640px; border-radius: 10px;
-                   display: block; background: #1f2937; }
-    .btn-cam-toggle {
-      display: flex; align-items: center; gap: 6px; justify-content: center;
-      padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer;
-      font-size: 14px; font-weight: 600; margin-top: 10px; width: 100%;
-      background: #1f2937; color: white; transition: background .2s;
+    .camera-feed {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 10px;
+      display: block;
+      background: #1f2937;
     }
-    .btn-cam-toggle.on { background: #ef4444; }
+
+    .btn-cam-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+      width: 100%;
+      background: #1f2937;
+      color: white;
+      transition: background .2s;
+    }
+
+    .btn-cam-toggle.on {
+      background: #ef4444;
+    }
 
     /* ── Memory ── */
-    .mem-item { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0;
-                border-bottom: 1px solid #f3f4f6; }
-    .mem-item:last-child { border-bottom: none; }
-    .mem-body { flex: 1; }
-    .mem-text { font-size: 14px; line-height: 1.4; }
-    .mem-meta { font-size: 11px; color: #9ca3af; margin-top: 3px; }
-    .btn-del { background: none; border: none; color: #f87171; cursor: pointer;
-               font-size: 19px; padding: 2px 4px; line-height: 1; flex-shrink: 0; }
+    .mem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .mem-item:last-child {
+      border-bottom: none;
+    }
+
+    .mem-body {
+      flex: 1;
+    }
+
+    .mem-text {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .mem-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #f87171;
+      cursor: pointer;
+      font-size: 19px;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
 
     /* ── Tasks ── */
     .task-item {
-      display: flex; align-items: center; gap: 10px; padding: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
       border-bottom: 1px solid #f3f4f6;
     }
-    .task-item:last-child { border-bottom: none; }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
     .task-check {
-      width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d1d5db;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; transition: all .2s;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all .2s;
     }
-    .task-check.done { background: #22c55e; border-color: #22c55e; color: white; font-size: 12px; }
-    .task-body { flex: 1; }
-    .task-name { font-size: 14px; font-weight: 600; }
-    .task-name.done { text-decoration: line-through; color: #9ca3af; }
+
+    .task-check.done {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: white;
+      font-size: 12px;
+    }
+
+    .task-body {
+      flex: 1;
+    }
+
+    .task-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .task-name.done {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+
     .task-time-badge {
-      font-size: 11px; color: #4a90d9; background: #eff6ff;
-      padding: 2px 7px; border-radius: 8px; margin-top: 3px; display: inline-block;
+      font-size: 11px;
+      color: #4a90d9;
+      background: #eff6ff;
+      padding: 2px 7px;
+      border-radius: 8px;
+      margin-top: 3px;
+      display: inline-block;
     }
-    .task-stars { font-size: 13px; color: #f59e0b; margin-right: 4px; }
+
+    .task-stars {
+      font-size: 13px;
+      color: #f59e0b;
+      margin-right: 4px;
+    }
+
     .stars-total-big {
-      font-size: 36px; font-weight: 900; color: #f59e0b; text-align: center;
+      font-size: 36px;
+      font-weight: 900;
+      color: #f59e0b;
+      text-align: center;
       padding: 10px 0 4px;
     }
-    .stars-label { font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 14px; }
+
+    .stars-label {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 14px;
+    }
 
     /* ── Forms ── */
-    textarea, input[type=text], input[type=time] {
-      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 10px 12px; font-size: 14px; resize: none; font-family: inherit;
-      line-height: 1.5; transition: border-color .2s;
+    textarea,
+    input[type=text],
+    input[type=time] {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      resize: none;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color .2s;
     }
-    textarea:focus, input[type=text]:focus, input[type=time]:focus {
-      outline: none; border-color: #4a90d9;
+
+    textarea:focus,
+    input[type=text]:focus,
+    input[type=time]:focus {
+      outline: none;
+      border-color: #4a90d9;
     }
-    .form-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
-    .form-row input[type=text] { flex: 1; }
-    .form-row input[type=time] { width: 110px; flex-shrink: 0; }
-    .btn { padding: 11px 16px; border: none; border-radius: 10px; cursor: pointer;
-           font-size: 14px; font-weight: 600; transition: opacity .15s; }
-    .btn:active { opacity: .8; }
-    .btn-blue  { background: #4a90d9; color: white; }
-    .btn-green { background: #22c55e; color: white; }
-    .btn-full  { width: 100%; margin-top: 10px; }
-    .btn-outline { background: #f0f7ff; color: #4a90d9;
-                   border: 1.5px solid #bfdbfe; margin: 3px; }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-top: 10px;
+    }
+
+    .form-row input[type=text] {
+      flex: 1;
+    }
+
+    .form-row input[type=time] {
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity .15s;
+    }
+
+    .btn:active {
+      opacity: .8;
+    }
+
+    .btn-blue {
+      background: #4a90d9;
+      color: white;
+    }
+
+    .btn-green {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-outline {
+      background: #f0f7ff;
+      color: #4a90d9;
+      border: 1.5px solid #bfdbfe;
+      margin: 3px;
+    }
 
     /* ── Puppet result ── */
-    .puppet-ok  { margin-top: 10px; padding: 10px 12px; border-radius: 10px;
-                  background: #dcfce7; color: #166534; font-size: 13px; display: none; }
-    .puppet-err { margin-top: 10px; padding: 10px 12px; border-radius: 10px;
-                  background: #fee2e2; color: #991b1b; font-size: 13px; display: none; }
+    .puppet-ok {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 13px;
+      display: none;
+    }
+
+    .puppet-err {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 13px;
+      display: none;
+    }
 
     /* ── Empty / Loading ── */
-    .empty   { text-align: center; color: #d1d5db; padding: 30px 0; font-size: 14px; }
-    .loading { text-align: center; color: #d1d5db; padding: 20px 0; font-size: 13px; }
+    .empty {
+      text-align: center;
+      color: #d1d5db;
+      padding: 30px 0;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #d1d5db;
+      padding: 20px 0;
+      font-size: 13px;
+    }
 
     /* ── Toast ── */
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-             background: #1f2937; color: white; padding: 10px 20px;
-             border-radius: 22px; font-size: 13px; white-space: nowrap;
-             opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 999; }
-    .toast.show { opacity: 1; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 22px;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
 
     /* ── Top action bar ── */
-    .action-bar { display: flex; justify-content: flex-end; align-items: center;
-                  margin-bottom: 8px; gap: 8px; }
-    .action-bar span { font-size: 12px; color: #9ca3af; flex: 1; }
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .action-bar span {
+      font-size: 12px;
+      color: #9ca3af;
+      flex: 1;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ═══ LOGIN OVERLAY ═══ -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <div style="font-size:48px; margin-bottom:10px;">🤖</div>
-    <h2>Robot Bi</h2>
-    <p>Nhập PIN 6 số để đăng nhập</p>
-    <input type="password" class="pin-input" id="pinInput"
-           maxlength="6" inputmode="numeric" pattern="[0-9]*"
-           placeholder="••••••"
-           onkeydown="if(event.key==='Enter') doLogin()">
-    <button class="btn-login" onclick="doLogin()">Đăng nhập</button>
-    <div class="login-err" id="loginErr">PIN không đúng. Thử lại.</div>
-  </div>
-</div>
-
-<!-- ═══ MAIN APP ═══ -->
-
-<!-- Header -->
-<div class="header">
-  <div class="header-left">
-    <span style="font-size:24px;">🤖</span>
-    <h1>Robot Bi</h1>
-  </div>
-  <div class="header-right">
-    <div class="stars-badge" id="headerStars">⭐ 0</div>
-    <div class="status-pill">
-      <span class="dot" id="dot"></span>
-      <span id="statusTxt">Đang kết nối...</span>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">Thoát</button>
-  </div>
-</div>
-
-<!-- Tabs -->
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('status')">
-    <span class="tab-icon">📊</span>Trạng thái
-  </div>
-  <div class="tab" onclick="switchTab('chat')">
-    <span class="tab-icon">💬</span>Chat
-  </div>
-  <div class="tab" onclick="switchTab('events')">
-    <span class="tab-icon">🔔</span>Sự kiện
-  </div>
-  <div class="tab" onclick="switchTab('memory')">
-    <span class="tab-icon">🧠</span>Trí nhớ
-  </div>
-  <div class="tab" onclick="switchTab('tasks')">
-    <span class="tab-icon">✅</span>Nhiệm vụ
-  </div>
-  <div class="tab" onclick="switchTab('puppet')">
-    <span class="tab-icon">🎤</span>Nhập vai
-  </div>
-</div>
-
-<!-- Content -->
-<div class="content">
-
-  <!-- ── STATUS ── -->
-  <div class="section active" id="sec-status">
-    <div class="stats-grid" id="statsGrid">
-      <div class="loading" style="grid-column:1/-1;">Đang tải...</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Sự kiện gần nhất</div>
-      <div id="recentEvt"><div class="loading">...</div></div>
+  <!-- ═══ LOGIN OVERLAY ═══ -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div style="font-size:48px; margin-bottom:10px;">🤖</div>
+      <h2>Robot Bi</h2>
+      <p>Nhập PIN 6 số để đăng nhập</p>
+      <input type="password" class="pin-input" id="pinInput" maxlength="6" inputmode="numeric" pattern="[0-9]*"
+        placeholder="••••••" onkeydown="if(event.key==='Enter') doLogin()">
+      <button class="btn-login" onclick="doLogin()">Đăng nhập</button>
+      <div class="login-err" id="loginErr">PIN không đúng. Thử lại.</div>
     </div>
   </div>
 
-  <!-- ── CHAT ── -->
-  <div class="section" id="sec-chat">
-    <div id="chatList"><div class="loading">Đang tải...</div></div>
+  <!-- ═══ MAIN APP ═══ -->
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span style="font-size:24px;">🤖</span>
+      <h1>Robot Bi</h1>
+    </div>
+    <div class="header-right">
+      <div class="stars-badge" id="headerStars">⭐ 0</div>
+      <div class="status-pill">
+        <span class="dot" id="dot"></span>
+        <span id="statusTxt">Đang kết nối...</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Thoát</button>
+    </div>
   </div>
 
-  <!-- ── EVENTS + CAMERA ── -->
-  <div class="section" id="sec-events">
-    <!-- Camera live stream -->
-    <div class="card">
-      <div class="card-title">📹 Camera trực tiếp</div>
-      <img id="cameraFeed" class="camera-feed" alt="Camera" src="">
-      <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
-        📷 Bật camera
-      </button>
-      <!-- Mic mẹ nói trực tiếp -->
-      <div id="mom-talk-section" style="margin-top:16px;text-align:center;padding:12px;background:#fef3c7;border-radius:12px;border:1px solid #f59e0b;">
-        <p style="margin:0 0 8px 0;font-size:13px;color:#92400e;font-weight:600;">
-          📞 Nói chuyện trực tiếp với bé
-        </p>
-        <button id="btn-mom-mic"
-          onclick="toggleMomMic()"
-          style="background:#f59e0b;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:600;">
-          🎤 Bật mic — Nói với bé
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('status')">
+      <span class="tab-icon">📊</span>Trạng thái
+    </div>
+    <div class="tab" onclick="switchTab('chat')">
+      <span class="tab-icon">💬</span>Chat
+    </div>
+    <div class="tab" onclick="switchTab('events')">
+      <span class="tab-icon">🔔</span>Sự kiện
+    </div>
+    <div class="tab" onclick="switchTab('memory')">
+      <span class="tab-icon">🧠</span>Trí nhớ
+    </div>
+    <div class="tab" onclick="switchTab('tasks')">
+      <span class="tab-icon">✅</span>Nhiệm vụ
+    </div>
+    <div class="tab" onclick="switchTab('puppet')">
+      <span class="tab-icon">🎤</span>Nhập vai
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── STATUS ── -->
+    <div class="section active" id="sec-status">
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading" style="grid-column:1/-1;">Đang tải...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sự kiện gần nhất</div>
+        <div id="recentEvt">
+          <div class="loading">...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAT ── -->
+    <div class="section" id="sec-chat">
+      <div id="chatList">
+        <div class="loading">Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- ── EVENTS + CAMERA ── -->
+    <div class="section" id="sec-events">
+      <!-- Camera live stream -->
+      <div class="card">
+        <div class="card-title">📹 Camera trực tiếp</div>
+        <img id="cameraFeed" class="camera-feed" alt="Camera" src="">
+        <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
+          📷 Bật camera
         </button>
-        <p id="mom-mic-status" style="margin:8px 0 0 0;font-size:12px;color:#78716c;">
-          Bi đang hoạt động bình thường
+        <!-- Mic mẹ nói trực tiếp -->
+        <div id="mom-talk-section"
+          style="margin-top:16px;text-align:center;padding:12px;background:#fef3c7;border-radius:12px;border:1px solid #f59e0b;">
+          <p style="margin:0 0 8px 0;font-size:13px;color:#92400e;font-weight:600;">
+            📞 Nói chuyện trực tiếp với bé
+          </p>
+          <button id="btn-mom-mic" onclick="toggleMomMic()"
+            style="background:#f59e0b;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:600;">
+            🎤 Bật mic — Nói với bé
+          </button>
+          <p id="mom-mic-status" style="margin:8px 0 0 0;font-size:12px;color:#78716c;">
+            Bi đang hoạt động bình thường
+          </p>
+        </div>
+      </div>
+      <!-- Events list -->
+      <div class="action-bar">
+        <span>Sự kiện robot ghi nhận</span>
+        <button class="btn btn-blue" onclick="markAllRead()" style="padding:7px 12px;font-size:12px;">
+          ✓ Đọc hết
+        </button>
+      </div>
+      <div class="card" id="evtList">
+        <div class="loading">Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- ── MEMORY ── -->
+    <div class="section" id="sec-memory">
+      <div class="card">
+        <div class="card-title">Thêm trí nhớ mới</div>
+        <textarea id="memInput" rows="2" placeholder="Ví dụ: Cuối tuần này bé đi sinh nhật bạn Minh"></textarea>
+        <button class="btn btn-green btn-full" onclick="addMemory()">
+          ➕ Thêm vào bộ nhớ Bi
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          Danh sách trí nhớ
+          <span id="memCnt" style="color:#4a90d9; font-weight:800;"></span>
+        </div>
+        <div id="memList">
+          <div class="loading">Đang tải...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TASKS ── -->
+    <div class="section" id="sec-tasks">
+      <div class="card">
+        <div class="stars-total-big" id="starsBig">⭐ 0</div>
+        <div class="stars-label">sao tích lũy</div>
+        <div class="card-title">Thêm nhiệm vụ mới</div>
+        <div class="form-row">
+          <input type="text" id="taskName" placeholder="Tên nhiệm vụ, ví dụ: Đánh răng">
+          <input type="time" id="taskTime" value="07:00">
+        </div>
+        <button class="btn btn-green btn-full" onclick="addTask()">
+          ➕ Thêm nhiệm vụ
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">Danh sách nhiệm vụ hôm nay</div>
+        <div id="taskList">
+          <div class="loading">Đang tải...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PUPPET ── -->
+    <div class="section" id="sec-puppet">
+      <div class="card">
+        <div class="card-title">🎭 Bi nói thay bạn</div>
+        <p style="color:#6b7280; font-size:13px; margin-bottom:10px; line-height:1.5;">
+          Nhập câu muốn Bi đọc to tại nhà. Lệnh được xếp hàng và đọc khi robot rảnh.
         </p>
+        <textarea id="puppetInput" rows="3" placeholder="Ví dụ: Con ơi, đến giờ ăn cơm rồi!"></textarea>
+        <button class="btn btn-blue btn-full" id="puppetBtn" onclick="sendPuppet()">
+          📢 Bi đọc ngay
+        </button>
+        <div class="puppet-ok" id="puppetOk"></div>
+        <div class="puppet-err" id="puppetErr"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Câu mẫu nhanh</div>
+        <div>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Con ơi, đến giờ ăn cơm rồi!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Chúc bé ngủ ngon nha!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Bé ơi đi đánh răng đi nhé!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Mẹ thương con lắm!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Bé nhớ uống nước nhé!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Hôm nay bé học được gì rồi kể Bi nghe
+            nào!</button>
+        </div>
       </div>
     </div>
-    <!-- Events list -->
-    <div class="action-bar">
-      <span>Sự kiện robot ghi nhận</span>
-      <button class="btn btn-blue" onclick="markAllRead()" style="padding:7px 12px;font-size:12px;">
-        ✓ Đọc hết
-      </button>
-    </div>
-    <div class="card" id="evtList"><div class="loading">Đang tải...</div></div>
-  </div>
 
-  <!-- ── MEMORY ── -->
-  <div class="section" id="sec-memory">
-    <div class="card">
-      <div class="card-title">Thêm trí nhớ mới</div>
-      <textarea id="memInput" rows="2"
-        placeholder="Ví dụ: Cuối tuần này bé đi sinh nhật bạn Minh"></textarea>
-      <button class="btn btn-green btn-full" onclick="addMemory()">
-        ➕ Thêm vào bộ nhớ Bi
-      </button>
-    </div>
-    <div class="card">
-      <div class="card-title">
-        Danh sách trí nhớ
-        <span id="memCnt" style="color:#4a90d9; font-weight:800;"></span>
-      </div>
-      <div id="memList"><div class="loading">Đang tải...</div></div>
-    </div>
-  </div>
+  </div><!-- .content -->
 
-  <!-- ── TASKS ── -->
-  <div class="section" id="sec-tasks">
-    <div class="card">
-      <div class="stars-total-big" id="starsBig">⭐ 0</div>
-      <div class="stars-label">sao tích lũy</div>
-      <div class="card-title">Thêm nhiệm vụ mới</div>
-      <div class="form-row">
-        <input type="text" id="taskName" placeholder="Tên nhiệm vụ, ví dụ: Đánh răng">
-        <input type="time" id="taskTime" value="07:00">
-      </div>
-      <button class="btn btn-green btn-full" onclick="addTask()">
-        ➕ Thêm nhiệm vụ
-      </button>
-    </div>
-    <div class="card">
-      <div class="card-title">Danh sách nhiệm vụ hôm nay</div>
-      <div id="taskList"><div class="loading">Đang tải...</div></div>
-    </div>
-  </div>
+  <div class="toast" id="toast"></div>
 
-  <!-- ── PUPPET ── -->
-  <div class="section" id="sec-puppet">
-    <div class="card">
-      <div class="card-title">🎭 Bi nói thay bạn</div>
-      <p style="color:#6b7280; font-size:13px; margin-bottom:10px; line-height:1.5;">
-        Nhập câu muốn Bi đọc to tại nhà. Lệnh được xếp hàng và đọc khi robot rảnh.
-      </p>
-      <textarea id="puppetInput" rows="3"
-        placeholder="Ví dụ: Con ơi, đến giờ ăn cơm rồi!"></textarea>
-      <button class="btn btn-blue btn-full" id="puppetBtn" onclick="sendPuppet()">
-        📢 Bi đọc ngay
-      </button>
-      <div class="puppet-ok"  id="puppetOk"></div>
-      <div class="puppet-err" id="puppetErr"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Câu mẫu nhanh</div>
-      <div>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Con ơi, đến giờ ăn cơm rồi!</button>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Chúc bé ngủ ngon nha!</button>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Bé ơi đi đánh răng đi nhé!</button>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Mẹ thương con lắm!</button>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Bé nhớ uống nước nhé!</button>
-        <button class="btn btn-outline" onclick="setTemplate(this)">Hôm nay bé học được gì rồi kể Bi nghe nào!</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    'use strict';
+    const API = '';   // same origin
 
-</div><!-- .content -->
+    // ══════════════════════════════════════════════════════════════
+    //  Auth
+    // ══════════════════════════════════════════════════════════════
+    let _token = localStorage.getItem('bi_token') || '';
 
-<div class="toast" id="toast"></div>
+    function authHeader() {
+      return _token ? { 'Authorization': _token } : {};
+    }
 
-<script>
-'use strict';
-const API = '';   // same origin
-
-// ══════════════════════════════════════════════════════════════
-//  Auth
-// ══════════════════════════════════════════════════════════════
-let _token = localStorage.getItem('bi_token') || '';
-
-function authHeader() {
-  return _token ? { 'Authorization': _token } : {};
-}
-
-async function doLogin() {
-  const pin = document.getElementById('pinInput').value.trim();
-  if (!pin) return;
-  const err = document.getElementById('loginErr');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
-    });
-    if (!r.ok) throw new Error('wrong');
-    const data = await r.json();
-    _token = data.token;
-    localStorage.setItem('bi_token', _token);
-    document.getElementById('loginOverlay').style.display = 'none';
-    connectWS();
-    loadStatus();
-  } catch(_) {
-    err.style.display = 'block';
-    document.getElementById('pinInput').value = '';
-  }
-}
-
-async function doLogout() {
-  if (_token) {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: _token })
-    }).catch(() => {});
-  }
-  _token = '';
-  localStorage.removeItem('bi_token');
-  // Dừng mic mẹ nếu đang bật
-  if (momMicActive) stopMomMic();
-  // Tắt audio monitor
-  stopAudioMonitor();
-  // Tắt camera nếu đang bật
-  const img = document.getElementById('cameraFeed');
-  img.src = '';
-  _camOn = false;
-  document.getElementById('camBtn').textContent = '📷 Bật camera';
-  document.getElementById('camBtn').classList.remove('on');
-  // Hiện login overlay
-  document.getElementById('pinInput').value = '';
-  document.getElementById('loginOverlay').style.display = 'flex';
-}
-
-// Kiểm tra token khi load trang
-(function checkAuth() {
-  if (_token) {
-    // Verify token còn hợp lệ bằng cách gọi API
-    fetch('/api/status', { headers: { 'Authorization': _token } })
-      .then(r => {
-        if (r.ok) {
-          document.getElementById('loginOverlay').style.display = 'none';
-          connectWS();
-          loadStatus();
-        } else {
-          _token = '';
-          localStorage.removeItem('bi_token');
-        }
-      })
-      .catch(() => {
-        // Server chưa ready — vẫn ẩn overlay nếu có token
+    async function doLogin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) return;
+      const err = document.getElementById('loginErr');
+      err.style.display = 'none';
+      try {
+        const r = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        if (!r.ok) throw new Error('wrong');
+        const data = await r.json();
+        _token = data.token;
+        localStorage.setItem('bi_token', _token);
         document.getElementById('loginOverlay').style.display = 'none';
         connectWS();
         loadStatus();
-      });
-  }
-  // Nếu không có token → overlay vẫn hiển thị (mặc định)
-})();
-
-// ══════════════════════════════════════════════════════════════
-//  WebSocket
-// ══════════════════════════════════════════════════════════════
-let ws = null, wsDelay = 1000;
-
-function connectWS() {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  ws = new WebSocket(`${proto}//${location.host}/ws`);
-
-  ws.onopen = () => {
-    wsDelay = 1000;
-    setStatus(true);
-  };
-  ws.onmessage = e => {
-    try { onRealtimeEvent(JSON.parse(e.data)); } catch(_) {}
-  };
-  ws.onclose = () => {
-    setStatus(false);
-    setTimeout(connectWS, Math.min(wsDelay, 12000));
-    wsDelay = Math.min(wsDelay * 1.5, 12000);
-  };
-  ws.onerror = () => ws.close();
-}
-
-function setStatus(online) {
-  document.getElementById('dot').className = 'dot' + (online ? '' : ' off');
-  document.getElementById('statusTxt').textContent = online ? 'Đã kết nối' : 'Mất kết nối';
-}
-
-function onRealtimeEvent(evt) {
-  toast(`${evtIcon(evt.type)} ${evt.message}`);
-  if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
-  else { if (activeTab === 'events') loadEvents(); }
-  if (activeTab === 'status') loadStatus();
-}
-
-// ══════════════════════════════════════════════════════════════
-//  Tab
-// ══════════════════════════════════════════════════════════════
-let activeTab = 'status';
-const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet'];
-
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', TAB_NAMES[i] === name);
-  });
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(`sec-${name}`).classList.add('active');
-  activeTab = name;
-  loadTab(name);
-}
-
-function loadTab(name) {
-  const fn = {
-    status: loadStatus, chat: loadChats, events: loadEvents,
-    memory: loadMemories, tasks: loadTasks
-  };
-  if (fn[name]) fn[name]();
-}
-
-// ══════════════════════════════════════════════════════════════
-//  API helpers
-// ══════════════════════════════════════════════════════════════
-async function apiFetch(path, opts = {}) {
-  try {
-    opts.headers = Object.assign({}, authHeader(), opts.headers || {});
-    const r = await fetch(API + path, opts);
-    if (!r.ok) {
-      if (r.status === 401) {
-        // Token hết hạn
-        _token = '';
-        localStorage.removeItem('bi_token');
-        document.getElementById('loginOverlay').style.display = 'flex';
+      } catch (_) {
+        err.style.display = 'block';
+        document.getElementById('pinInput').value = '';
       }
-      throw new Error(r.status);
     }
-    return await r.json();
-  } catch(e) {
-    return null;
-  }
-}
 
-// ══════════════════════════════════════════════════════════════
-//  Status
-// ══════════════════════════════════════════════════════════════
-async function loadStatus() {
-  const data = await apiFetch('/api/status');
-  if (!data) {
-    document.getElementById('statsGrid').innerHTML =
-      '<div class="empty" style="grid-column:1/-1;">Không kết nối được robot</div>';
-    return;
-  }
-  const n = data.notifier || {}, r = data.rag || {};
-  const stars = data.total_stars ?? 0;
-  updateStarsDisplay(stars);
-  document.getElementById('statsGrid').innerHTML = `
+    async function doLogout() {
+      if (_token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: _token })
+        }).catch(() => { });
+      }
+      _token = '';
+      localStorage.removeItem('bi_token');
+      // Dừng mic mẹ nếu đang bật
+      if (momMicActive) stopMomMic();
+      // Tắt audio monitor
+      stopAudioMonitor();
+      // Tắt camera nếu đang bật
+      const img = document.getElementById('cameraFeed');
+      img.src = '';
+      _camOn = false;
+      document.getElementById('camBtn').textContent = '📷 Bật camera';
+      document.getElementById('camBtn').classList.remove('on');
+      // Hiện login overlay
+      document.getElementById('pinInput').value = '';
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    // Kiểm tra token khi load trang
+    (function checkAuth() {
+      if (_token) {
+        // Verify token còn hợp lệ bằng cách gọi API
+        fetch('/api/status', { headers: { 'Authorization': _token } })
+          .then(r => {
+            if (r.ok) {
+              document.getElementById('loginOverlay').style.display = 'none';
+              connectWS();
+              loadStatus();
+            } else {
+              _token = '';
+              localStorage.removeItem('bi_token');
+            }
+          })
+          .catch(() => {
+            // Server chưa ready — vẫn ẩn overlay nếu có token
+            document.getElementById('loginOverlay').style.display = 'none';
+            connectWS();
+            loadStatus();
+          });
+      }
+      // Nếu không có token → overlay vẫn hiển thị (mặc định)
+    })();
+
+    // ══════════════════════════════════════════════════════════════
+    //  WebSocket
+    // ══════════════════════════════════════════════════════════════
+    let ws = null, wsDelay = 1000;
+
+    function connectWS() {
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${proto}//${location.host}/ws`);
+
+      ws.onopen = () => {
+        wsDelay = 1000;
+        setStatus(true);
+      };
+      ws.onmessage = e => {
+        try { onRealtimeEvent(JSON.parse(e.data)); } catch (_) { }
+      };
+      ws.onclose = () => {
+        setStatus(false);
+        setTimeout(connectWS, Math.min(wsDelay, 12000));
+        wsDelay = Math.min(wsDelay * 1.5, 12000);
+      };
+      ws.onerror = () => ws.close();
+    }
+
+    function setStatus(online) {
+      document.getElementById('dot').className = 'dot' + (online ? '' : ' off');
+      document.getElementById('statusTxt').textContent = online ? 'Đã kết nối' : 'Mất kết nối';
+    }
+
+    function onRealtimeEvent(evt) {
+      toast(`${evtIcon(evt.type)} ${evt.message}`);
+      if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
+      else { if (activeTab === 'events') loadEvents(); }
+      if (activeTab === 'status') loadStatus();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Tab
+    // ══════════════════════════════════════════════════════════════
+    let activeTab = 'status';
+    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet'];
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', TAB_NAMES[i] === name);
+      });
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`sec-${name}`).classList.add('active');
+      activeTab = name;
+      loadTab(name);
+    }
+
+    function loadTab(name) {
+      const fn = {
+        status: loadStatus, chat: loadChats, events: loadEvents,
+        memory: loadMemories, tasks: loadTasks
+      };
+      if (fn[name]) fn[name]();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  API helpers
+    // ══════════════════════════════════════════════════════════════
+    async function apiFetch(path, opts = {}) {
+      try {
+        opts.headers = Object.assign({}, authHeader(), opts.headers || {});
+        const r = await fetch(API + path, opts);
+        if (!r.ok) {
+          if (r.status === 401) {
+            // Token hết hạn
+            _token = '';
+            localStorage.removeItem('bi_token');
+            document.getElementById('loginOverlay').style.display = 'flex';
+          }
+          throw new Error(r.status);
+        }
+        return await r.json();
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Status
+    // ══════════════════════════════════════════════════════════════
+    async function loadStatus() {
+      const data = await apiFetch('/api/status');
+      if (!data) {
+        document.getElementById('statsGrid').innerHTML =
+          '<div class="empty" style="grid-column:1/-1;">Không kết nối được robot</div>';
+        return;
+      }
+      const n = data.notifier || {}, r = data.rag || {};
+      const stars = data.total_stars ?? 0;
+      updateStarsDisplay(stars);
+      document.getElementById('statsGrid').innerHTML = `
     <div class="stat-box">
       <div class="stat-num" style="color:#4a90d9">${n.total_events ?? 0}</div>
       <div class="stat-label">Sự kiện</div>
@@ -589,35 +1056,35 @@ async function loadStatus() {
       <div class="stat-label">Sao</div>
     </div>`;
 
-  const evts = await apiFetch('/api/events?limit=4');
-  const el = document.getElementById('recentEvt');
-  if (evts && evts.events.length) {
-    el.innerHTML = evts.events.map(renderEvtItem).join('');
-  } else {
-    el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
-  }
-}
+      const evts = await apiFetch('/api/events?limit=4');
+      const el = document.getElementById('recentEvt');
+      if (evts && evts.events.length) {
+        el.innerHTML = evts.events.map(renderEvtItem).join('');
+      } else {
+        el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
+      }
+    }
 
-function updateStarsDisplay(n) {
-  document.getElementById('headerStars').textContent = `⭐ ${n}`;
-  const bigEl = document.getElementById('starsBig');
-  if (bigEl) bigEl.textContent = `⭐ ${n}`;
-}
+    function updateStarsDisplay(n) {
+      document.getElementById('headerStars').textContent = `⭐ ${n}`;
+      const bigEl = document.getElementById('starsBig');
+      if (bigEl) bigEl.textContent = `⭐ ${n}`;
+    }
 
-// ══════════════════════════════════════════════════════════════
-//  Chat
-// ══════════════════════════════════════════════════════════════
-async function loadChats() {
-  const data = await apiFetch('/api/chats?limit=60');
-  const el = document.getElementById('chatList');
-  if (!data || !data.chats.length) {
-    el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
-    return;
-  }
-  el.innerHTML = data.chats.map(c => {
-    const m = c.metadata || {};
-    const t = fmtTime(c.timestamp);
-    return `
+    // ══════════════════════════════════════════════════════════════
+    //  Chat
+    // ══════════════════════════════════════════════════════════════
+    async function loadChats() {
+      const data = await apiFetch('/api/chats?limit=60');
+      const el = document.getElementById('chatList');
+      if (!data || !data.chats.length) {
+        el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
+        return;
+      }
+      el.innerHTML = data.chats.map(c => {
+        const m = c.metadata || {};
+        const t = fmtTime(c.timestamp);
+        return `
       <div class="card chat-item">
         <div class="chat-row">
           <span class="chat-who">👦 Bé — ${t}</span>
@@ -629,26 +1096,26 @@ async function loadChats() {
           <span class="bubble bi">${esc(m.bi_response)}</span>
         </div>` : ''}
       </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-// ══════════════════════════════════════════════════════════════
-//  Events
-// ══════════════════════════════════════════════════════════════
-async function loadEvents() {
-  const data = await apiFetch('/api/events?limit=100');
-  const el = document.getElementById('evtList');
-  if (!data) { el.innerHTML = '<div class="empty">Lỗi tải dữ liệu</div>'; return; }
-  const nonChat = data.events.filter(e => e.type !== 'chat' && e.type !== 'system');
-  if (!nonChat.length) {
-    el.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>';
-    return;
-  }
-  el.innerHTML = nonChat.map(renderEvtItem).join('');
-}
+    // ══════════════════════════════════════════════════════════════
+    //  Events
+    // ══════════════════════════════════════════════════════════════
+    async function loadEvents() {
+      const data = await apiFetch('/api/events?limit=100');
+      const el = document.getElementById('evtList');
+      if (!data) { el.innerHTML = '<div class="empty">Lỗi tải dữ liệu</div>'; return; }
+      const nonChat = data.events.filter(e => e.type !== 'chat' && e.type !== 'system');
+      if (!nonChat.length) {
+        el.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>';
+        return;
+      }
+      el.innerHTML = nonChat.map(renderEvtItem).join('');
+    }
 
-function renderEvtItem(evt) {
-  return `
+    function renderEvtItem(evt) {
+      return `
     <div class="evt-item">
       <div class="evt-icon">${evtIcon(evt.type)}</div>
       <div class="evt-body">
@@ -659,110 +1126,110 @@ function renderEvtItem(evt) {
         <div class="evt-time">${fmtTime(evt.timestamp)}</div>
       </div>
     </div>`;
-}
+    }
 
-async function markAllRead() {
-  await apiFetch('/api/events/read_all', { method: 'POST' });
-  loadEvents();
-  toast('✓ Đã đánh dấu tất cả đã đọc');
-}
+    async function markAllRead() {
+      await apiFetch('/api/events/read_all', { method: 'POST' });
+      loadEvents();
+      toast('✓ Đã đánh dấu tất cả đã đọc');
+    }
 
-// ══════════════════════════════════════════════════════════════
-//  Camera
-// ══════════════════════════════════════════════════════════════
-let _camOn = false;
+    // ══════════════════════════════════════════════════════════════
+    //  Camera
+    // ══════════════════════════════════════════════════════════════
+    let _camOn = false;
 
-function toggleCamera() {
-  const img = document.getElementById('cameraFeed');
-  const btn = document.getElementById('camBtn');
-  if (_camOn) {
-    img.src = '';
-    _camOn = false;
-    btn.textContent = '📷 Bật camera';
-    btn.classList.remove('on');
-    // Auto-stop audio khi tắt cam
-    stopAudioMonitor();
-  } else {
-    img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
-    _camOn = true;
-    btn.textContent = '⏹ Tắt camera';
-    btn.classList.add('on');
-    // Auto-start audio khi bật cam
-    startAudioMonitor();
-  }
-}
+    function toggleCamera() {
+      const img = document.getElementById('cameraFeed');
+      const btn = document.getElementById('camBtn');
+      if (_camOn) {
+        img.src = '';
+        _camOn = false;
+        btn.textContent = '📷 Bật camera';
+        btn.classList.remove('on');
+        // Auto-stop audio khi tắt cam
+        stopAudioMonitor();
+      } else {
+        img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
+        _camOn = true;
+        btn.textContent = '⏹ Tắt camera';
+        btn.classList.add('on');
+        // Auto-start audio khi bật cam
+        startAudioMonitor();
+      }
+    }
 
-// ══════════════════════════════════════════════════════════════
-//  Memory
-// ══════════════════════════════════════════════════════════════
-async function loadMemories() {
-  const data = await apiFetch('/api/memories');
-  const el = document.getElementById('memList');
-  if (!data || !data.memories.length) {
-    el.innerHTML = '<div class="empty">Chưa có trí nhớ nào</div>';
-    document.getElementById('memCnt').textContent = '';
-    return;
-  }
-  document.getElementById('memCnt').textContent = `(${data.total})`;
-  el.innerHTML = data.memories.map(m => `
+    // ══════════════════════════════════════════════════════════════
+    //  Memory
+    // ══════════════════════════════════════════════════════════════
+    async function loadMemories() {
+      const data = await apiFetch('/api/memories');
+      const el = document.getElementById('memList');
+      if (!data || !data.memories.length) {
+        el.innerHTML = '<div class="empty">Chưa có trí nhớ nào</div>';
+        document.getElementById('memCnt').textContent = '';
+        return;
+      }
+      document.getElementById('memCnt').textContent = `(${data.total})`;
+      el.innerHTML = data.memories.map(m => `
     <div class="mem-item" id="m-${m.id}">
       <div class="mem-body">
         <div class="mem-text">${esc(m.fact)}</div>
         <div class="mem-meta">
           ${m.source === 'parent' ? '👨‍👩‍👧 Phụ huynh' :
-            m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại'}
+          m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại'}
           · ${fmtTime(m.timestamp)}
         </div>
       </div>
       <button class="btn-del" onclick="delMem('${m.id}')" title="Xóa">🗑</button>
     </div>`).join('');
-}
+    }
 
-async function addMemory() {
-  const txt = document.getElementById('memInput').value.trim();
-  if (!txt) { toast('Nhập nội dung trí nhớ!'); return; }
-  const r = await apiFetch('/api/memories', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: txt })
-  });
-  if (r && r.status === 'ok') {
-    document.getElementById('memInput').value = '';
-    toast('✅ Đã thêm trí nhớ!');
-    loadMemories();
-    loadStatus();
-  } else {
-    toast('❌ Thêm thất bại, thử lại');
-  }
-}
+    async function addMemory() {
+      const txt = document.getElementById('memInput').value.trim();
+      if (!txt) { toast('Nhập nội dung trí nhớ!'); return; }
+      const r = await apiFetch('/api/memories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: txt })
+      });
+      if (r && r.status === 'ok') {
+        document.getElementById('memInput').value = '';
+        toast('✅ Đã thêm trí nhớ!');
+        loadMemories();
+        loadStatus();
+      } else {
+        toast('❌ Thêm thất bại, thử lại');
+      }
+    }
 
-async function delMem(id) {
-  if (!confirm('Xóa trí nhớ này?')) return;
-  const r = await apiFetch(`/api/memories/${id}`, { method: 'DELETE' });
-  if (r) {
-    document.getElementById(`m-${id}`)?.remove();
-    toast('🗑 Đã xóa');
-    loadStatus();
-  } else {
-    toast('❌ Xóa thất bại');
-  }
-}
+    async function delMem(id) {
+      if (!confirm('Xóa trí nhớ này?')) return;
+      const r = await apiFetch(`/api/memories/${id}`, { method: 'DELETE' });
+      if (r) {
+        document.getElementById(`m-${id}`)?.remove();
+        toast('🗑 Đã xóa');
+        loadStatus();
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
 
-// ══════════════════════════════════════════════════════════════
-//  Tasks
-// ══════════════════════════════════════════════════════════════
-async function loadTasks() {
-  const data = await apiFetch('/api/tasks');
-  const el = document.getElementById('taskList');
-  // Refresh stars
-  const starsData = await apiFetch('/api/tasks/stars');
-  if (starsData) updateStarsDisplay(starsData.total_stars);
+    // ══════════════════════════════════════════════════════════════
+    //  Tasks
+    // ══════════════════════════════════════════════════════════════
+    async function loadTasks() {
+      const data = await apiFetch('/api/tasks');
+      const el = document.getElementById('taskList');
+      // Refresh stars
+      const starsData = await apiFetch('/api/tasks/stars');
+      if (starsData) updateStarsDisplay(starsData.total_stars);
 
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty">Chưa có nhiệm vụ nào</div>';
-    return;
-  }
-  el.innerHTML = data.map(t => `
+      if (!data || data.length === 0) {
+        el.innerHTML = '<div class="empty">Chưa có nhiệm vụ nào</div>';
+        return;
+      }
+      el.innerHTML = data.map(t => `
     <div class="task-item" id="task-${t.id}">
       <div class="task-check ${t.completed_today ? 'done' : ''}"
            onclick="completeTask('${t.id}')"
@@ -776,316 +1243,335 @@ async function loadTasks() {
       <span class="task-stars">⭐ ${t.stars}</span>
       <button class="btn-del" onclick="deleteTask('${t.id}')" title="Xóa">🗑</button>
     </div>`).join('');
-}
-
-async function addTask() {
-  const name = document.getElementById('taskName').value.trim();
-  const time = document.getElementById('taskTime').value;
-  if (!name) { toast('Nhập tên nhiệm vụ!'); return; }
-  if (!time) { toast('Chọn giờ nhắc!'); return; }
-  const r = await apiFetch('/api/tasks', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, remind_time: time })
-  });
-  if (r && r.id) {
-    document.getElementById('taskName').value = '';
-    toast('✅ Đã thêm nhiệm vụ!');
-    loadTasks();
-  } else {
-    toast('❌ Thêm thất bại, thử lại');
-  }
-}
-
-async function completeTask(id) {
-  const r = await apiFetch(`/api/tasks/${id}/complete`, { method: 'POST' });
-  if (r && r.ok) {
-    toast(`✅ Hoàn thành! +1 ⭐`);
-    updateStarsDisplay(r.stars);
-    loadTasks();
-  } else {
-    toast('Nhiệm vụ đã hoàn thành rồi!');
-  }
-}
-
-async function deleteTask(id) {
-  if (!confirm('Xóa nhiệm vụ này?')) return;
-  const r = await apiFetch(`/api/tasks/${id}`, { method: 'DELETE' });
-  if (r && r.ok) {
-    document.getElementById(`task-${id}`)?.remove();
-    toast('🗑 Đã xóa');
-  } else {
-    toast('❌ Xóa thất bại');
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  Puppet
-// ══════════════════════════════════════════════════════════════
-async function sendPuppet() {
-  const txt = document.getElementById('puppetInput').value.trim();
-  if (!txt) { toast('Nhập câu muốn Bi đọc!'); return; }
-
-  const btn = document.getElementById('puppetBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Đang gửi...';
-
-  const ok  = document.getElementById('puppetOk');
-  const err = document.getElementById('puppetErr');
-  ok.style.display = err.style.display = 'none';
-
-  const r = await apiFetch('/api/puppet', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: txt })
-  });
-
-  btn.disabled = false;
-  btn.textContent = '📢 Bi đọc ngay';
-
-  if (r && r.status === 'queued') {
-    ok.textContent = `✅ Đã gửi: "${txt}"`;
-    ok.style.display = 'block';
-    document.getElementById('puppetInput').value = '';
-    setTimeout(() => ok.style.display = 'none', 4000);
-  } else {
-    err.textContent = '❌ Không gửi được. Robot có đang chạy không?';
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 4000);
-  }
-}
-
-function setTemplate(btn) {
-  document.getElementById('puppetInput').value = btn.textContent.trim();
-  document.getElementById('puppetInput').focus();
-}
-
-// ══════════════════════════════════════════════════════════════
-//  Helpers
-// ══════════════════════════════════════════════════════════════
-const EVT_ICONS = { motion:'🚶', stranger:'🚨', cry:'😢', known_face:'👋', chat:'💬', system:'ℹ️' };
-function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
-
-function esc(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
-function fmtTime(ts) {
-  if (!ts) return '';
-  try {
-    const d = new Date(ts);
-    return d.toLocaleString('vi-VN', {
-      day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'
-    });
-  } catch(_) { return ts; }
-}
-
-let _toastTimer;
-function toast(msg, ms=3000) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
-}
-
-// ══════════════════════════════════════════════════════════════
-//  Auto-refresh
-// ══════════════════════════════════════════════════════════════
-setInterval(() => { if (_token) loadTab(activeTab); }, 30000);
-
-// ── Audio Monitoring (auto — gọi từ toggleCamera) ────────────────────────────
-let audioContext = null;
-let audioWs = null;
-let audioPlaying = false;
-
-function startAudioMonitor() {
-  if (audioPlaying) return;
-
-  const token = _token || localStorage.getItem('bi_token') || '';
-  if (!token) return;
-
-  audioContext = new (window.AudioContext || window.webkitAudioContext)({
-    sampleRate: 16000
-  });
-
-  // Force phát qua loa ngoài thay vì earpiece
-  if (audioContext.setSinkId) {
-      audioContext.setSinkId('default').catch(() => {});
-  }
-
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${location.host}/api/audio/stream?auth=${encodeURIComponent(token)}`;
-  audioWs = new WebSocket(wsUrl);
-  audioWs.binaryType = 'arraybuffer';
-
-  let nextPlayTime = 0;
-  const CHUNK_DURATION = 0.1; // 100ms mỗi chunk
-
-  audioWs.onopen = () => {
-    audioPlaying = true;
-    nextPlayTime = audioContext.currentTime + 0.3; // Buffer 300ms
-  };
-
-  audioWs.onmessage = (event) => {
-    if (!audioPlaying || !audioContext) return;
-    const arrayBuffer = event.data;
-    if (!arrayBuffer || arrayBuffer.byteLength === 0) return; // ping frame
-
-    const int16Array = new Int16Array(arrayBuffer);
-    const float32Array = new Float32Array(int16Array.length);
-    for (let i = 0; i < int16Array.length; i++) {
-      float32Array[i] = int16Array[i] / 32768.0;
     }
 
-    const audioBuffer = audioContext.createBuffer(1, float32Array.length, 16000);
-    audioBuffer.copyToChannel(float32Array, 0);
-
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = 2.0; // Tăng volume
-    source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    const startTime = Math.max(nextPlayTime, audioContext.currentTime);
-    source.start(startTime);
-    nextPlayTime = startTime + CHUNK_DURATION;
-  };
-
-  audioWs.onclose = () => { stopAudioMonitor(); };
-  audioWs.onerror = () => { stopAudioMonitor(); };
-}
-
-function stopAudioMonitor() {
-  audioPlaying = false;
-  if (audioWs) { audioWs.close(); audioWs = null; }
-  if (audioContext) { audioContext.close(); audioContext = null; }
-}
-// ── End Audio Monitoring ──────────────────────────────────────
-
-// ── Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────────
-let momMicActive = false;
-let momMediaStream = null;
-let momAudioWs = null;
-let momScriptProcessor = null;
-let momAudioCtx = null;
-
-async function toggleMomMic() {
-  if (!momMicActive) {
-    await startMomMic();
-  } else {
-    stopMomMic();
-  }
-}
-
-async function startMomMic() {
-  const token = _token || localStorage.getItem('bi_token') || '';
-  if (!token) { alert('Vui lòng đăng nhập trước'); return; }
-
-  // Kiểm tra browser support
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert(
-      'Trình duyệt không hỗ trợ mic.\n\n' +
-      'Giải pháp:\n' +
-      '1. Dùng Chrome hoặc Firefox\n' +
-      '2. Truy cập qua HTTPS (https://...)\n' +
-      '3. Android: vào chrome://flags → tìm "insecure" → thêm địa chỉ này'
-    );
-    return;
-  }
-
-  try {
-    // Xin quyền mic điện thoại
-    momMediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true }
-    });
-
-    // Báo server: mẹ bắt đầu nói
-    await fetch('/api/mom/start', {
-      method: 'POST',
-      headers: { 'Authorization': token }
-    });
-
-    // Mở WebSocket gửi audio về server
-    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?auth=${encodeURIComponent(token)}`);
-    momAudioWs.binaryType = 'arraybuffer';
-
-    await new Promise((resolve, reject) => {
-      momAudioWs.onopen = resolve;
-      momAudioWs.onerror = reject;
-    });
-
-    // Stream audio từ mic → WebSocket
-    momAudioCtx = new AudioContext({ sampleRate: 16000 });
-    if (momAudioCtx.setSinkId) {
-      momAudioCtx.setSinkId('default').catch(() => {});
+    async function addTask() {
+      const name = document.getElementById('taskName').value.trim();
+      const time = document.getElementById('taskTime').value;
+      if (!name) { toast('Nhập tên nhiệm vụ!'); return; }
+      if (!time) { toast('Chọn giờ nhắc!'); return; }
+      const r = await apiFetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, remind_time: time })
+      });
+      if (r && r.id) {
+        document.getElementById('taskName').value = '';
+        toast('✅ Đã thêm nhiệm vụ!');
+        loadTasks();
+      } else {
+        toast('❌ Thêm thất bại, thử lại');
+      }
     }
-    const source = momAudioCtx.createMediaStreamSource(momMediaStream);
-    const gainNode = momAudioCtx.createGain();
-    gainNode.gain.value = 2.0; // Tăng volume
-    momScriptProcessor = momAudioCtx.createScriptProcessor(4096, 1, 1);
 
-    momScriptProcessor.onaudioprocess = (event) => {
-      if (!momMicActive || !momAudioWs || momAudioWs.readyState !== WebSocket.OPEN) return;
-      const float32 = event.inputBuffer.getChannelData(0);
-      momAudioWs.send(float32.buffer.slice(0));
-    };
+    async function completeTask(id) {
+      const r = await apiFetch(`/api/tasks/${id}/complete`, { method: 'POST' });
+      if (r && r.ok) {
+        toast(`✅ Hoàn thành! +1 ⭐`);
+        updateStarsDisplay(r.stars);
+        loadTasks();
+      } else {
+        toast('Nhiệm vụ đã hoàn thành rồi!');
+      }
+    }
 
-    source.connect(gainNode);
-    gainNode.connect(momScriptProcessor);
-    momScriptProcessor.connect(momAudioCtx.destination);
+    async function deleteTask(id) {
+      if (!confirm('Xóa nhiệm vụ này?')) return;
+      const r = await apiFetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      if (r && r.ok) {
+        document.getElementById(`task-${id}`)?.remove();
+        toast('🗑 Đã xóa');
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
 
-    momMicActive = true;
-    document.getElementById('btn-mom-mic').textContent = '🔴 Tắt mic — Trả lại cho Bi';
-    document.getElementById('btn-mom-mic').style.background = '#ef4444';
-    document.getElementById('mom-mic-status').textContent = '🟠 Mẹ đang nói — Bi đang tạm dừng';
-    document.getElementById('mom-mic-status').style.color = '#dc2626';
+    // ══════════════════════════════════════════════════════════════
+    //  Puppet
+    // ══════════════════════════════════════════════════════════════
+    async function sendPuppet() {
+      const txt = document.getElementById('puppetInput').value.trim();
+      if (!txt) { toast('Nhập câu muốn Bi đọc!'); return; }
 
-  } catch (err) {
-    console.error('Lỗi bật mic mẹ:', err);
-    alert('Không thể bật mic: ' + err.message);
-    stopMomMic();
-  }
-}
+      const btn = document.getElementById('puppetBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang gửi...';
 
-function stopMomMic() {
-  momMicActive = false;
+      const ok = document.getElementById('puppetOk');
+      const err = document.getElementById('puppetErr');
+      ok.style.display = err.style.display = 'none';
 
-  if (momScriptProcessor) { momScriptProcessor.disconnect(); momScriptProcessor = null; }
-  if (momAudioCtx) { momAudioCtx.close(); momAudioCtx = null; }
-  if (momMediaStream) { momMediaStream.getTracks().forEach(t => t.stop()); momMediaStream = null; }
-  if (momAudioWs) { momAudioWs.close(); momAudioWs = null; }
+      const r = await apiFetch('/api/puppet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: txt })
+      });
 
-  // Báo server: mẹ dừng nói
-  const token = _token || localStorage.getItem('bi_token') || '';
-  if (token) {
-    fetch('/api/mom/stop', {
-      method: 'POST',
-      headers: { 'Authorization': token }
-    }).catch(() => {});
-  }
+      btn.disabled = false;
+      btn.textContent = '📢 Bi đọc ngay';
 
-  const btn = document.getElementById('btn-mom-mic');
-  const status = document.getElementById('mom-mic-status');
-  if (btn) { btn.textContent = '🎤 Bật mic — Nói với bé'; btn.style.background = '#f59e0b'; }
-  if (status) { status.textContent = 'Bi đang hoạt động bình thường'; status.style.color = '#78716c'; }
-}
+      if (r && r.status === 'queued') {
+        ok.textContent = `✅ Đã gửi: "${txt}"`;
+        ok.style.display = 'block';
+        document.getElementById('puppetInput').value = '';
+        setTimeout(() => ok.style.display = 'none', 4000);
+      } else {
+        err.textContent = '❌ Không gửi được. Robot có đang chạy không?';
+        err.style.display = 'block';
+        setTimeout(() => err.style.display = 'none', 4000);
+      }
+    }
 
-// Tự động dừng mic mẹ khi đóng tab/thoát web
-window.addEventListener('beforeunload', () => {
-  if (momMicActive) stopMomMic();
-});
-// ── End Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/static/sw.js');
-}
-</script>
+    function setTemplate(btn) {
+      document.getElementById('puppetInput').value = btn.textContent.trim();
+      document.getElementById('puppetInput').focus();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Helpers
+    // ══════════════════════════════════════════════════════════════
+    const EVT_ICONS = { motion: '🚶', stranger: '🚨', cry: '😢', known_face: '👋', chat: '💬', system: 'ℹ️' };
+    function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtTime(ts) {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        return d.toLocaleString('vi-VN', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+      } catch (_) { return ts; }
+    }
+
+    let _toastTimer;
+    function toast(msg, ms = 3000) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Auto-refresh
+    // ══════════════════════════════════════════════════════════════
+    setInterval(() => { if (_token) loadTab(activeTab); }, 30000);
+
+    // ── Audio Monitoring (auto — gọi từ toggleCamera) ────────────────────────────
+    // Dùng MediaSource + <audio> element để force phát qua LOA NGOÀI (không phải earpiece)
+    let audioWs = null;
+    let audioPlaying = false;
+    let _audioEl = null;        // <audio> element
+    let _mediaSource = null;
+    let _sourceBuffer = null;
+    let _audioQueue = [];       // Buffer chunks chờ append
+    let _appendBusy = false;
+
+    function _getOrCreateAudioElement() {
+      if (_audioEl) return _audioEl;
+      _audioEl = document.createElement('audio');
+      _audioEl.autoplay = true;
+      _audioEl.playsInline = true;   // iOS: không fullscreen
+      _audioEl.setAttribute('playsinline', '');
+      _audioEl.setAttribute('webkit-playsinline', '');
+      _audioEl.style.display = 'none';
+      document.body.appendChild(_audioEl);
+      return _audioEl;
+    }
+
+    function _pcmInt16ToWavBlob(int16Array, sampleRate) {
+      // Tạo WAV blob từ PCM int16 để MediaSource có thể decode
+      const numSamples = int16Array.length;
+      const buffer = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(buffer);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);   // PCM
+      view.setUint16(22, 1, true);   // Mono
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, numSamples * 2, true);
+      new Int16Array(buffer, 44).set(int16Array);
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function startAudioMonitor() {
+      if (audioPlaying) return;
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (!token) return;
+
+      const el = _getOrCreateAudioElement();
+
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/api/audio/stream?auth=${encodeURIComponent(token)}`;
+      audioWs = new WebSocket(wsUrl);
+      audioWs.binaryType = 'arraybuffer';
+
+      audioWs.onopen = () => { audioPlaying = true; };
+
+      audioWs.onmessage = (event) => {
+        if (!audioPlaying) return;
+        const arrayBuffer = event.data;
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) return;
+
+        // Convert int16 PCM → WAV blob → object URL → phát qua <audio>
+        const int16Array = new Int16Array(arrayBuffer);
+        const wavBlob = _pcmInt16ToWavBlob(int16Array, 16000);
+        const url = URL.createObjectURL(wavBlob);
+
+        const tmpAudio = new Audio(url);
+        tmpAudio.volume = 1.0;
+        tmpAudio.playsInline = true;
+        tmpAudio.setAttribute('playsinline', '');
+        tmpAudio.play().catch(() => { });
+        tmpAudio.onended = () => URL.revokeObjectURL(url);
+      };
+
+      audioWs.onclose = () => { stopAudioMonitor(); };
+      audioWs.onerror = () => { stopAudioMonitor(); };
+    }
+
+    function stopAudioMonitor() {
+      audioPlaying = false;
+      if (audioWs) { audioWs.close(); audioWs = null; }
+    }
+    // ── End Audio Monitoring ──────────────────────────────────────
+
+    // ── Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────────
+    let momMicActive = false;
+    let momMediaStream = null;
+    let momAudioWs = null;
+    let momScriptProcessor = null;
+    let momAudioCtx = null;
+
+    async function toggleMomMic() {
+      if (!momMicActive) {
+        await startMomMic();
+      } else {
+        stopMomMic();
+      }
+    }
+
+    async function startMomMic() {
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (!token) { alert('Vui lòng đăng nhập trước'); return; }
+
+      // Kiểm tra browser support
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(
+          'Trình duyệt không hỗ trợ mic.\n\n' +
+          'Giải pháp:\n' +
+          '1. Dùng Chrome hoặc Firefox\n' +
+          '2. Truy cập qua HTTPS (https://...)\n' +
+          '3. Android: vào chrome://flags → tìm "insecure" → thêm địa chỉ này'
+        );
+        return;
+      }
+
+      try {
+        // Xin quyền mic điện thoại
+        momMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+        });
+
+        // Báo server: mẹ bắt đầu nói — Bi tạm dừng
+        const startResp = await fetch('/api/mom/start', {
+          method: 'POST',
+          headers: { 'Authorization': token }
+        });
+        if (!startResp.ok) throw new Error('Không thể báo server');
+
+        // Mở WebSocket gửi audio về server
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?auth=${encodeURIComponent(token)}`);
+        momAudioWs.binaryType = 'arraybuffer';
+
+        await new Promise((resolve, reject) => {
+          momAudioWs.onopen = resolve;
+          momAudioWs.onerror = () => reject(new Error('WebSocket lỗi'));
+          setTimeout(() => reject(new Error('Timeout kết nối')), 5000);
+        });
+
+        // Stream audio từ mic → WebSocket (KHÔNG connect vào destination — chỉ capture)
+        momAudioCtx = new AudioContext({ sampleRate: 16000 });
+        const source = momAudioCtx.createMediaStreamSource(momMediaStream);
+        momScriptProcessor = momAudioCtx.createScriptProcessor(512, 1, 1);
+
+        momScriptProcessor.onaudioprocess = (event) => {
+          if (!momMicActive || !momAudioWs || momAudioWs.readyState !== WebSocket.OPEN) return;
+          const float32 = event.inputBuffer.getChannelData(0);
+          momAudioWs.send(float32.buffer.slice(0));
+        };
+
+        // QUAN TRỌNG: connect vào destination để ScriptProcessor hoạt động
+        // nhưng volume = 0 để không phát tiếng lại vào loa điện thoại (echo)
+        const silentGain = momAudioCtx.createGain();
+        silentGain.gain.value = 0;  // Tắt tiếng local — chỉ gửi lên server
+        source.connect(momScriptProcessor);
+        momScriptProcessor.connect(silentGain);
+        silentGain.connect(momAudioCtx.destination);
+
+        momMicActive = true;
+        document.getElementById('btn-mom-mic').textContent = '🔴 Tắt mic — Trả lại cho Bi';
+        document.getElementById('btn-mom-mic').style.background = '#ef4444';
+        document.getElementById('mom-mic-status').textContent = '🟠 Mẹ đang nói — Bi đang tạm dừng';
+        document.getElementById('mom-mic-status').style.color = '#dc2626';
+
+      } catch (err) {
+        console.error('Lỗi bật mic mẹ:', err);
+        alert('Không thể bật mic: ' + err.message);
+        stopMomMic();
+      }
+    }
+
+    function stopMomMic() {
+      momMicActive = false;
+
+      if (momScriptProcessor) { momScriptProcessor.disconnect(); momScriptProcessor = null; }
+      if (momAudioCtx) { momAudioCtx.close(); momAudioCtx = null; }
+      if (momMediaStream) { momMediaStream.getTracks().forEach(t => t.stop()); momMediaStream = null; }
+      if (momAudioWs) { momAudioWs.close(); momAudioWs = null; }
+
+      // Báo server: mẹ dừng nói
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (token) {
+        fetch('/api/mom/stop', {
+          method: 'POST',
+          headers: { 'Authorization': token }
+        }).catch(() => { });
+      }
+
+      const btn = document.getElementById('btn-mom-mic');
+      const status = document.getElementById('mom-mic-status');
+      if (btn) { btn.textContent = '🎤 Bật mic — Nói với bé'; btn.style.background = '#f59e0b'; }
+      if (status) { status.textContent = 'Bi đang hoạt động bình thường'; status.style.color = '#78716c'; }
+    }
+
+    // Tự động dừng mic mẹ khi đóng tab/thoát web
+    window.addEventListener('beforeunload', () => {
+      if (momMicActive) stopMomMic();
+    });
+    // ── End Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js');
+    }
+  </script>
 </body>
+
 </html>

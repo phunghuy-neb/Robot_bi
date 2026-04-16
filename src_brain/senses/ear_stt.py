@@ -10,6 +10,13 @@ Interface công khai:
 """
 
 import os
+_hf_cache_dir = os.path.abspath("src_brain/senses/.hf_cache")
+os.makedirs(_hf_cache_dir, exist_ok=True)
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+os.environ["TRANSFORMERS_CACHE"] = _hf_cache_dir
+os.environ["HF_HOME"] = _hf_cache_dir
+os.environ["HUGGINGFACE_HUB_CACHE"] = _hf_cache_dir
+os.environ["SENTENCE_TRANSFORMERS_HOME"] = _hf_cache_dir
 import sys
 import tempfile
 from collections import deque
