@@ -34,6 +34,18 @@
 - SQLite DB path cố định: `src_brain/network/robot_bi.db` — không đổi path, không đổi tên file.
 - `verify_access_token()` và `rotate_refresh_token()` trong `auth.py` — không thay đổi logic xác thực.
 - Rate limiting bảng `login_attempts` — không bypass, không xóa bảng này.
+- SQLite schema bảng `tasks`: `task_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key` — phải khớp với `task_manager.py`, không được đổi tên cột.
+- conversations + turns table schema in `db.py` — không đổi tên cột
+- `create_session()`, `add_turn()`, `close_session()`, `get_session_turns()` trong `db.py`
+- `update_session_title()` trong `db.py`
+- `session_namer.py`: `_generate_session_title()` — Groq non-streaming, timeout 5s, fallback `user_text[:30]`
+- `BEEP_WAV_BYTES` + `_play_beep()` trong `ear_stt.py` — `pygame.Channel(6)`, non-blocking
+- `WAKEWORD_THRESHOLD` env var (default `0.5`) trong `ear_stt.py`
+- `listen_for_wakeword()` — trả `False` nếu `WAKEWORD_ENABLED=False` hoặc import `openwakeword` fail
+- Whisper CPU auto-downgrade: `WHISPER_CPU_MODEL` env var, GPU path giữ nguyên
+- `/api/conversations`, `/api/conversations/{id}`, `/api/conversations/{id}/homework` endpoints
+- `index.html`: tab `Hội thoại`, `loadThreads()`, `showThreadDetail()` — không remove
+- `.gitignore`: runtime files (`event_queue.json`, `tasks.json`, `robot_bi.db`) không có dấu ngoặc kép, không bị git track.
 
 **Nếu đụng vào những phần này phải chạy full test và kiểm tra regression.**
 
@@ -60,6 +72,9 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 | Network       | `fastapi` + `uvicorn` + `websockets` | HTTPS 8443                               |
 | Storage       | SQLite                               | `src_brain/network/robot_bi.db`          |
 | Auth          | `argon2-cffi` + `python-jose`        | JWT access(60m) + refresh(30d)           |
+| Wake-word     | `openwakeword`                       | `WAKEWORD_ENABLED=False` mặc định, bật khi model sẵn sàng |
+| Session tracking | SQLite `conversations` + `turns`  | Session UUID theo mỗi lần wake           |
+| Session naming | Groq (non-streaming)                | Tự đặt tiêu đề từ lượt user đầu tiên     |
 | Tunnel        | `cloudflared`                        | public URL                               |
 
 ## Kiến trúc file & Quy tắc chỉnh sửa
@@ -75,7 +90,7 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 
 ## Vấn đề đã biết
 
-1. Wake-word "Bi ơi" vẫn là stub
+1. Wake-word "Bi ơi" đã có dev/test path qua openWakeWord built-in "hey_jarvis"; model tùy biến `bi_oi` vẫn chưa được train
 2. Cloudflare URL thay đổi mỗi lần restart (cần named tunnel sau)
 3. YAMNet TFLite có thể fail nếu thiếu tensorflow (dùng fallback)
 4. Auth: JWT access/refresh token, rate limiting, Argon2id — Phase 1 complete. PIN cũ vẫn chạy song song.
@@ -92,10 +107,10 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 
 ## Roadmap — 4 Phases
 
-**Phase 1 — Security & Data Layer [HOÀN THÀNH 2026-04-17] ✅** (1.1 SQLite migration, 1.2 remove runtime JSON files khỏi git, 1.3 PIN + Rate limiting, 1.4 Username/Password auth với Argon2id, 1.5 JWT access + refresh token với rotation, 1.6 JWT middleware bảo vệ tất cả endpoints, 1.7 requirements.txt pin đủ)
+**Phase 1 — Security & Data Layer [HOÀN THÀNH 2026-04-17] ✅** (1.1 SQLite migration, 1.2 remove runtime JSON files khỏi git, 1.3 PIN + Rate limiting, 1.4 Username/Password auth với Argon2id, 1.5 JWT access + refresh token với rotation, 1.6 JWT middleware bảo vệ tất cả endpoints, 1.7 requirements.txt pin đủ) — Bugfix: schema tasks fixed, .gitignore fixed (2026-04-17)
 
-**Phase 2 — Core Experience**  
-Wake-word thực sự, session management, conversation threads
+**Phase 2 — Core Experience [HOÀN THÀNH 2026-04-17] ✅**  
+Wake-word dev/test path, session UUID, auto-title, conversation threads API + Parent App UI
 
 **Phase 3 — Parent Features**  
 WebRTC camera, push notification, account settings
@@ -111,7 +126,7 @@ Motor control, AEC, multi-family isolation, homework system
 - `conversations`: session_id, family_id, started_at, ended_at, title
 - `turns`: turn_id, session_id, role, content, timestamp
 - `events`: event_id, family_id, type, data, created_at (migrate từ event_queue.json)
-- `tasks`: task_id, family_id, title, status, created_at (migrate từ tasks.json)
+- `tasks`: task_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key (schema khớp task_manager.py)
 
 ## Lệnh hay dùng
 
@@ -122,12 +137,14 @@ python run_tests.py               # BẮT BUỘC sau mọi thay đổi
 python -m src_brain.main_loop     # Chạy trực tiếp
 ```
 
-## Session gần nhất — Phase 1 hoàn thành
+## Session gần nhất — Phase 2 hoàn thành: Core Experience
 
 - Ngày: 2026-04-17
-- Thay đổi: SQLite migration (1.1), loại JSON runtime files khỏi git (1.2), PIN+rate limiting từ `.env` (1.3), Username/Password/Argon2id auth (1.4), JWT access+refresh token với rotation (1.5), JWT middleware toàn app (1.6), requirements.txt pin đủ (1.7).
-- Test: 71/71 PASS
-- Files mới: `src_brain/network/db.py`, `src_brain/network/auth.py`
-- Files sửa: `src_brain/network/api_server.py`, `src_brain/network/task_manager.py`, `src_brain/network/notifier.py`, `requirements.txt`, `.env.example`, `run_tests.py`
-
-**Phase 1 hoàn tất.** Sẵn sàng cho Phase 2 — Core Experience.
+- Wake-word dev/test path hoàn tất trong `ear_stt.py`: `listen_for_wakeword()`, beep feedback, `WAKEWORD_THRESHOLD`, và import-fail path an toàn.
+- Session tracking hoàn tất: bảng `conversations` + `turns`, các hàm session trong `db.py`, và `main_loop.py` lưu đầy đủ user/assistant turns theo session UUID.
+- Session naming hoàn tất: `src_brain/network/session_namer.py` tạo title ngắn từ lượt user đầu tiên bằng Groq non-streaming, chạy nền, có fallback an toàn.
+- Conversation Threads API hoàn tất: list/detail/delete/homework endpoints trong `api_server.py`, đều dùng JWT guard hiện có.
+- Parent App hoàn tất tab `Hội thoại` trong `src_brain/network/static/index.html`, hiển thị danh sách thread và transcript chi tiết.
+- CPU-only STT latency được giảm bằng `WHISPER_CPU_MODEL=medium` trong CPU fallback, GPU path `large-v2 + float16` giữ nguyên.
+- Test result cuối Phase 2: 89/89 PASS.
+- Files chính đã chạm: `ear_stt.py`, `db.py`, `main_loop.py`, `api_server.py`, `src_brain/network/session_namer.py`, `index.html`, `run_tests.py`, `.env.example`, `requirements.txt`.

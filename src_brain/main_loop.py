@@ -28,7 +28,7 @@ from src_brain.memory_rag.rag_manager import RAGManager
 from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
-from src_brain.network.db import init_db
+from src_brain.network.db import init_db, create_session, close_session, add_turn
 from src_brain.network.notifier import get_notifier
 from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
 
@@ -43,6 +43,7 @@ class RobotBiApp:
         self.audio_queue = queue.Queue()
         self._chunk_counter = 0
         self._loop = asyncio.new_event_loop()
+        self._current_session_id = None
 
         # Daemon thread xử lý audio queue: play → unload → xóa file
         self._worker_thread = threading.Thread(
@@ -189,6 +190,16 @@ class RobotBiApp:
             except (FileNotFoundError, PermissionError):
                 pass
 
+    def _close_current_session(self) -> None:
+        if not self._current_session_id:
+            return
+        try:
+            close_session(self._current_session_id)
+        except Exception as e:
+            print(f"[Bi - Session] Loi dong session: {e}")
+        finally:
+            self._current_session_id = None
+
     def run(self):
         import time as _time
         try:
@@ -210,9 +221,22 @@ class RobotBiApp:
                 print("[Bi - Não] Đang suy nghĩ...")
                 buffer = ""
                 self._chunk_counter = 0
+                self._close_current_session()
+                self._current_session_id = create_session()
+                is_first_turn_of_session = True
 
                 # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
                 user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
+                add_turn(self._current_session_id, 'user', user_text_goc)
+                if is_first_turn_of_session:
+                    def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
+                        from src_brain.network.session_namer import _generate_session_title
+                        from src_brain.network.db import update_session_title
+
+                        title = _generate_session_title(user_text)
+                        update_session_title(session_id, title)
+
+                    threading.Thread(target=_name_session, daemon=True).start()
                 rag_context = self.rag.retrieve(user_text)
                 if rag_context:
                     user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
@@ -268,6 +292,8 @@ class RobotBiApp:
                 # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
                 full_reply = "".join(full_reply_parts).strip()
                 if full_reply:
+                    add_turn(self._current_session_id, 'assistant', full_reply)
+                    self._close_current_session()
                     threading.Thread(
                         target=self.rag.extract_and_save,
                         args=(user_text_goc, full_reply),
@@ -279,8 +305,11 @@ class RobotBiApp:
                         args=(user_text_goc, full_reply),
                         daemon=True,
                     ).start()
+                else:
+                    self._close_current_session()
 
         except KeyboardInterrupt:
+            self._close_current_session()
             self.cry_detector.stop()
             self.eye.stop()
             self.audio_queue.put(None)

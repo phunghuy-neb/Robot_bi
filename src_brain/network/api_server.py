@@ -85,7 +85,7 @@ from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
-from src_brain.network.db import get_db_connection
+from src_brain.network.db import add_turn, get_db_connection, get_session_turns
 from src_brain.network.auth import get_current_user
 
 try:
@@ -743,6 +743,137 @@ async def get_chats(limit: int = 50, _current_user: dict = Depends(get_current_u
 
 
 # ── REST: Memories ────────────────────────────────────────────────────────────
+
+class HomeworkTurnIn(BaseModel):
+    content: str
+
+
+#  Conversation Threads (Phase 2)
+
+@app.get("/api/conversations")
+async def list_conversations(
+    limit: int = 20,
+    offset: int = 0,
+    _current_user: dict = Depends(get_current_user),
+):
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT session_id, title, started_at, ended_at, turn_count
+            FROM conversations
+            WHERE family_id = ?
+            ORDER BY started_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            ("default", limit, offset),
+        ).fetchall()
+        total_row = conn.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM conversations
+            WHERE family_id = ?
+            """,
+            ("default",),
+        ).fetchone()
+
+    conversations = [
+        {
+            "session_id": row["session_id"],
+            "title": row["title"],
+            "started_at": row["started_at"],
+            "ended_at": row["ended_at"],
+            "turn_count": row["turn_count"],
+        }
+        for row in rows
+    ]
+    total = int(total_row["total"]) if total_row else 0
+    return {"conversations": conversations, "total": total}
+
+
+@app.get("/api/conversations/{session_id}")
+async def get_conversation(
+    session_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT session_id, family_id, title, started_at, ended_at, turn_count
+            FROM conversations
+            WHERE session_id = ? AND family_id = ?
+            """,
+            (session_id, "default"),
+        ).fetchone()
+
+    if not row:
+        raise HTTPException(404, "Conversation khong tim thay")
+
+    return {
+        "session": {
+            "session_id": row["session_id"],
+            "family_id": row["family_id"],
+            "title": row["title"],
+            "started_at": row["started_at"],
+            "ended_at": row["ended_at"],
+            "turn_count": row["turn_count"],
+        },
+        "turns": get_session_turns(session_id),
+    }
+
+
+@app.delete("/api/conversations/{session_id}")
+async def delete_conversation(
+    session_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT session_id
+            FROM conversations
+            WHERE session_id = ? AND family_id = ?
+            """,
+            (session_id, "default"),
+        ).fetchone()
+        if not row:
+            raise HTTPException(404, "Conversation khong tim thay")
+
+        conn.execute("DELETE FROM turns WHERE session_id = ?", (session_id,))
+        conn.execute(
+            "DELETE FROM conversations WHERE session_id = ? AND family_id = ?",
+            (session_id, "default"),
+        )
+        conn.commit()
+
+    return {"ok": True}
+
+
+@app.post("/api/conversations/{session_id}/homework")
+async def add_homework_turn(
+    session_id: str,
+    body: HomeworkTurnIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    content = body.content.strip()
+    if not content:
+        raise HTTPException(400, "content khong duoc rong")
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT session_id
+            FROM conversations
+            WHERE session_id = ? AND family_id = ?
+            """,
+            (session_id, "default"),
+        ).fetchone()
+
+    if not row:
+        raise HTTPException(404, "Conversation khong tim thay")
+
+    turn_id = add_turn(session_id, "homework", content)
+    return {"turn_id": turn_id, "session_id": session_id}
+
 
 @app.get("/api/memories")
 async def list_memories(_current_user: dict = Depends(get_current_user)):

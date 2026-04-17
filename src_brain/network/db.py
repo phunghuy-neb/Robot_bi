@@ -6,7 +6,9 @@ import json
 import sqlite3
 import threading
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 DB_PATH = Path(__file__).with_name("robot_bi.db")
 
@@ -14,9 +16,13 @@ _INIT_LOCK = threading.Lock()
 _INITIALIZED = False
 
 
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 @contextmanager
 def get_db_connection():
-    """Trả về connection với WAL mode bật"""
+    """Tra ve connection voi WAL mode bat"""
     conn = sqlite3.connect(DB_PATH, timeout=30, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
@@ -27,7 +33,7 @@ def get_db_connection():
 
 
 def init_db() -> None:
-    """Khởi tạo database và migrate dữ liệu từ JSON cũ nếu cần."""
+    """Khoi tao database va migrate du lieu tu JSON cu neu can."""
     global _INITIALIZED
     if _INITIALIZED:
         return
@@ -39,8 +45,9 @@ def init_db() -> None:
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         with get_db_connection() as conn:
-            # Tạo bảng events
-            conn.execute('''
+            # Tao bang events
+            conn.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS events (
                     db_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     event_id TEXT,
@@ -52,32 +59,41 @@ def init_db() -> None:
                     is_read INTEGER NOT NULL DEFAULT 0,
                     import_key TEXT
                 )
-            ''')
+                '''
+            )
 
-            # Tạo bảng tasks (schema chuẩn hóa)
-            conn.execute('''
+            # Tao bang tasks - khop voi task_manager.py
+            conn.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS tasks (
                     db_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     task_id TEXT,
-                    title TEXT NOT NULL,
-                    status TEXT DEFAULT 'pending',
+                    name TEXT NOT NULL,
+                    remind_time TEXT,
+                    completed_today INTEGER NOT NULL DEFAULT 0,
+                    stars INTEGER NOT NULL DEFAULT 0,
                     created_at TEXT,
-                    last_reminded TEXT
+                    last_reminded TEXT,
+                    import_key TEXT
                 )
-            ''')
+                '''
+            )
 
-            # Tạo bảng login_attempts (rate limiting cho /api/auth/login và /auth/login/v2)
-            conn.execute('''
+            # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
+            conn.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS login_attempts (
                     ip_address TEXT PRIMARY KEY,
                     attempt_count INTEGER NOT NULL DEFAULT 0,
                     first_attempt_at TEXT,
                     locked_until TEXT
                 )
-            ''')
+                '''
+            )
 
-            # Tạo bảng users (username+password auth)
-            conn.execute('''
+            # Tao bang users (username+password auth)
+            conn.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS users (
                     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT UNIQUE NOT NULL,
@@ -86,10 +102,12 @@ def init_db() -> None:
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
                     is_active INTEGER DEFAULT 1
                 )
-            ''')
+                '''
+            )
 
-            # Tạo bảng auth_tokens (JWT refresh token rotation)
-            conn.execute('''
+            # Tao bang auth_tokens (JWT refresh token rotation)
+            conn.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS auth_tokens (
                     token_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id TEXT NOT NULL,
@@ -98,85 +116,250 @@ def init_db() -> None:
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
                     is_revoked INTEGER NOT NULL DEFAULT 0
                 )
-            ''')
+                '''
+            )
+
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS conversations (
+                    session_id TEXT PRIMARY KEY,
+                    family_id TEXT DEFAULT 'default',
+                    started_at TEXT NOT NULL,
+                    ended_at TEXT,
+                    title TEXT,
+                    turn_count INTEGER DEFAULT 0
+                )
+                '''
+            )
+
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS turns (
+                    turn_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL REFERENCES conversations(session_id),
+                    role TEXT NOT NULL CHECK(role IN ('user','assistant','homework')),
+                    content TEXT NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+                '''
+            )
+
+            conn.execute(
+                '''
+                CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id)
+                '''
+            )
+
+            _migrate_turns_role_constraint(conn)
 
             conn.commit()
 
-            # Migrate dữ liệu cũ
+            # Migrate du lieu cu
             _migrate_legacy_events(conn)
             _migrate_legacy_tasks(conn)
 
-        # Seed admin user nếu bảng users trống (idempotent)
+        # Seed admin user neu bang users trong (idempotent)
         try:
             from src_brain.network.auth import seed_admin_if_empty
+
             seed_admin_if_empty()
         except Exception as _e:
             print(f"[DB] seed_admin_if_empty bo qua: {_e}")
 
         _INITIALIZED = True
-        print("[DB] Database đã được khởi tạo thành công.")
+        print("[DB] Database da duoc khoi tao thanh cong.")
 
 
 def _migrate_legacy_events(conn):
-    """Migrate dữ liệu từ event_queue.json cũ sang bảng events"""
+    """Migrate du lieu tu event_queue.json cu sang bang events"""
     json_path = Path(__file__).with_name("event_queue.json")
     if not json_path.exists():
         return
 
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(json_path, "r", encoding="utf-8") as f:
             events = json.load(f)
 
         for event in events:
-            conn.execute('''
-                INSERT OR IGNORE INTO events 
+            conn.execute(
+                '''
+                INSERT OR IGNORE INTO events
                 (event_id, timestamp, type, message, clip_path, metadata_json, is_read)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                event.get('id'),
-                event.get('timestamp'),
-                event.get('type'),
-                event.get('message'),
-                event.get('clip_path'),
-                json.dumps(event.get('metadata', {}), ensure_ascii=False),
-                1 if event.get('read', False) else 0
-            ))
+                ''',
+                (
+                    event.get("id"),
+                    event.get("timestamp"),
+                    event.get("type"),
+                    event.get("message"),
+                    event.get("clip_path"),
+                    json.dumps(event.get("metadata", {}), ensure_ascii=False),
+                    1 if event.get("read", False) else 0,
+                ),
+            )
         conn.commit()
-        print(f"[DB] Đã migrate {len(events)} events từ file JSON cũ.")
+        print(f"[DB] Da migrate {len(events)} events tu file JSON cu.")
     except Exception as e:
-        print(f"[DB] Lỗi migrate events: {e}")
+        print(f"[DB] Loi migrate events: {e}")
 
 
 def _migrate_legacy_tasks(conn):
-    """Migrate dữ liệu từ tasks.json cũ sang bảng tasks"""
+    """Migrate du lieu tu tasks.json cu sang bang tasks"""
     json_path = Path(__file__).with_name("tasks.json")
     if not json_path.exists():
         return
 
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(json_path, "r", encoding="utf-8") as f:
             tasks = json.load(f)
 
         for task in tasks:
-            task_id = task.get('id')
+            task_id = task.get("id")
             if not task_id:
                 continue
 
-            # Hỗ trợ cả 'title' và 'name' từ dữ liệu cũ
-            title = task.get('title') or task.get('name') or "Không có tiêu đề"
+            # Ho tro ca 'name' va 'title' tu du lieu cu
+            name = task.get("name") or task.get("title") or "Khong co tieu de"
 
-            conn.execute('''
-                INSERT OR IGNORE INTO tasks 
-                (task_id, title, status, created_at, last_reminded)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (
-                task_id,
-                title,
-                task.get('status', 'pending'),
-                task.get('created_at'),
-                task.get('last_reminded')
-            ))
+            conn.execute(
+                '''
+                INSERT OR IGNORE INTO tasks
+                (task_id, name, remind_time, completed_today, stars,
+                 created_at, last_reminded, import_key)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                (
+                    task_id,
+                    name,
+                    task.get("remind_time", ""),
+                    1 if task.get("completed_today") else 0,
+                    int(task.get("stars", 0)),
+                    task.get("created_at"),
+                    task.get("last_reminded"),
+                    task_id,
+                ),
+            )
         conn.commit()
-        print(f"[DB] Đã migrate {len(tasks)} tasks từ file JSON cũ.")
+        print(f"[DB] Da migrate {len(tasks)} tasks tu file JSON cu.")
     except Exception as e:
-        print(f"[DB] Lỗi migrate tasks: {e}")
+        print(f"[DB] Loi migrate tasks: {e}")
+
+
+def _migrate_turns_role_constraint(conn) -> None:
+    row = conn.execute(
+        """
+        SELECT sql
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'turns'
+        """
+    ).fetchone()
+    if not row:
+        return
+
+    create_sql = (row["sql"] or "").replace(" ", "").lower()
+    if "'homework'" in create_sql:
+        return
+
+    conn.execute("ALTER TABLE turns RENAME TO turns_old")
+    conn.execute(
+        '''
+        CREATE TABLE turns (
+            turn_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL REFERENCES conversations(session_id),
+            role TEXT NOT NULL CHECK(role IN ('user','assistant','homework')),
+            content TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+        '''
+    )
+    conn.execute(
+        '''
+        INSERT INTO turns (turn_id, session_id, role, content, timestamp)
+        SELECT turn_id, session_id, role, content, timestamp
+        FROM turns_old
+        '''
+    )
+    conn.execute("DROP TABLE turns_old")
+    conn.execute(
+        '''
+        CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id)
+        '''
+    )
+
+
+def create_session(family_id: str = "default") -> str:
+    session_id = uuid4().hex
+    with get_db_connection() as conn:
+        conn.execute(
+            '''
+            INSERT INTO conversations (session_id, family_id, started_at)
+            VALUES (?, ?, ?)
+            ''',
+            (session_id, family_id, _utc_now_iso()),
+        )
+        conn.commit()
+    return session_id
+
+
+def close_session(session_id: str) -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            '''
+            UPDATE conversations
+            SET ended_at = ?
+            WHERE session_id = ?
+            ''',
+            (_utc_now_iso(), session_id),
+        )
+        conn.commit()
+
+
+def add_turn(session_id: str, role: str, content: str) -> str:
+    if role not in {"user", "assistant", "homework"}:
+        raise ValueError("Invalid turn role")
+    turn_id = uuid4().hex
+    with get_db_connection() as conn:
+        conn.execute(
+            '''
+            INSERT INTO turns (turn_id, session_id, role, content, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+            ''',
+            (turn_id, session_id, role, content, _utc_now_iso()),
+        )
+        conn.execute(
+            '''
+            UPDATE conversations
+            SET turn_count = turn_count + 1
+            WHERE session_id = ?
+            ''',
+            (session_id,),
+        )
+        conn.commit()
+    return turn_id
+
+
+def get_session_turns(session_id: str) -> list[dict]:
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            '''
+            SELECT turn_id, session_id, role, content, timestamp
+            FROM turns
+            WHERE session_id = ?
+            ORDER BY timestamp ASC
+            ''',
+            (session_id,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def update_session_title(session_id: str, title: str) -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            '''
+            UPDATE conversations
+            SET title = ?
+            WHERE session_id = ?
+            ''',
+            (title, session_id),
+        )
+        conn.commit()

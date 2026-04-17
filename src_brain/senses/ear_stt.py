@@ -27,6 +27,11 @@ from typing import Optional
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
 
+import io
+import math
+import struct as _struct
+import time
+
 import numpy as np
 import sounddevice as sd
 import soundfile as sf
@@ -53,14 +58,30 @@ _TEMP_DIR = Path(tempfile.gettempdir())
 
 MIC_DEVICE = 1  # Microphone Array (Realtek) — Windows device index
 
+
+# ── Audio feedback beep (100ms 880Hz 44100Hz mono 16-bit PCM WAV) ─────────────
+def _make_beep_wav() -> bytes:
+    sr, n = 44100, 4410
+    pcm = _struct.pack(f'<{n}h', *(int(0.3 * math.sin(2 * math.pi * 880 * i / sr) * 32767) for i in range(n)))
+    buf = io.BytesIO()
+    buf.write(b'RIFF'); buf.write(_struct.pack('<I', 36 + len(pcm))); buf.write(b'WAVE')
+    buf.write(b'fmt '); buf.write(_struct.pack('<I', 16)); buf.write(_struct.pack('<HHIIHH', 1, 1, sr, sr * 2, 2, 16))
+    buf.write(b'data'); buf.write(_struct.pack('<I', len(pcm))); buf.write(pcm)
+    return buf.getvalue()
+
+BEEP_WAV_BYTES: bytes = _make_beep_wav()
+
 # ── Wake-word configuration ───────────────────────────────────────────────────
 # STUB: Set True khi có openWakeWord model "bi_oi" (SRS 3.1).
 # Khi False (hiện tại), main_loop.py bỏ qua wake-word và gọi listen() trực tiếp.
 WAKEWORD_ENABLED = False
+WAKEWORD_THRESHOLD = float(os.getenv("WAKEWORD_THRESHOLD", "0.5"))
 WAKEWORD_PHRASE  = "bi ơi"  # Phrase cần phát hiện
 
 # ── Singleton WhisperModel (lazy load) ───────────────────────────────────────
 _whisper_instance = None
+_wakeword_model = None
+_wakeword_import_warning_logged = False
 
 
 def _get_whisper_model():
@@ -78,10 +99,11 @@ def _get_whisper_model():
             print("[Bi - Tai] Whisper large-v2 chạy trên GPU (CUDA float16)")
         except Exception:
             _whisper_instance = WhisperModel(
-                "small",
+                os.getenv("WHISPER_CPU_MODEL", "medium"),
                 device="cpu",
                 compute_type="int8",
             )
+            print(f"[Bi - Tai] CPU mode: dung Whisper {os.getenv('WHISPER_CPU_MODEL', 'medium')} (thay vi large-v2) de giam do tre")
             print("[Bi - Tai] Whisper small chạy trên CPU (laptop mode)")
     return _whisper_instance
 
@@ -189,6 +211,17 @@ class EarSTT:
             self._enable_silent_mode()
             return None
 
+    def _play_beep(self) -> None:
+        """Play 100ms 880Hz beep on Channel(6) when speech threshold is crossed."""
+        try:
+            import pygame
+            ch = pygame.mixer.Channel(6)
+            sound = pygame.mixer.Sound(io.BytesIO(BEEP_WAV_BYTES))
+            ch.set_volume(0.4)
+            ch.play(sound)
+        except Exception:
+            pass
+
     def listen(self) -> str:
         """
         Ghi âm từ microphone và nhận dạng giọng nói tiếng Việt.
@@ -234,6 +267,7 @@ class EarSTT:
                         pre_buffer.append(chunk.copy())
                         if rms >= SPEECH_THRESH:
                             speech_started = True
+                            self._play_beep()
                             audio_buffer.extend(list(pre_buffer))
                             print("[Bi - Tai] Phát hiện tiếng nói, đang ghi...")
                         continue
@@ -317,11 +351,30 @@ class EarSTT:
             True nếu phát hiện âm thanh nghi ngờ là wake-word,
             False nếu timeout mà không có gì.
         """
+        global WAKEWORD_ENABLED, _wakeword_model, _wakeword_import_warning_logged
+
         if not WAKEWORD_ENABLED:
             # Khi stub disabled → luôn return True để pipeline hoạt động bình thường
-            return True
+            return False
 
-        window_frames = int(SAMPLE_RATE * 0.5)   # 500ms window
+        try:
+            from openwakeword.model import Model
+        except Exception as e:
+            if not _wakeword_import_warning_logged:
+                print(f"[Bi - Tai] Cáº£nh bÃ¡o wake-word: khÃ´ng import Ä‘Æ°á»£c openwakeword: {e}")
+                _wakeword_import_warning_logged = True
+            WAKEWORD_ENABLED = False
+            return False
+
+        if self.silent_mode:
+            return False
+
+        if _wakeword_model is None:
+            _wakeword_model = Model(wakeword_models=[])
+
+        chunk_ms = 80
+        chunk_frames = int(SAMPLE_RATE * chunk_ms / 1000)
+        deadline = time.monotonic() + max(0.0, timeout)
         max_windows   = int(timeout * 1000 / 500)  # số windows trong timeout
 
         print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
@@ -349,6 +402,74 @@ class EarSTT:
 
 
 # ── Test độc lập ─────────────────────────────────────────────────────────────
+def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
+        """
+        Listen for the wake-word within the timeout window.
+
+        For development/testing, openWakeWord is initialized with `wakeword_models=[]`
+        so it uses the built-in "hey_jarvis" model as a proxy until a custom
+        "bi_oi" model is available.
+        """
+        global WAKEWORD_ENABLED, _wakeword_model, _wakeword_import_warning_logged
+
+        if not WAKEWORD_ENABLED:
+            return False
+
+        try:
+            from openwakeword.model import Model
+        except Exception as e:
+            if not _wakeword_import_warning_logged:
+                print(f"[Bi - Tai] Warning wake-word: openwakeword import failed: {e}")
+                _wakeword_import_warning_logged = True
+            WAKEWORD_ENABLED = False
+            return False
+
+        if self.silent_mode:
+            return False
+
+        if _wakeword_model is None:
+            _wakeword_model = Model(wakeword_models=[])
+
+        chunk_frames = int(SAMPLE_RATE * 0.08)
+        deadline = time.monotonic() + max(0.0, timeout)
+
+        print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
+
+        try:
+            stream = self._create_input_stream(chunk_frames)
+            if stream is None:
+                return False
+            stream.start()
+            try:
+                while time.monotonic() < deadline:
+                    try:
+                        from src_brain.network.api_server import is_mom_talking
+                    except Exception:
+                        is_mom_talking = None
+
+                    if is_mom_talking is not None and is_mom_talking():
+                        pause_started = time.monotonic()
+                        while is_mom_talking():
+                            time.sleep(0.05)
+                        deadline += time.monotonic() - pause_started
+                        continue
+
+                    chunk, _ = stream.read(chunk_frames)
+                    scores = _wakeword_model.predict(np.asarray(chunk, dtype=np.float32).flatten())
+                    if any(float(score) > WAKEWORD_THRESHOLD for score in scores.values()):
+                        self._play_beep()
+                        return True
+            finally:
+                stream.stop()
+                stream.close()
+        except Exception as e:
+            print(f"[Bi - Tai] Cảnh báo wake-word: {e}")
+            return False
+
+        return False
+
+EarSTT.listen_for_wakeword = _listen_for_wakeword_impl
+
 if __name__ == "__main__":
     ear = EarSTT()
     print("Nói gì đó để test (Ctrl+C để thoát)...")

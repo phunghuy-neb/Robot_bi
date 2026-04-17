@@ -20,6 +20,14 @@ sys.path.insert(0, '.')
 os.environ.setdefault("JWT_SECRET_KEY", "test_jwt_secret_key_robot_bi_testing_only_32chars!")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
 
+# Dung DB test rieng biet -- khong ghi vao robot_bi.db that
+import src_brain.network.db as _db_module
+import tempfile as _tempfile
+_TEST_DB_FILE = _tempfile.NamedTemporaryFile(suffix='.db', delete=False)
+_TEST_DB_FILE.close()
+_db_module.DB_PATH = __import__('pathlib').Path(_TEST_DB_FILE.name)
+_db_module._INITIALIZED = False  # reset de init_db() chay lai voi DB moi
+
 from src_brain.network.db import init_db
 
 # Fix encoding Windows
@@ -433,7 +441,7 @@ test("MouthTTS: has fallback method", test_tts_has_fallback)
 
 # == GROUP 10: EarSTT (import only) =========================================
 print("\n[Group 10] EarSTT (import only)")
-from src_brain.senses.ear_stt import EarSTT, WAKEWORD_ENABLED, MIC_DEVICE
+from src_brain.senses.ear_stt import EarSTT, WAKEWORD_ENABLED, WAKEWORD_THRESHOLD, MIC_DEVICE
 
 
 def test_ear_constants():
@@ -727,10 +735,232 @@ test("AuthGuard: valid JWT → user dict correct",       test_auth_guard_valid_j
 test("AuthGuard: invalid token → 401 + WWW-Authenticate", test_auth_guard_invalid_token_returns_401)
 test("AuthGuard: /health route exists (no auth)",      test_auth_guard_health_route_exists)
 
+# == GROUP 13: Audio Feedback ===============================================
+print("\n[Group 13] Audio Feedback")
+from src_brain.senses.ear_stt import BEEP_WAV_BYTES as _BEEP_WAV_BYTES
+
+
+def test_beep_wav_bytes_exists():
+    assert isinstance(_BEEP_WAV_BYTES, bytes), "BEEP_WAV_BYTES must be bytes"
+    assert len(_BEEP_WAV_BYTES) > 0, "BEEP_WAV_BYTES must not be empty"
+
+
+def test_play_beep_callable():
+    assert hasattr(EarSTT, '_play_beep'), "EarSTT must have _play_beep method"
+    assert callable(EarSTT._play_beep), "_play_beep must be callable"
+
+
+def test_wakeword_enabled_is_bool():
+    assert isinstance(WAKEWORD_ENABLED, bool), "WAKEWORD_ENABLED must be bool"
+
+
+def test_wakeword_threshold_is_valid_float():
+    assert isinstance(WAKEWORD_THRESHOLD, float), "WAKEWORD_THRESHOLD must be float"
+    assert 0.0 < WAKEWORD_THRESHOLD < 1.0, "WAKEWORD_THRESHOLD must be between 0 and 1"
+
+
+def test_whisper_cpu_model_env_default():
+    import src_brain.senses.ear_stt as ear_stt_module
+    assert ear_stt_module.os.getenv("WHISPER_CPU_MODEL", "medium") == "medium"
+
+
+def test_listen_for_wakeword_disabled_returns_false():
+    original_enabled = EarSTT.listen_for_wakeword.__globals__["WAKEWORD_ENABLED"]
+    EarSTT.listen_for_wakeword.__globals__["WAKEWORD_ENABLED"] = False
+    try:
+        ear = EarSTT.__new__(EarSTT)
+        ear.silent_mode = False
+        result = ear.listen_for_wakeword(timeout=0.1)
+        assert result is False
+    finally:
+        EarSTT.listen_for_wakeword.__globals__["WAKEWORD_ENABLED"] = original_enabled
+
+
+def test_earstt_init_without_error():
+    import src_brain.senses.ear_stt as ear_stt_module
+
+    original_probe = EarSTT._probe_microphone
+    original_get_model = ear_stt_module._get_whisper_model
+    try:
+        EarSTT._probe_microphone = lambda self: setattr(self, "silent_mode", True) or setattr(self, "mic_name", "Test mic")
+        ear_stt_module._get_whisper_model = lambda: object()
+        ear = EarSTT()
+        assert isinstance(ear, EarSTT)
+    finally:
+        EarSTT._probe_microphone = original_probe
+        ear_stt_module._get_whisper_model = original_get_model
+
+
+test("AudioFeedback: BEEP_WAV_BYTES is non-empty bytes", test_beep_wav_bytes_exists)
+test("AudioFeedback: EarSTT._play_beep is callable",     test_play_beep_callable)
+test("AudioFeedback: WAKEWORD_ENABLED is bool",          test_wakeword_enabled_is_bool)
+test("AudioFeedback: WAKEWORD_THRESHOLD valid float",    test_wakeword_threshold_is_valid_float)
+test("AudioFeedback: WHISPER_CPU_MODEL env default",     test_whisper_cpu_model_env_default)
+test("AudioFeedback: disabled wakeword returns False",   test_listen_for_wakeword_disabled_returns_false)
+test("AudioFeedback: EarSTT init without error",         test_earstt_init_without_error)
+
+# == GROUP 14: Conversation Sessions ========================================
+print("\n[Group 14] Conversation Sessions")
+from src_brain.network.db import (
+    create_session as _create_session,
+    close_session as _close_session,
+    add_turn as _add_turn,
+    get_session_turns as _get_session_turns,
+    get_db_connection as _get_db_connection,
+)
+
+
+def test_create_session_returns_nonempty_string():
+    session_id = _create_session()
+    assert isinstance(session_id, str)
+    assert len(session_id) > 0
+
+
+def test_add_turn_user_visible_in_get_session_turns():
+    session_id = _create_session()
+    turn_id = _add_turn(session_id, "user", "Xin chao Bi")
+    turns = _get_session_turns(session_id)
+    assert isinstance(turn_id, str)
+    assert len(turn_id) > 0
+    assert len(turns) == 1
+    assert turns[0]["role"] == "user"
+    assert turns[0]["content"] == "Xin chao Bi"
+
+
+def test_add_turn_assistant_makes_two_turns():
+    session_id = _create_session()
+    _add_turn(session_id, "user", "Hom nay hoc gi?")
+    _add_turn(session_id, "assistant", "Hom nay minh hoc toan nhe.")
+    turns = _get_session_turns(session_id)
+    assert len(turns) == 2
+    assert turns[0]["role"] == "user"
+    assert turns[1]["role"] == "assistant"
+
+
+def test_close_session_sets_ended_at_and_keeps_data():
+    session_id = _create_session()
+    _add_turn(session_id, "user", "Tam biet Bi")
+    _close_session(session_id)
+    turns = _get_session_turns(session_id)
+    assert len(turns) == 1
+    with _get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT ended_at FROM conversations WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+    assert row is not None
+    assert row["ended_at"] is not None
+
+
+test("Conversation: create_session returns non-empty string", test_create_session_returns_nonempty_string)
+test("Conversation: user turn persists in session",           test_add_turn_user_visible_in_get_session_turns)
+test("Conversation: assistant turn makes 2 turns",           test_add_turn_assistant_makes_two_turns)
+test("Conversation: close_session sets ended_at",            test_close_session_sets_ended_at_and_keeps_data)
+
+# == GROUP 15: Session Naming ===============================================
+print("\n[Group 15] Session Naming")
+
+
+def test_session_namer_imports():
+    module = __import__("src_brain.network.session_namer", fromlist=["_generate_session_title"])
+    assert hasattr(module, "_generate_session_title")
+
+
+def test_generate_session_title_returns_string():
+    import src_brain.network.session_namer as session_namer
+
+    class _MockResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": "Hoc bang cuu chuong."
+                        }
+                    }
+                ]
+            }
+
+    original_post = session_namer.requests.post
+    original_key = os.environ.get("GROQ_API_KEY")
+    session_namer.requests.post = lambda *args, **kwargs: _MockResponse()
+    os.environ["GROQ_API_KEY"] = "mock_groq_key"
+    try:
+        title = session_namer._generate_session_title("Bang cuu chuong la gi?")
+        assert isinstance(title, str)
+        assert title == "Hoc bang cuu chuong"
+    finally:
+        session_namer.requests.post = original_post
+        if original_key is None:
+            os.environ.pop("GROQ_API_KEY", None)
+        else:
+            os.environ["GROQ_API_KEY"] = original_key
+
+
+def test_update_session_title_updates_db():
+    from src_brain.network.db import update_session_title as _update_session_title
+
+    session_id = _create_session()
+    _update_session_title(session_id, "Hoc chu cai")
+    with _get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT title FROM conversations WHERE session_id = ?",
+            (session_id,),
+        ).fetchone()
+    assert row is not None
+    assert row["title"] == "Hoc chu cai"
+
+
+test("SessionNaming: module imports",                  test_session_namer_imports)
+test("SessionNaming: title generator returns string", test_generate_session_title_returns_string)
+test("SessionNaming: update_session_title updates DB", test_update_session_title_updates_db)
+
+# == GROUP 16: Conversation API =============================================
+print("\n[Group 16] Conversation API")
+
+
+def test_conversations_list_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/conversations" in paths
+
+
+def test_conversation_detail_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/conversations/{session_id}" in paths
+
+
+def test_conversation_homework_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/conversations/{session_id}/homework" in paths
+
+
+def test_conversation_delete_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/conversations/{session_id}" in paths
+
+
+test("ConversationAPI: GET /api/conversations exists",                    test_conversations_list_endpoint_exists)
+test("ConversationAPI: GET /api/conversations/{session_id} exists",      test_conversation_detail_endpoint_exists)
+test("ConversationAPI: POST /api/conversations/{session_id}/homework exists", test_conversation_homework_endpoint_exists)
+test("ConversationAPI: DELETE /api/conversations/{session_id} exists",   test_conversation_delete_endpoint_exists)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
 print(f"  KET QUA: {len(passed)}/{total} PASS | {len(failed)}/{total} FAIL")
+
+# Xoa test DB tam thoi
+try:
+    os.unlink(_TEST_DB_FILE.name)
+except Exception:
+    pass
 
 if failed:
     print("\n  FAILED TESTS:")

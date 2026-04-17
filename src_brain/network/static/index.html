@@ -317,6 +317,18 @@
       border-radius: 16px 16px 4px 16px;
     }
 
+    .bubble-user {
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .bubble-bi {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 16px 16px 4px 16px;
+    }
+
     .chat-time {
       font-size: 10px;
       color: #d1d5db;
@@ -665,6 +677,90 @@
       color: #9ca3af;
       flex: 1;
     }
+
+    .thread-card {
+      position: relative;
+      cursor: pointer;
+      padding-right: 54px;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .thread-card:active {
+      transform: scale(.99);
+    }
+
+    .thread-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .thread-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .thread-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #cbd5e1;
+    }
+
+    .thread-delete {
+      position: absolute;
+      right: 36px;
+      top: 10px;
+      background: none;
+      border: none;
+      color: #f87171;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .thread-turn {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .thread-turn.user {
+      justify-content: flex-end;
+    }
+
+    .thread-turn.bi,
+    .thread-turn.homework {
+      justify-content: flex-start;
+    }
+
+    .thread-turn-body {
+      max-width: 88%;
+    }
+
+    .thread-turn-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .homework-badge {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 700;
+    }
   </style>
 </head>
 
@@ -675,11 +771,14 @@
     <div class="login-box">
       <div style="font-size:48px; margin-bottom:10px;">🤖</div>
       <h2>Robot Bi</h2>
-      <p>Nhập PIN 6 số để đăng nhập</p>
-      <input type="password" class="pin-input" id="pinInput" maxlength="6" inputmode="numeric" pattern="[0-9]*"
-        placeholder="••••••" onkeydown="if(event.key==='Enter') doLogin()">
+      <p>Đăng nhập để quản lý Robot Bi</p>
+      <input type="text" class="pin-input" id="loginUsername" autocomplete="username" placeholder="Tên đăng nhập"
+        style="letter-spacing:normal; font-size:16px; margin-bottom:10px;"
+        onkeydown="if(event.key==='Enter') document.getElementById('loginPassword').focus()">
+      <input type="password" class="pin-input" id="loginPassword" autocomplete="current-password" placeholder="Mật khẩu"
+        style="letter-spacing:normal; font-size:16px;" onkeydown="if(event.key==='Enter') doLogin()">
       <button class="btn-login" onclick="doLogin()">Đăng nhập</button>
-      <div class="login-err" id="loginErr">PIN không đúng. Thử lại.</div>
+      <div class="login-err" id="loginErr">Sai tên đăng nhập hoặc mật khẩu.</div>
     </div>
   </div>
 
@@ -720,6 +819,9 @@
     </div>
     <div class="tab" onclick="switchTab('puppet')">
       <span class="tab-icon">🎤</span>Nhập vai
+    </div>
+    <div class="tab" onclick="switchTab('threads')">
+      <span class="tab-icon">📚</span>Hội thoại
     </div>
   </div>
 
@@ -852,6 +954,19 @@
       </div>
     </div>
 
+    <div class="section" id="sec-threads">
+      <div id="threadList">
+        <div class="loading">Đang tải...</div>
+      </div>
+      <div id="threadDetail" style="display:none;">
+        <div style="padding:10px 0;">
+          <button class="btn btn-outline" onclick="showThreadList()"> Quay lại</button>
+          <span id="threadDetailTitle" style="font-weight:700; margin-left:10px;"></span>
+        </div>
+        <div id="threadTurns"></div>
+      </div>
+    </div>
+
   </div><!-- .content -->
 
   <div class="toast" id="toast"></div>
@@ -864,45 +979,58 @@
     //  Auth
     // ══════════════════════════════════════════════════════════════
     let _token = localStorage.getItem('bi_token') || '';
+    let _refreshToken = localStorage.getItem('bi_refresh') || '';
 
     function authHeader() {
-      return _token ? { 'Authorization': _token } : {};
+      return _token ? { 'Authorization': 'Bearer ' + _token } : {};
     }
 
     async function doLogin() {
-      const pin = document.getElementById('pinInput').value.trim();
-      if (!pin) return;
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!username || !password) return;
       const err = document.getElementById('loginErr');
       err.style.display = 'none';
       try {
-        const r = await fetch('/api/auth/login', {
+        const r = await fetch('/auth/login/v2', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin })
+          body: JSON.stringify({ username, password })
         });
+        if (r.status === 429) {
+          const data = await r.json();
+          err.textContent = data.detail || 'Quá nhiều lần thử. Chờ một lúc rồi thử lại.';
+          err.style.display = 'block';
+          return;
+        }
         if (!r.ok) throw new Error('wrong');
         const data = await r.json();
-        _token = data.token;
+        _token = data.access_token;
+        _refreshToken = data.refresh_token;
         localStorage.setItem('bi_token', _token);
+        localStorage.setItem('bi_refresh', _refreshToken);
         document.getElementById('loginOverlay').style.display = 'none';
         connectWS();
         loadStatus();
       } catch (_) {
+        err.textContent = 'Sai tên đăng nhập hoặc mật khẩu.';
         err.style.display = 'block';
-        document.getElementById('pinInput').value = '';
+        document.getElementById('loginPassword').value = '';
       }
     }
 
     async function doLogout() {
-      if (_token) {
-        await fetch('/api/auth/logout', {
+      if (_token && _refreshToken) {
+        await fetch('/auth/logout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: _token })
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token },
+          body: JSON.stringify({ refresh_token: _refreshToken })
         }).catch(() => { });
       }
       _token = '';
+      _refreshToken = '';
       localStorage.removeItem('bi_token');
+      localStorage.removeItem('bi_refresh');
       // Dừng mic mẹ nếu đang bật
       if (momMicActive) stopMomMic();
       // Tắt audio monitor
@@ -922,7 +1050,7 @@
     (function checkAuth() {
       if (_token) {
         // Verify token còn hợp lệ bằng cách gọi API
-        fetch('/api/status', { headers: { 'Authorization': _token } })
+        fetch('/api/status', { headers: { 'Authorization': 'Bearer ' + _token } })
           .then(r => {
             if (r.ok) {
               document.getElementById('loginOverlay').style.display = 'none';
@@ -950,7 +1078,7 @@
 
     function connectWS() {
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      ws = new WebSocket(`${proto}//${location.host}/ws`);
+      ws = new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(_token)}`);
 
       ws.onopen = () => {
         wsDelay = 1000;
@@ -983,7 +1111,7 @@
     //  Tab
     // ══════════════════════════════════════════════════════════════
     let activeTab = 'status';
-    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet'];
+    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads'];
 
     function switchTab(name) {
       document.querySelectorAll('.tab').forEach((t, i) => {
@@ -998,7 +1126,7 @@
     function loadTab(name) {
       const fn = {
         status: loadStatus, chat: loadChats, events: loadEvents,
-        memory: loadMemories, tasks: loadTasks
+        memory: loadMemories, tasks: loadTasks, threads: loadThreads
       };
       if (fn[name]) fn[name]();
     }
@@ -1333,6 +1461,108 @@
     const EVT_ICONS = { motion: '🚶', stranger: '🚨', cry: '😢', known_face: '👋', chat: '💬', system: 'ℹ️' };
     function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
 
+    // ════════════════════════════════════════════════════════════════
+    //  Threads
+    // ════════════════════════════════════════════════════════════════
+    async function loadThreads() {
+      const listEl = document.getElementById('threadList');
+      const detailEl = document.getElementById('threadDetail');
+      if (!listEl || !detailEl) return;
+
+      detailEl.style.display = 'none';
+      listEl.style.display = 'block';
+      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+      const data = await apiFetch('/api/conversations?limit=30');
+      const conversations = data && Array.isArray(data.conversations) ? data.conversations : [];
+
+      if (!data) {
+        listEl.innerHTML = '<div class="empty">Không tải được hội thoại</div>';
+        return;
+      }
+
+      if (!conversations.length) {
+        listEl.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
+        return;
+      }
+
+      listEl.innerHTML = conversations.map(session => `
+        <div class="card thread-card" onclick="showThreadDetail('${session.session_id}')">
+          <button class="thread-delete" onclick="event.stopPropagation(); deleteThread('${session.session_id}')" title="Xóa hội thoại">🗑</button>
+          <div class="thread-title">${esc(session.title || 'Hội thoại không tên')}</div>
+          <div class="thread-meta">
+            <span>${fmtTime(session.started_at)}</span>
+            <span>${Number(session.turn_count || 0)} lượt</span>
+          </div>
+          <div class="thread-arrow">›</div>
+        </div>
+      `).join('');
+    }
+
+    async function showThreadDetail(session_id) {
+      const listEl = document.getElementById('threadList');
+      const detailEl = document.getElementById('threadDetail');
+      const titleEl = document.getElementById('threadDetailTitle');
+      const turnsEl = document.getElementById('threadTurns');
+      if (!listEl || !detailEl || !titleEl || !turnsEl) return;
+
+      listEl.style.display = 'none';
+      detailEl.style.display = 'block';
+      titleEl.textContent = 'Đang tải...';
+      turnsEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+      const data = await apiFetch(`/api/conversations/${session_id}`);
+      if (!data || !data.session) {
+        titleEl.textContent = 'Không tải được hội thoại';
+        turnsEl.innerHTML = '<div class="empty">Không tải được nội dung hội thoại</div>';
+        return;
+      }
+
+      const session = data.session;
+      const turns = Array.isArray(data.turns) ? data.turns : [];
+      titleEl.textContent = session.title || 'Hội thoại không tên';
+
+      if (!turns.length) {
+        turnsEl.innerHTML = '<div class="empty">Hội thoại chưa có nội dung</div>';
+        return;
+      }
+
+      turnsEl.innerHTML = turns.map(turn => {
+        const role = turn.role === 'user' ? 'user' : (turn.role === 'homework' ? 'homework' : 'bi');
+        const bubbleClass = role === 'user' ? 'bubble bubble-user' : 'bubble bubble-bi';
+        const who = role === 'user' ? '👦 Bé' : (role === 'homework' ? '📚 Bài tập' : '🤖 Bi');
+        const badge = role === 'homework' ? '<div class="homework-badge">📚 Bài tập</div>' : '';
+        return `
+          <div class="thread-turn ${role}">
+            <div class="thread-turn-body">
+              ${badge}
+              <div class="${bubbleClass}">${esc(turn.content)}</div>
+              <div class="thread-turn-meta">${who} • ${fmtTime(turn.timestamp)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showThreadList() {
+      const listEl = document.getElementById('threadList');
+      const detailEl = document.getElementById('threadDetail');
+      if (detailEl) detailEl.style.display = 'none';
+      if (listEl) listEl.style.display = 'block';
+      loadThreads();
+    }
+
+    async function deleteThread(session_id) {
+      if (!confirm('Xóa hội thoại này?')) return;
+      const r = await apiFetch(`/api/conversations/${session_id}`, { method: 'DELETE' });
+      if (r && r.ok) {
+        toast('🗑 Đã xóa hội thoại');
+        showThreadList();
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
+
     function esc(s) {
       if (!s) return '';
       return String(s)
@@ -1491,7 +1721,7 @@
         // Báo server: mẹ bắt đầu nói — Bi tạm dừng
         const startResp = await fetch('/api/mom/start', {
           method: 'POST',
-          headers: { 'Authorization': token }
+          headers: { 'Authorization': 'Bearer ' + token }
         });
         if (!startResp.ok) throw new Error('Không thể báo server');
 
@@ -1551,7 +1781,7 @@
       if (token) {
         fetch('/api/mom/stop', {
           method: 'POST',
-          headers: { 'Authorization': token }
+          headers: { 'Authorization': 'Bearer ' + token }
         }).catch(() => { });
       }
 

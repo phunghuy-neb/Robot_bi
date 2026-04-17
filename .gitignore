@@ -40,7 +40,8 @@ Thumbs.db
 
 # Folder .claude - BẮT BUỘC PHẢI PUSH
 !.claude/
-!.claude/handoff.md"src_brain/network/event_queue.json" 
-"src_brain/network/tasks.json" 
-"src_brain/network/robot_bi.db" 
-"data/" 
+!.claude/handoff.md
+src_brain/network/event_queue.json
+src_brain/network/tasks.json
+src_brain/network/robot_bi.db
+data/
