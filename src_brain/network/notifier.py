@@ -1,18 +1,8 @@
 """
-notifier.py — Robot Bi: WebSocket Notification Stub (Sprint 5 prep)
-====================================================================
-SRS 3.4: "Gui notification kem thumbnail clip qua LAN den Parent App"
-SRS 4.2: "Thu vien clip su kien" + "Nhat ky chat"
-
-TRANG THAI HIEN TAI: STUB
-  - Luu events vao local JSON queue (src_brain/network/event_queue.json)
-  - Khi Sprint 5 implement WebSocket server → chi can thay _send_ws() method
-  - Interface khong thay doi → main_loop.py khong can sua khi upgrade
-
-Upgrade path (Sprint 5):
-  - Them: asyncio WebSocket server (websockets lib)
-  - Thay: _send_ws() gui that thay vi luu file
-  - Giu nguyen: push_event() interface
+notifier.py - Robot Bi: WebSocket notification stub (Sprint 5 prep)
+===================================================================
+SRS 3.4: Gui notification kem thumbnail clip qua LAN den Parent App
+SRS 4.2: Thu vien clip su kien + Nhat ky chat
 """
 
 import json
@@ -23,40 +13,53 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
+from src_brain.network.db import get_db_connection
+
 logger = logging.getLogger("notifier")
 
-# ── Types ─────────────────────────────────────────────────────────────────────
 EventType = Literal["motion", "stranger", "known_face", "cry", "chat", "system"]
 
-# ── Cấu hình ─────────────────────────────────────────────────────────────────
-_QUEUE_FILE  = Path("src_brain/network/event_queue.json")
-_MAX_EVENTS  = 500    # Giữ tối đa 500 events trong queue
-_WS_ENABLED  = False  # Set True khi Sprint 5 implement WebSocket server
+_MAX_EVENTS = 500
+_WS_ENABLED = False
 
 
 class EventNotifier:
     """
-    Gửi notifications về events đến Parent App.
+    Gui notifications ve events den Parent App.
 
-    Stub mode: lưu vào local JSON queue (event_queue.json).
-    Production mode (Sprint 5): gửi qua WebSocket LAN.
+    Persistence da duoc chuyen sang SQLite, nhung interface giu nguyen.
     """
 
     def __init__(self):
         self._lock = threading.Lock()
-        self._connected_clients: list = []  # Placeholder cho Sprint 5
-        self._ws_broadcaster = None         # Set bởi api_server.init_server()
-        self._queue_file = _QUEUE_FILE
+        self._connected_clients: list = []
+        self._ws_broadcaster = None
+        self._queue_file = Path(__file__).with_name("event_queue.json")
         self._queue_file.parent.mkdir(parents=True, exist_ok=True)
-
-        # Load existing queue
         self._events: list[dict] = self._load_queue()
-        mode = "WebSocket" if _WS_ENABLED else "Local JSON stub"
+        mode = "WebSocket" if _WS_ENABLED else "SQLite persistence"
         logger.info(
-            "[Notifier] Khoi tao (mode: %s) — %d events trong queue",
+            "[Notifier] Khoi tao (mode: %s) - %d events trong queue",
             mode,
             len(self._events),
         )
+
+    @staticmethod
+    def _row_to_event(row) -> dict:
+        metadata = row["metadata_json"]
+        try:
+            parsed_metadata = json.loads(metadata) if metadata else {}
+        except Exception:
+            parsed_metadata = {}
+        return {
+            "id": row["event_id"],
+            "timestamp": row["timestamp"],
+            "type": row["type"],
+            "message": row["message"],
+            "clip_path": row["clip_path"],
+            "metadata": parsed_metadata,
+            "read": bool(row["is_read"]),
+        }
 
     def push_event(
         self,
@@ -65,18 +68,6 @@ class EventNotifier:
         clip_path: str | None = None,
         metadata: dict | None = None,
     ) -> bool:
-        """
-        Gửi notification về một sự kiện.
-
-        Args:
-            event_type: Loại sự kiện ("motion", "stranger", "cry", etc.)
-            message:    Mô tả ngắn gọn
-            clip_path:  Đường dẫn clip MP4 (nếu có)
-            metadata:   Data bổ sung (tùy chọn)
-
-        Returns:
-            True nếu đã xử lý thành công
-        """
         event = {
             "id": f"{int(time.time() * 1000)}",
             "timestamp": datetime.now().isoformat(),
@@ -88,28 +79,23 @@ class EventNotifier:
         }
 
         with self._lock:
-            self._events.append(event)
-            # Giữ tối đa _MAX_EVENTS
-            if len(self._events) > _MAX_EVENTS:
-                self._events = self._events[-_MAX_EVENTS:]
-            self._save_queue()
+            self._insert_event(event)
+            self._events = self._load_queue()
 
-        _ICONS = {
-            "motion": "[MOT]", "stranger": "[STR]", "cry": "[CRY]",
-            "known_face": "[FAC]", "chat": "[CHT]", "system": "[SYS]",
+        icons = {
+            "motion": "[MOT]",
+            "stranger": "[STR]",
+            "cry": "[CRY]",
+            "known_face": "[FAC]",
+            "chat": "[CHT]",
+            "system": "[SYS]",
         }
-        icon = _ICONS.get(event_type, "[EVT]")
+        icon = icons.get(event_type, "[EVT]")
         print(f"[Notifier] {icon} {event_type.upper()}: {message}")
-
-        # Gửi WebSocket nếu broadcaster đã được đăng ký (Sprint 5)
         self._send_ws(event)
-
         return True
 
     def push_chat_log(self, user_text: str, bi_response: str) -> bool:
-        """
-        Lưu lịch sử hội thoại cho Parent App xem (SRS 4.2 — Nhật ký chat).
-        """
         return self.push_event(
             event_type="chat",
             message=f"Be: {user_text[:100]}",
@@ -121,90 +107,118 @@ class EventNotifier:
         )
 
     def get_unread_events(self, event_type: EventType | None = None) -> list[dict]:
-        """Trả về các events chưa đọc, có thể filter theo type."""
         with self._lock:
-            events = [e for e in self._events if not e["read"]]
+            query = """
+                SELECT event_id, timestamp, type, message, clip_path, metadata_json, is_read
+                FROM events
+                WHERE is_read = 0
+            """
+            params = []
             if event_type:
-                events = [e for e in events if e["type"] == event_type]
-            return events
+                query += " AND type = ?"
+                params.append(event_type)
+            query += " ORDER BY db_id ASC"
+            with get_db_connection() as conn:
+                rows = conn.execute(query, tuple(params)).fetchall()
+            return [self._row_to_event(row) for row in rows]
 
     def mark_all_read(self) -> None:
-        """Đánh dấu tất cả events đã đọc."""
         with self._lock:
-            for e in self._events:
-                e["read"] = True
-            self._save_queue()
+            with get_db_connection() as conn:
+                conn.execute("UPDATE events SET is_read = 1 WHERE is_read = 0")
+                conn.commit()
+            for event in self._events:
+                event["read"] = True
 
     def get_stats(self) -> dict:
         with self._lock:
+            with get_db_connection() as conn:
+                total_row = conn.execute(
+                    "SELECT COUNT(*) AS total_events FROM events"
+                ).fetchone()
+                unread_row = conn.execute(
+                    "SELECT COUNT(*) AS unread FROM events WHERE is_read = 0"
+                ).fetchone()
             return {
-                "total_events": len(self._events),
-                "unread": sum(1 for e in self._events if not e["read"]),
+                "total_events": int(total_row["total_events"]) if total_row else 0,
+                "unread": int(unread_row["unread"]) if unread_row else 0,
                 "ws_enabled": _WS_ENABLED,
                 "queue_file": str(self._queue_file),
             }
 
-    # ── Private ───────────────────────────────────────────────────────────────
-
     def _load_queue(self) -> list[dict]:
-        try:
-            if self._queue_file.exists():
-                with open(self._queue_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-        except Exception:
-            pass
-        return []
+        with get_db_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT event_id, timestamp, type, message, clip_path, metadata_json, is_read
+                FROM events
+                ORDER BY db_id ASC
+                """
+            ).fetchall()
+        return [self._row_to_event(row) for row in rows]
 
-    def _save_queue(self) -> None:
-        try:
-            with open(self._queue_file, 'w', encoding='utf-8') as f:
-                json.dump(self._events, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error("[Notifier] Khong luu duoc queue: %s", e)
+    def _insert_event(self, event: dict) -> None:
+        import_key = f"{event['id']}|{event['timestamp']}"
+        with get_db_connection() as conn:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO events (
+                    event_id, timestamp, type, message, clip_path,
+                    metadata_json, is_read, import_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    event["id"],
+                    event["timestamp"],
+                    event["type"],
+                    event["message"],
+                    event["clip_path"],
+                    json.dumps(event["metadata"], ensure_ascii=False),
+                    1 if event["read"] else 0,
+                    import_key,
+                ),
+            )
+            conn.execute(
+                """
+                DELETE FROM events
+                WHERE db_id NOT IN (
+                    SELECT db_id FROM events ORDER BY db_id DESC LIMIT ?
+                )
+                """,
+                (_MAX_EVENTS,),
+            )
+            conn.commit()
 
     def set_ws_broadcaster(self, broadcaster_fn) -> None:
-        """
-        Đăng ký function broadcast WebSocket (gọi từ api_server.init_server()).
-        Sau khi đăng ký, mọi push_event() sẽ tự broadcast đến app phụ huynh.
-        """
         self._ws_broadcaster = broadcaster_fn
-        logger.info("[Notifier] WS broadcaster đã đăng ký.")
+        logger.info("[Notifier] WS broadcaster da dang ky.")
 
     def _send_ws(self, event: dict) -> None:
-        """Gửi event tới tất cả WebSocket clients qua broadcaster đã đăng ký."""
         if self._ws_broadcaster:
             try:
                 self._ws_broadcaster(event)
-            except Exception as e:
-                logger.debug("[Notifier] _send_ws lỗi: %s", e)
+            except Exception as exc:
+                logger.debug("[Notifier] _send_ws loi: %s", exc)
 
 
-# ── Singleton ─────────────────────────────────────────────────────────────────
 _notifier_instance: EventNotifier | None = None
 
 
 def get_notifier() -> EventNotifier:
-    """Trả về singleton EventNotifier instance."""
     global _notifier_instance
     if _notifier_instance is None:
         _notifier_instance = EventNotifier()
     return _notifier_instance
 
 
-# ── Test độc lập ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    import sys
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    from src_brain.network.db import init_db
 
-    print("=== EventNotifier standalone test ===")
-
+    init_db()
     notifier = get_notifier()
     notifier.push_event("motion", "Test motion event", clip_path="/tmp/test.mp4")
     notifier.push_event("stranger", "Phat hien nguoi la")
     notifier.push_chat_log("ten toi la An", "Bi nho roi, ban ten An!")
-    stats = notifier.get_stats()
-    print(f"Stats: {stats}")
-    unread = notifier.get_unread_events()
-    print(f"Unread events: {len(unread)}")
+    print(f"Stats: {notifier.get_stats()}")
+    print(f"Unread events: {len(notifier.get_unread_events())}")
     print("Test PASS")

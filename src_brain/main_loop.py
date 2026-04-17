@@ -28,12 +28,14 @@ from src_brain.memory_rag.rag_manager import RAGManager
 from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
+from src_brain.network.db import init_db
 from src_brain.network.notifier import get_notifier
 from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
 
 
 class RobotBiApp:
     def __init__(self):
+        init_db()
         self.ear = EarSTT()
         self.mouth = MouthTTS()
         self.brain = BiAI()

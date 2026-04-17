@@ -4,10 +4,11 @@ WARNING: Edit PROJECT.md then run: python sync.py
 WARNING: Any manual changes will be overwritten
 # PROJECT.md — Hướng dẫn Dự án Robot Bi (Single Source of Truth)
 
-> Cập nhật: 2026-04-16 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
-> Đây là file NGUỒN DUY NHẤT. CLAUDE.md và AGENTS.md là bản sao tự động.
+> Cập nhật: 2026-04-17 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
+> Đây là file **NGUỒN DUY NHẤT**. CLAUDE.md và AGENTS.md là bản sao tự động.
 
 ## QUY TẮC BẮT BUỘC CHO CẢ CLAUDE CODE CLI VÀ CODEX CLI
+
 1. **PROJECT.md là file nguồn sự thật duy nhất**. Chỉ được sửa file này.
 2. Không bao giờ sửa trực tiếp CLAUDE.md hoặc AGENTS.md.
 3. Trước khi sửa bất kỳ code nào: Đọc phần **PROTECTED FIXES** và **handoff.md**.
@@ -16,6 +17,7 @@ WARNING: Any manual changes will be overwritten
 6. CLAUDE.md và AGENTS.md là file AUTO-GENERATED. Bất kỳ thay đổi tay nào cũng sẽ bị ghi đè.
 
 ## ⚠️ PROTECTED FIXES — TUYỆT ĐỐI KHÔNG ĐƯỢC PHÁ (Regression Protection)
+
 - Audio mom talk + resample 16k→44.1k + pygame Channel(7) + in-memory WAV (Session N/O/P)
 - Mom pause logic + `is_mom_talking()` (Session L/M)
 - Camera delay fix: thread riêng + queue + `CAP_PROP_BUFFERSIZE=1` (Session Q)
@@ -26,61 +28,110 @@ WARNING: Any manual changes will be overwritten
 - HTTPS self-signed + Cloudflare Tunnel
 - Audio queue + chunked TTS streaming (Time-to-First-Audio < 2s)
 - PIN auth + TaskManager + sao thưởng
-→ Nếu đụng vào những phần này phải chạy full test và kiểm tra regression.
+- Microphone fallback (silent mode khi không có mic)
+- CryDetector logging (chỉ log 1 lần khi không có mic)
+- Rate limiting cho `/api/auth/login` (5 lần sai → lock 15 phút, bảng `login_attempts`) + `AUTH_PIN` đọc từ `.env` (Step 1.3)
+- Username + Password auth system với Argon2id (Step 1.4) — chạy song song với PIN cũ. Module `auth.py`, endpoint `/auth/register` + `/auth/login/v2`, rate limit theo `user:<username>`
+- JWT access token + refresh token với rotation (Step 1.5) — `create_access_token` (HS256, 60 phút), `create_refresh_token`/`store_refresh_token` (sha256, 30 ngày), `verify_access_token`, `rotate_refresh_token` (atomic revoke+insert). Endpoint `/auth/refresh` + `/auth/logout`. `JWT_SECRET_KEY` + `JWT_ALGORITHM` từ `.env`. `python-jose[cryptography]` thêm vào requirements. Bảng `auth_tokens` tạo trong `db.py`.
+- JWT middleware bảo vệ tất cả endpoints (Step 1.6) — `get_current_user()` dùng `HTTPBearer(auto_error=False)` trong `auth.py`, raise 401 + `WWW-Authenticate: Bearer`. Áp dụng `Depends(get_current_user)` lên 17 REST routes. Camera dùng `_camera_auth` (header + `?auth=` query param). 3 WebSocket handlers xác thực JWT qua `?token=` query param, đóng code 1008 nếu invalid. Thêm `GET /health` (no auth). Whitelist: `/health`, `/api/status`, `/api/mom/status`, `/api/auth/login`, `/api/auth/logout`, `/auth/register`, `/auth/login/v2`, `/auth/refresh`, `/`, `/static/*`.
+- `JWT_SECRET_KEY` phải luôn đọc từ `.env` — không có default value, không hardcode.
+- SQLite DB path cố định: `src_brain/network/robot_bi.db` — không đổi path, không đổi tên file.
+- `verify_access_token()` và `rotate_refresh_token()` trong `auth.py` — không thay đổi logic xác thực.
+- Rate limiting bảng `login_attempts` — không bypass, không xóa bảng này.
 
-## Mission
-Robot gia sư thông minh cho trẻ em 5-12 tuổi. Chạy trên Windows PC/Laptop.  
+**Nếu đụng vào những phần này phải chạy full test và kiểm tra regression.**
+
+## Mission & Ưu tiên
+
+Robot gia sư thông minh cho trẻ em 5-12 tuổi, chạy trên Windows PC/Laptop.  
+**Ưu tiên:** An toàn & privacy cho trẻ em, trải nghiệm tự nhiên, dễ sử dụng cho phụ huynh.
+
 AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 
 ## Stack hiện tại (KHÔNG thay đổi trừ khi có lệnh rõ ràng)
-| Layer | Thư viện | Ghi chú |
-|-------|----------|---------|
-| LLM Primary | Groq `llama-3.3-70b-versatile` | ~400 token/giây |
-| LLM Fallback | Gemini `gemini-2.5-flash-lite` | Tự động fallback |
-| STT | `faster-whisper` | large-v2 GPU / small CPU auto-detect |
-| TTS | `edge-tts` + `pygame` | giọng vi-VN-HoaiMyNeural |
-| TTS Fallback | `pyttsx3` | offline |
-| Safety | regex + pattern | `safety_filter.py` |
-| RAG | `chromadb` + `sentence-transformers` | paraphrase-multilingual-MiniLM-L12-v2 |
-| Vision | `opencv-python` | CAP_DSHOW |
-| Cry Detection | YAMNet TFLite + energy fallback | `cry_detector.py` |
-| Network | `fastapi` + `uvicorn` + `websockets` | HTTPS 8443 |
-| Tunnel | `cloudflared` | public URL |
+
+| Layer              | Thư viện                          | Ghi chú |
+|--------------------|-----------------------------------|---------|
+| LLM Primary        | Groq `llama-3.3-70b-versatile`    | ~400 token/giây |
+| LLM Fallback       | Gemini `gemini-2.5-flash-lite`    | Tự động fallback |
+| STT                | `faster-whisper`                  | large-v2 GPU / small CPU auto-detect |
+| TTS                | `edge-tts` + `pygame`             | giọng vi-VN-HoaiMyNeural |
+| TTS Fallback       | `pyttsx3`                         | offline |
+| Safety             | regex + pattern                   | `safety_filter.py` |
+| RAG                | `chromadb` + `sentence-transformers` | paraphrase-multilingual-MiniLM-L12-v2 |
+| Vision             | `opencv-python`                   | CAP_DSHOW |
+| Cry Detection      | YAMNet TFLite + energy fallback   | `cry_detector.py` |
+| Network            | `fastapi` + `uvicorn` + `websockets` | HTTPS 8443 |
+| Storage            | SQLite                            | `src_brain/network/robot_bi.db` |
+| Auth               | `argon2-cffi` + `python-jose`     | JWT access(60m) + refresh(30d) |
+| Tunnel             | `cloudflared`                     | public URL |
 
 ## Kiến trúc file & Quy tắc chỉnh sửa
-(Đọc trước khi sửa bất kỳ file nào – không bịa tên class/hàm)
 
-Entry point chính: `src_brain/main_loop.py`  
-LLM: phải qua `stream_chat(messages)` trong `core_ai.py`  
-STT: `ear_stt.py` (faster-whisper)  
-TTS: `mouth_tts.py` (edge-tts + pyttsx3 fallback)  
-Safety: phải chạy trước TTS  
-API keys: lấy từ `.env` (không hardcode)
+(Đọc trước khi sửa bất kỳ file nào — không bịa tên class/hàm)
+
+- **Entry point chính**: `src_brain/main_loop.py`
+- **LLM**: phải qua `stream_chat(messages)` trong `core_ai.py`
+- **STT**: `ear_stt.py` (faster-whisper)
+- **TTS**: `mouth_tts.py` (edge-tts + pyttsx3 fallback)
+- **Safety**: phải chạy trước TTS
+- **API keys**: lấy từ `.env` (không hardcode)
 
 ## Vấn đề đã biết
-1. Wake-word "Bi ơi" vẫn là stub  
-2. Cloudflare URL thay đổi mỗi restart (cần named tunnel sau)  
+
+1. Wake-word "Bi ơi" vẫn là stub
+2. Cloudflare URL thay đổi mỗi lần restart (cần named tunnel sau)
 3. YAMNet TFLite có thể fail nếu thiếu tensorflow (dùng fallback)
+4. Auth: JWT access/refresh token, rate limiting, Argon2id — Phase 1 complete. PIN cũ vẫn chạy song song.
+
+## Ghi chú vận hành (Warning Hygiene)
+
+- Pygame `pkg_resources` warning được suppress
+- Hugging Face cache được cấu hình an toàn để tránh warning quyền ghi
+- CryDetector khi thiếu YAMNet chỉ in 1 dòng info gọn
+- CryDetector khi không có microphone chỉ log info 1 lần rồi dừng
+- `EarSTT` tự động dò microphone (thử mono trước, sau đó stereo); không mở được thì chuyển silent mode
+- `sync.py` ép UTF-8 và dùng ASCII-safe log (`[OK]`, `WARNING`)
+- QR Code dùng ANSI background colors để hiển thị rõ ràng, dễ quét bằng điện thoại
+
+## Roadmap — 4 Phases
+
+**Phase 1 — Security & Data Layer [HOÀN THÀNH 2026-04-17] ✅** (1.1 SQLite migration, 1.2 remove runtime JSON files khỏi git, 1.3 PIN + Rate limiting, 1.4 Username/Password auth với Argon2id, 1.5 JWT access + refresh token với rotation, 1.6 JWT middleware bảo vệ tất cả endpoints, 1.7 requirements.txt pin đủ)
+
+**Phase 2 — Core Experience**  
+Wake-word thực sự, session management, conversation threads
+
+**Phase 3 — Parent Features**  
+WebRTC camera, push notification, account settings
+
+**Phase 4 — Advanced**  
+Motor control, AEC, multi-family isolation, homework system
+
+## Schema Database mục tiêu (SQLite — `src_brain/network/robot_bi.db`)
+
+- `users`: user_id, username, password_hash, family_name, created_at, is_active
+- `auth_tokens`: token_id, user_id, refresh_token_hash, expires_at, created_at
+- `login_attempts`: ip_address, attempt_count, first_attempt_at, locked_until
+- `conversations`: session_id, family_id, started_at, ended_at, title
+- `turns`: turn_id, session_id, role, content, timestamp
+- `events`: event_id, family_id, type, data, created_at (migrate từ event_queue.json)
+- `tasks`: task_id, family_id, title, status, created_at (migrate từ tasks.json)
 
 ## Lệnh hay dùng
+
 ```bash
 python sync.py                    # Đồng bộ CLAUDE.md + AGENTS.md
-start_robot.bat                   # Khởi động (đã tự chạy sync.py)
+start_robot.bat                   # Khởi động robot (tự chạy sync.py)
 python run_tests.py               # BẮT BUỘC sau mọi thay đổi
-python -m src_brain.main_loop
- Đã áp dụng phương pháp Single Source of Truth thành công lúc 13:05:16
+python -m src_brain.main_loop     # Chạy trực tiếp
 ```
 
-Ghi chú warning hygiene:
-- Pygame `pkg_resources` warning được suppress tại các file import `pygame`.
-- Hugging Face cache cho test/model load được ép về cấu hình cục bộ an toàn để tránh warning quyền ghi.
-- CryDetector khi thiếu YAMNet/TensorFlow chỉ in 1 dòng info gọn, không spam warning.
-- CryDetector khi không có microphone hợp lệ giờ chỉ log `info` 1 lần rồi dừng detector, không lặp lỗi `Error querying device -1`.
-- Pygame support prompt được ẩn trước khi import `pygame`.
-- `SentenceTransformer` model load được redirect khỏi console trong test/import path.
-- `run_tests.py` đang suppress output headless của EyeVision, CryDetector và EventNotifier để console sạch hơn.
-- `EarSTT` giờ tự dò microphone input hợp lệ theo thứ tự mono rồi stereo; nếu không mở được mic thì chuyển silent mode và trả `""` thay vì crash PortAudio.
-- `sync.py` giờ ép `stdout` sang UTF-8 và dùng log ASCII-safe (`[OK]`, `WARNING`) để tránh lỗi encoding CP1252 trên Windows console.
-- QR của Parent App/tunnel giờ render bằng khối vuông đặc màu đen/trắng (ANSI background colors) thay vì ký tự ASCII '# ' để điện thoại có thể quét dễ dàng như mã QR thật.
+## Session gần nhất — Phase 1 hoàn thành
 
-Đã áp dụng phương pháp Single Source of Truth thành công lúc 2026-04-16 13:31:18
+- Ngày: 2026-04-17
+- Thay đổi: SQLite migration (1.1), loại JSON runtime files khỏi git (1.2), PIN+rate limiting từ `.env` (1.3), Username/Password/Argon2id auth (1.4), JWT access+refresh token với rotation (1.5), JWT middleware toàn app (1.6), requirements.txt pin đủ (1.7).
+- Test: 71/71 PASS
+- Files mới: `src_brain/network/db.py`, `src_brain/network/auth.py`
+- Files sửa: `src_brain/network/api_server.py`, `src_brain/network/task_manager.py`, `src_brain/network/notifier.py`, `requirements.txt`, `.env.example`, `run_tests.py`
+
+**Phase 1 hoàn tất.** Sẵn sàng cho Phase 2 — Core Experience.

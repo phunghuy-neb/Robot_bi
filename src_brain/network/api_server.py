@@ -33,8 +33,8 @@ Endpoints (Sprint 6 — Session G):
 """
 
 import asyncio
-import hashlib
 import logging
+import math
 import os
 import warnings
 import queue
@@ -43,8 +43,13 @@ import secrets
 import socket
 import subprocess
 import threading
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
@@ -75,11 +80,13 @@ def get_local_ip() -> str:
     except Exception:
         return "127.0.0.1"
 
-from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
+from src_brain.network.db import get_db_connection
+from src_brain.network.auth import get_current_user
 
 try:
     import cv2
@@ -97,7 +104,7 @@ _puppet_queue: queue.Queue = queue.Queue()
 _api_loop: Optional[asyncio.AbstractEventLoop] = None
 
 # ── PIN Authentication (SRS NFR-06) ───────────────────────────────────────────
-PIN_CODE = "123456"           # Default PIN — thay đổi trong .env nếu cần
+AUTH_PIN = os.getenv("AUTH_PIN", "").strip()
 SESSION_TOKENS: set = set()   # In-memory session store
 
 # ── Audio monitoring config ────────────────────────────────────────────────────
@@ -112,10 +119,6 @@ _mom_talking = False
 _mom_audio_clients: list = []  # WebSocket clients đang stream audio từ điện thoại mẹ
 
 
-def _hash_pin(pin: str) -> str:
-    return hashlib.sha256(pin.encode()).hexdigest()
-
-
 def require_auth(
     authorization: Optional[str] = Header(None),
     auth: Optional[str] = Query(None),  # query param cho <img src>
@@ -128,6 +131,37 @@ def require_auth(
     if not token or token not in SESSION_TOKENS:
         raise HTTPException(status_code=401, detail="Chưa đăng nhập")
     return token
+
+
+# get_current_user imported from src_brain.network.auth (Step 1.6)
+
+
+async def _camera_auth(
+    request: Request,
+    auth: Optional[str] = Query(None),
+) -> dict:
+    """
+    Camera/stream auth: chap nhan JWT qua Authorization header HOAC ?auth= query param.
+    Dung cho <img src='/api/camera?auth=TOKEN'> trong browser.
+    """
+    from src_brain.network.auth import verify_access_token
+    authorization = request.headers.get("Authorization", "")
+    token = auth or (authorization[7:] if authorization.startswith("Bearer ") else None)
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    try:
+        payload = verify_access_token(token)
+    except HTTPException:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return {"user_id": payload["sub"], "family_name": payload["family"]}
 
 
 # ── Task Manager (SRS 4.4) ─────────────────────────────────────────────────────
@@ -197,6 +231,77 @@ class ConnectionManager:
 _ws_manager = ConnectionManager()
 
 
+def _event_row_to_dict(row) -> dict:
+    import json
+
+    metadata = row["metadata_json"]
+    try:
+        parsed_metadata = json.loads(metadata) if metadata else {}
+    except Exception:
+        parsed_metadata = {}
+    return {
+        "id": row["event_id"],
+        "timestamp": row["timestamp"],
+        "type": row["type"],
+        "message": row["message"],
+        "clip_path": row["clip_path"],
+        "metadata": parsed_metadata,
+        "read": bool(row["is_read"]),
+    }
+
+
+def _fetch_events_from_db(
+    event_type: Optional[str] = None,
+    unread_only: bool = False,
+    limit: Optional[int] = None,
+    newest_first: bool = False,
+):
+    where_parts = []
+    params = []
+
+    if event_type:
+        where_parts.append("type = ?")
+        params.append(event_type)
+    if unread_only:
+        where_parts.append("is_read = 0")
+
+    where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
+    order_sql = "DESC" if newest_first else "ASC"
+    limit_sql = " LIMIT ?" if limit is not None else ""
+    if limit is not None:
+        params.append(limit)
+
+    query = f"""
+        SELECT event_id, timestamp, type, message, clip_path, metadata_json, is_read
+        FROM events
+        {where_sql}
+        ORDER BY db_id {order_sql}{limit_sql}
+    """
+    with get_db_connection() as conn:
+        rows = conn.execute(query, tuple(params)).fetchall()
+    return [_event_row_to_dict(row) for row in rows]
+
+
+def _count_events_from_db(
+    event_type: Optional[str] = None,
+    unread_only: bool = False,
+) -> int:
+    where_parts = []
+    params = []
+
+    if event_type:
+        where_parts.append("type = ?")
+        params.append(event_type)
+    if unread_only:
+        where_parts.append("is_read = 0")
+
+    where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
+    query = f"SELECT COUNT(*) AS total FROM events {where_sql}"
+    with get_db_connection() as conn:
+        row = conn.execute(query, tuple(params)).fetchone()
+    return int(row["total"]) if row else 0
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 #  FastAPI App
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -214,17 +319,316 @@ async def _on_startup():
     logger.info("[API] FastAPI server started. Event loop captured.")
 
 
+@app.get("/health")
+async def health():
+    """Health check — khong can auth."""
+    return {"status": "ok"}
+
+
 # ── Auth ──────────────────────────────────────────────────────────────────────
 
 @app.post("/api/auth/login")
-async def login(pin: str = Body(..., embed=True)):
-    """Đăng nhập bằng PIN. Trả về session token."""
-    if _hash_pin(pin) == _hash_pin(PIN_CODE):
-        token = secrets.token_hex(16)
-        SESSION_TOKENS.add(token)
-        logger.info("[Auth] Login thành công. Tokens active: %d", len(SESSION_TOKENS))
-        return {"token": token}
+async def login(request: Request, pin: str = Body(..., embed=True)):
+    """Đăng nhập bằng PIN. Trả về session token. Rate-limited: 5 lần sai → khóa 15 phút."""
+    client_ip = request.client.host
+    now = datetime.now(timezone.utc)
+
+    with get_db_connection() as conn:
+        # Cleanup: reset các record đã hết hạn lock (locked_until <= now)
+        conn.execute(
+            "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+            "WHERE locked_until IS NOT NULL AND locked_until <= ?",
+            (now.isoformat(),),
+        )
+        conn.commit()
+
+        # Kiểm tra xem IP có đang bị lock không
+        row = conn.execute(
+            "SELECT attempt_count, locked_until FROM login_attempts WHERE ip_address = ?",
+            (client_ip,),
+        ).fetchone()
+
+        if row and row["locked_until"]:
+            locked_until_str = row["locked_until"]
+            locked_until = datetime.fromisoformat(locked_until_str)
+            if locked_until.tzinfo is None:
+                locked_until = locked_until.replace(tzinfo=timezone.utc)
+            if locked_until > now:
+                remaining_seconds = (locked_until - now).total_seconds()
+                remaining_minutes = math.ceil(remaining_seconds / 60)
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Quá nhiều lần thử. Vui lòng thử lại sau {remaining_minutes} phút.",
+                )
+
+        # Kiểm tra PIN
+        if pin == AUTH_PIN:
+            # PIN đúng: reset record của IP này
+            conn.execute(
+                "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+                "WHERE ip_address = ?",
+                (client_ip,),
+            )
+            conn.commit()
+            token = secrets.token_hex(16)
+            SESSION_TOKENS.add(token)
+            logger.info("[Auth] Login thành công. Tokens active: %d", len(SESSION_TOKENS))
+            return {"token": token}
+
+        # PIN sai: tăng attempt_count
+        if row:
+            current_count = row["attempt_count"] or 0
+            new_count = current_count + 1
+            if new_count >= 5:
+                locked_until_val = (now + timedelta(minutes=15)).isoformat()
+                conn.execute(
+                    "UPDATE login_attempts SET attempt_count = ?, locked_until = ? "
+                    "WHERE ip_address = ?",
+                    (new_count, locked_until_val, client_ip),
+                )
+            elif current_count == 0:
+                # Lần sai đầu tiên của chu kỳ mới (sau khi cleanup reset về 0) — set first_attempt_at
+                conn.execute(
+                    "UPDATE login_attempts SET attempt_count = 1, first_attempt_at = ? "
+                    "WHERE ip_address = ?",
+                    (now.isoformat(), client_ip),
+                )
+            else:
+                # Lần sai tiếp theo trong cùng chu kỳ — KHÔNG cập nhật first_attempt_at
+                conn.execute(
+                    "UPDATE login_attempts SET attempt_count = ? WHERE ip_address = ?",
+                    (new_count, client_ip),
+                )
+        else:
+            # Row chưa tồn tại — lần sai đầu tiên, set first_attempt_at
+            conn.execute(
+                "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                "VALUES (?, 1, ?, NULL)",
+                (client_ip, now.isoformat()),
+            )
+        conn.commit()
+
     raise HTTPException(status_code=401, detail="PIN sai")
+
+
+@app.post("/auth/register")
+async def register_user(request: Request):
+    """Đăng ký tài khoản username + password mới."""
+    from src_brain.network.auth import create_user
+
+    body = await request.json()
+    username: str = body.get("username", "").strip()
+    password: str = body.get("password", "")
+    family_name: str = body.get("family_name", "").strip()
+
+    # Validation username: 3-50 ký tự, chỉ a-zA-Z0-9_
+    import re as _re
+    if not username or not _re.fullmatch(r"[a-zA-Z0-9_]{3,50}", username):
+        raise HTTPException(
+            status_code=422,
+            detail="username phai tu 3-50 ky tu, chi duoc dung a-zA-Z0-9_",
+        )
+    if len(password) < 8:
+        raise HTTPException(status_code=422, detail="password phai co it nhat 8 ky tu")
+    if not family_name:
+        raise HTTPException(status_code=422, detail="family_name khong duoc de trong")
+
+    return create_user(username, password, family_name)
+
+
+@app.post("/auth/login/v2")
+async def login_v2(request: Request):
+    """
+    Đăng nhập bằng username + password.
+    Rate limiting: 5 lần sai theo username → khóa 15 phút.
+    Trả về JWT access_token (60 phút) + refresh_token (30 ngày).
+    """
+    from src_brain.network.auth import (
+        authenticate_user,
+        create_access_token,
+        create_refresh_token,
+        store_refresh_token,
+    )
+
+    body = await request.json()
+    username: str = body.get("username", "").strip()
+    password: str = body.get("password", "")
+
+    if not username or not password:
+        raise HTTPException(status_code=422, detail="Thieu username hoac password")
+
+    rate_key = f"user:{username}"
+    now = datetime.now(timezone.utc)
+    authenticated_user = None
+
+    with get_db_connection() as conn:
+        # Cleanup record hết hạn lock
+        conn.execute(
+            "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+            "WHERE locked_until IS NOT NULL AND locked_until <= ?",
+            (now.isoformat(),),
+        )
+        conn.commit()
+
+        row = conn.execute(
+            "SELECT attempt_count, locked_until FROM login_attempts WHERE ip_address = ?",
+            (rate_key,),
+        ).fetchone()
+
+        if row and row["locked_until"]:
+            locked_until_str = row["locked_until"]
+            locked_until = datetime.fromisoformat(locked_until_str)
+            if locked_until.tzinfo is None:
+                locked_until = locked_until.replace(tzinfo=timezone.utc)
+            if locked_until > now:
+                remaining_seconds = (locked_until - now).total_seconds()
+                remaining_minutes = math.ceil(remaining_seconds / 60)
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Quá nhiều lần thử. Vui lòng thử lại sau {remaining_minutes} phút.",
+                )
+
+        user = authenticate_user(username, password)
+
+        if user:
+            # Đúng: reset rate limit record
+            conn.execute(
+                "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+                "WHERE ip_address = ?",
+                (rate_key,),
+            )
+            conn.commit()
+            authenticated_user = user
+        else:
+            # Sai: tăng attempt_count
+            if row:
+                current_count = row["attempt_count"] or 0
+                new_count = current_count + 1
+                if new_count >= 5:
+                    locked_until_val = (now + timedelta(minutes=15)).isoformat()
+                    conn.execute(
+                        "UPDATE login_attempts SET attempt_count = ?, locked_until = ? "
+                        "WHERE ip_address = ?",
+                        (new_count, locked_until_val, rate_key),
+                    )
+                elif current_count == 0:
+                    conn.execute(
+                        "UPDATE login_attempts SET attempt_count = 1, first_attempt_at = ? "
+                        "WHERE ip_address = ?",
+                        (now.isoformat(), rate_key),
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE login_attempts SET attempt_count = ? WHERE ip_address = ?",
+                        (new_count, rate_key),
+                    )
+            else:
+                conn.execute(
+                    "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                    "VALUES (?, 1, ?, NULL)",
+                    (rate_key, now.isoformat()),
+                )
+            conn.commit()
+
+    if not authenticated_user:
+        raise HTTPException(status_code=401, detail="Sai ten dang nhap hoac mat khau")
+
+    # Tạo JWT access token + refresh token
+    access_token = create_access_token(
+        str(authenticated_user["user_id"]), authenticated_user["family_name"]
+    )
+    raw_refresh, hashed_refresh = create_refresh_token(str(authenticated_user["user_id"]))
+    refresh_expires_at = datetime.now(timezone.utc) + timedelta(days=30)
+    store_refresh_token(str(authenticated_user["user_id"]), hashed_refresh, refresh_expires_at)
+
+    logger.info("[Auth v2] Login thanh cong: user_id=%s", authenticated_user["user_id"])
+    return {
+        "access_token": access_token,
+        "refresh_token": raw_refresh,
+        "token_type": "bearer",
+        "expires_in": 3600,
+    }
+
+
+@app.post("/auth/refresh")
+async def refresh_token_endpoint(request: Request):
+    """
+    Đổi refresh token lấy access token + refresh token mới (rotation).
+    Body: {"refresh_token": str}
+    """
+    from src_brain.network.auth import rotate_refresh_token, create_access_token
+
+    body = await request.json()
+    old_refresh = body.get("refresh_token", "").strip()
+
+    if not old_refresh:
+        raise HTTPException(status_code=422, detail="Thieu refresh_token")
+
+    new_raw, _new_hashed, user_id = rotate_refresh_token(old_refresh)
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT family_name FROM users WHERE user_id = ?", (user_id,)
+        ).fetchone()
+
+    if not row:
+        raise HTTPException(status_code=401, detail="User khong ton tai")
+
+    new_access = create_access_token(user_id, row["family_name"])
+
+    return {
+        "access_token": new_access,
+        "refresh_token": new_raw,
+        "token_type": "bearer",
+        "expires_in": 3600,
+    }
+
+
+@app.post("/auth/logout")
+async def logout_v2(request: Request, _current_user: dict = Depends(get_current_user)):
+    """
+    Đăng xuất JWT: verify access token → revoke refresh token của chính user đó.
+    Header: Authorization: Bearer <access_token>
+    Body: {"refresh_token": str}
+    """
+    import hashlib as _hl
+    from src_brain.network.auth import verify_access_token
+
+    authorization = request.headers.get("Authorization", "")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Thieu Authorization: Bearer <token>")
+    access_token = authorization[7:]
+
+    payload = verify_access_token(access_token)
+    user_id = str(payload.get("sub", ""))
+
+    body = await request.json()
+    refresh_token_str = body.get("refresh_token", "").strip()
+    if not refresh_token_str:
+        raise HTTPException(status_code=422, detail="Thieu refresh_token")
+
+    hashed = _hl.sha256(refresh_token_str.encode()).hexdigest()
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT token_id, user_id FROM auth_tokens "
+            "WHERE refresh_token_hash = ? AND is_revoked = 0",
+            (hashed,),
+        ).fetchone()
+
+        if not row or str(row["user_id"]) != user_id:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired refresh token",
+            )
+
+        conn.execute(
+            "UPDATE auth_tokens SET is_revoked = 1 WHERE token_id = ?",
+            (row["token_id"],),
+        )
+        conn.commit()
+
+    return {"message": "Đã đăng xuất"}
 
 
 @app.post("/api/auth/logout")
@@ -251,12 +655,19 @@ async def dashboard():
 
 @app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket):
+    token = websocket.query_params.get("token", "")
+    try:
+        from src_brain.network.auth import verify_access_token
+        verify_access_token(token)
+    except Exception:
+        await websocket.close(code=1008)
+        return
     await _ws_manager.connect(websocket)
     # Gửi ngay 20 events chưa đọc gần nhất khi client vừa connect
     if _notifier:
         try:
-            with _notifier._lock:
-                unread = [e for e in _notifier._events if not e["read"]][-20:]
+            unread = _fetch_events_from_db(unread_only=True, limit=20, newest_first=True)
+            unread.reverse()
             for evt in unread:
                 await websocket.send_json(evt)
         except Exception:
@@ -292,23 +703,24 @@ async def get_events(
     type: Optional[str] = None,
     unread_only: bool = False,
     limit: int = 100,
-    _auth: str = Depends(require_auth),
+    _current_user: dict = Depends(get_current_user),
 ):
     if not _notifier:
         return {"events": [], "total": 0}
-    with _notifier._lock:
-        events = list(_notifier._events)
-    if type:
-        events = [e for e in events if e["type"] == type]
-    if unread_only:
-        events = [e for e in events if not e["read"]]
-    result = events[-limit:]
+    events = _fetch_events_from_db(
+        event_type=type,
+        unread_only=unread_only,
+        limit=limit,
+        newest_first=True,
+    )
+    total = _count_events_from_db(event_type=type, unread_only=unread_only)
+    return {"events": events, "total": total}
     result = list(reversed(result))   # mới nhất lên trước
     return {"events": result, "total": len(events)}
 
 
 @app.post("/api/events/read_all")
-async def mark_read(_auth: str = Depends(require_auth)):
+async def mark_read(_current_user: dict = Depends(get_current_user)):
     if _notifier:
         _notifier.mark_all_read()
     return {"status": "ok"}
@@ -317,20 +729,23 @@ async def mark_read(_auth: str = Depends(require_auth)):
 # ── REST: Chat Log ────────────────────────────────────────────────────────────
 
 @app.get("/api/chats")
-async def get_chats(limit: int = 50, _auth: str = Depends(require_auth)):
+async def get_chats(limit: int = 50, _current_user: dict = Depends(get_current_user)):
     if not _notifier:
         return {"chats": [], "total": 0}
-    with _notifier._lock:
-        events = list(_notifier._events)
-    chats = [e for e in events if e["type"] == "chat"]
-    result = list(reversed(chats[-limit:]))
-    return {"chats": result, "total": len(chats)}
+    chats = _fetch_events_from_db(
+        event_type="chat",
+        unread_only=False,
+        limit=limit,
+        newest_first=True,
+    )
+    total = _count_events_from_db(event_type="chat", unread_only=False)
+    return {"chats": chats, "total": total}
 
 
 # ── REST: Memories ────────────────────────────────────────────────────────────
 
 @app.get("/api/memories")
-async def list_memories(_auth: str = Depends(require_auth)):
+async def list_memories(_current_user: dict = Depends(get_current_user)):
     if not _rag:
         return {"memories": [], "total": 0}
     memories = _rag.list_memories()
@@ -342,7 +757,7 @@ class MemoryIn(BaseModel):
 
 
 @app.post("/api/memories")
-async def add_memory(body: MemoryIn, _auth: str = Depends(require_auth)):
+async def add_memory(body: MemoryIn, _current_user: dict = Depends(get_current_user)):
     if not body.text.strip():
         raise HTTPException(400, "text không được rỗng")
     if not _rag:
@@ -357,14 +772,14 @@ class MemoryUpdate(BaseModel):
 
 # Export phải đứng trước /{memory_id} để không bị capture
 @app.get("/api/memories/export")
-async def export_memories(_auth: str = Depends(require_auth)):
+async def export_memories(_current_user: dict = Depends(get_current_user)):
     if not _rag:
         return []
     return _rag.export_memories()
 
 
 @app.put("/api/memories/{memory_id}")
-async def update_memory(memory_id: str, body: MemoryUpdate, _auth: str = Depends(require_auth)):
+async def update_memory(memory_id: str, body: MemoryUpdate, _current_user: dict = Depends(get_current_user)):
     if not _rag:
         raise HTTPException(503, "RAG chưa khởi động")
     ok = _rag.update_memory(memory_id, body.text)
@@ -374,7 +789,7 @@ async def update_memory(memory_id: str, body: MemoryUpdate, _auth: str = Depends
 
 
 @app.delete("/api/memories/{memory_id}")
-async def delete_memory(memory_id: str, _auth: str = Depends(require_auth)):
+async def delete_memory(memory_id: str, _current_user: dict = Depends(get_current_user)):
     if not _rag:
         raise HTTPException(503, "RAG chưa khởi động")
     ok = _rag.delete_memory(memory_id)
@@ -390,7 +805,7 @@ class PuppetIn(BaseModel):
 
 
 @app.post("/api/puppet")
-async def puppet_say(body: PuppetIn, _auth: str = Depends(require_auth)):
+async def puppet_say(body: PuppetIn, _current_user: dict = Depends(get_current_user)):
     text = body.text.strip()
     if not text:
         raise HTTPException(400, "text không được rỗng")
@@ -482,8 +897,8 @@ async def _mjpeg_generator():
 
 
 @app.get("/api/camera")
-async def camera_stream(_auth: str = Depends(require_auth)):
-    """Live MJPEG camera stream. Token có thể truyền qua query param ?auth=<token>"""
+async def camera_stream(_current_user: dict = Depends(_camera_auth)):
+    """Live MJPEG camera stream. Token co the truyen qua query param ?auth=<JWT>"""
     return StreamingResponse(
         _mjpeg_generator(),
         media_type="multipart/x-mixed-replace;boundary=frame"
@@ -493,7 +908,7 @@ async def camera_stream(_auth: str = Depends(require_auth)):
 # ── REST: Tasks (SRS 4.4) ─────────────────────────────────────────────────────
 
 @app.get("/api/tasks")
-async def get_tasks(_auth: str = Depends(require_auth)):
+async def get_tasks(_current_user: dict = Depends(get_current_user)):
     if not _task_manager:
         return []
     return _task_manager.get_all()
@@ -503,7 +918,7 @@ async def get_tasks(_auth: str = Depends(require_auth)):
 async def add_task(
     name: str = Body(...),
     remind_time: str = Body(...),
-    _auth: str = Depends(require_auth),
+    _current_user: dict = Depends(get_current_user),
 ):
     if not _task_manager:
         raise HTTPException(503, "Task manager chưa khởi động")
@@ -512,19 +927,19 @@ async def add_task(
 
 # stars phải đứng trước /{task_id} để không bị capture
 @app.get("/api/tasks/stars")
-async def get_stars(_auth: str = Depends(require_auth)):
+async def get_stars(_current_user: dict = Depends(get_current_user)):
     return {"total_stars": _task_manager.get_total_stars() if _task_manager else 0}
 
 
 @app.post("/api/tasks/{task_id}/complete")
-async def complete_task(task_id: str, _auth: str = Depends(require_auth)):
+async def complete_task(task_id: str, _current_user: dict = Depends(get_current_user)):
     if _task_manager and _task_manager.complete_task(task_id):
         return {"ok": True, "stars": _task_manager.get_total_stars()}
     raise HTTPException(404, "Task không tìm thấy hoặc đã hoàn thành")
 
 
 @app.delete("/api/tasks/{task_id}")
-async def delete_task(task_id: str, _auth: str = Depends(require_auth)):
+async def delete_task(task_id: str, _current_user: dict = Depends(get_current_user)):
     if _task_manager and _task_manager.delete_task(task_id):
         return {"ok": True}
     raise HTTPException(404, "Task không tìm thấy")
@@ -538,10 +953,13 @@ async def audio_stream(websocket: WebSocket):
     Stream audio từ mic phòng → browser (1 chiều).
     Format: PCM 16-bit little-endian, 16kHz, mono.
     Browser nhận raw PCM → phát qua Web Audio API.
-    Auth qua query param: /api/audio/stream?auth=TOKEN
+    Auth qua query param: /api/audio/stream?token=JWT_ACCESS_TOKEN
     """
-    token = websocket.query_params.get("auth", "")
-    if token not in SESSION_TOKENS:
+    token = websocket.query_params.get("token", "")
+    try:
+        from src_brain.network.auth import verify_access_token
+        verify_access_token(token)
+    except Exception:
         await websocket.close(code=1008)
         return
 
@@ -612,7 +1030,7 @@ def is_mom_talking() -> bool:
 
 
 @app.post("/api/mom/start")
-async def mom_start_talking(_auth: str = Depends(require_auth)):
+async def mom_start_talking(_current_user: dict = Depends(get_current_user)):
     """Mẹ bắt đầu nói — Bi tạm dừng AI, chờ nhận audio từ mẹ."""
     global _mom_talking
     _mom_talking = True
@@ -622,7 +1040,7 @@ async def mom_start_talking(_auth: str = Depends(require_auth)):
 
 
 @app.post("/api/mom/stop")
-async def mom_stop_talking(_auth: str = Depends(require_auth)):
+async def mom_stop_talking(_current_user: dict = Depends(get_current_user)):
     """Mẹ dừng nói — Bi hoạt động bình thường lại."""
     global _mom_talking
     _mom_talking = False
@@ -642,12 +1060,15 @@ async def mom_audio_receive(websocket: WebSocket):
     """
     Nhận audio PCM float32 từ browser điện thoại mẹ → phát qua loa robot.
     Format: PCM float32, 16000Hz, mono (Web Audio API getUserMedia).
-    Auth: /api/mom/audio?auth=TOKEN
+    Auth: /api/mom/audio?token=JWT_ACCESS_TOKEN
     """
     global _mom_talking
 
-    token = websocket.query_params.get("auth", "")
-    if token not in SESSION_TOKENS:
+    token = websocket.query_params.get("token", "")
+    try:
+        from src_brain.network.auth import verify_access_token
+        verify_access_token(token)
+    except Exception:
         await websocket.close(code=1008)
         return
 
@@ -897,6 +1318,16 @@ def start_api_server(host: str = "0.0.0.0", port: int = 8000) -> None:
     Khởi động FastAPI + uvicorn trong background daemon thread.
     Non-blocking — không ảnh hưởng đến main_loop.py.
     """
+    if not AUTH_PIN:
+        raise Exception(
+            "[Auth] FATAL: AUTH_PIN chưa được cấu hình trong .env. "
+            "Server không thể khởi động. Thêm AUTH_PIN=<pin> vào file .env rồi thử lại."
+        )
+
+    # Validate JWT config tại startup — raise RuntimeError nếu thiếu
+    from src_brain.network.auth import _get_jwt_config
+    _get_jwt_config()  # Raise RuntimeError nếu JWT_SECRET_KEY thiếu hoặc sai algorithm
+
     use_https = _USE_HTTPS
     actual_port = 8443 if use_https else port
 

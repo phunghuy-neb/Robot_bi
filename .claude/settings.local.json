@@ -11,7 +11,13 @@
       "Bash(awk '{:*)",
       "Bash(python3 -c ':*)",
       "Bash(pip install:*)",
-      "Bash(ls *.py *.wav *.mp3)"
+      "Bash(ls *.py *.wav *.mp3)",
+      "Bash(grep -r \"TODO\\\\|STUB\\\\|FIXME\\\\|XXX\\\\|NotImplemented\\\\|pass$\" /d/Robot_bi/src_brain --include=\"*.py\")",
+      "Bash(cmd /c \"start_robot.bat\")",
+      "Bash(kill %1)",
+      "Bash(cmd /c \"chcp 65001 > nul && python run_tests.py 2>&1\")",
+      "Bash(cmd /c \"cd /d D:\\\\Robot_bi && start_robot.bat\")",
+      "Bash(pip freeze *)"
     ]
   }
 }

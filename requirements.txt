@@ -4,27 +4,37 @@
 # ============================================================
 
 # Core dependencies
-requests>=2.31.0
-cryptography
-pygame>=2.5.0
-fastapi
-uvicorn[standard]
-websockets
-sounddevice
-soundfile
-numpy
-scipy
-opencv-python
-python-dotenv>=1.0.0
-psutil
-qrcode
+requests==2.33.1
+cryptography==46.0.7
+pygame==2.6.1
+fastapi==0.135.3
+uvicorn[standard]==0.44.0
+websockets==16.0
+sounddevice==0.5.5
+soundfile==0.13.1
+numpy==2.4.4
+scipy==1.17.1
+opencv-python==4.13.0.92
+python-dotenv==1.2.2
+psutil==7.2.2
+qrcode==8.2
 
 # Speech & AI
-faster-whisper
-edge-tts
-sentence-transformers
-chromadb
-pyttsx3
+faster-whisper==1.2.1
+edge-tts==7.2.8
+sentence-transformers==5.4.1
+chromadb==1.5.7
+pyttsx3==2.99
 
 # Cry detection (optional but recommended)
-tflite-runtime
+# tflite-runtime
+
+# Phase 1 — Auth & Security
+argon2-cffi==23.1.0
+python-jose[cryptography]==3.3.0
+
+# Phase 2+ (sẽ thêm sau)
+# openwakeword
+# aiortc
+# pywebpush
+# pyserial

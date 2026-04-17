@@ -15,9 +15,18 @@ import logging
 
 sys.path.insert(0, '.')
 
+# Đặt JWT test config trước khi bất kỳ module nào import auth.py
+# (auth.py được import transitively khi init_db() gọi seed_admin_if_empty)
+os.environ.setdefault("JWT_SECRET_KEY", "test_jwt_secret_key_robot_bi_testing_only_32chars!")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+
+from src_brain.network.db import init_db
+
 # Fix encoding Windows
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+init_db()
 
 passed = []
 failed = []
@@ -441,6 +450,169 @@ def test_ear_has_methods():
 test("EarSTT: constants defined correctly", test_ear_constants)
 test("EarSTT: required methods exist",      test_ear_has_methods)
 
+# == GROUP 10b: Auth Module =================================================
+print("\n[Group 10b] Auth Module")
+from src_brain.network.auth import (
+    authenticate_user,
+    create_user,
+    get_user_by_username,
+    hash_password,
+    verify_password,
+)
+import uuid as _uuid
+
+
+def test_hash_and_verify():
+    h = hash_password("test_password_123")
+    assert isinstance(h, str)
+    assert len(h) > 20
+    assert verify_password("test_password_123", h) is True
+    assert verify_password("wrong_password", h) is False
+
+
+def test_verify_wrong_hash():
+    assert verify_password("any", "not_a_valid_hash") is False
+
+
+def test_create_and_get_user():
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"testuser_{unique}", "password123", "TestFamily")
+    assert user["username"] == f"testuser_{unique}"
+    assert "user_id" in user
+    assert "password_hash" not in user
+    fetched = get_user_by_username(f"testuser_{unique}")
+    assert fetched is not None
+    assert fetched["family_name"] == "TestFamily"
+    assert "password_hash" in fetched  # DB record has hash
+
+
+def test_create_duplicate_username():
+    from fastapi import HTTPException
+    unique = _uuid.uuid4().hex[:8]
+    create_user(f"dupuser_{unique}", "password123", "Fam1")
+    try:
+        create_user(f"dupuser_{unique}", "password456", "Fam2")
+        assert False, "Expected HTTPException 409"
+    except HTTPException as e:
+        assert e.status_code == 409
+
+
+def test_authenticate_user_ok():
+    unique = _uuid.uuid4().hex[:8]
+    create_user(f"authok_{unique}", "mypassword!", "AuthFam")
+    result = authenticate_user(f"authok_{unique}", "mypassword!")
+    assert result is not None
+    assert result["username"] == f"authok_{unique}"
+    assert "password_hash" not in result
+
+
+def test_authenticate_user_wrong_password():
+    unique = _uuid.uuid4().hex[:8]
+    create_user(f"authwrong_{unique}", "correct_pass_1", "Fam")
+    result = authenticate_user(f"authwrong_{unique}", "wrong_pass")
+    assert result is None
+
+
+def test_authenticate_nonexistent_user():
+    result = authenticate_user("nonexistent_user_xyz_999", "any_password")
+    assert result is None
+
+
+test("Auth: hash_password + verify_password",         test_hash_and_verify)
+test("Auth: verify_password wrong hash → False",      test_verify_wrong_hash)
+test("Auth: create_user + get_user_by_username",      test_create_and_get_user)
+test("Auth: create duplicate username → 409",         test_create_duplicate_username)
+test("Auth: authenticate_user correct password",      test_authenticate_user_ok)
+test("Auth: authenticate_user wrong password → None", test_authenticate_user_wrong_password)
+test("Auth: authenticate nonexistent user → None",    test_authenticate_nonexistent_user)
+
+# == GROUP 10c: JWT Module ==================================================
+print("\n[Group 10c] JWT Module")
+from src_brain.network.auth import (
+    create_access_token,
+    create_refresh_token,
+    store_refresh_token,
+    verify_access_token,
+    rotate_refresh_token,
+)
+import hashlib as _hashlib_test
+from datetime import datetime as _dt_test, timedelta as _td_test, timezone as _tz_test
+
+
+def test_jwt_create_access_token():
+    token = create_access_token("42", "TestFamily")
+    assert isinstance(token, str)
+    assert len(token) > 20
+    # Có đúng 3 phần phân cách bằng dấu chấm (JWT header.payload.sig)
+    assert token.count(".") == 2
+
+
+def test_jwt_verify_access_token_valid():
+    token = create_access_token("99", "FamXYZ")
+    payload = verify_access_token(token)
+    assert payload["sub"] == "99"
+    assert payload["family"] == "FamXYZ"
+    assert payload["type"] == "access"
+
+
+def test_jwt_verify_access_token_invalid():
+    from fastapi import HTTPException
+    try:
+        verify_access_token("this.is.not.a.valid.jwt.token")
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401
+
+
+def test_jwt_create_refresh_token_hash():
+    raw, hashed = create_refresh_token("42")
+    assert isinstance(raw, str)
+    assert isinstance(hashed, str)
+    assert len(raw) > 20
+    # Xác minh hashed đúng là sha256 của raw
+    assert _hashlib_test.sha256(raw.encode()).hexdigest() == hashed
+
+
+def test_jwt_store_and_rotate_refresh_token():
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"jwtrot_{unique}", "Passw0rd123!", "JWTFam")
+    uid = str(user["user_id"])
+
+    raw, hashed = create_refresh_token(uid)
+    expires_at = _dt_test.now(_tz_test.utc) + _td_test(days=30)
+    store_refresh_token(uid, hashed, expires_at)
+
+    # Rotation thành công
+    new_raw, new_hashed, returned_uid = rotate_refresh_token(raw)
+    assert returned_uid == uid
+    assert new_raw != raw
+    assert new_hashed != hashed
+
+    # Token cũ phải bị revoke ngay lập tức
+    from fastapi import HTTPException
+    try:
+        rotate_refresh_token(raw)
+        assert False, "Expected 401 for revoked token"
+    except HTTPException as e:
+        assert e.status_code == 401
+
+
+def test_jwt_rotate_invalid_token():
+    from fastapi import HTTPException
+    try:
+        rotate_refresh_token("totally_fake_token_that_doesnt_exist_in_db")
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401
+
+
+test("JWT: create_access_token format",         test_jwt_create_access_token)
+test("JWT: verify_access_token valid payload",  test_jwt_verify_access_token_valid)
+test("JWT: verify_access_token invalid → 401",  test_jwt_verify_access_token_invalid)
+test("JWT: create_refresh_token sha256 hash",   test_jwt_create_refresh_token_hash)
+test("JWT: store + rotate (old revoked)",       test_jwt_store_and_rotate_refresh_token)
+test("JWT: rotate invalid token → 401",         test_jwt_rotate_invalid_token)
+
 # == GROUP 11: Integration ==================================================
 print("\n[Group 11] Integration")
 
@@ -472,7 +644,8 @@ def test_requirements_complete():
     required = [
         'requests', 'faster-whisper', 'edge-tts', 'pygame',
         'chromadb', 'sentence-transformers', 'opencv-python',
-        'fastapi', 'pyttsx3', 'sounddevice', 'numpy',
+        'fastapi', 'pyttsx3', 'sounddevice', 'numpy', 'argon2-cffi',
+        'python-jose',
     ]
     for r in required:
         assert r in reqs, f"Missing from requirements.txt: {r}"
@@ -483,6 +656,76 @@ test("Integration: main_loop importable",     test_main_loop_import)
 test("Integration: api_server importable",    test_api_server_import)
 test("Integration: manifest.json valid",      test_manifest_valid)
 test("Integration: requirements.txt complete", test_requirements_complete)
+
+# == GROUP 12: JWT Auth Guard (get_current_user dependency) =================
+print("\n[Group 12] JWT Auth Guard")
+import asyncio as _asyncio
+from src_brain.network.auth import get_current_user as _get_current_user
+
+
+def test_auth_guard_no_creds_returns_401():
+    """get_current_user(None) phai raise 401 voi WWW-Authenticate header."""
+    from fastapi import HTTPException
+
+    async def _inner():
+        await _get_current_user(None)
+
+    try:
+        _asyncio.run(_inner())
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401, f"Expected 401, got {e.status_code}"
+        assert e.headers is not None
+        assert "WWW-Authenticate" in e.headers, "Thieu WWW-Authenticate header"
+        assert e.headers["WWW-Authenticate"] == "Bearer"
+
+
+def test_auth_guard_valid_jwt_returns_user():
+    """get_current_user voi JWT hop le phai tra ve user dict dung."""
+    from fastapi.security import HTTPAuthorizationCredentials
+    from src_brain.network.auth import create_access_token
+
+    token = create_access_token("77", "GuardFam")
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+
+    async def _inner():
+        return await _get_current_user(creds)
+
+    user = _asyncio.run(_inner())
+    assert user["user_id"] == "77"
+    assert user["family_name"] == "GuardFam"
+
+
+def test_auth_guard_invalid_token_returns_401():
+    """get_current_user voi token gia phai raise 401 voi WWW-Authenticate header."""
+    from fastapi import HTTPException
+    from fastapi.security import HTTPAuthorizationCredentials
+
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="not.a.valid.jwt")
+
+    async def _inner():
+        await _get_current_user(creds)
+
+    try:
+        _asyncio.run(_inner())
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401
+        assert e.headers is not None
+        assert "WWW-Authenticate" in e.headers
+
+
+def test_auth_guard_health_route_exists():
+    """Endpoint /health phai ton tai trong app (no auth)."""
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/health" in paths, f"/health khong tim thay trong routes: {paths}"
+
+
+test("AuthGuard: no creds → 401 + WWW-Authenticate",  test_auth_guard_no_creds_returns_401)
+test("AuthGuard: valid JWT → user dict correct",       test_auth_guard_valid_jwt_returns_user)
+test("AuthGuard: invalid token → 401 + WWW-Authenticate", test_auth_guard_invalid_token_returns_401)
+test("AuthGuard: /health route exists (no auth)",      test_auth_guard_health_route_exists)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
