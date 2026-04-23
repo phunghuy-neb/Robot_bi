@@ -237,6 +237,7 @@ class RobotBiApp:
                         update_session_title(session_id, title)
 
                     threading.Thread(target=_name_session, daemon=True).start()
+                    is_first_turn_of_session = False
                 rag_context = self.rag.retrieve(user_text)
                 if rag_context:
                     user_text = f"{rag_context}\n\nBé hỏi: {user_text}"

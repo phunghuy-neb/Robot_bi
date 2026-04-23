@@ -715,8 +715,6 @@ async def get_events(
     )
     total = _count_events_from_db(event_type=type, unread_only=unread_only)
     return {"events": events, "total": total}
-    result = list(reversed(result))   # mới nhất lên trước
-    return {"events": result, "total": len(events)}
 
 
 @app.post("/api/events/read_all")
