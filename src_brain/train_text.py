@@ -9,43 +9,49 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src_brain.ai_core.core_ai import stream_chat
 
-history = []
 
-print("Robot Bi — Text Sandbox (Groq Llama 70B / Gemini Flash-Lite)")
-print("   Go 'thoat', 'exit' hoac 'quit' de ket thuc.\n")
+def main() -> int:
+    history = []
 
-try:
-    while True:
-        user_input = input("Ban: ").strip()
+    print("Robot Bi — Text Sandbox (Groq Llama 70B / Gemini Flash-Lite)")
+    print("   Go 'thoat', 'exit' hoac 'quit' de ket thuc.\n")
 
-        if not user_input:
-            continue
+    try:
+        while True:
+            user_input = input("Ban: ").strip()
 
-        if user_input.lower() in ("thoat", "exit", "quit"):
-            print("Bi: Tam biet ban nhe! Hen gap lai!")
-            sys.exit(0)
+            if not user_input:
+                continue
 
-        history.append({"role": "user", "content": user_input})
+            if user_input.lower() in ("thoat", "exit", "quit"):
+                print("Bi: Tam biet ban nhe! Hen gap lai!")
+                return 0
 
-        print("Bi: ", end="", flush=True)
-        full_reply = ""
-        try:
-            for token in stream_chat(history):
-                full_reply += token
-                print(token, end="", flush=True)
-            print()
-        except Exception as e:
-            print(f"\nLoi: {e}")
-            history.pop()
-            continue
+            history.append({"role": "user", "content": user_input})
 
-        if full_reply:
-            history.append({"role": "assistant", "content": full_reply.strip()})
+            print("Bi: ", end="", flush=True)
+            full_reply = ""
+            try:
+                for token in stream_chat(history):
+                    full_reply += token
+                    print(token, end="", flush=True)
+                print()
+            except Exception as e:
+                print(f"\nLoi: {e}")
+                history.pop()
+                continue
 
-        # Sliding window: giu 10 luot gan nhat (20 messages)
-        if len(history) > 20:
-            history = history[-20:]
+            if full_reply:
+                history.append({"role": "assistant", "content": full_reply.strip()})
 
-except KeyboardInterrupt:
-    print("\nBi: Tam biet ban nhe! Hen gap lai!")
-    sys.exit(0)
+            # Sliding window: giu 10 luot gan nhat (20 messages)
+            if len(history) > 20:
+                history = history[-20:]
+
+    except KeyboardInterrupt:
+        print("\nBi: Tam biet ban nhe! Hen gap lai!")
+        return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

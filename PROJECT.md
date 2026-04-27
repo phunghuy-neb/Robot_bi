@@ -112,8 +112,8 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 **Phase 2 — Core Experience [HOÀN THÀNH 2026-04-17] ✅**  
 Wake-word dev/test path, session UUID, auto-title, conversation threads API + Parent App UI
 
-**Phase 3 — Parent Features**  
-WebRTC camera, push notification, account settings
+**Phase 3 — Parent Features [HOAN THANH 2026-04-27]**  
+WebRTC camera, push notification, account settings, frontend cleanup, backend hardening, docs freeze.
 
 **Phase 4 — Advanced**  
 Motor control, AEC, multi-family isolation, homework system
@@ -154,3 +154,10 @@ python -m src_brain.main_loop     # Chạy trực tiếp
 - Hoan thanh 23 fixes audit pass 3: XSS task validation, registration gate, memory family guard, logout cleanup order, protected fetch refresh, WebRTC cleanup/user scoping, audio queue backpressure, JWT user existence check, change-password rate limit, bounded list limits, DB migration error handling, token_version single increment, WS logout reconnect guard, checkAuth retry, privacy logging, shutdown cleanup, TaskManager-before-API ordering, logging setup idempotence, Ubuntu aiortc requirements, ear_stt env drift, notifier WS stats, ops_router import cleanup.
 - Them Group 24 vao `run_tests.py` voi 17 verification tests.
 - Final sprint test result: 138/138 PASS.
+
+## Session 2026-04-27 — Phase 1-3 Freeze Sprint
+
+- Hoan thanh Sprint A-D: safety/logic, auth hardening, runtime stability, frontend cleanup, operations docs, va cleanup cuoi.
+- Phase 3 COMPLETE; du an san sang chuyen sang Ubuntu PC co GPU.
+- Final regression target sau Sprint D: 164/164 PASS.
+- Known deferred debt: WebRTC frame source can Ubuntu + aiortc, wake-word model training can dataset, Phase 4 features, ChromaDB multi-family isolation.

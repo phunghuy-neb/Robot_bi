@@ -80,12 +80,20 @@ def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
             try:
                 proc = subprocess.Popen(
                     cmd,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     text=True, encoding="utf-8", errors="replace",
                 )
                 _tunnel_process = proc
-                for _ in proc.stdout:
-                    pass  # drain stdout de tranh block
+                stdout, stderr = proc.communicate()
+                exit_code = proc.returncode
+                if exit_code != 0:
+                    logger.error(
+                        "[Tunnel] Process exit code=%d stderr=%s",
+                        exit_code,
+                        (stderr or "")[:500],
+                    )
+                else:
+                    logger.info("[Tunnel] Process exited cleanly")
             except Exception as e:
                 logger.error("[Tunnel] Loi Named Tunnel: %s", e)
         else:

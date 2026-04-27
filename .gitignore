@@ -21,11 +21,15 @@ src_brain/memory_rag/.hf_cache/
 
 # ChromaDB database & test data
 chroma_db/
+**/chroma_db/
 src_brain/memory_rag/chroma_db/
+src_brain/memory_rag/_test_db/
 src_brain/memory_rag/_audit_test_db/
 
 # Temporary & log files
+logs/
 *.log
+*.log.*
 tmp_*
 *.tmp
 

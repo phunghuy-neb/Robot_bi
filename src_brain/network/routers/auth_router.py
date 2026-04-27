@@ -118,6 +118,50 @@ async def register_user(request: Request):
             detail="Dang ky bi tat. Lien he admin de duoc cap tai khoan.",
         )
 
+    client_ip = request.client.host if request.client else "unknown"
+    reg_key = f"register:{client_ip}"
+    now = datetime.now(timezone.utc)
+
+    with get_db_connection() as conn:
+        conn.execute(
+            "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+            "WHERE locked_until IS NOT NULL AND locked_until <= ?",
+            (now.isoformat(),),
+        )
+        row = conn.execute(
+            "SELECT attempt_count, locked_until FROM login_attempts WHERE ip_address = ?",
+            (reg_key,),
+        ).fetchone()
+
+        if row and row["locked_until"]:
+            locked_until = datetime.fromisoformat(row["locked_until"])
+            if locked_until.tzinfo is None:
+                locked_until = locked_until.replace(tzinfo=timezone.utc)
+            if locked_until > now:
+                remaining_seconds = (locked_until - now).total_seconds()
+                remaining_minutes = math.ceil(remaining_seconds / 60)
+                conn.commit()
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Qua nhieu lan thu. Vui long thu lai sau {remaining_minutes} phut.",
+                )
+
+        current_count = row["attempt_count"] if row else 0
+        new_count = current_count + 1
+        locked_until_val = (now + timedelta(minutes=15)).isoformat() if new_count >= 5 else None
+        if row:
+            conn.execute(
+                "UPDATE login_attempts SET attempt_count = ?, locked_until = ? WHERE ip_address = ?",
+                (new_count, locked_until_val, reg_key),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                "VALUES (?, 1, ?, ?)",
+                (reg_key, now.isoformat(), locked_until_val),
+            )
+        conn.commit()
+
     body = await request.json()
     username: str = body.get("username", "").strip()
     password: str = body.get("password", "")
@@ -132,7 +176,11 @@ async def register_user(request: Request):
     if len(password) < 8:
         raise HTTPException(status_code=422, detail="password phai co it nhat 8 ky tu")
 
-    return create_user(username, password, family_name)
+    user = create_user(username, password, family_name)
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM login_attempts WHERE ip_address = ?", (reg_key,))
+        conn.commit()
+    return user
 
 
 @router.post("/auth/login/v2")
@@ -262,11 +310,13 @@ async def refresh_token_endpoint(request: Request):
 
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT family_name FROM users WHERE user_id = ?", (user_id,)
+            "SELECT family_name, is_active FROM users WHERE user_id = ?", (user_id,)
         ).fetchone()
 
     if not row:
         raise HTTPException(status_code=401, detail="User khong ton tai")
+    if not row["is_active"]:
+        raise HTTPException(status_code=401, detail="Tai khoan da bi vo hieu hoa")
 
     new_access = create_access_token(user_id, row["family_name"])
 

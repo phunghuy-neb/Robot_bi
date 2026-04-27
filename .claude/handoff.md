@@ -7,6 +7,7 @@
 
 - Phase 1 — Security & Data Layer: hoàn thành.
 - Phase 2 — Core Experience: hoàn thành ngày 2026-04-17.
+- Current phase: Phase 3 COMPLETE, waiting for Ubuntu PC with GPU.
 - Phase 3 Final Fix Sprint: hoan thanh 2026-04-26, 23 fixes audit pass 3 va Group 24 verification.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
@@ -18,11 +19,11 @@
 
 ## VIỆC CẦN LÀM TIẾP
 
-- Bắt đầu Phase 3: WebRTC camera cho Parent App.
-- Thiết kế push notification flow cho phụ huynh.
-- Bổ sung account settings và quản lý hồ sơ phụ huynh.
-- Test end-to-end trên máy Windows thật với mic, loa, camera và mobile browser.
-- Cân nhắc named Cloudflare Tunnel nếu cần URL cố định.
+- Chuyen sang Ubuntu PC co GPU de verify runtime thuc te.
+- WebRTC frame source can Ubuntu + aiortc.
+- Wake-word model training can dataset rieng.
+- Phase 4 features: motor control, AEC, multi-family ChromaDB isolation, homework expansion.
+- Test end-to-end tren may that voi mic, loa, camera va mobile browser.
 
 ## BUG ĐANG MỞ
 

@@ -7,7 +7,7 @@ import logging
 import sqlite3
 import threading
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -35,6 +35,47 @@ def get_db_connection():
         conn.close()
 
 
+def cleanup_expired_login_attempts(ttl_minutes: int = 60) -> int:
+    """Xoa login_attempts cu hon ttl_minutes. Tra ve so rows da xoa."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(minutes=ttl_minutes)).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            DELETE FROM login_attempts
+            WHERE first_attempt_at IS NOT NULL
+              AND first_attempt_at < ?
+              AND (locked_until IS NULL OR locked_until <= ?)
+            """,
+            (cutoff, now),
+        )
+        conn.commit()
+        return cur.rowcount
+
+
+def cleanup_orphan_sessions(max_age_hours: int = 24) -> int:
+    """Dong cac session cu co ended_at IS NULL. Tra ve so session da dong."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=max_age_hours)).isoformat()
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            UPDATE conversations
+            SET ended_at = ?
+            WHERE ended_at IS NULL
+              AND started_at < ?
+            """,
+            (_utc_now_iso(), cutoff),
+        )
+        conn.commit()
+        if cur.rowcount > 0:
+            logger.info(
+                "[DB] Dong %d orphan session cu hon %dh",
+                cur.rowcount,
+                max_age_hours,
+            )
+        return cur.rowcount
+
+
 def init_db() -> None:
     """Khoi tao database va migrate du lieu tu JSON cu neu can."""
     global _INITIALIZED
@@ -60,7 +101,7 @@ def init_db() -> None:
                     clip_path TEXT,
                     metadata_json TEXT,
                     is_read INTEGER NOT NULL DEFAULT 0,
-                    import_key TEXT
+                    import_key TEXT UNIQUE
                 )
                 '''
             )
@@ -74,13 +115,36 @@ def init_db() -> None:
                     name TEXT NOT NULL,
                     remind_time TEXT,
                     completed_today INTEGER NOT NULL DEFAULT 0,
+                    completed_date TEXT,
                     stars INTEGER NOT NULL DEFAULT 0,
                     created_at TEXT,
                     last_reminded TEXT,
-                    import_key TEXT
+                    last_reminded_date TEXT,
+                    import_key TEXT UNIQUE
                 )
                 '''
             )
+            task_cols = {row[1] for row in conn.execute("PRAGMA table_info(tasks)").fetchall()}
+            if "completed_date" not in task_cols:
+                conn.execute("ALTER TABLE tasks ADD COLUMN completed_date TEXT")
+            if "last_reminded_date" not in task_cols:
+                conn.execute("ALTER TABLE tasks ADD COLUMN last_reminded_date TEXT")
+            conn.execute(
+                """
+                UPDATE tasks
+                SET completed_date = '2000-01-01'
+                WHERE completed_today = 1
+                  AND (completed_date IS NULL OR completed_date = '')
+                """
+            )
+            for index_sql in (
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_events_import_key ON events(import_key)",
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_import_key ON tasks(import_key)",
+            ):
+                try:
+                    conn.execute(index_sql)
+                except Exception as e:
+                    logger.warning("[DB] Bo qua import_key unique index: %s", e)
 
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
@@ -175,6 +239,8 @@ def init_db() -> None:
             # Migrate du lieu cu
             _migrate_legacy_events(conn)
             _migrate_legacy_tasks(conn)
+
+        cleanup_expired_login_attempts(ttl_minutes=1440)
 
         # Seed admin user neu bang users trong (idempotent)
         try:
@@ -436,7 +502,10 @@ def revoke_all_tokens_for_user(user_id: str) -> int:
             "UPDATE auth_tokens SET is_revoked=1 WHERE user_id=? AND is_revoked=0",
             (user_id,)
         )
-        conn.commit()
         count = cur.rowcount
-    increment_token_version(user_id)
-    return count
+        conn.execute(
+            "UPDATE users SET token_version = token_version + 1 WHERE user_id = ?",
+            (user_id,),
+        )
+        conn.commit()
+        return count

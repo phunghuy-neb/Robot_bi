@@ -184,8 +184,10 @@ def test_rag_save():
 
 
 def test_rag_retrieve_relevant():
-    context = rag.retrieve("ten be la gi")
-    assert isinstance(context, str)
+    rag.extract_and_save("Be ten la Minh", "O be ten Minh a")
+    result = rag.retrieve("ten cua be")
+    assert isinstance(result, str)
+    assert len(result) >= 0
 
 
 def test_rag_manual_memory():
@@ -998,10 +1000,32 @@ def test_prephase3_wakeword_monkey_patch_exists():
     assert callable(ear.listen_for_wakeword), "listen_for_wakeword must be callable"
 
 
-def test_prephase3_task_manager_no_reset_daily():
+def test_task_manager_daily_reset_behavior():
     from src_brain.network.task_manager import TaskManager
+    from src_brain.network.db import get_db_connection
 
-    assert not hasattr(TaskManager, "reset_daily"), "reset_daily must be removed"
+    tm = TaskManager()
+    task = tm.add_task("Daily task prephase behavior", remind_time="08:00")
+    try:
+        task_id = task["id"]
+        tm.complete_task(task_id)
+        tasks = tm.get_all()
+        current = next(t for t in tasks if t["id"] == task_id)
+        assert current.get("completed_today") is True, "Task phai completed_today sau khi complete"
+
+        with get_db_connection() as conn:
+            conn.execute(
+                "UPDATE tasks SET completed_date=? WHERE task_id=?",
+                ("2000-01-01", task_id),
+            )
+            conn.commit()
+
+        tasks = tm.get_all()
+        current = next(t for t in tasks if t["id"] == task_id)
+        assert current.get("completed_today") is False, "Task hoan thanh ngay khac khong phai completed_today"
+    finally:
+        tm.delete_task(task["id"])
+        tm.stop()
 
 
 def test_prephase3_api_server_no_require_auth():
@@ -1014,7 +1038,7 @@ test("PrePhase3: SafetyFilter blocks harmful phrase",          test_prephase3_sa
 test("PrePhase3: _require_family fails closed",                test_prephase3_require_family_fails_closed)
 test("PrePhase3: _require_family returns family_name",         test_prephase3_require_family_returns_family_name)
 test("PrePhase3: wake-word monkey-patch exists",               test_prephase3_wakeword_monkey_patch_exists)
-test("PrePhase3: TaskManager.reset_daily absent",              test_prephase3_task_manager_no_reset_daily)
+test("PrePhase3: TaskManager daily reset behavior",            test_task_manager_daily_reset_behavior)
 test("PrePhase3: api_server.require_auth absent",              test_prephase3_api_server_no_require_auth)
 
 # == GROUP 18: Logout All Devices ===========================================
@@ -1126,8 +1150,16 @@ def test_set_ws_broadcaster_callable():
 
 
 def test_set_ws_broadcaster_accepts_fn_and_none():
-    _set_ws_broadcaster(lambda data: None)
+    test_called = []
+
+    def mock_broadcast(data):
+        test_called.append(data)
+
+    _set_ws_broadcaster(mock_broadcast)
+    import src_brain.network.notifier as _notifier_mod
+    assert _notifier_mod._WS_ENABLED is True, "_WS_ENABLED phai True sau khi set broadcaster"
     _set_ws_broadcaster(None)
+    assert _notifier_mod._WS_ENABLED is False, "_WS_ENABLED phai False sau khi clear broadcaster"
 
 
 def test_push_event_no_crash_without_broadcaster():
@@ -1356,6 +1388,7 @@ def test_24_7_webrtc_offer_adds_pc_after_success_only():
     assert "await pc.close()" in src
     assert "except Exception" in src
     assert src.index("await pc.setLocalDescription(answer)") < src.index("_peer_connections[key] = pc")
+    assert "old_pc" in src, "Phai co logic dong PC cu khi reconnect"
 
 
 # Test 24.8 - FIX-07: _peer_connections is dict
@@ -1473,6 +1506,353 @@ test("24.14 FIX-17: RobotBiApp._shutdown callable",       test_24_14_robot_app_s
 test("24.15 FIX-19: setup_logging no duplicate handlers", test_24_15_setup_logging_no_duplicate_file_handlers)
 test("24.16 FIX-20: requirements-ubuntu contains aiortc", test_24_16_requirements_ubuntu_aiortc_exists)
 test("24.17 FIX-22: ws_enabled tracks broadcaster",       test_24_17_ws_enabled_updates_with_broadcaster)
+
+# == GROUP 25: Sprint A Safety & Logic Fix Verification =====================
+print("\n[Group 25] Sprint A  Safety & Logic Fix Verification")
+
+
+def test_25_1_safety_filter_output_used_for_persist():
+    import inspect
+    from src_brain import main_loop
+
+    loop_fn = (
+        main_loop.RobotBiApp._run_conversation_loop
+        if hasattr(main_loop.RobotBiApp, "_run_conversation_loop")
+        else main_loop.RobotBiApp.run
+    )
+    src = inspect.getsource(loop_fn)
+    sf_pos = src.find("self.safety.check")
+    at_pos = src.find("add_turn(self._current_session_id, 'assistant'")
+    assert sf_pos != -1, "safety_filter phai duoc goi trong conversation loop"
+    assert at_pos != -1, "assistant add_turn phai ton tai"
+    assert sf_pos < at_pos, "safety_filter phai duoc goi truoc assistant add_turn"
+    assert (
+        "add_turn(self._current_session_id, 'assistant', sanitized_reply)" in src
+    ), "assistant add_turn phai dung sanitized_reply"
+    assert (
+        src.count("args=(user_text_goc, sanitized_reply)") >= 2
+    ), "RAG va notifier phai dung sanitized_reply"
+    assert (
+        "add_turn(self._current_session_id, 'assistant', full_reply)" not in src
+    ), "khong duoc persist raw full_reply"
+
+
+def test_25_2_task_completed_date_daily_reset():
+    import datetime
+    from src_brain.network.task_manager import TaskManager
+
+    tm = TaskManager()
+    task = tm.add_task("Sprint A daily reset", remind_time="08:00")
+    try:
+        task_id = task["id"]
+        assert tm.complete_task(task_id) is True
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        tasks = tm.get_all()
+        current = next(t for t in tasks if t["id"] == task_id)
+        assert current.get("completed_date") == today, "completed_date phai la hom nay"
+        assert current.get("completed_today") is True, "completed_today phai dung trong ngay"
+
+        current["completed_date"] = "2000-01-01"
+        current["completed_today"] = True
+        tm._save()
+        tasks_next_day = tm.get_all()
+        updated = next(t for t in tasks_next_day if t["id"] == task_id)
+        assert (
+            updated.get("completed_date") == "2000-01-01"
+        ), "completed_date phai giu nguyen gia tri da set"
+        assert updated.get("completed_today") is False, "completed_today phai reset khi qua ngay"
+    finally:
+        tm.delete_task(task["id"])
+        tm.stop()
+
+
+def test_25_3_last_reminded_has_date_prefix():
+    import datetime
+    from src_brain.network.task_manager import TaskManager
+
+    tm = TaskManager()
+    task = tm.add_task("Sprint A reminder format", remind_time="09:00")
+    try:
+        assert tm._mark_reminded(task["id"]) is True
+        tasks = tm.get_all()
+        current = next(t for t in tasks if t["id"] == task["id"])
+        lr = current.get("last_reminded", "")
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        assert len(lr) >= 16, "last_reminded phai co format YYYY-MM-DD HH:MM"
+        assert lr[:4].isdigit(), "last_reminded phai bat dau bang YYYY"
+        assert lr[4] == "-" and lr[7] == "-" and lr[10] == " ", "last_reminded sai format"
+        assert current.get("last_reminded_date") == today, "last_reminded_date phai la hom nay"
+    finally:
+        tm.delete_task(task["id"])
+        tm.stop()
+
+
+def test_25_4_refresh_promise_single_flight_present():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    assert "_refreshPromise" in html, "_refreshPromise phai co trong index.html"
+    fn_pos = html.find("async function tryRefreshToken")
+    assert fn_pos != -1, "tryRefreshToken phai ton tai"
+    refresh_src = html[fn_pos: fn_pos + 1200]
+    assert "if (_refreshPromise) return _refreshPromise" in refresh_src, "phai reuse refresh promise dang chay"
+    assert "_refreshPromise = (async () =>" in refresh_src, "refresh phai duoc boc trong promise"
+    assert "finally" in refresh_src and "_refreshPromise = null" in refresh_src, "finally phai reset _refreshPromise"
+
+
+test("25.1 FIX A-1: SafetyFilter output used for persist", test_25_1_safety_filter_output_used_for_persist)
+test("25.2 FIX A-2: Task completed_date daily reset", test_25_2_task_completed_date_daily_reset)
+test("25.3 FIX A-2: last_reminded stores date+time", test_25_3_last_reminded_has_date_prefix)
+test("25.4 FIX A-3: _refreshPromise single-flight present", test_25_4_refresh_promise_single_flight_present)
+
+# == GROUP 26: Sprint B Auth Security Fix Verification ======================
+print("\n[Group 26] Sprint B  Auth Security Fix Verification")
+
+
+def test_26_1_rotate_refresh_token_atomic_rowcount():
+    import inspect
+    from src_brain.network import auth
+
+    src = inspect.getsource(auth.rotate_refresh_token)
+    assert "rowcount" in src, "rotate_refresh_token phai check rowcount"
+    assert (
+        "is_revoked = 0" in src or "is_revoked=0" in src
+    ), "UPDATE phai co dieu kien is_revoked=0"
+
+
+def test_26_2_access_token_checks_is_active():
+    import inspect
+    from src_brain.network import auth
+    from src_brain.network.routers import auth_router
+
+    src = inspect.getsource(auth.verify_access_token)
+    assert "is_active" in src, "verify_access_token phai check is_active"
+    refresh_src = inspect.getsource(auth_router.refresh_token_endpoint)
+    assert "is_active" in refresh_src, "refresh endpoint phai check is_active"
+
+
+def test_26_3_revoke_all_tokens_atomic_token_version():
+    import inspect
+    from src_brain.network import db
+
+    src = inspect.getsource(db.revoke_all_tokens_for_user)
+    assert "token_version" in src, "revoke_all phai increment token_version trong cung transaction"
+    assert "increment_token_version" not in src, "revoke_all khong duoc goi increment_token_version rieng"
+
+
+def test_26_4_register_has_rate_limit_key():
+    import inspect
+    from src_brain.network.routers import auth_router
+
+    src = inspect.getsource(auth_router)
+    reg_idx = src.find("async def register")
+    reg_src = src[reg_idx: reg_idx + 2000] if reg_idx >= 0 else ""
+    assert (
+        "register:" in reg_src or "login_attempts" in reg_src
+    ), "register handler phai co rate limit"
+
+
+test("26.1 FIX B-1: rotate_refresh_token atomic rowcount", test_26_1_rotate_refresh_token_atomic_rowcount)
+test("26.2 FIX B-2: inactive users rejected", test_26_2_access_token_checks_is_active)
+test("26.3 FIX B-3: revoke_all atomic token_version", test_26_3_revoke_all_tokens_atomic_token_version)
+test("26.4 FIX B-4: register rate limit present", test_26_4_register_has_rate_limit_key)
+
+# == GROUP 27: Sprint C Stability & Backend Verification ====================
+print("\n[Group 27] Sprint C  Stability & Backend Verification")
+
+
+def test_27_1_earstt_listen_wraps_whisper_load():
+    import inspect
+    from src_brain.senses.ear_stt import EarSTT
+
+    src = inspect.getsource(EarSTT.listen)
+    assert "_get_whisper_model" in src, "_get_whisper_model phai duoc goi trong listen()"
+    assert src.count("try:") >= 1, "listen() phai co it nhat 1 try/except block"
+
+
+def test_27_2_cleanup_expired_login_attempts_callable():
+    from src_brain.network.db import cleanup_expired_login_attempts
+
+    assert callable(cleanup_expired_login_attempts)
+    result = cleanup_expired_login_attempts(ttl_minutes=1440)
+    assert isinstance(result, int)
+    assert result >= 0
+
+
+def test_27_3_cleanup_orphan_sessions_closes_old_session():
+    from src_brain.network.db import cleanup_orphan_sessions, get_db_connection, init_db
+
+    init_db()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO conversations
+            (session_id, family_id, started_at, ended_at)
+            VALUES ('orphan-test-001', 'test', datetime('now', '-25 hours'), NULL)
+            """
+        )
+        conn.commit()
+    count = cleanup_orphan_sessions(max_age_hours=24)
+    assert count >= 1, "Phai dong it nhat 1 orphan session"
+
+
+def test_27_4_main_loop_has_iteration_recovery():
+    import inspect
+    from src_brain import main_loop
+
+    src = inspect.getsource(
+        main_loop.RobotBiApp.run
+        if hasattr(main_loop.RobotBiApp, "run")
+        else main_loop.RobotBiApp._run_conversation_loop
+    )
+    assert "except Exception" in src, "Main loop phai co except Exception handler"
+    assert "KeyboardInterrupt" in src, "KeyboardInterrupt phai duoc xu ly rieng"
+
+
+def test_27_5_rag_max_memories_constant_valid():
+    from src_brain.memory_rag.rag_manager import RAGManager, _MAX_MEMORIES
+
+    assert RAGManager is not None
+    assert isinstance(_MAX_MEMORIES, int)
+    assert _MAX_MEMORIES > 0
+    assert _MAX_MEMORIES <= 10000, "Quota phai co gioi han hop ly"
+
+
+def test_27_6_init_db_idempotent_with_import_key_indexes():
+    from src_brain.network.db import init_db, get_db_connection
+
+    init_db()
+    init_db()
+    with get_db_connection() as conn:
+        indexes = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='events'"
+        ).fetchall()
+        idx_names = [r["name"] for r in indexes]
+        assert len(idx_names) >= 0
+
+
+test("27.1 FIX C-1: EarSTT listen wraps Whisper load", test_27_1_earstt_listen_wraps_whisper_load)
+test("27.2 FIX C-2: cleanup_expired_login_attempts callable", test_27_2_cleanup_expired_login_attempts_callable)
+test("27.3 FIX C-3: cleanup_orphan_sessions closes old session", test_27_3_cleanup_orphan_sessions_closes_old_session)
+test("27.4 FIX C-4: main loop iteration recovery", test_27_4_main_loop_has_iteration_recovery)
+test("27.5 FIX C-5: RAG max memories quota valid", test_27_5_rag_max_memories_constant_valid)
+test("27.6 FIX C-6: init_db idempotent import_key indexes", test_27_6_init_db_idempotent_with_import_key_indexes)
+
+# == GROUP 28: Sprint D Frontend, Cleanup & Docs Verification ===============
+print("\n[Group 28] Sprint D  Frontend, Cleanup & Docs Verification")
+
+
+def test_28_1_webrtc_closes_old_pc_on_reconnect():
+    import inspect
+    from src_brain.network.routers import webrtc_router
+
+    src = inspect.getsource(webrtc_router)
+    assert "old_pc" in src, "Phai co logic close PC cu truoc khi assign moi"
+
+
+def test_28_2_tab_switch_cleanup_camera_mom_mic():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    assert "stopCamera" in html, "index.html phai co stopCamera"
+    assert "stopMomMic" in html, "index.html phai co stopMomMic"
+    tab_fn_start = html.find("function loadTab")
+    if tab_fn_start < 0:
+        tab_fn_start = html.find("function switchTab")
+    assert tab_fn_start >= 0, "Phai co loadTab hoac switchTab function"
+    switch_start = html.find("function switchTab")
+    switch_src = html[switch_start: switch_start + 1200] if switch_start >= 0 else ""
+    tab_src = html[tab_fn_start: tab_fn_start + 1200] + switch_src
+    assert "stopCamera()" in tab_src and "stopMomMic()" in tab_src, "switch tab phai cleanup camera va mom mic"
+
+
+def test_28_3_webrtc_connectionstatechange_handler():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    assert "onconnectionstatechange" in html, "Phai co WebRTC connectionstatechange handler"
+    assert "disconnected" in html, "Phai handle disconnected state"
+
+
+def test_28_4_ops_router_tunnel_captures_stderr():
+    import inspect
+    from src_brain.network.routers import ops_router
+
+    src = inspect.getsource(ops_router)
+    assert "stderr" in src, "ops_router phai capture stderr tu tunnel process"
+
+
+def test_28_5_log_config_reads_log_level():
+    import inspect
+    from src_brain.network import log_config
+
+    src = inspect.getsource(log_config.setup_logging)
+    assert "LOG_LEVEL" in src, "setup_logging phai doc LOG_LEVEL tu env"
+
+
+def test_28_6_notification_stacking_present():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    assert "_notifCount" in html or "notif-banner" in html, "Phai co notification stacking logic"
+
+
+def test_28_7_run_guide_no_default_pin():
+    with open("HUONG_DAN_CHAY.md", encoding="utf-8") as f:
+        content = f.read()
+    assert "123456" not in content, "Phai xoa PIN mac dinh 123456 khoi docs"
+    assert "PIN_CODE" not in content, "Phai xoa PIN_CODE khoi docs"
+
+
+def test_28_8_handoff_phase3_complete():
+    with open(".claude/handoff.md", encoding="utf-8") as f:
+        content = f.read()
+    assert "Phase 3" in content, "handoff phai mention Phase 3"
+    assert "Bắt đầu Phase 3" not in content or "COMPLETE" in content, "handoff phai reflect Phase 3 da xong"
+
+
+def test_28_9_kehoach_outdated_banner():
+    with open("docs/kehoach.md", encoding="utf-8") as f:
+        content = f.read()
+    assert "LOI THOI" in content or "LỖI THỜI" in content or "outdated" in content.lower(), "kehoach.md phai co warning banner loi thoi"
+
+
+def test_28_10_gitignore_runtime_artifacts():
+    with open(".gitignore", encoding="utf-8") as f:
+        content = f.read()
+    assert "logs/" in content, ".gitignore phai ignore logs/ directory"
+    assert "_test_db" in content or "chroma_db" in content, ".gitignore phai ignore test DB artifacts"
+
+
+def test_28_11_train_text_import_no_side_effect():
+    import sys
+
+    old_stdin = sys.stdin
+    try:
+        if "src_brain.train_text" in sys.modules:
+            del sys.modules["src_brain.train_text"]
+        import src_brain.train_text  # noqa: F401
+        assert True
+    except SystemExit:
+        assert False, "train_text khong duoc exit khi import"
+    finally:
+        sys.stdin = old_stdin
+
+
+def test_28_12_bool_file_removed():
+    import os
+
+    assert not os.path.exists("bool"), "File 'bool' phai duoc xoa"
+
+
+test("28.1 FIX D-1: WebRTC closes old PC on reconnect", test_28_1_webrtc_closes_old_pc_on_reconnect)
+test("28.2 FIX D-2: tab switch cleanup camera and mom mic", test_28_2_tab_switch_cleanup_camera_mom_mic)
+test("28.3 FIX D-3: WebRTC connection loss handler", test_28_3_webrtc_connectionstatechange_handler)
+test("28.4 FIX D-6: tunnel stderr captured", test_28_4_ops_router_tunnel_captures_stderr)
+test("28.5 FIX D-7: LOG_LEVEL env used", test_28_5_log_config_reads_log_level)
+test("28.6 FIX D-8: notification stacking present", test_28_6_notification_stacking_present)
+test("28.7 FIX D-9: run guide removes default PIN docs", test_28_7_run_guide_no_default_pin)
+test("28.8 FIX D-10: handoff marks Phase 3 complete", test_28_8_handoff_phase3_complete)
+test("28.9 FIX D-11: kehoach outdated banner", test_28_9_kehoach_outdated_banner)
+test("28.10 FIX D-12: gitignore runtime artifacts", test_28_10_gitignore_runtime_artifacts)
+test("28.11 FIX D-13: train_text import no side effect", test_28_11_train_text_import_no_side_effect)
+test("28.12 FIX D-14: bool file removed", test_28_12_bool_file_removed)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

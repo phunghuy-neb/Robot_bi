@@ -1034,6 +1034,7 @@
     // ══════════════════════════════════════════════════════════════
     let _token = localStorage.getItem('bi_token') || '';
     let _refreshToken = localStorage.getItem('bi_refresh') || '';
+    let _refreshPromise = null; // reset in finally inside tryRefreshToken
 
     function authHeader() {
       return _token ? { 'Authorization': 'Bearer ' + _token } : {};
@@ -1247,7 +1248,11 @@
       if (activeTab === 'status') loadStatus();
     }
 
+    let _notifCount = 0;
+    const _NOTIF_OFFSET = 70;
+
     function showNotificationBanner(eventType, message) {
+      _notifCount++;
       const icons = { cry: '😢', offline: '📴', homework: '📚' };
       const icon = icons[eventType] || '🔔';
       const colors = { cry: '#c0392b', offline: '#e67e22', homework: '#27ae60' };
@@ -1256,6 +1261,9 @@
       const banner = document.createElement('div');
       banner.className = 'notif-banner';
       banner.style.background = bg;
+      const existingBanners = document.querySelectorAll('.notif-banner');
+      const topOffset = 1 + (existingBanners.length * _NOTIF_OFFSET / 16);
+      banner.style.top = topOffset + 'rem';
       banner.textContent = `${icon} ${message}`;
 
       const dismiss = () => { if (banner.parentNode) banner.parentNode.removeChild(banner); };
@@ -1271,6 +1279,15 @@
     const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads', 'settings'];
 
     function switchTab(name) {
+      const previousTab = activeTab;
+      if (previousTab === 'events' && name !== 'events') {
+        if (typeof _camOn !== 'undefined' && _camOn) {
+          stopCamera();
+        }
+        if (typeof momMicActive !== 'undefined' && momMicActive) {
+          stopMomMic();
+        }
+      }
       document.querySelectorAll('.tab').forEach((t, i) => {
         t.classList.toggle('active', TAB_NAMES[i] === name);
       });
@@ -1293,21 +1310,31 @@
     //  API helpers
     // ══════════════════════════════════════════════════════════════
     async function tryRefreshToken() {
-      if (!_refreshToken) return false;
-      try {
-        const rr = await fetch('/auth/refresh', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh_token: _refreshToken })
-        });
-        if (!rr.ok) return false;
-        const data = await rr.json();
-        _token = data.access_token;
-        _refreshToken = data.refresh_token;
-        localStorage.setItem('bi_token', _token);
-        localStorage.setItem('bi_refresh', _refreshToken);
-        return true;
-      } catch (_) { return false; }
+      if (_refreshPromise) return _refreshPromise;
+
+      _refreshPromise = (async () => {
+        try {
+          if (!_refreshToken) return false;
+          const rr = await fetch('/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: _refreshToken })
+          });
+          if (!rr.ok) return false;
+          const data = await rr.json();
+          _token = data.access_token;
+          _refreshToken = data.refresh_token;
+          localStorage.setItem('bi_token', _token);
+          localStorage.setItem('bi_refresh', _refreshToken);
+          return true;
+        } catch (_) {
+          return false;
+        } finally {
+          _refreshPromise = null;
+        }
+      })();
+
+      return _refreshPromise;
     }
 
     async function apiFetch(path, opts = {}) {
@@ -1485,6 +1512,27 @@
           const video = document.getElementById('cameraFeed');
           video.srcObject = evt.streams[0];
           video.style.display = 'block';
+        };
+
+        pc.onconnectionstatechange = () => {
+          const state = pc.connectionState;
+          if (state === 'failed' || state === 'closed' || state === 'disconnected') {
+            setTimeout(() => {
+              if (_webrtcPc !== pc || !_camOn) return;
+              console.debug('[WebRTC] Connection lost:', state);
+              const feed = document.getElementById('cameraFeed');
+              if (feed) {
+                feed.style.display = 'none';
+                feed.srcObject = null;
+              }
+              _webrtcPc = null;
+              _camOn = false;
+              startMJPEG();
+              if (typeof showNotificationBanner === 'function') {
+                showNotificationBanner('camera', 'WebRTC mất kết nối, đang dùng chế độ dự phòng');
+              }
+            }, 0);
+          }
         };
 
         const offer = await pc.createOffer();

@@ -255,12 +255,15 @@ def verify_access_token(token: str) -> dict:
 
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT token_version FROM users WHERE user_id = ?",
+            "SELECT token_version, is_active FROM users WHERE user_id = ?",
             (str(payload.get("sub", "")),),
         ).fetchone()
 
     if row is None:
         raise HTTPException(status_code=401, detail="User khong ton tai")
+
+    if not row["is_active"]:
+        raise HTTPException(status_code=401, detail="Tai khoan da bi vo hieu hoa")
 
     if int(row["token_version"]) != int(payload.get("tv", 0)):
         raise HTTPException(status_code=401, detail="Token da bi vo hieu hoa")
@@ -309,11 +312,14 @@ def rotate_refresh_token(old_raw_token: str) -> tuple[str, str, str]:
 
         user_id = str(row["user_id"])
 
-        # Atomic: revoke old + insert new trong cung connection (truoc khi commit)
-        conn.execute(
-            "UPDATE auth_tokens SET is_revoked = 1 WHERE token_id = ?",
+        # Atomic: exactly one concurrent caller can revoke this refresh token.
+        cur = conn.execute(
+            "UPDATE auth_tokens SET is_revoked = 1 WHERE token_id = ? AND is_revoked = 0",
             (row["token_id"],),
         )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+
         conn.execute(
             "INSERT INTO auth_tokens (user_id, refresh_token_hash, expires_at, is_revoked) "
             "VALUES (?, ?, ?, 0)",

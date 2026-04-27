@@ -244,7 +244,11 @@ class EarSTT:
         Returns:
             str: Văn bản nhận dạng được (lowercase), hoặc "" nếu thất bại.
         """
-        model = _get_whisper_model()
+        try:
+            model = _get_whisper_model()
+        except Exception as e:
+            logger.error("[STT] Khong load duoc Whisper model: %s", e)
+            return ""
         if model is None:
             return ""
         if self.silent_mode:

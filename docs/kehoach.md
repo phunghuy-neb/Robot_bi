@@ -1,3 +1,7 @@
+> TAI LIEU NAY DA LOI THOI
+> Stack thuc te: Groq (`llama-3.3-70b-versatile`) + Gemini fallback.
+> Khong dung Ollama/Qwen local. Xem `PROJECT.md` de biet trang thai hien tai.
+
 🚀 LỘ TRÌNH THỰC THI DỰ ÁN ROBOT BI (MASTER PLAN)
 📌 Giai đoạn 1: Thiết lập nền móng (Đã hoàn thành)
 [x] Phác thảo ý tưởng và chốt danh sách tính năng.

@@ -46,6 +46,7 @@ _COLLECTION_NAME      = "bi_memory"
 _MIN_SIMILARITY       = 0.50   # cosine similarity tối thiểu để xem là "liên quan" (0.0–1.0)
 _MIN_SIMILARITY_STRICT = 0.65  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
 _MAX_FACTS_PER_QUERY  = 3      # Tối đa 3 facts inject vào context (tránh làm LLM confused)
+_MAX_MEMORIES = int(os.getenv("RAG_MAX_MEMORIES", "500"))
 
 
 def _resolve_local_embed_model_path() -> str:
@@ -299,6 +300,18 @@ class RAGManager:
             })
 
         try:
+            current_count = self._collection.count()
+            while current_count + len(ids) > _MAX_MEMORIES:
+                oldest = self._collection.get(
+                    limit=1,
+                    include=["documents", "metadatas"],
+                )
+                if not oldest or not oldest.get("ids"):
+                    break
+                self._collection.delete(ids=[oldest["ids"][0]])
+                current_count -= 1
+                logger.debug("[RAG] Quota %d reached, pruned oldest entry", _MAX_MEMORIES)
+
             self._collection.add(
                 ids=ids,
                 embeddings=embeddings,

@@ -17,6 +17,8 @@ def setup_logging() -> None:
     log_dir = Path(__file__).parent.parent.parent / "logs"
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / "robot_bi.log"
+    log_level_str = os.getenv("LOG_LEVEL", "DEBUG").upper()
+    log_level = getattr(logging, log_level_str, logging.DEBUG)
 
     robot_logger = logging.getLogger("robot_bi")
     has_file_handler = any(
@@ -41,15 +43,15 @@ def setup_logging() -> None:
     file_handler.setFormatter(fmt)
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.WARNING)
+    console_handler.setLevel(max(log_level, logging.WARNING))
     console_handler.setFormatter(fmt)
 
     root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
+    root.setLevel(log_level)
     root.addHandler(file_handler)
     root.addHandler(console_handler)
 
-    robot_logger.setLevel(logging.DEBUG)
+    robot_logger.setLevel(log_level)
     robot_logger.addHandler(file_handler)
     robot_logger.addHandler(console_handler)
     robot_logger.propagate = False

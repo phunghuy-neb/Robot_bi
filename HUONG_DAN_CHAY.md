@@ -21,14 +21,11 @@ start_robot.bat
 ## Truy cap Parent App
 1. Chay robot
 2. Quet QR code hien trong terminal
-3. Hoac mo: `http://[IP-may-tinh]:8000`
-4. PIN mac dinh: `123456`
+3. Hoac mo: `https://[IP-may-tinh]:8443`
 
-## Doi PIN mac dinh
-Them vao file `.env`:
-```
-PIN_CODE=pin_moi_cua_ban
-```
+## Dang nhap
+1. Dung `ADMIN_USERNAME` va `ADMIN_PASSWORD` trong file `.env`.
+2. Neu can tao tai khoan lan dau, dat `REGISTRATION_ENABLED=true`, dang ky tai khoan admin, sau do dat lai `REGISTRATION_ENABLED=false` va restart robot.
 
 ## Tao tai khoan lan dau
 1. Mo `.env`, dat `REGISTRATION_ENABLED=true`
@@ -80,7 +77,7 @@ De co URL co dinh:
 1. Truy cap https://one.dash.cloudflare.com → Zero Trust → Networks → Tunnels
 2. Tao tunnel moi, dat ten (vi du: robot-bi)
 3. Chon "Windows" → copy token (bat dau bang `eyJ...`)
-4. Them Public Hostname: `subdomain.yourdomain.com` → `localhost:8443` (HTTPS) hoac `localhost:8000` (HTTP)
+4. Them Public Hostname: `subdomain.yourdomain.com` → `localhost:8443` (HTTPS)
 5. Dan vao file `.env`:
    ```
    CLOUDFLARE_TUNNEL_TOKEN=eyJhGci...

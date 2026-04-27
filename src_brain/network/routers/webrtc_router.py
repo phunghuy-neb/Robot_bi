@@ -99,6 +99,13 @@ async def webrtc_offer(request: Request, current_user: dict = Depends(get_curren
         raise HTTPException(status_code=500, detail="WebRTC offer that bai")
 
     key = str(current_user["user_id"])
+    old_pc = _peer_connections.pop(key, None)
+    if old_pc:
+        try:
+            await old_pc.close()
+            logger.info("[WebRTC] Closed old PC for user %s", key)
+        except Exception as e:
+            logger.debug("[WebRTC] Error closing old PC: %s", e)
     _peer_connections[key] = pc
 
     @pc.on("connectionstatechange")

@@ -30,7 +30,13 @@ from src_brain.memory_rag.rag_manager import RAGManager
 from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
 from src_brain.senses.cry_detector import CryDetector
-from src_brain.network.db import init_db, create_session, close_session, add_turn
+from src_brain.network.db import (
+    init_db,
+    cleanup_orphan_sessions,
+    create_session,
+    close_session,
+    add_turn,
+)
 from src_brain.network.notifier import get_notifier
 from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
 import src_brain.network.state as _network_state
@@ -45,6 +51,7 @@ class RobotBiApp:
         self._shutdown_done = False
         self._task_manager = None
         init_db()
+        cleanup_orphan_sessions(max_age_hours=24)
         self.ear = EarSTT()
         self.mouth = MouthTTS()
         self.brain = BiAI()
@@ -267,107 +274,119 @@ class RobotBiApp:
         import time as _time
         try:
             while True:
-                # Skip listen khi mẹ đang nói trực tiếp qua /api/mom/audio
-                if is_mom_talking():
-                    _time.sleep(0.5)
-                    continue
+                try:
+                    # Skip listen khi mẹ đang nói trực tiếp qua /api/mom/audio
+                    if is_mom_talking():
+                        _time.sleep(0.5)
+                        continue
 
-                user_text = self.ear.listen()
-                if not user_text:
-                    self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
-                    continue
+                    user_text = self.ear.listen()
+                    if not user_text:
+                        self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
+                        continue
 
-                logger.debug("[Bi - Não] Đang suy nghĩ...")
-                buffer = ""
-                self._chunk_counter = 0
-                self._close_current_session()
-                self._current_session_id = create_session(FAMILY_ID)
-                is_first_turn_of_session = True
+                    logger.debug("[Bi - Não] Đang suy nghĩ...")
+                    buffer = ""
+                    self._chunk_counter = 0
+                    self._close_current_session()
+                    self._current_session_id = create_session(FAMILY_ID)
+                    is_first_turn_of_session = True
 
-                # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
-                user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
-                add_turn(self._current_session_id, 'user', user_text_goc)
-                if is_first_turn_of_session:
-                    def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
-                        from src_brain.network.session_namer import _generate_session_title
-                        from src_brain.network.db import update_session_title
+                    # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
+                    user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
+                    add_turn(self._current_session_id, 'user', user_text_goc)
+                    if is_first_turn_of_session:
+                        def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
+                            from src_brain.network.session_namer import _generate_session_title
+                            from src_brain.network.db import update_session_title
 
-                        title = _generate_session_title(user_text)
-                        update_session_title(session_id, title)
+                            title = _generate_session_title(user_text)
+                            update_session_title(session_id, title)
 
-                    threading.Thread(target=_name_session, daemon=True).start()
-                    is_first_turn_of_session = False
-                rag_context = self.rag.retrieve(user_text)
-                if rag_context:
-                    user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
-                    # DEBUG: chứa PII - tắt trong production.
-                    logger.debug("[Bi - Trí nhớ] %s", rag_context)
+                        threading.Thread(target=_name_session, daemon=True).start()
+                        is_first_turn_of_session = False
+                    rag_context = self.rag.retrieve(user_text)
+                    if rag_context:
+                        user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
+                        # DEBUG: chứa PII - tắt trong production.
+                        logger.debug("[Bi - Trí nhớ] %s", rag_context)
 
-                # Stream tokens từ LLM, tách câu theo . ? ! \n
-                full_reply_parts = []
-                for token in self.brain.stream_chat(user_text):
-                    buffer += token
-                    full_reply_parts.append(token)
-                    while True:
-                        match = re.search(r'[.?!\n]', buffer)
-                        if not match:
-                            break
-                        end_pos = match.end()
-                        sentence = buffer[:end_pos].strip()
-                        buffer = buffer[end_pos:]
-                        if sentence:
-                            is_safe, clean_sentence = self.safety.check(sentence)
-                            if not clean_sentence.strip():
-                                continue  # bỏ qua câu rỗng sau khi lọc
+                    # Stream tokens từ LLM, tách câu theo . ? ! \n
+                    full_reply_parts = []
+                    sanitized_reply_parts = []
+                    for token in self.brain.stream_chat(user_text):
+                        buffer += token
+                        full_reply_parts.append(token)
+                        while True:
+                            match = re.search(r'[.?!\n]', buffer)
+                            if not match:
+                                break
+                            end_pos = match.end()
+                            sentence = buffer[:end_pos].strip()
+                            buffer = buffer[end_pos:]
+                            if sentence:
+                                is_safe, clean_sentence = self.safety.check(sentence)
+                                if not clean_sentence.strip():
+                                    continue  # bỏ qua câu rỗng sau khi lọc
+                                sanitized_reply_parts.append(clean_sentence)
+                                audio_file = self._loop.run_until_complete(
+                                    self.mouth._generate_audio(
+                                        clean_sentence, chunk_index=self._chunk_counter
+                                    )
+                                )
+                                if audio_file is None:
+                                    continue  # TTS hoàn toàn fail → bỏ qua chunk này
+                                self._chunk_counter += 1
+                                self.audio_queue.put(audio_file)
+                                logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_sentence))
+
+                    # Phần còn lại trong buffer (câu chưa kết thúc bằng dấu câu)
+                    if buffer.strip():
+                        is_safe, clean_buffer = self.safety.check(buffer.strip())
+                        if clean_buffer.strip():
+                            sanitized_reply_parts.append(clean_buffer)
                             audio_file = self._loop.run_until_complete(
                                 self.mouth._generate_audio(
-                                    clean_sentence, chunk_index=self._chunk_counter
+                                    clean_buffer, chunk_index=self._chunk_counter
                                 )
                             )
-                            if audio_file is None:
-                                continue  # TTS hoàn toàn fail → bỏ qua chunk này
-                            self._chunk_counter += 1
-                            self.audio_queue.put(audio_file)
-                            logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_sentence))
+                            if audio_file is not None:
+                                self._chunk_counter += 1
+                                self.audio_queue.put(audio_file)
+                                logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_buffer))
 
-                # Phần còn lại trong buffer (câu chưa kết thúc bằng dấu câu)
-                if buffer.strip():
-                    is_safe, clean_buffer = self.safety.check(buffer.strip())
-                    if clean_buffer.strip():
-                        audio_file = self._loop.run_until_complete(
-                            self.mouth._generate_audio(
-                                clean_buffer, chunk_index=self._chunk_counter
-                            )
-                        )
-                        if audio_file is not None:
-                            self._chunk_counter += 1
-                            self.audio_queue.put(audio_file)
-                            logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_buffer))
+                    # Đợi worker phát hết hàng đợi trước khi nghe tiếp
+                    self.audio_queue.join()
 
-                # Đợi worker phát hết hàng đợi trước khi nghe tiếp
-                self.audio_queue.join()
+                    # Xử lý puppet sau khi Bi nói xong
+                    self._handle_puppet_queue()
 
-                # Xử lý puppet sau khi Bi nói xong
-                self._handle_puppet_queue()
-
-                # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
-                full_reply = "".join(full_reply_parts).strip()
-                if full_reply:
-                    add_turn(self._current_session_id, 'assistant', full_reply)
+                    # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
+                    full_reply = "".join(full_reply_parts).strip()
+                    sanitized_reply = " ".join(sanitized_reply_parts).strip()
+                    if full_reply:
+                        add_turn(self._current_session_id, 'assistant', sanitized_reply)
+                        self._close_current_session()
+                        threading.Thread(
+                            target=self.rag.extract_and_save,
+                            args=(user_text_goc, sanitized_reply),
+                            daemon=True,
+                        ).start()
+                        # Log hội thoại cho Parent App (non-blocking)
+                        threading.Thread(
+                            target=self.notifier.push_chat_log,
+                            args=(user_text_goc, sanitized_reply),
+                            daemon=True,
+                        ).start()
+                    else:
+                        self._close_current_session()
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    logger.error("[MainLoop] Loi khong mong doi, bo qua iteration: %s", e, exc_info=True)
                     self._close_current_session()
-                    threading.Thread(
-                        target=self.rag.extract_and_save,
-                        args=(user_text_goc, full_reply),
-                        daemon=True,
-                    ).start()
-                    # Log hội thoại cho Parent App (non-blocking)
-                    threading.Thread(
-                        target=self.notifier.push_chat_log,
-                        args=(user_text_goc, full_reply),
-                        daemon=True,
-                    ).start()
-                else:
-                    self._close_current_session()
+                    _time.sleep(1)
+                    continue
 
         except KeyboardInterrupt:
             self._shutdown()
