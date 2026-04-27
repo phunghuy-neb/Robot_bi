@@ -6,6 +6,7 @@ Kiến trúc: Groq (primary) → Gemini Flash-Lite (fallback)
 - Tự động xoay vòng, không cần can thiệp thủ công
 """
 
+import logging
 import os
 import json
 import time
@@ -13,6 +14,8 @@ import requests
 from pathlib import Path
 from typing import Generator
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 # Load .env
 load_dotenv()
@@ -185,25 +188,25 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
     # --- Thử Groq trước (nhanh nhất) ---
     if now > _groq_cooldown_until:
         try:
-            print("[Bi - Não] Groq (Llama 70B)...")
+            logger.debug("[Bi - Não] Groq (Llama 70B)...")
             yield from _stream_groq(messages, system_prompt)
             _groq_fail_streak = 0
             return
         except Exception as e:
             _groq_fail_streak += 1
-            print(f"[Bi - Não] Groq lỗi ({e}) — chuyển Gemini")
+            logger.warning("[Bi - Não] Groq lỗi (%s) — chuyển Gemini", e)
             if _groq_fail_streak >= 3:
                 _groq_cooldown_until = now + _GROQ_COOLDOWN
                 _groq_fail_streak = 0
-                print(f"[Bi - Não] Groq tạm dừng {_GROQ_COOLDOWN}s")
+                logger.warning("[Bi - Não] Groq tạm dừng %ss", _GROQ_COOLDOWN)
 
     # --- Fallback Gemini ---
     try:
-        print("[Bi - Não] Gemini Flash-Lite...")
+        logger.debug("[Bi - Não] Gemini Flash-Lite...")
         yield from _stream_gemini(messages, system_prompt)
         return
     except Exception as e:
-        print(f"[Bi - Não] Gemini lỗi ({e})")
+        logger.warning("[Bi - Não] Gemini lỗi (%s)", e)
 
     # --- Cả 2 đều fail ---
     yield "Xin lỗi bé, Bi đang gặp sự cố kết nối. Bé thử lại sau một chút nhé!"

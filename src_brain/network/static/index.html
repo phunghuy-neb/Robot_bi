@@ -663,6 +663,27 @@
       opacity: 1;
     }
 
+    /* ── Notification banner ── */
+    .notif-banner {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      animation: slideIn .3s ease;
+      cursor: pointer;
+      color: #fff;
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(110%); }
+      to   { transform: translateX(0); }
+    }
+
     /* ── Top action bar ── */
     .action-bar {
       display: flex;
@@ -823,6 +844,9 @@
     <div class="tab" onclick="switchTab('threads')">
       <span class="tab-icon">📚</span>Hội thoại
     </div>
+    <div class="tab" onclick="switchTab('settings')">
+      <span class="tab-icon">⚙️</span>Cài đặt
+    </div>
   </div>
 
   <!-- Content -->
@@ -853,7 +877,10 @@
       <!-- Camera live stream -->
       <div class="card">
         <div class="card-title">📹 Camera trực tiếp</div>
-        <img id="cameraFeed" class="camera-feed" alt="Camera" src="">
+        <video id="cameraFeed" autoplay muted playsinline
+               style="width:100%;border-radius:8px;display:none;"></video>
+        <img id="cameraFeedMjpeg" class="camera-feed" alt="Camera"
+             style="width:100%;border-radius:8px;display:none;" src="">
         <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
           📷 Bật camera
         </button>
@@ -967,6 +994,33 @@
       </div>
     </div>
 
+    <!-- ── SETTINGS ── -->
+    <div class="section" id="sec-settings">
+      <div class="card">
+        <div class="card-title">👤 Thông tin tài khoản</div>
+        <p style="margin:8px 0;">Tên đăng nhập: <strong id="settingUsername">...</strong></p>
+        <p style="margin:8px 0;">Gia đình: <strong id="settingFamily">...</strong></p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">🔒 Đổi mật khẩu</div>
+        <div style="display:flex; flex-direction:column; gap:10px; padding:8px 0;">
+          <input id="pwCurrent" type="password" placeholder="Mật khẩu hiện tại" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <input id="pwNew" type="password" placeholder="Mật khẩu mới (tối thiểu 8 ký tự)" minlength="8" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <input id="pwConfirm" type="password" placeholder="Xác nhận mật khẩu mới" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <div id="pwError" style="color:#e74c3c; font-size:0.9rem; display:none;"></div>
+          <button onclick="doChangePassword()" style="background:#2980b9; color:#fff; padding:11px; border:none; border-radius:6px; font-size:1rem; cursor:pointer;">Đổi mật khẩu</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">🚪 Đăng xuất</div>
+        <div style="padding: 8px 0;">
+          <button onclick="doLogoutAll()" style="background:#e74c3c; color:#fff; width:100%; padding:12px; border:none; border-radius:8px; font-size:1rem; cursor:pointer;">
+            Đăng xuất tất cả thiết bị
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- .content -->
 
   <div class="toast" id="toast"></div>
@@ -1010,6 +1064,7 @@
         localStorage.setItem('bi_token', _token);
         localStorage.setItem('bi_refresh', _refreshToken);
         document.getElementById('loginOverlay').style.display = 'none';
+        _wsLoggedOut = false;
         connectWS();
         loadStatus();
       } catch (_) {
@@ -1020,6 +1075,20 @@
     }
 
     async function doLogout() {
+      // BƯỚC 1: Dừng streams TRƯỚC khi xóa token (các call cần Bearer token)
+      if (momMicActive) await stopMomMic();
+      stopCamera();
+      stopAudioMonitor();
+
+      // BƯỚC 2: Đóng WebSocket, ngăn reconnect
+      _wsLoggedOut = true;
+      if (_wsReconnectTimer) {
+        clearTimeout(_wsReconnectTimer);
+        _wsReconnectTimer = null;
+      }
+      if (ws) { ws.close(); ws = null; }
+
+      // BƯỚC 3: Revoke refresh token phía server (token còn hợp lệ ở bước này)
       if (_token && _refreshToken) {
         await fetch('/auth/logout', {
           method: 'POST',
@@ -1027,56 +1096,122 @@
           body: JSON.stringify({ refresh_token: _refreshToken })
         }).catch(() => { });
       }
+
+      // BƯỚC 4: Xóa token và reset UI
       _token = '';
       _refreshToken = '';
       localStorage.removeItem('bi_token');
       localStorage.removeItem('bi_refresh');
-      // Dừng mic mẹ nếu đang bật
-      if (momMicActive) stopMomMic();
-      // Tắt audio monitor
-      stopAudioMonitor();
-      // Tắt camera nếu đang bật
-      const img = document.getElementById('cameraFeed');
-      img.src = '';
-      _camOn = false;
-      document.getElementById('camBtn').textContent = '📷 Bật camera';
-      document.getElementById('camBtn').classList.remove('on');
-      // Hiện login overlay
-      document.getElementById('pinInput').value = '';
+      document.getElementById('loginPassword').value = '';
       document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    async function doLogoutAll() {
+      try {
+        if (typeof momMicActive !== 'undefined' && momMicActive) {
+          await stopMomMic();
+        }
+      } catch (e) { console.warn('[logout-all] stopMomMic error:', e); }
+
+      try { stopCamera(); } catch (e) { }
+      try { stopAudioMonitor(); } catch (e) { }
+
+      if (_token) {
+        try {
+          await fetch('/api/auth/logout-all', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + _token }
+          });
+        } catch (e) { }
+      }
+
+      await doLogout();
+    }
+
+    async function loadSettings() {
+      try {
+        const r = await apiFetch('/api/auth/me');
+        document.getElementById('settingUsername').textContent = r.username || '—';
+        document.getElementById('settingFamily').textContent = r.family_name || '—';
+      } catch (_e) {
+        document.getElementById('settingUsername').textContent = '—';
+        document.getElementById('settingFamily').textContent = '—';
+      }
+    }
+
+    async function doChangePassword() {
+      const current = document.getElementById('pwCurrent').value;
+      const newPw = document.getElementById('pwNew').value;
+      const confirm = document.getElementById('pwConfirm').value;
+      const errEl = document.getElementById('pwError');
+      errEl.style.display = 'none';
+
+      if (newPw !== confirm) {
+        errEl.textContent = 'Mật khẩu mới và xác nhận không khớp';
+        errEl.style.display = 'block';
+        return;
+      }
+      try {
+        const data = await apiFetch('/api/auth/change-password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: current, new_password: newPw })
+        });
+        if (data && data.ok) {
+          alert(data.message || 'Đổi mật khẩu thành công');
+          doLogout();
+        } else {
+          errEl.textContent = (data && data.detail) || 'Có lỗi xảy ra';
+          errEl.style.display = 'block';
+        }
+      } catch (_e) {
+        errEl.textContent = 'Có lỗi xảy ra';
+        errEl.style.display = 'block';
+      }
     }
 
     // Kiểm tra token khi load trang
     (function checkAuth() {
-      if (_token) {
-        // Verify token còn hợp lệ bằng cách gọi API
-        fetch('/api/status', { headers: { 'Authorization': 'Bearer ' + _token } })
-          .then(r => {
-            if (r.ok) {
-              document.getElementById('loginOverlay').style.display = 'none';
-              connectWS();
-              loadStatus();
-            } else {
-              _token = '';
-              localStorage.removeItem('bi_token');
-            }
-          })
-          .catch(() => {
-            // Server chưa ready — vẫn ẩn overlay nếu có token
+      if (!_token) return;  // không có token → overlay hiện (mặc định)
+      fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + _token } })
+        .then(r => {
+          if (r.ok) {
             document.getElementById('loginOverlay').style.display = 'none';
+            _wsLoggedOut = false;
             connectWS();
             loadStatus();
-          });
-      }
-      // Nếu không có token → overlay vẫn hiển thị (mặc định)
+          } else {
+            // Token invalid — thử refresh
+            tryRefreshToken().then(ok => {
+              if (ok) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                _wsLoggedOut = false;
+                connectWS();
+                loadStatus();
+              } else {
+                _token = ''; localStorage.removeItem('bi_token');
+              }
+            });
+          }
+        })
+        .catch(() => {
+          const err = document.getElementById('loginErr');
+          if (err) {
+            err.textContent = 'Đang kết nối tới robot...';
+            err.style.display = 'block';
+          }
+          setTimeout(checkAuth, 3000);
+        });
     })();
 
     // ══════════════════════════════════════════════════════════════
     //  WebSocket
     // ══════════════════════════════════════════════════════════════
-    let ws = null, wsDelay = 1000;
+    let ws = null, wsDelay = 1000, _wsLoggedOut = false;
+    let _wsReconnectTimer = null;
 
     function connectWS() {
+      if (_wsLoggedOut || !_token) return;
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
       ws = new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(_token)}`);
 
@@ -1089,7 +1224,8 @@
       };
       ws.onclose = () => {
         setStatus(false);
-        setTimeout(connectWS, Math.min(wsDelay, 12000));
+        if (_wsLoggedOut) return;  // không reconnect sau logout
+        _wsReconnectTimer = setTimeout(connectWS, Math.min(wsDelay, 12000));
         wsDelay = Math.min(wsDelay * 1.5, 12000);
       };
       ws.onerror = () => ws.close();
@@ -1101,17 +1237,38 @@
     }
 
     function onRealtimeEvent(evt) {
+      if (evt.type === 'notification') {
+        showNotificationBanner(evt.event_type, evt.message);
+        return;
+      }
       toast(`${evtIcon(evt.type)} ${evt.message}`);
       if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
       else { if (activeTab === 'events') loadEvents(); }
       if (activeTab === 'status') loadStatus();
     }
 
+    function showNotificationBanner(eventType, message) {
+      const icons = { cry: '😢', offline: '📴', homework: '📚' };
+      const icon = icons[eventType] || '🔔';
+      const colors = { cry: '#c0392b', offline: '#e67e22', homework: '#27ae60' };
+      const bg = colors[eventType] || '#555';
+
+      const banner = document.createElement('div');
+      banner.className = 'notif-banner';
+      banner.style.background = bg;
+      banner.textContent = `${icon} ${message}`;
+
+      const dismiss = () => { if (banner.parentNode) banner.parentNode.removeChild(banner); };
+      banner.addEventListener('click', dismiss);
+      document.body.appendChild(banner);
+      setTimeout(dismiss, 5000);
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  Tab
     // ══════════════════════════════════════════════════════════════
     let activeTab = 'status';
-    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads'];
+    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads', 'settings'];
 
     function switchTab(name) {
       document.querySelectorAll('.tab').forEach((t, i) => {
@@ -1126,7 +1283,8 @@
     function loadTab(name) {
       const fn = {
         status: loadStatus, chat: loadChats, events: loadEvents,
-        memory: loadMemories, tasks: loadTasks, threads: loadThreads
+        memory: loadMemories, tasks: loadTasks, threads: loadThreads,
+        settings: loadSettings
       };
       if (fn[name]) fn[name]();
     }
@@ -1134,19 +1292,42 @@
     // ══════════════════════════════════════════════════════════════
     //  API helpers
     // ══════════════════════════════════════════════════════════════
+    async function tryRefreshToken() {
+      if (!_refreshToken) return false;
+      try {
+        const rr = await fetch('/auth/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: _refreshToken })
+        });
+        if (!rr.ok) return false;
+        const data = await rr.json();
+        _token = data.access_token;
+        _refreshToken = data.refresh_token;
+        localStorage.setItem('bi_token', _token);
+        localStorage.setItem('bi_refresh', _refreshToken);
+        return true;
+      } catch (_) { return false; }
+    }
+
     async function apiFetch(path, opts = {}) {
       try {
-        opts.headers = Object.assign({}, authHeader(), opts.headers || {});
-        const r = await fetch(API + path, opts);
-        if (!r.ok) {
-          if (r.status === 401) {
-            // Token hết hạn
-            _token = '';
-            localStorage.removeItem('bi_token');
-            document.getElementById('loginOverlay').style.display = 'flex';
+        // Authorization mới PHẢI override opts.headers cũ — đặt authHeader() sau cùng
+        const headers1 = Object.assign({}, opts.headers || {}, authHeader());
+        const r = await fetch(API + path, { ...opts, headers: headers1 });
+        if (r.status === 401) {
+          if (_refreshToken) {
+            const refreshed = await tryRefreshToken();
+            if (!refreshed) { doLogout(); return null; }
+            // Retry với token mới — authHeader() đặt sau cùng
+            const headers2 = Object.assign({}, opts.headers || {}, authHeader());
+            const retry = await fetch(API + path, { ...opts, headers: headers2 });
+            if (retry.ok) return await retry.json();
           }
-          throw new Error(r.status);
+          doLogout();
+          return null;
         }
+        if (!r.ok) throw new Error(r.status);
         return await r.json();
       } catch (e) {
         return null;
@@ -1158,39 +1339,45 @@
     // ══════════════════════════════════════════════════════════════
     async function loadStatus() {
       const data = await apiFetch('/api/status');
+      const statsGrid = document.getElementById('statsGrid');
       if (!data) {
-        document.getElementById('statsGrid').innerHTML =
+        statsGrid.innerHTML =
           '<div class="empty" style="grid-column:1/-1;">Không kết nối được robot</div>';
         return;
       }
       const n = data.notifier || {}, r = data.rag || {};
       const stars = data.total_stars ?? 0;
       updateStarsDisplay(stars);
-      document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-box">
-      <div class="stat-num" style="color:#4a90d9">${n.total_events ?? 0}</div>
-      <div class="stat-label">Sự kiện</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" style="color:#ef4444">${n.unread ?? 0}</div>
-      <div class="stat-label">Chưa đọc</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" style="color:#22c55e">${r.total_facts ?? 0}</div>
-      <div class="stat-label">Trí nhớ</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" style="color:#f59e0b">${stars} ⭐</div>
-      <div class="stat-label">Sao</div>
-    </div>`;
+      statsGrid.replaceChildren(
+        statBox(n.total_events ?? 0, 'Sự kiện', '#4a90d9'),
+        statBox(n.unread ?? 0, 'Chưa đọc', '#ef4444'),
+        statBox(r.total_facts ?? 0, 'Trí nhớ', '#22c55e'),
+        statBox(`${stars} ⭐`, 'Sao', '#f59e0b'),
+      );
 
       const evts = await apiFetch('/api/events?limit=4');
       const el = document.getElementById('recentEvt');
       if (evts && evts.events.length) {
-        el.innerHTML = evts.events.map(renderEvtItem).join('');
+        el.replaceChildren(...evts.events.map(renderEvtItem));
       } else {
         el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
       }
+    }
+
+    function makeEl(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined && text !== null) el.textContent = String(text);
+      return el;
+    }
+
+    function statBox(value, label, color) {
+      const box = makeEl('div', 'stat-box');
+      const num = makeEl('div', 'stat-num', value);
+      num.style.color = color;
+      box.appendChild(num);
+      box.appendChild(makeEl('div', 'stat-label', label));
+      return box;
     }
 
     function updateStarsDisplay(n) {
@@ -1209,22 +1396,23 @@
         el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
         return;
       }
-      el.innerHTML = data.chats.map(c => {
+      el.replaceChildren(...data.chats.map(c => {
         const m = c.metadata || {};
         const t = fmtTime(c.timestamp);
-        return `
-      <div class="card chat-item">
-        <div class="chat-row">
-          <span class="chat-who">👦 Bé — ${t}</span>
-          <span class="bubble user">${esc(m.user_text || c.message)}</span>
-        </div>
-        ${m.bi_response ? `
-        <div class="chat-row" style="margin-top:8px;">
-          <span class="chat-who">🤖 Bi</span>
-          <span class="bubble bi">${esc(m.bi_response)}</span>
-        </div>` : ''}
-      </div>`;
-      }).join('');
+        const card = makeEl('div', 'card chat-item');
+        const userRow = makeEl('div', 'chat-row');
+        userRow.appendChild(makeEl('span', 'chat-who', `👦 Bé — ${t}`));
+        userRow.appendChild(makeEl('span', 'bubble user', m.user_text || c.message || ''));
+        card.appendChild(userRow);
+        if (m.bi_response) {
+          const biRow = makeEl('div', 'chat-row');
+          biRow.style.marginTop = '8px';
+          biRow.appendChild(makeEl('span', 'chat-who', '🤖 Bi'));
+          biRow.appendChild(makeEl('span', 'bubble bi', m.bi_response));
+          card.appendChild(biRow);
+        }
+        return card;
+      }));
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -1239,21 +1427,21 @@
         el.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>';
         return;
       }
-      el.innerHTML = nonChat.map(renderEvtItem).join('');
+      el.replaceChildren(...nonChat.map(renderEvtItem));
     }
 
     function renderEvtItem(evt) {
-      return `
-    <div class="evt-item">
-      <div class="evt-icon">${evtIcon(evt.type)}</div>
-      <div class="evt-body">
-        <div class="evt-msg">
-          ${esc(evt.message)}
-          ${!evt.read ? '<span class="new-badge">MỚI</span>' : ''}
-        </div>
-        <div class="evt-time">${fmtTime(evt.timestamp)}</div>
-      </div>
-    </div>`;
+      const item = makeEl('div', 'evt-item');
+      item.appendChild(makeEl('div', 'evt-icon', evtIcon(evt.type)));
+      const body = makeEl('div', 'evt-body');
+      const msg = makeEl('div', 'evt-msg', evt.message || '');
+      if (!evt.read) {
+        msg.appendChild(makeEl('span', 'new-badge', 'MỚI'));
+      }
+      body.appendChild(msg);
+      body.appendChild(makeEl('div', 'evt-time', fmtTime(evt.timestamp)));
+      item.appendChild(body);
+      return item;
     }
 
     async function markAllRead() {
@@ -1267,24 +1455,95 @@
     // ══════════════════════════════════════════════════════════════
     let _camOn = false;
 
-    function toggleCamera() {
-      const img = document.getElementById('cameraFeed');
+    let _webrtcPc = null;
+
+    async function toggleCamera() {
       const btn = document.getElementById('camBtn');
       if (_camOn) {
-        img.src = '';
-        _camOn = false;
-        btn.textContent = '📷 Bật camera';
-        btn.classList.remove('on');
-        // Auto-stop audio khi tắt cam
-        stopAudioMonitor();
-      } else {
-        img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
-        _camOn = true;
-        btn.textContent = '⏹ Tắt camera';
-        btn.classList.add('on');
-        // Auto-start audio khi bật cam
-        startAudioMonitor();
+        stopCamera();
+        return;
       }
+      btn.textContent = '⏳ Đang kết nối...';
+      btn.disabled = true;
+      const ok = await startWebRTC();
+      if (!ok) startMJPEG();
+      _camOn = true;
+      btn.textContent = '⏹ Tắt camera';
+      btn.classList.add('on');
+      btn.disabled = false;
+      startAudioMonitor();
+    }
+
+    async function startWebRTC() {
+      try {
+        const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+        _webrtcPc = pc;
+
+        pc.addTransceiver('video', { direction: 'recvonly' });
+
+        pc.ontrack = (evt) => {
+          const video = document.getElementById('cameraFeed');
+          video.srcObject = evt.streams[0];
+          video.style.display = 'block';
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        // Chờ ICE gathering (tối đa 5s)
+        await Promise.race([
+          new Promise(resolve => {
+            if (pc.iceGatheringState === 'complete') { resolve(); return; }
+            pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') resolve(); };
+          }),
+          new Promise(resolve => setTimeout(resolve, 5000)),
+        ]);
+
+        const answer = await apiFetch('/api/webrtc/offer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type }),
+        });
+
+        if (!answer) {
+          pc.close();
+          _webrtcPc = null;
+          return false;
+        }
+
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        return true;
+      } catch (_e) {
+        if (_webrtcPc) { _webrtcPc.close(); _webrtcPc = null; }
+        return false;
+      }
+    }
+
+    function startMJPEG() {
+      const img = document.getElementById('cameraFeedMjpeg');
+      img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
+      img.style.display = 'block';
+    }
+
+    function stopCamera() {
+      // Dừng WebRTC
+      if (_webrtcPc) {
+        _webrtcPc.close();
+        _webrtcPc = null;
+        fetch('/api/webrtc/close', { method: 'POST', headers: authHeader() }).catch(() => {});
+        const video = document.getElementById('cameraFeed');
+        video.srcObject = null;
+        video.style.display = 'none';
+      }
+      // Dừng MJPEG
+      const img = document.getElementById('cameraFeedMjpeg');
+      img.src = '';
+      img.style.display = 'none';
+
+      _camOn = false;
+      document.getElementById('camBtn').textContent = '📷 Bật camera';
+      document.getElementById('camBtn').classList.remove('on');
+      stopAudioMonitor();
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -1299,18 +1558,22 @@
         return;
       }
       document.getElementById('memCnt').textContent = `(${data.total})`;
-      el.innerHTML = data.memories.map(m => `
-    <div class="mem-item" id="m-${m.id}">
-      <div class="mem-body">
-        <div class="mem-text">${esc(m.fact)}</div>
-        <div class="mem-meta">
-          ${m.source === 'parent' ? '👨‍👩‍👧 Phụ huynh' :
-          m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại'}
-          · ${fmtTime(m.timestamp)}
-        </div>
-      </div>
-      <button class="btn-del" onclick="delMem('${m.id}')" title="Xóa">🗑</button>
-    </div>`).join('');
+      el.replaceChildren(...data.memories.map(m => {
+        const item = makeEl('div', 'mem-item');
+        item.id = `m-${m.id}`;
+        const body = makeEl('div', 'mem-body');
+        body.appendChild(makeEl('div', 'mem-text', m.fact || ''));
+        const source = m.source === 'parent' ? '👨‍👩‍👧 Phụ huynh' :
+          (m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại');
+        body.appendChild(makeEl('div', 'mem-meta', `${source} · ${fmtTime(m.timestamp)}`));
+        item.appendChild(body);
+        const delBtn = makeEl('button', 'btn-del', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa';
+        delBtn.addEventListener('click', () => delMem(m.id));
+        item.appendChild(delBtn);
+        return item;
+      }));
     }
 
     async function addMemory() {
@@ -1357,20 +1620,27 @@
         el.innerHTML = '<div class="empty">Chưa có nhiệm vụ nào</div>';
         return;
       }
-      el.innerHTML = data.map(t => `
-    <div class="task-item" id="task-${t.id}">
-      <div class="task-check ${t.completed_today ? 'done' : ''}"
-           onclick="completeTask('${t.id}')"
-           title="${t.completed_today ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}">
-        ${t.completed_today ? '✓' : ''}
-      </div>
-      <div class="task-body">
-        <div class="task-name ${t.completed_today ? 'done' : ''}">${esc(t.name)}</div>
-        <span class="task-time-badge">⏰ ${t.remind_time}</span>
-      </div>
-      <span class="task-stars">⭐ ${t.stars}</span>
-      <button class="btn-del" onclick="deleteTask('${t.id}')" title="Xóa">🗑</button>
-    </div>`).join('');
+      el.replaceChildren(...data.map(t => {
+        const item = makeEl('div', 'task-item');
+        item.id = `task-${t.id}`;
+        const check = makeEl('div', `task-check ${t.completed_today ? 'done' : ''}`, t.completed_today ? '✓' : '');
+        check.title = t.completed_today ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành';
+        check.addEventListener('click', () => completeTask(t.id));
+        item.appendChild(check);
+
+        const body = makeEl('div', 'task-body');
+        body.appendChild(makeEl('div', `task-name ${t.completed_today ? 'done' : ''}`, t.name || ''));
+        body.appendChild(makeEl('span', 'task-time-badge', `⏰ ${t.remind_time || ''}`));
+        item.appendChild(body);
+
+        item.appendChild(makeEl('span', 'task-stars', `⭐ ${t.stars ?? 0}`));
+        const delBtn = makeEl('button', 'btn-del', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa';
+        delBtn.addEventListener('click', () => deleteTask(t.id));
+        item.appendChild(delBtn);
+        return item;
+      }));
     }
 
     async function addTask() {
@@ -1486,17 +1756,27 @@
         return;
       }
 
-      listEl.innerHTML = conversations.map(session => `
-        <div class="card thread-card" onclick="showThreadDetail('${session.session_id}')">
-          <button class="thread-delete" onclick="event.stopPropagation(); deleteThread('${session.session_id}')" title="Xóa hội thoại">🗑</button>
-          <div class="thread-title">${esc(session.title || 'Hội thoại không tên')}</div>
-          <div class="thread-meta">
-            <span>${fmtTime(session.started_at)}</span>
-            <span>${Number(session.turn_count || 0)} lượt</span>
-          </div>
-          <div class="thread-arrow">›</div>
-        </div>
-      `).join('');
+      listEl.replaceChildren(...conversations.map(session => {
+        const card = makeEl('div', 'card thread-card');
+        card.addEventListener('click', () => showThreadDetail(session.session_id));
+
+        const delBtn = makeEl('button', 'thread-delete', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa hội thoại';
+        delBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          deleteThread(session.session_id);
+        });
+        card.appendChild(delBtn);
+
+        card.appendChild(makeEl('div', 'thread-title', session.title || 'Hội thoại không tên'));
+        const meta = makeEl('div', 'thread-meta');
+        meta.appendChild(makeEl('span', '', fmtTime(session.started_at)));
+        meta.appendChild(makeEl('span', '', `${Number(session.turn_count || 0)} lượt`));
+        card.appendChild(meta);
+        card.appendChild(makeEl('div', 'thread-arrow', '›'));
+        return card;
+      }));
     }
 
     async function showThreadDetail(session_id) {
@@ -1527,21 +1807,20 @@
         return;
       }
 
-      turnsEl.innerHTML = turns.map(turn => {
+      turnsEl.replaceChildren(...turns.map(turn => {
         const role = turn.role === 'user' ? 'user' : (turn.role === 'homework' ? 'homework' : 'bi');
         const bubbleClass = role === 'user' ? 'bubble bubble-user' : 'bubble bubble-bi';
         const who = role === 'user' ? '👦 Bé' : (role === 'homework' ? '📚 Bài tập' : '🤖 Bi');
-        const badge = role === 'homework' ? '<div class="homework-badge">📚 Bài tập</div>' : '';
-        return `
-          <div class="thread-turn ${role}">
-            <div class="thread-turn-body">
-              ${badge}
-              <div class="${bubbleClass}">${esc(turn.content)}</div>
-              <div class="thread-turn-meta">${who} • ${fmtTime(turn.timestamp)}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+        const row = makeEl('div', `thread-turn ${role}`);
+        const body = makeEl('div', 'thread-turn-body');
+        if (role === 'homework') {
+          body.appendChild(makeEl('div', 'homework-badge', '📚 Bài tập'));
+        }
+        body.appendChild(makeEl('div', bubbleClass, turn.content || ''));
+        body.appendChild(makeEl('div', 'thread-turn-meta', `${who} • ${fmtTime(turn.timestamp)}`));
+        row.appendChild(body);
+        return row;
+      }));
     }
 
     function showThreadList() {
@@ -1647,7 +1926,7 @@
       const el = _getOrCreateAudioElement();
 
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${location.host}/api/audio/stream?auth=${encodeURIComponent(token)}`;
+      const wsUrl = `${protocol}//${location.host}/api/audio/stream?token=${encodeURIComponent(token)}`;
       audioWs = new WebSocket(wsUrl);
       audioWs.binaryType = 'arraybuffer';
 
@@ -1719,15 +1998,12 @@
         });
 
         // Báo server: mẹ bắt đầu nói — Bi tạm dừng
-        const startResp = await fetch('/api/mom/start', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        if (!startResp.ok) throw new Error('Không thể báo server');
+        const startResp = await apiFetch('/api/mom/start', { method: 'POST' });
+        if (!startResp) throw new Error('Không thể báo server');
 
         // Mở WebSocket gửi audio về server
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?auth=${encodeURIComponent(token)}`);
+        momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?token=${encodeURIComponent(token)}`);
         momAudioWs.binaryType = 'arraybuffer';
 
         await new Promise((resolve, reject) => {

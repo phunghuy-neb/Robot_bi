@@ -152,3 +152,9 @@ python -m src_brain.main_loop     # Chạy trực tiếp
 - CPU-only STT latency được giảm bằng `WHISPER_CPU_MODEL=medium` trong CPU fallback, GPU path `large-v2 + float16` giữ nguyên.
 - Test result cuối Phase 2: 89/89 PASS.
 - Files chính đã chạm: `ear_stt.py`, `db.py`, `main_loop.py`, `api_server.py`, `src_brain/network/session_namer.py`, `index.html`, `run_tests.py`, `.env.example`, `requirements.txt`.
+
+## Session 2026-04-26 — Phase 3 Final Fix Sprint
+
+- Hoan thanh 23 fixes audit pass 3: XSS task validation, registration gate, memory family guard, logout cleanup order, protected fetch refresh, WebRTC cleanup/user scoping, audio queue backpressure, JWT user existence check, change-password rate limit, bounded list limits, DB migration error handling, token_version single increment, WS logout reconnect guard, checkAuth retry, privacy logging, shutdown cleanup, TaskManager-before-API ordering, logging setup idempotence, Ubuntu aiortc requirements, ear_stt env drift, notifier WS stats, ops_router import cleanup.
+- Them Group 24 vao `run_tests.py` voi 17 verification tests.
+- Final sprint test result: 138/138 PASS.

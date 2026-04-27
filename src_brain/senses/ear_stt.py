@@ -17,6 +17,7 @@ os.environ["TRANSFORMERS_CACHE"] = _hf_cache_dir
 os.environ["HF_HOME"] = _hf_cache_dir
 os.environ["HUGGINGFACE_HUB_CACHE"] = _hf_cache_dir
 os.environ["SENTENCE_TRANSFORMERS_HOME"] = _hf_cache_dir
+import logging
 import sys
 import tempfile
 from collections import deque
@@ -35,6 +36,8 @@ import time
 import numpy as np
 import sounddevice as sd
 import soundfile as sf
+
+logger = logging.getLogger(__name__)
 
 # ── Cấu hình ─────────────────────────────────────────────────────────────────
 WHISPER_MODEL    = "large-v2"  # Độ chính xác cao nhất cho tiếng Việt (~1.5GB)
@@ -89,22 +92,25 @@ def _get_whisper_model():
     global _whisper_instance
     if _whisper_instance is None:
         from faster_whisper import WhisperModel
-        print(f"[Bi - Tai] Đang tải Whisper model '{WHISPER_MODEL}'... (lần đầu, có thể mất 30-60s)")
+        logger.info("[Bi - Tai] Đang tải Whisper model '%s'... (lần đầu, có thể mất 30-60s)", WHISPER_MODEL)
         try:
             _whisper_instance = WhisperModel(
                 WHISPER_MODEL,
                 device="cuda",
                 compute_type="float16",
             )
-            print("[Bi - Tai] Whisper large-v2 chạy trên GPU (CUDA float16)")
+            logger.info("[Bi - Tai] Whisper large-v2 chạy trên GPU (CUDA float16)")
         except Exception:
             _whisper_instance = WhisperModel(
                 os.getenv("WHISPER_CPU_MODEL", "medium"),
                 device="cpu",
                 compute_type="int8",
             )
-            print(f"[Bi - Tai] CPU mode: dung Whisper {os.getenv('WHISPER_CPU_MODEL', 'medium')} (thay vi large-v2) de giam do tre")
-            print("[Bi - Tai] Whisper small chạy trên CPU (laptop mode)")
+            logger.info(
+                "[Bi - Tai] CPU mode: dung Whisper %s (thay vi large-v2) de giam do tre",
+                os.getenv("WHISPER_CPU_MODEL", "medium"),
+            )
+            logger.info("[Bi - Tai] Whisper chạy trên CPU (laptop mode)")
     return _whisper_instance
 
 
@@ -133,11 +139,11 @@ class EarSTT:
         try:
             _get_whisper_model()
         except Exception as e:
-            print(f"[Bi - Tai] Cảnh báo: không load được Whisper model: {e}")
+            logger.warning("[Bi - Tai] Cảnh báo: không load được Whisper model: %s", e)
 
     def _probe_microphone(self) -> None:
         """Tìm cấu hình microphone có thể mở được mà không làm crash pipeline."""
-        print("[Bi - Tai] Đang tìm microphone...")
+        logger.info("[Bi - Tai] Đang tìm microphone...")
 
         try:
             devices = sd.query_devices()
@@ -175,7 +181,7 @@ class EarSTT:
                     self.mic_channels = channels
                     self.mic_name = str(device_info.get("name", f"Device {index}"))
                     self.silent_mode = False
-                    print(f"[Bi - Tai] Sử dụng microphone index {index}: {self.mic_name}")
+                    logger.info("[Bi - Tai] Sử dụng microphone index %d: %s", index, self.mic_name)
                     return
                 except Exception:
                     continue
@@ -187,9 +193,9 @@ class EarSTT:
         self.silent_mode = True
         self.mic_name = "Silent mode"
         if reason and not self._mic_error_logged:
-            print(f"[Bi - Tai] Cảnh báo: {reason}")
+            logger.warning("[Bi - Tai] Cảnh báo: %s", reason)
             self._mic_error_logged = True
-        print("[Bi - Tai] Không tìm thấy microphone hợp lệ, chuyển sang chế độ im lặng")
+        logger.warning("[Bi - Tai] Không tìm thấy microphone hợp lệ, chuyển sang chế độ im lặng")
 
     def _create_input_stream(self, blocksize: int):
         """Tạo InputStream theo microphone đã probe; nếu fail thì chuyển silent mode."""
@@ -206,7 +212,7 @@ class EarSTT:
             )
         except Exception as e:
             if not self._mic_error_logged:
-                print(f"[Bi - Tai] Cảnh báo: không mở được microphone đã chọn: {e}")
+                logger.warning("[Bi - Tai] Cảnh báo: không mở được microphone đã chọn: %s", e)
                 self._mic_error_logged = True
             self._enable_silent_mode()
             return None
@@ -244,7 +250,7 @@ class EarSTT:
         if self.silent_mode:
             return ""
 
-        print(f"[Bi - Tai] Đang lắng nghe... (tối đa {MAX_SECONDS}s)")
+        logger.debug("[Bi - Tai] Đang lắng nghe... (tối đa %ds)", MAX_SECONDS)
 
         pre_buffer: deque = deque(maxlen=_PRE_BUF_CHUNKS)
         audio_buffer = []
@@ -269,7 +275,7 @@ class EarSTT:
                             speech_started = True
                             self._play_beep()
                             audio_buffer.extend(list(pre_buffer))
-                            print("[Bi - Tai] Phát hiện tiếng nói, đang ghi...")
+                            logger.debug("[Bi - Tai] Phát hiện tiếng nói, đang ghi...")
                         continue
 
                     audio_buffer.append(chunk.copy())
@@ -309,15 +315,15 @@ class EarSTT:
             text = " ".join(seg.text.strip() for seg in segments).strip()
 
             if text:
-                print(f'[Bi - Tai] Nhận dạng: "{text}"')
+                logger.info('[Bi - Tai] Nhận dạng: "%s"', text)
                 return text.lower()
             return ""
 
         except sd.PortAudioError as e:
-            print(f"[Bi - Tai] Cảnh báo: Lỗi microphone (PortAudio): {e}")
+            logger.warning("[Bi - Tai] Cảnh báo: Lỗi microphone (PortAudio): %s", e)
             return ""
         except Exception as e:
-            print(f"[Bi - Tai] Cảnh báo: Lỗi không mong đợi: {type(e).__name__}: {e}")
+            logger.warning("[Bi - Tai] Cảnh báo: Lỗi không mong đợi: %s: %s", type(e).__name__, e)
             return ""
         finally:
             if tmp_wav and tmp_wav.exists():
@@ -326,79 +332,6 @@ class EarSTT:
                 except OSError:
                     pass
 
-
-    def listen_for_wakeword(self, timeout: float = 30.0) -> bool:
-        """
-        Lắng nghe wake-word "Bi ơi" trong khoảng thời gian timeout.
-
-        Implementation hiện tại: STUB — dùng energy detection đơn giản.
-        Upgrade sau: thay bằng openWakeWord model "bi_oi" (SRS 3.1).
-
-        Cơ chế STUB:
-          - Đọc mic theo từng window 500ms
-          - Nếu RMS > SPEECH_THRESH trong bất kỳ window nào → coi là có wake-word
-          - Accuracy thấp (false positive cao) nhưng không crash
-
-        TODO: Thay bằng openWakeWord khi có model "bi_oi" được train từ audio samples.
-              pip install openwakeword
-              from openwakeword.model import Model
-              oww = Model(wakeword_models=["bi_oi.onnx"])
-
-        Args:
-            timeout: Thời gian chờ tối đa (giây) trước khi return False.
-
-        Returns:
-            True nếu phát hiện âm thanh nghi ngờ là wake-word,
-            False nếu timeout mà không có gì.
-        """
-        global WAKEWORD_ENABLED, _wakeword_model, _wakeword_import_warning_logged
-
-        if not WAKEWORD_ENABLED:
-            # Khi stub disabled → luôn return True để pipeline hoạt động bình thường
-            return False
-
-        try:
-            from openwakeword.model import Model
-        except Exception as e:
-            if not _wakeword_import_warning_logged:
-                print(f"[Bi - Tai] Cáº£nh bÃ¡o wake-word: khÃ´ng import Ä‘Æ°á»£c openwakeword: {e}")
-                _wakeword_import_warning_logged = True
-            WAKEWORD_ENABLED = False
-            return False
-
-        if self.silent_mode:
-            return False
-
-        if _wakeword_model is None:
-            _wakeword_model = Model(wakeword_models=[])
-
-        chunk_ms = 80
-        chunk_frames = int(SAMPLE_RATE * chunk_ms / 1000)
-        deadline = time.monotonic() + max(0.0, timeout)
-        max_windows   = int(timeout * 1000 / 500)  # số windows trong timeout
-
-        print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
-
-        try:
-            stream = self._create_input_stream(window_frames)
-            if stream is None:
-                return True
-            stream.start()
-            try:
-                for _ in range(max_windows):
-                    chunk, _ = stream.read(window_frames)
-                    rms = float(np.sqrt(np.mean(chunk ** 2)))
-                    if rms >= SPEECH_THRESH:
-                        print(f'[Bi - Tai] Phát hiện âm thanh (STUB wake-word).')
-                        return True
-            finally:
-                stream.stop()
-                stream.close()
-        except Exception as e:
-            print(f"[Bi - Tai] Cảnh báo wake-word: {e}")
-            return True  # Fallback: không crash, tiếp tục pipeline
-
-        return False  # Timeout, không có gì
 
 
 # ── Test độc lập ─────────────────────────────────────────────────────────────
@@ -419,7 +352,7 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
             from openwakeword.model import Model
         except Exception as e:
             if not _wakeword_import_warning_logged:
-                print(f"[Bi - Tai] Warning wake-word: openwakeword import failed: {e}")
+                logger.warning("[Bi - Tai] Warning wake-word: openwakeword import failed: %s", e)
                 _wakeword_import_warning_logged = True
             WAKEWORD_ENABLED = False
             return False
@@ -433,7 +366,7 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
         chunk_frames = int(SAMPLE_RATE * 0.08)
         deadline = time.monotonic() + max(0.0, timeout)
 
-        print(f'[Bi - Tai] Chờ wake-word "{WAKEWORD_PHRASE}"... (timeout={timeout}s)')
+        logger.debug('[Bi - Tai] Chờ wake-word "%s"... (timeout=%gs)', WAKEWORD_PHRASE, timeout)
 
         try:
             stream = self._create_input_stream(chunk_frames)
@@ -463,7 +396,7 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
                 stream.stop()
                 stream.close()
         except Exception as e:
-            print(f"[Bi - Tai] Cảnh báo wake-word: {e}")
+            logger.warning("[Bi - Tai] Cảnh báo wake-word: %s", e)
             return False
 
         return False

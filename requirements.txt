@@ -35,6 +35,9 @@ python-jose[cryptography]==3.3.0
 
 # Phase 2+ (sẽ thêm sau)
 # openwakeword
-# aiortc
+
+# WebRTC — cài trên Ubuntu: pip install aiortc
+# aiortc==1.9.0
+
 # pywebpush
 # pyserial

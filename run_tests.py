@@ -556,9 +556,12 @@ def test_jwt_create_access_token():
 
 
 def test_jwt_verify_access_token_valid():
-    token = create_access_token("99", "FamXYZ")
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"jwtvalid_{unique}", "Password1!", "FamXYZ")
+    uid = str(user["user_id"])
+    token = create_access_token(uid, "FamXYZ")
     payload = verify_access_token(token)
-    assert payload["sub"] == "99"
+    assert payload["sub"] == uid
     assert payload["family"] == "FamXYZ"
     assert payload["type"] == "access"
 
@@ -693,14 +696,17 @@ def test_auth_guard_valid_jwt_returns_user():
     from fastapi.security import HTTPAuthorizationCredentials
     from src_brain.network.auth import create_access_token
 
-    token = create_access_token("77", "GuardFam")
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"guard_{unique}", "Password1!", "GuardFam")
+    uid = str(user["user_id"])
+    token = create_access_token(uid, "GuardFam")
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
 
     async def _inner():
         return await _get_current_user(creds)
 
     user = _asyncio.run(_inner())
-    assert user["user_id"] == "77"
+    assert user["user_id"] == uid
     assert user["family_name"] == "GuardFam"
 
 
@@ -811,13 +817,13 @@ from src_brain.network.db import (
 
 
 def test_create_session_returns_nonempty_string():
-    session_id = _create_session()
+    session_id = _create_session("default")
     assert isinstance(session_id, str)
     assert len(session_id) > 0
 
 
 def test_add_turn_user_visible_in_get_session_turns():
-    session_id = _create_session()
+    session_id = _create_session("default")
     turn_id = _add_turn(session_id, "user", "Xin chao Bi")
     turns = _get_session_turns(session_id)
     assert isinstance(turn_id, str)
@@ -828,7 +834,7 @@ def test_add_turn_user_visible_in_get_session_turns():
 
 
 def test_add_turn_assistant_makes_two_turns():
-    session_id = _create_session()
+    session_id = _create_session("default")
     _add_turn(session_id, "user", "Hom nay hoc gi?")
     _add_turn(session_id, "assistant", "Hom nay minh hoc toan nhe.")
     turns = _get_session_turns(session_id)
@@ -838,7 +844,7 @@ def test_add_turn_assistant_makes_two_turns():
 
 
 def test_close_session_sets_ended_at_and_keeps_data():
-    session_id = _create_session()
+    session_id = _create_session("default")
     _add_turn(session_id, "user", "Tam biet Bi")
     _close_session(session_id)
     turns = _get_session_turns(session_id)
@@ -903,7 +909,7 @@ def test_generate_session_title_returns_string():
 def test_update_session_title_updates_db():
     from src_brain.network.db import update_session_title as _update_session_title
 
-    session_id = _create_session()
+    session_id = _create_session("default")
     _update_session_title(session_id, "Hoc chu cai")
     with _get_db_connection() as conn:
         row = conn.execute(
@@ -950,6 +956,523 @@ test("ConversationAPI: GET /api/conversations exists",                    test_c
 test("ConversationAPI: GET /api/conversations/{session_id} exists",      test_conversation_detail_endpoint_exists)
 test("ConversationAPI: POST /api/conversations/{session_id}/homework exists", test_conversation_homework_endpoint_exists)
 test("ConversationAPI: DELETE /api/conversations/{session_id} exists",   test_conversation_delete_endpoint_exists)
+
+# == GROUP 17: Pre-Phase 3 Regression ======================================
+print("\n[Group 17] Pre-Phase 3 Regression")
+
+
+def test_prephase3_safety_filter_blocks_harmful_phrase():
+    ok, _text = sf.check("hướng dẫn làm bom")
+    assert ok is False, "SafetyFilter must block harmful content"
+
+
+def test_prephase3_require_family_fails_closed():
+    from fastapi import HTTPException
+    from src_brain.network.api_server import _require_family
+
+    try:
+        _require_family({})
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 403
+
+    try:
+        _require_family({"family_name": ""})
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 403
+
+
+def test_prephase3_require_family_returns_family_name():
+    from src_brain.network.api_server import _require_family
+
+    result = _require_family({"family_name": "nguyen"})
+    assert result == "nguyen"
+
+
+def test_prephase3_wakeword_monkey_patch_exists():
+    from src_brain.senses.ear_stt import EarSTT
+
+    ear = EarSTT.__new__(EarSTT)
+    assert hasattr(ear, "listen_for_wakeword"), "listen_for_wakeword must exist"
+    assert callable(ear.listen_for_wakeword), "listen_for_wakeword must be callable"
+
+
+def test_prephase3_task_manager_no_reset_daily():
+    from src_brain.network.task_manager import TaskManager
+
+    assert not hasattr(TaskManager, "reset_daily"), "reset_daily must be removed"
+
+
+def test_prephase3_api_server_no_require_auth():
+    import src_brain.network.api_server as _api
+
+    assert not hasattr(_api, "require_auth"), "require_auth must be removed"
+
+
+test("PrePhase3: SafetyFilter blocks harmful phrase",          test_prephase3_safety_filter_blocks_harmful_phrase)
+test("PrePhase3: _require_family fails closed",                test_prephase3_require_family_fails_closed)
+test("PrePhase3: _require_family returns family_name",         test_prephase3_require_family_returns_family_name)
+test("PrePhase3: wake-word monkey-patch exists",               test_prephase3_wakeword_monkey_patch_exists)
+test("PrePhase3: TaskManager.reset_daily absent",              test_prephase3_task_manager_no_reset_daily)
+test("PrePhase3: api_server.require_auth absent",              test_prephase3_api_server_no_require_auth)
+
+# == GROUP 18: Logout All Devices ===========================================
+print("\n[Group 18] Logout All Devices")
+from src_brain.network.db import revoke_all_tokens_for_user as _revoke_all
+
+
+def test_revoke_all_tokens_callable():
+    assert callable(_revoke_all)
+
+
+def test_revoke_all_tokens_nonexistent_user_returns_zero():
+    count = _revoke_all("nonexistent-user-id")
+    assert isinstance(count, int)
+    assert count == 0
+
+
+def test_logout_all_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/auth/logout-all" in paths, f"/api/auth/logout-all not found in: {paths}"
+
+
+test("LogoutAll: revoke_all_tokens_for_user callable",           test_revoke_all_tokens_callable)
+test("LogoutAll: nonexistent user → 0, no crash",               test_revoke_all_tokens_nonexistent_user_returns_zero)
+test("LogoutAll: POST /api/auth/logout-all endpoint registered", test_logout_all_endpoint_exists)
+
+# == GROUP 19: Account Settings =============================================
+print("\n[Group 19] Account Settings")
+from src_brain.network.db import get_user_by_id as _get_user_by_id
+from src_brain.network.db import update_user_password as _update_user_password
+
+
+def test_get_user_by_id_nonexistent():
+    result = _get_user_by_id("nonexistent-id")
+    assert result is None
+
+
+def test_get_user_by_id_real_user():
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"settingsuser_{unique}", "Password1!", "SettingsFam")
+    uid = str(user["user_id"])
+    result = _get_user_by_id(uid)
+    assert result is not None
+    assert result["username"] == f"settingsuser_{unique}"
+    assert result["family_name"] == "SettingsFam"
+    assert "user_id" in result
+    assert "created_at" in result
+    assert "password_hash" not in result
+
+
+def test_update_user_password_nonexistent():
+    result = _update_user_password("nonexistent-id", "newpassword123")
+    assert result is False
+
+
+def test_me_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/auth/me" in paths, f"/api/auth/me not found in: {paths}"
+
+
+def test_change_password_endpoint_exists():
+    from src_brain.network.api_server import app
+    paths = [r.path for r in app.routes if hasattr(r, 'path')]
+    assert "/api/auth/change-password" in paths, f"/api/auth/change-password not found in: {paths}"
+
+
+test("AccountSettings: get_user_by_id nonexistent → None",        test_get_user_by_id_nonexistent)
+test("AccountSettings: get_user_by_id real user → correct dict",  test_get_user_by_id_real_user)
+test("AccountSettings: update_user_password nonexistent → False", test_update_user_password_nonexistent)
+test("AccountSettings: GET /api/auth/me route registered",        test_me_endpoint_exists)
+test("AccountSettings: PUT /api/auth/change-password registered", test_change_password_endpoint_exists)
+
+# == GROUP 20: Cloudflare Named Tunnel ======================================
+print("\n[Group 20] Cloudflare Named Tunnel")
+
+os.environ.setdefault("CLOUDFLARE_TUNNEL_TOKEN", "")
+os.environ.setdefault("CLOUDFLARE_TUNNEL_URL", "")
+
+from src_brain.network.routers import ops_router as _ops_router_module
+
+
+def test_tunnel_token_attr_exists():
+    assert hasattr(_ops_router_module, "TUNNEL_TOKEN")
+    assert isinstance(_ops_router_module.TUNNEL_TOKEN, str)
+
+
+def test_tunnel_url_attr_exists():
+    assert hasattr(_ops_router_module, "TUNNEL_URL")
+    assert isinstance(_ops_router_module.TUNNEL_URL, str)
+
+
+def test_start_cloudflare_tunnel_callable():
+    assert callable(_ops_router_module._start_cloudflare_tunnel)
+
+
+test("CloudflareTunnel: TUNNEL_TOKEN attr exists + is str",           test_tunnel_token_attr_exists)
+test("CloudflareTunnel: TUNNEL_URL attr exists + is str",             test_tunnel_url_attr_exists)
+test("CloudflareTunnel: _start_cloudflare_tunnel is callable",        test_start_cloudflare_tunnel_callable)
+
+# == GROUP 21: Push Notifications ==========================================
+print("\n[Group 21] Push Notifications")
+from src_brain.network.notifier import set_ws_broadcaster as _set_ws_broadcaster
+
+
+def test_set_ws_broadcaster_callable():
+    assert callable(_set_ws_broadcaster)
+
+
+def test_set_ws_broadcaster_accepts_fn_and_none():
+    _set_ws_broadcaster(lambda data: None)
+    _set_ws_broadcaster(None)
+
+
+def test_push_event_no_crash_without_broadcaster():
+    _set_ws_broadcaster(None)
+    from src_brain.network.notifier import EventNotifier
+    n = EventNotifier()
+    ok = _run_quiet(lambda: n.push_event("test", "unit test message"))
+    assert ok is True
+
+
+test("PushNotif: set_ws_broadcaster is callable",                   test_set_ws_broadcaster_callable)
+test("PushNotif: set_ws_broadcaster accepts fn and None",           test_set_ws_broadcaster_accepts_fn_and_none)
+test("PushNotif: push_event no crash when broadcaster is None",     test_push_event_no_crash_without_broadcaster)
+
+# == GROUP 22: WebRTC Camera Stream =========================================
+print("\n[Group 22] WebRTC Camera Stream")
+from src_brain.network.routers import webrtc_router as _webrtc_router
+
+
+def test_webrtc_aiortc_available_attr():
+    assert hasattr(_webrtc_router, "_AIORTC_AVAILABLE")
+    assert isinstance(_webrtc_router._AIORTC_AVAILABLE, bool)
+
+
+def test_webrtc_peer_connections_is_dict():
+    assert isinstance(_webrtc_router._peer_connections, dict)
+
+
+def test_webrtc_routes_registered():
+    paths = [r.path for r in _webrtc_router.router.routes if hasattr(r, 'path')]
+    assert "/api/webrtc/offer" in paths, f"offer not in {paths}"
+    assert "/api/webrtc/close" in paths, f"close not in {paths}"
+
+
+def test_webrtc_available_flag_is_bool():
+    assert _webrtc_router._AIORTC_AVAILABLE in (True, False)
+
+
+def test_webrtc_mjpeg_fallback_intact():
+    from src_brain.network.routers.ops_router import router as _ops
+    ops_paths = [r.path for r in _ops.routes if hasattr(r, 'path')]
+    assert "/api/camera" in ops_paths, f"/api/camera missing from ops_router: {ops_paths}"
+
+
+test("WebRTC: _AIORTC_AVAILABLE attr exists + is bool",      test_webrtc_aiortc_available_attr)
+test("WebRTC: _peer_connections is a dict",                  test_webrtc_peer_connections_is_dict)
+test("WebRTC: /api/webrtc/offer + /close routes registered", test_webrtc_routes_registered)
+test("WebRTC: _AIORTC_AVAILABLE value is True or False",     test_webrtc_available_flag_is_bool)
+test("WebRTC: MJPEG fallback /api/camera still intact",      test_webrtc_mjpeg_fallback_intact)
+
+# == GROUP 23: Pre-Release Security Fixes ==================================
+print("\n[Group 23] Pre-Release Security Fixes")
+from src_brain.network.db import get_db_connection as _gdb
+from src_brain.network.db import increment_token_version as _increment_tv
+
+
+def test_token_version_column_in_schema():
+    with _gdb() as conn:
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
+    assert "token_version" in cols, f"token_version missing, cols: {cols}"
+
+
+def test_increment_token_version_callable_returns_int():
+    assert callable(_increment_tv)
+    # user không tồn tại → không crash, trả về 0 (UPDATE 0 rows)
+    result = _increment_tv("nonexistent-tv-user")
+    assert isinstance(result, int)
+
+
+def test_access_token_invalid_after_increment():
+    from src_brain.network.auth import create_access_token, verify_access_token
+    from fastapi import HTTPException
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"tvtest_{unique}", "Password1!", "TVFam")
+    uid = str(user["user_id"])
+    token = create_access_token(uid, "TVFam")
+    # Token hợp lệ trước khi increment
+    payload = verify_access_token(token)
+    assert payload["sub"] == uid
+    # Sau increment → token cũ bị vô hiệu hóa
+    _increment_tv(uid)
+    try:
+        verify_access_token(token)
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401
+
+
+def test_register_ignores_client_family_name():
+    """POST /auth/register không được nhận family_name từ client."""
+    import inspect
+    from src_brain.network.routers.auth_router import register_user
+    src = inspect.getsource(register_user)
+    # family_name không được đọc từ body
+    assert 'body.get("family_name"' not in src, "family_name vẫn đọc từ client body!"
+    # Server dùng FAMILY_ID env
+    assert "FAMILY_ID" in src
+
+
+def test_register_route_exists():
+    from src_brain.network.routers.auth_router import router as _ar
+    paths = [r.path for r in _ar.routes if hasattr(r, 'path')]
+    assert "/auth/register" in paths
+
+
+def test_token_version_zero_for_new_user():
+    from src_brain.network.db import get_token_version as _get_tv
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"tvzero_{unique}", "Password1!", "ZeroFam")
+    uid = str(user["user_id"])
+    assert _get_tv(uid) == 0
+
+
+def test_token_version_increments_correctly():
+    from src_brain.network.db import get_token_version as _get_tv
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"tvinc_{unique}", "Password1!", "IncFam")
+    uid = str(user["user_id"])
+    v1 = _increment_tv(uid)
+    assert v1 == 1
+    v2 = _increment_tv(uid)
+    assert v2 == 2
+
+
+test("Fix1: register ignores client family_name, uses FAMILY_ID",   test_register_ignores_client_family_name)
+test("Fix1: /auth/register route still registered",                  test_register_route_exists)
+test("Fix2: token_version column exists in users schema",            test_token_version_column_in_schema)
+test("Fix2: increment_token_version callable, nonexistent→no crash", test_increment_token_version_callable_returns_int)
+test("Fix2: access token → 401 after increment_token_version",      test_access_token_invalid_after_increment)
+test("Fix2: new user starts at token_version=0",                     test_token_version_zero_for_new_user)
+test("Fix2: token_version increments correctly",                     test_token_version_increments_correctly)
+
+# == GROUP 24: Phase 3 Final Fix Verification ==============================
+print("\n[Group 24] Phase 3 Final Fix Verification")
+
+
+def _phase3_auth_headers(prefix: str = "phase3") -> dict:
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"{prefix}_{unique}", "Password1!", "Phase3Fam")
+    token = create_access_token(str(user["user_id"]), "Phase3Fam")
+    return {"Authorization": f"Bearer {token}"}
+
+
+def _post_task_for_phase3(payload: dict):
+    from fastapi.testclient import TestClient
+    from src_brain.network.api_server import app
+    import src_brain.network.state as _state_mod
+    from src_brain.network.task_manager import TaskManager
+
+    old_tm = _state_mod._task_manager
+    tm = TaskManager()
+    _state_mod._task_manager = tm
+    try:
+        with TestClient(app) as client:
+            return client.post("/api/tasks", json=payload, headers=_phase3_auth_headers("task"))
+    finally:
+        tm.stop()
+        _state_mod._task_manager = old_tm
+
+
+# Test 24.1 - FIX-01: XSS validation
+def test_24_1_task_remind_time_xss_rejected():
+    r = _post_task_for_phase3({
+        "name": "Doc sach",
+        "remind_time": "<script>alert(1)</script>",
+    })
+    assert r.status_code == 422
+
+
+# Test 24.2 - FIX-01: remind_time invalid reject
+def test_24_2_task_remind_time_range_rejected():
+    r = _post_task_for_phase3({"name": "Doc sach", "remind_time": "25:99"})
+    assert r.status_code == 422
+
+
+# Test 24.3 - FIX-01: remind_time valid accept
+def test_24_3_task_remind_time_valid_accept():
+    r = _post_task_for_phase3({"name": "Doc sach", "remind_time": "08:30"})
+    assert r.status_code in (200, 201)
+
+
+# Test 24.4 - FIX-02: registration disabled -> 403
+def test_24_4_registration_disabled_403():
+    from fastapi.testclient import TestClient
+    from src_brain.network.api_server import app
+    from src_brain.network.routers import auth_router
+
+    auth_router.REGISTRATION_ENABLED = False
+    with TestClient(app) as client:
+        r = client.post("/auth/register", json={
+            "username": f"reg_{_uuid.uuid4().hex[:8]}",
+            "password": "Password1!",
+        })
+    assert r.status_code == 403
+
+
+# Test 24.5 - FIX-02: REGISTRATION_ENABLED attr exists
+def test_24_5_registration_enabled_attr_exists():
+    from src_brain.network.routers import auth_router
+    assert hasattr(auth_router, "REGISTRATION_ENABLED")
+
+
+# Test 24.6 - FIX-03: _require_family in memory handlers
+def test_24_6_memory_handlers_require_family():
+    import inspect
+    from src_brain.network.routers import control_router
+
+    handlers = [
+        control_router.list_memories,
+        control_router.add_memory,
+        control_router.export_memories,
+        control_router.update_memory,
+        control_router.delete_memory,
+    ]
+    for handler in handlers:
+        src = inspect.getsource(handler)
+        assert "_require_family" in src, handler.__name__
+
+
+# Test 24.7 - FIX-06: PC not leaked on bad SDP
+def test_24_7_webrtc_offer_adds_pc_after_success_only():
+    import inspect
+    from src_brain.network.routers import webrtc_router
+
+    src = inspect.getsource(webrtc_router.webrtc_offer)
+    assert "await pc.close()" in src
+    assert "except Exception" in src
+    assert src.index("await pc.setLocalDescription(answer)") < src.index("_peer_connections[key] = pc")
+
+
+# Test 24.8 - FIX-07: _peer_connections is dict
+def test_24_8_peer_connections_is_dict():
+    from src_brain.network.routers import webrtc_router
+    assert isinstance(webrtc_router._peer_connections, dict)
+
+
+# Test 24.9 - FIX-09: nonexistent user token -> 401
+def test_24_9_nonexistent_user_access_token_rejected():
+    from fastapi import HTTPException
+    token = create_access_token("nonexistent-user-id", "NoFam")
+    try:
+        verify_access_token(token)
+        assert False, "Expected HTTPException 401"
+    except HTTPException as e:
+        assert e.status_code == 401
+
+
+# Test 24.10 - FIX-10: change-password rate limit in source
+def test_24_10_change_password_rate_limit_source():
+    import inspect
+    from src_brain.network.routers.auth_router import change_password
+
+    src = inspect.getsource(change_password)
+    assert "chpwd:" in src
+    assert "login_attempts" in src
+
+
+# Test 24.11 - FIX-11: limit bounds validation
+def test_24_11_limit_bounds_validation():
+    from fastapi.testclient import TestClient
+    from src_brain.network.api_server import app
+
+    headers = _phase3_auth_headers("limit")
+    with TestClient(app) as client:
+        assert client.get("/api/events?limit=0", headers=headers).status_code == 422
+        assert client.get("/api/events?limit=201", headers=headers).status_code == 422
+        assert client.get("/api/events?limit=50", headers=headers).status_code == 200
+
+
+# Test 24.12 - FIX-12: init_db idempotent x3
+def test_24_12_init_db_idempotent_x3():
+    import src_brain.network.db as db_mod
+    for _ in range(3):
+        db_mod._INITIALIZED = False
+        init_db()
+
+
+# Test 24.13 - FIX-16: no PII in INFO logs
+def test_24_13_no_pii_content_in_info_logs():
+    import re
+    files = [
+        "src_brain/network/notifier.py",
+        "src_brain/main_loop.py",
+        "src_brain/ai_core/core_ai.py",
+    ]
+    bad = re.compile(
+        r"logger\.(info|warning|error)\([^\\n]*(user_text|bi_response|full_reply|clean_sentence|clean_buffer|rag_context)"
+    )
+    for path in files:
+        text = open(path, "r", encoding="utf-8").read()
+        assert not bad.search(text), path
+
+
+# Test 24.14 - FIX-17: _shutdown callable
+def test_24_14_robot_app_shutdown_callable():
+    from src_brain.main_loop import RobotBiApp
+    assert callable(getattr(RobotBiApp, "_shutdown", None))
+
+
+# Test 24.15 - FIX-19: no duplicate handlers on double setup
+def test_24_15_setup_logging_no_duplicate_file_handlers():
+    import logging.handlers
+    from src_brain.network.log_config import setup_logging
+
+    robot_logger = logging.getLogger("robot_bi")
+    setup_logging()
+    first = sum(isinstance(h, logging.handlers.RotatingFileHandler) for h in robot_logger.handlers)
+    setup_logging()
+    second = sum(isinstance(h, logging.handlers.RotatingFileHandler) for h in robot_logger.handlers)
+    assert first == second
+
+
+# Test 24.16 - FIX-20: requirements-ubuntu.txt exists
+def test_24_16_requirements_ubuntu_aiortc_exists():
+    content = open("requirements-ubuntu.txt", "r", encoding="utf-8").read()
+    assert "aiortc==1.9.0" in content
+
+
+# Test 24.17 - FIX-22: ws_enabled updates with broadcaster
+def test_24_17_ws_enabled_updates_with_broadcaster():
+    import src_brain.network.notifier as notifier_mod
+
+    notifier_mod.set_ws_broadcaster(lambda data: None)
+    assert notifier_mod._WS_ENABLED is True
+    notifier_mod.set_ws_broadcaster(None)
+    assert notifier_mod._WS_ENABLED is False
+
+
+test("24.1 FIX-01: task remind_time XSS rejected",        test_24_1_task_remind_time_xss_rejected)
+test("24.2 FIX-01: task remind_time range rejected",      test_24_2_task_remind_time_range_rejected)
+test("24.3 FIX-01: task remind_time valid accepted",      test_24_3_task_remind_time_valid_accept)
+test("24.4 FIX-02: registration disabled returns 403",    test_24_4_registration_disabled_403)
+test("24.5 FIX-02: REGISTRATION_ENABLED attr exists",     test_24_5_registration_enabled_attr_exists)
+test("24.6 FIX-03: memory handlers require family",       test_24_6_memory_handlers_require_family)
+test("24.7 FIX-06: WebRTC bad offer cleanup logic",       test_24_7_webrtc_offer_adds_pc_after_success_only)
+test("24.8 FIX-07: _peer_connections is dict",            test_24_8_peer_connections_is_dict)
+test("24.9 FIX-09: nonexistent user token rejected",      test_24_9_nonexistent_user_access_token_rejected)
+test("24.10 FIX-10: change-password rate limit source",   test_24_10_change_password_rate_limit_source)
+test("24.11 FIX-11: list limit bounds validation",        test_24_11_limit_bounds_validation)
+test("24.12 FIX-12: init_db idempotent x3",               test_24_12_init_db_idempotent_x3)
+test("24.13 FIX-16: no PII content in INFO logs",         test_24_13_no_pii_content_in_info_logs)
+test("24.14 FIX-17: RobotBiApp._shutdown callable",       test_24_14_robot_app_shutdown_callable)
+test("24.15 FIX-19: setup_logging no duplicate handlers", test_24_15_setup_logging_no_duplicate_file_handlers)
+test("24.16 FIX-20: requirements-ubuntu contains aiortc", test_24_16_requirements_ubuntu_aiortc_exists)
+test("24.17 FIX-22: ws_enabled tracks broadcaster",       test_24_17_ws_enabled_updates_with_broadcaster)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

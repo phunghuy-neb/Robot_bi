@@ -1,5 +1,7 @@
 import sys
 import os
+import atexit
+import logging
 import threading
 import queue
 import glob
@@ -31,10 +33,17 @@ from src_brain.senses.cry_detector import CryDetector
 from src_brain.network.db import init_db, create_session, close_session, add_turn
 from src_brain.network.notifier import get_notifier
 from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
+import src_brain.network.state as _network_state
+
+FAMILY_ID = os.getenv("FAMILY_ID", "default")
+
+logger = logging.getLogger(__name__)
 
 
 class RobotBiApp:
     def __init__(self):
+        self._shutdown_done = False
+        self._task_manager = None
         init_db()
         self.ear = EarSTT()
         self.mouth = MouthTTS()
@@ -69,13 +78,16 @@ class RobotBiApp:
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
-        start_api_server()
-        self._puppet_queue = get_puppet_queue()
 
         # Task Manager với TTS callback (Sprint 6)
         init_task_manager(tts_callback=self._speak_text)
+        self._task_manager = _network_state._task_manager
+        start_api_server()
+        self._puppet_queue = get_puppet_queue()
 
-        print("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
+        atexit.register(self._shutdown)
+
+        logger.info("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
 
     def _speak_text(self, text: str) -> None:
         """Phát text qua TTS — dùng cho TaskManager reminder.
@@ -97,7 +109,7 @@ class RobotBiApp:
                 break
             audio_file = item
             if not os.path.exists(audio_file) or os.path.getsize(audio_file) == 0:
-                print(f"[Bi - Miệng] File audio rỗng hoặc không tồn tại: {audio_file}")
+                logger.warning("[Bi - Miệng] File audio rỗng hoặc không tồn tại: %s", audio_file)
                 self.audio_queue.task_done()
                 continue
             try:
@@ -107,7 +119,7 @@ class RobotBiApp:
                     pygame.time.Clock().tick(10)
                 pygame.mixer.music.unload()
             except Exception as e:
-                print(f"[Bi - Miệng] Lỗi phát audio: {e}")
+                logger.error("[Bi - Miệng] Lỗi phát audio: %s", e)
             finally:
                 try:
                     os.remove(audio_file)
@@ -117,31 +129,30 @@ class RobotBiApp:
 
     def _on_cry_detected(self) -> None:
         """Callback khi CryDetector phát hiện tiếng khóc."""
-        print("[Bi - Tai khoc] Phat hien tieng khoc! Bi dang kiem tra...")
+        logger.info("[Bi - Tai khoc] Phat hien tieng khoc! Bi dang kiem tra...")
         self.notifier.push_event(
             event_type="cry",
             message="Phat hien tieng khoc cua be",
         )
-        # TODO Sprint 5: trigger robot di chuyen den vi tri be
 
     def _on_vision_event(self, event_type: str, clip_path: str | None) -> None:
         """Callback khi EyeVision phát hiện sự kiện."""
         if event_type == "stranger":
-            print(f"[Bi - Mat] Phat hien nguoi la! Clip: {clip_path}")
+            logger.info("[Bi - Mat] Phat hien nguoi la! Clip: %s", clip_path)
             self.notifier.push_event(
                 event_type="stranger",
                 message="Phat hien nguoi la trong nha",
                 clip_path=clip_path,
             )
         elif event_type == "motion":
-            print(f"[Bi - Mat] Phat hien chuyen dong. Clip: {clip_path}")
+            logger.info("[Bi - Mat] Phat hien chuyen dong. Clip: %s", clip_path)
             self.notifier.push_event(
                 event_type="motion",
                 message="Phat hien chuyen dong",
                 clip_path=clip_path,
             )
         elif event_type == "known_face":
-            print(f"[Bi - Mat] Nhan ra: {clip_path}")
+            logger.info("[Bi - Mat] Nhan ra: %s", clip_path)
             self.notifier.push_event(
                 event_type="known_face",
                 message=f"Nhan ra: {clip_path}",
@@ -164,7 +175,7 @@ class RobotBiApp:
             is_safe, clean = self.safety.check(puppet_text)
             if not clean.strip():
                 continue
-            print(f"[Bi - Puppet] Đọc: {clean[:60]}")
+            logger.info("[Bi - Puppet] queued len=%d", len(clean))
             audio_file = self._loop.run_until_complete(
                 self.mouth._generate_audio(clean, chunk_index=self._chunk_counter)
             )
@@ -196,9 +207,61 @@ class RobotBiApp:
         try:
             close_session(self._current_session_id)
         except Exception as e:
-            print(f"[Bi - Session] Loi dong session: {e}")
+            logger.warning("[Bi - Session] Loi dong session: %s", e)
         finally:
             self._current_session_id = None
+
+    def _shutdown(self):
+        if self._shutdown_done:
+            return
+        self._shutdown_done = True
+        logger.info("[Shutdown] Bat dau don dep...")
+
+        self._close_current_session()
+
+        if self._task_manager:
+            try:
+                self._task_manager.stop()
+            except Exception:
+                pass
+
+        try:
+            from src_brain.network.routers.ops_router import _tunnel_process
+            if _tunnel_process and _tunnel_process.poll() is None:
+                _tunnel_process.terminate()
+                _tunnel_process.wait(timeout=5)
+        except Exception:
+            pass
+
+        try:
+            from src_brain.network.routers.webrtc_router import _peer_connections
+            loop = asyncio.get_event_loop()
+            for pc in list(_peer_connections.values()):
+                loop.run_until_complete(pc.close())
+            _peer_connections.clear()
+        except Exception:
+            pass
+
+        try:
+            self.cry_detector.stop()
+        except Exception:
+            pass
+        try:
+            self.eye.stop()
+        except Exception:
+            pass
+        try:
+            self.audio_queue.put(None)
+            self.audio_queue.join()
+        except Exception:
+            pass
+        self._cleanup_chunks()
+        try:
+            self._loop.close()
+        except Exception:
+            pass
+
+        logger.info("[Shutdown] Hoan tat.")
 
     def run(self):
         import time as _time
@@ -209,20 +272,16 @@ class RobotBiApp:
                     _time.sleep(0.5)
                     continue
 
-                # TODO Sprint upgrade: thay bằng wake-word detection
-                # if self.ear.WAKEWORD_ENABLED:
-                #     detected = self.ear.listen_for_wakeword(timeout=30.0)
-                #     if not detected: continue
                 user_text = self.ear.listen()
                 if not user_text:
                     self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
                     continue
 
-                print("[Bi - Não] Đang suy nghĩ...")
+                logger.debug("[Bi - Não] Đang suy nghĩ...")
                 buffer = ""
                 self._chunk_counter = 0
                 self._close_current_session()
-                self._current_session_id = create_session()
+                self._current_session_id = create_session(FAMILY_ID)
                 is_first_turn_of_session = True
 
                 # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
@@ -241,7 +300,8 @@ class RobotBiApp:
                 rag_context = self.rag.retrieve(user_text)
                 if rag_context:
                     user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
-                    print(f"[Bi - Trí nhớ] {rag_context}")
+                    # DEBUG: chứa PII - tắt trong production.
+                    logger.debug("[Bi - Trí nhớ] %s", rag_context)
 
                 # Stream tokens từ LLM, tách câu theo . ? ! \n
                 full_reply_parts = []
@@ -268,7 +328,7 @@ class RobotBiApp:
                                 continue  # TTS hoàn toàn fail → bỏ qua chunk này
                             self._chunk_counter += 1
                             self.audio_queue.put(audio_file)
-                            print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {clean_sentence}")
+                            logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_sentence))
 
                 # Phần còn lại trong buffer (câu chưa kết thúc bằng dấu câu)
                 if buffer.strip():
@@ -282,7 +342,7 @@ class RobotBiApp:
                         if audio_file is not None:
                             self._chunk_counter += 1
                             self.audio_queue.put(audio_file)
-                            print(f"[Bi - Miệng] Chunk {self._chunk_counter}: {clean_buffer}")
+                            logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_buffer))
 
                 # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                 self.audio_queue.join()
@@ -310,14 +370,8 @@ class RobotBiApp:
                     self._close_current_session()
 
         except KeyboardInterrupt:
-            self._close_current_session()
-            self.cry_detector.stop()
-            self.eye.stop()
-            self.audio_queue.put(None)
-            self.audio_queue.join()
-            self._cleanup_chunks()
-            self._loop.close()
-            print("[Hệ thống] Robot Bi đang tắt. Tạm biệt!")
+            self._shutdown()
+            logger.info("[Hệ thống] Robot Bi đang tắt. Tạm biệt!")
 
 
 if __name__ == "__main__":

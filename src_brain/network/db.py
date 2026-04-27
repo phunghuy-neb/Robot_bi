@@ -3,12 +3,15 @@ db.py - SQLite storage helpers for Robot Bi network persistence.
 """
 
 import json
+import logging
 import sqlite3
 import threading
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 DB_PATH = Path(__file__).with_name("robot_bi.db")
 
@@ -100,10 +103,25 @@ def init_db() -> None:
                     password_hash TEXT NOT NULL,
                     family_name TEXT NOT NULL,
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                    is_active INTEGER DEFAULT 1
+                    is_active INTEGER DEFAULT 1,
+                    token_version INTEGER NOT NULL DEFAULT 0
                 )
                 '''
             )
+
+            # Migration: them token_version neu chua co (cho DB cu)
+            try:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0"
+                )
+                conn.commit()
+            except Exception as e:
+                msg = str(e).lower()
+                if "duplicate column" in msg or "already exists" in msg:
+                    pass  # Column da ton tai
+                else:
+                    logger.error("[DB] Migration token_version failed: %s", e)
+                    raise RuntimeError(f"DB migration that bai: {e}") from e
 
             # Tao bang auth_tokens (JWT refresh token rotation)
             conn.execute(
@@ -164,10 +182,10 @@ def init_db() -> None:
 
             seed_admin_if_empty()
         except Exception as _e:
-            print(f"[DB] seed_admin_if_empty bo qua: {_e}")
+            logger.warning("[DB] seed_admin_if_empty bo qua: %s", _e)
 
         _INITIALIZED = True
-        print("[DB] Database da duoc khoi tao thanh cong.")
+        logger.info("[DB] Database da duoc khoi tao thanh cong.")
 
 
 def _migrate_legacy_events(conn):
@@ -198,9 +216,9 @@ def _migrate_legacy_events(conn):
                 ),
             )
         conn.commit()
-        print(f"[DB] Da migrate {len(events)} events tu file JSON cu.")
+        logger.info("[DB] Da migrate %d events tu file JSON cu.", len(events))
     except Exception as e:
-        print(f"[DB] Loi migrate events: {e}")
+        logger.error("[DB] Loi migrate events: %s", e)
 
 
 def _migrate_legacy_tasks(conn):
@@ -240,9 +258,9 @@ def _migrate_legacy_tasks(conn):
                 ),
             )
         conn.commit()
-        print(f"[DB] Da migrate {len(tasks)} tasks tu file JSON cu.")
+        logger.info("[DB] Da migrate %d tasks tu file JSON cu.", len(tasks))
     except Exception as e:
-        print(f"[DB] Loi migrate tasks: {e}")
+        logger.error("[DB] Loi migrate tasks: %s", e)
 
 
 def _migrate_turns_role_constraint(conn) -> None:
@@ -287,7 +305,7 @@ def _migrate_turns_role_constraint(conn) -> None:
     )
 
 
-def create_session(family_id: str = "default") -> str:
+def create_session(family_id: str) -> str:
     session_id = uuid4().hex
     with get_db_connection() as conn:
         conn.execute(
@@ -363,3 +381,62 @@ def update_session_title(session_id: str, title: str) -> None:
             (title, session_id),
         )
         conn.commit()
+
+
+def get_token_version(user_id: str) -> int:
+    """Trả về token_version hiện tại của user. Trả 0 nếu user không tồn tại."""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT token_version FROM users WHERE user_id=?", (user_id,)
+        ).fetchone()
+    return int(row["token_version"]) if row else 0
+
+
+def increment_token_version(user_id: str) -> int:
+    """Tăng token_version, vô hiệu hóa tất cả access token hiện có. Trả về version mới."""
+    with get_db_connection() as conn:
+        conn.execute(
+            "UPDATE users SET token_version = token_version + 1 WHERE user_id = ?",
+            (user_id,),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT token_version FROM users WHERE user_id = ?", (user_id,)
+        ).fetchone()
+    return int(row["token_version"]) if row else 0
+
+
+def get_user_by_id(user_id: str) -> dict | None:
+    """Trả về dict {user_id, username, family_name, created_at} hoặc None."""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT user_id, username, family_name, created_at FROM users WHERE user_id=?",
+            (user_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def update_user_password(user_id: str, new_password: str) -> bool:
+    """Hash new_password va update DB. Token version do revoke_all_tokens_for_user() tang."""
+    from src_brain.network.auth import hash_password
+    new_hash = hash_password(new_password)
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "UPDATE users SET password_hash=? WHERE user_id=?",
+            (new_hash, user_id),
+        )
+        conn.commit()
+    return cur.rowcount > 0
+
+
+def revoke_all_tokens_for_user(user_id: str) -> int:
+    """Revoke tất cả refresh token + tăng token_version. Trả về số refresh token bị revoke."""
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "UPDATE auth_tokens SET is_revoked=1 WHERE user_id=? AND is_revoked=0",
+            (user_id,)
+        )
+        conn.commit()
+        count = cur.rowcount
+    increment_token_version(user_id)
+    return count

@@ -100,7 +100,7 @@ class CryDetector:
         global _yamnet_fallback_notice_printed
         if _yamnet_fallback_notice_printed:
             return
-        print("[CryDetector] YAMNet TFLite khong kha dung, dung energy fallback.")
+        logger.info("[CryDetector] YAMNet TFLite khong kha dung, dung energy fallback.")
         _yamnet_fallback_notice_printed = True
 
     def _handle_mic_unavailable_once(self, error: Exception) -> bool:
@@ -202,7 +202,7 @@ class CryDetector:
             return
 
         method = "YAMNet" if self._yamnet_available else "energy fallback"
-        print(f"[Bi - Tai khoc] Bat dau lang nghe tieng khoc ({method})")
+        logger.info("[Bi - Tai khoc] Bat dau lang nghe tieng khoc (%s)", method)
 
         while self._running:
             try:
@@ -236,9 +236,9 @@ class CryDetector:
                 if is_crying and (now - self._last_alert_time) >= COOLDOWN_SECONDS:
                     self._last_alert_time = now
                     self._detections += 1
-                    print(
-                        f"[Bi - Tai khoc] Phat hien tieng khoc! "
-                        f"(lan {self._detections})"
+                    logger.info(
+                        "[Bi - Tai khoc] Phat hien tieng khoc! (lan %d)",
+                        self._detections,
                     )
                     if self.on_cry_callback:
                         try:

@@ -184,16 +184,18 @@ def _get_jwt_config() -> tuple[str, str]:
 def create_access_token(user_id: str, family_name: str) -> str:
     """
     Tao JWT access token.
-    Payload: sub=user_id, family=family_name, type="access", exp=now+60min.
+    Payload: sub=user_id, family=family_name, type="access", tv=token_version, exp=now+60min.
     """
     if not _JOSE_AVAILABLE:
         raise RuntimeError("python-jose chua duoc cai dat. Chay: pip install 'python-jose[cryptography]'")
     jwt_secret, jwt_alg = _get_jwt_config()
+    from src_brain.network.db import get_token_version
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
         "family": family_name,
         "type": "access",
+        "tv": get_token_version(str(user_id)),
         "iat": now,
         "exp": now + timedelta(minutes=60),
     }
@@ -250,6 +252,18 @@ def verify_access_token(token: str) -> dict:
 
     if payload.get("type") != "access":
         raise HTTPException(status_code=401, detail="Sai loai token")
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT token_version FROM users WHERE user_id = ?",
+            (str(payload.get("sub", "")),),
+        ).fetchone()
+
+    if row is None:
+        raise HTTPException(status_code=401, detail="User khong ton tai")
+
+    if int(row["token_version"]) != int(payload.get("tv", 0)):
+        raise HTTPException(status_code=401, detail="Token da bi vo hieu hoa")
 
     return payload
 

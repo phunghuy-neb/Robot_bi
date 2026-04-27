@@ -7,7 +7,6 @@ be hoan thanh duoc cong sao.
 Class: TaskManager
   add_task(name, remind_time) -> dict
   complete_task(task_id) -> bool
-  reset_daily()
   get_all() -> list
   delete_task(task_id) -> bool
   get_total_stars() -> int
@@ -126,14 +125,6 @@ class TaskManager:
                 self._refresh_tasks()
                 return True
         return False
-
-    def reset_daily(self):
-        """Goi moi dau ngay de reset completed_today. (Dung cron ngoai neu can.)"""
-        with self._lock:
-            with get_db_connection() as conn:
-                conn.execute("UPDATE tasks SET completed_today = 0")
-                conn.commit()
-            self._refresh_tasks()
 
     def get_all(self) -> list:
         """Tra ve danh sach tat ca nhiem vu (ban copy)."""

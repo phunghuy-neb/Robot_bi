@@ -30,6 +30,12 @@ Them vao file `.env`:
 PIN_CODE=pin_moi_cua_ban
 ```
 
+## Tao tai khoan lan dau
+1. Mo `.env`, dat `REGISTRATION_ENABLED=true`
+2. Khoi dong robot
+3. Mo app, dang ky tai khoan admin
+4. Tat lai: `REGISTRATION_ENABLED=false`, restart robot
+
 ## Cai app len dien thoai (PWA)
 1. Mo Chrome tren Android
 2. Vao dia chi Parent App
@@ -65,6 +71,28 @@ python src_brain/train_text.py
 # Do RAM va latency
 python stress_test.py
 ```
+
+## Cai dat URL co dinh (Cloudflare Named Tunnel)
+
+Mac dinh robot dung quick tunnel — URL thay doi moi lan restart, phai quet QR lai.
+De co URL co dinh:
+
+1. Truy cap https://one.dash.cloudflare.com → Zero Trust → Networks → Tunnels
+2. Tao tunnel moi, dat ten (vi du: robot-bi)
+3. Chon "Windows" → copy token (bat dau bang `eyJ...`)
+4. Them Public Hostname: `subdomain.yourdomain.com` → `localhost:8443` (HTTPS) hoac `localhost:8000` (HTTP)
+5. Dan vao file `.env`:
+   ```
+   CLOUDFLARE_TUNNEL_TOKEN=eyJhGci...
+   CLOUDFLARE_TUNNEL_URL=https://subdomain.yourdomain.com
+   ```
+6. Restart robot → URL khong con thay doi sau moi restart
+
+## Bat WebRTC tren Ubuntu
+```bash
+pip install -r requirements-ubuntu.txt
+```
+Kiem tra khi khoi dong: `_AIORTC_AVAILABLE` se = `True` neu aiortc da cai dung.
 
 ## Khi co phan cung robot
 1. Train openWakeWord model "bi_oi" tu 30+ audio samples

@@ -135,7 +135,7 @@ class EyeVision:
         """
         self._surveillance_mode = active
         status = "BẬT" if active else "TẮT"
-        print(f"[Bi - Mắt] Chế độ giám sát: {status}")
+        logger.info("[Bi - Mắt] Chế độ giám sát: %s", status)
 
     def register_face(self, name: str, image_path: str) -> bool:
         """
@@ -168,7 +168,7 @@ class EyeVision:
 
             # Reload face database
             self._load_face_resources()
-            print(f"[Bi - Mắt] Đã đăng ký khuôn mặt: {name}")
+            logger.info("[Bi - Mắt] Đã đăng ký khuôn mặt: %s", name)
             return True
 
         except Exception as e:
@@ -255,9 +255,9 @@ class EyeVision:
             try:
                 self._lbph_recognizer = cv2.face.LBPHFaceRecognizer_create()
                 self._lbph_recognizer.train(faces_data, np.array(labels))
-                print(
-                    f"[Bi - Mat] LBPH trained voi {len(faces_data)} anh, "
-                    f"{label_idx} nguoi"
+                logger.info(
+                    "[Bi - Mat] LBPH trained voi %d anh, %d nguoi",
+                    len(faces_data), label_idx,
                 )
             except AttributeError:
                 # cv2.face không available (opencv-python không có contrib)
@@ -269,9 +269,9 @@ class EyeVision:
 
         if self._label_to_name or self._known_faces:
             names = list(self._label_to_name.values()) or list(self._known_faces.keys())
-            print(f"[Bi - Mat] Face database: {names}")
+            logger.info("[Bi - Mat] Face database: %s", names)
         else:
-            print("[Bi - Mat] Chua co khuon mat nao duoc dang ky")
+            logger.info("[Bi - Mat] Chua co khuon mat nao duoc dang ky")
 
     def _compute_face_histogram(self, gray_img: np.ndarray) -> np.ndarray | None:
         """Tính histogram chuẩn hóa của ảnh grayscale."""
@@ -355,7 +355,7 @@ class EyeVision:
         _last_frame_error_log = 0.0
         _FRAME_ERROR_LOG_INTERVAL = 10.0
 
-        print(f"[Bi - Mắt] Camera index={self.camera_index} đã kết nối.")
+        logger.info("[Bi - Mắt] Camera index=%d đã kết nối.", self.camera_index)
 
         while self._running:
             ret, frame = self._cap.read()
@@ -430,8 +430,8 @@ class EyeVision:
                     event = self._current_event_type
                     self._current_clip_frames = []
                     self._events_detected += 1
-                    print(
-                        f"[Bi - Mắt] Clip đã lưu: {saved_path} (sự kiện: {event})"
+                    logger.info(
+                        "[Bi - Mắt] Clip đã lưu: %s (sự kiện: %s)", saved_path, event
                     )
                     if self.on_event_callback:
                         try:
@@ -461,8 +461,8 @@ class EyeVision:
                     self._recording = True
                     self._post_frames_remaining = self._POST_EVENT_FRAMES
                     self._current_event_type = event_type
-                    print(
-                        f"[Bi - Mắt] Bắt đầu ghi clip: {clip_filename} ({event_type})"
+                    logger.info(
+                        "[Bi - Mắt] Bắt đầu ghi clip: %s (%s)", clip_filename, event_type
                     )
 
                 except Exception as e:

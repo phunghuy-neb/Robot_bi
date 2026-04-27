@@ -5,6 +5,7 @@ SRS 3.4: Gui notification kem thumbnail clip qua LAN den Parent App
 SRS 4.2: Thu vien clip su kien + Nhat ky chat
 """
 
+import asyncio
 import json
 import logging
 import threading
@@ -21,6 +22,16 @@ EventType = Literal["motion", "stranger", "known_face", "cry", "chat", "system"]
 
 _MAX_EVENTS = 500
 _WS_ENABLED = False
+
+# Module-level WebSocket broadcaster (injects vào từ api_server.init_server)
+_ws_broadcast_fn = None  # callable | None
+
+
+def set_ws_broadcaster(fn) -> None:
+    """Đăng ký coroutine function để broadcast notification qua WebSocket."""
+    global _ws_broadcast_fn, _WS_ENABLED
+    _ws_broadcast_fn = fn
+    _WS_ENABLED = (fn is not None)
 
 
 class EventNotifier:
@@ -82,6 +93,20 @@ class EventNotifier:
             self._insert_event(event)
             self._events = self._load_queue()
 
+        if _ws_broadcast_fn:
+            try:
+                import src_brain.network.state as _st
+                loop = _st._api_loop
+                if loop and not loop.is_closed():
+                    asyncio.run_coroutine_threadsafe(
+                        _ws_broadcast_fn(
+                            {"type": "notification", "event_type": event_type, "message": message}
+                        ),
+                        loop,
+                    )
+            except Exception:
+                logger.debug("[Notifier] WS broadcast skip — loop chua san sang")
+
         icons = {
             "motion": "[MOT]",
             "stranger": "[STR]",
@@ -91,11 +116,15 @@ class EventNotifier:
             "system": "[SYS]",
         }
         icon = icons.get(event_type, "[EVT]")
-        print(f"[Notifier] {icon} {event_type.upper()}: {message}")
+        if event_type == "chat":
+            logger.debug("[Notifier] %s CHAT event stored", icon)
+        else:
+            logger.info("[Notifier] %s %s: %s", icon, event_type.upper(), message)
         self._send_ws(event)
         return True
 
     def push_chat_log(self, user_text: str, bi_response: str) -> bool:
+        logger.info("[Chat] session=%s user_len=%d ai_len=%d", "unknown", len(user_text), len(bi_response))
         return self.push_event(
             event_type="chat",
             message=f"Be: {user_text[:100]}",

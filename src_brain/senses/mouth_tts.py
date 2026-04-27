@@ -17,8 +17,11 @@ Interface:
 """
 
 import asyncio
+import logging
 import os
 import warnings
+
+logger = logging.getLogger(__name__)
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
@@ -66,7 +69,7 @@ class MouthTTS:
                 return filename
             except Exception as e:
                 if attempt == 2:  # Lần thử cuối fail → fallback
-                    print(f"[Bi - Miệng] edge-tts fail sau 3 lần, dùng fallback...")
+                    logger.warning("[Bi - Miệng] edge-tts fail sau 3 lần, dùng fallback...")
                     return self._fallback_tts(text, chunk_index)
 
     def _fallback_tts(self, text: str, chunk_index: int):
@@ -98,15 +101,15 @@ class MouthTTS:
             engine.runAndWait()
             return filename
         except Exception as e2:
-            print(f"[Bi - Miệng] Fallback TTS cũng lỗi: {e2}")
+            logger.error("[Bi - Miệng] Fallback TTS cũng lỗi: %s", e2)
             return None
 
     def speak(self, text):
         """Blocking TTS — dùng cho test độc lập."""
-        print(f"[Bi - Miệng] Đang nói: {text}")
+        logger.info("[Bi - Miệng] Đang nói: %s", text)
         audio_file = asyncio.run(self._generate_audio(text, chunk_index=0))
         if audio_file is None:
-            print("[Bi - Miệng] Không thể generate audio.")
+            logger.warning("[Bi - Miệng] Không thể generate audio.")
             return
         pygame.mixer.music.load(audio_file)
         pygame.mixer.music.play()
