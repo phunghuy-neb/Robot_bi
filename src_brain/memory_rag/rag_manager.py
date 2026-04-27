@@ -308,8 +308,13 @@ class RAGManager:
                 )
                 if not oldest or not oldest.get("ids"):
                     break
-                self._collection.delete(ids=[oldest["ids"][0]])
-                current_count -= 1
+                oldest_id = oldest["ids"][0]
+                try:
+                    self._collection.delete(ids=[oldest_id])
+                    current_count -= 1
+                except Exception as e:
+                    logger.warning("[RAG] Prune delete failed: %s", e)
+                    break
                 logger.debug("[RAG] Quota %d reached, pruned oldest entry", _MAX_MEMORIES)
 
             self._collection.add(

@@ -1077,9 +1077,9 @@
 
     async function doLogout() {
       // BƯỚC 1: Dừng streams TRƯỚC khi xóa token (các call cần Bearer token)
+      try { stopCamera(); } catch (_) {}
+      try { stopAudioMonitor(); } catch (_) {}
       if (momMicActive) await stopMomMic();
-      stopCamera();
-      stopAudioMonitor();
 
       // BƯỚC 2: Đóng WebSocket, ngăn reconnect
       _wsLoggedOut = true;
@@ -2117,7 +2117,11 @@
 
     // Tự động dừng mic mẹ khi đóng tab/thoát web
     window.addEventListener('beforeunload', () => {
-      if (momMicActive) stopMomMic();
+      try { stopCamera(); } catch (_) {}
+      try { stopAudioMonitor(); } catch (_) {}
+      if (momMicActive) {
+        try { stopMomMic(); } catch (_) {}
+      }
     });
     // ── End Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────
   </script>

@@ -336,15 +336,8 @@ async def logout_v2(request: Request, _current_user: dict = Depends(get_current_
     Body: {"refresh_token": str}
     """
     import hashlib as _hl
-    from src_brain.network.auth import verify_access_token
 
-    authorization = request.headers.get("Authorization", "")
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Thieu Authorization: Bearer <token>")
-    access_token = authorization[7:]
-
-    payload = verify_access_token(access_token)
-    user_id = str(payload.get("sub", ""))
+    user_id = str(_current_user["user_id"])
 
     body = await request.json()
     refresh_token_str = body.get("refresh_token", "").strip()

@@ -111,8 +111,14 @@ async def webrtc_offer(request: Request, current_user: dict = Depends(get_curren
     @pc.on("connectionstatechange")
     async def on_state_change():
         if pc.connectionState in ("failed", "closed", "disconnected"):
-            await pc.close()
-            _peer_connections.pop(key, None)
+            try:
+                await pc.close()
+            except Exception as e:
+                logger.debug(
+                    "[WebRTC] PC close error (likely already closed): %s", e
+                )
+            if _peer_connections.get(key) is pc:
+                _peer_connections.pop(key, None)
             logger.info("[WebRTC] PC closed, state=%s", pc.connectionState)
 
     logger.info("[WebRTC] Offer processed, answer ready. Active PCs: %d", len(_peer_connections))

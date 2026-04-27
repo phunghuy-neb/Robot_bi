@@ -62,9 +62,6 @@ python src_brain/senses/ear_stt.py
 python src_brain/senses/mouth_tts.py
 python src_brain/ai_core/core_ai.py
 
-# Chat text (khong can mic/loa)
-python src_brain/train_text.py
-
 # Do RAM va latency
 python stress_test.py
 ```

@@ -59,7 +59,8 @@ _MAX_CHUNKS     = int(MAX_SECONDS * 1000 / CHUNK_MS)       # 400 chunks
 
 _TEMP_DIR = Path(tempfile.gettempdir())
 
-MIC_DEVICE = 1  # Microphone Array (Realtek) — Windows device index
+_mic_raw = os.getenv("MIC_DEVICE", "").strip()
+MIC_DEVICE = int(_mic_raw) if _mic_raw.isdigit() else 1
 
 
 # ── Audio feedback beep (100ms 880Hz 44100Hz mono 16-bit PCM WAV) ─────────────
@@ -319,7 +320,7 @@ class EarSTT:
             text = " ".join(seg.text.strip() for seg in segments).strip()
 
             if text:
-                logger.info('[Bi - Tai] Nhận dạng: "%s"', text)
+                logger.debug('[Bi - Tai] Nhận dạng: "%s"', text)
                 return text.lower()
             return ""
 

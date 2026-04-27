@@ -161,3 +161,10 @@ python -m src_brain.main_loop     # Chạy trực tiếp
 - Phase 3 COMPLETE; du an san sang chuyen sang Ubuntu PC co GPU.
 - Final regression target sau Sprint D: 164/164 PASS.
 - Known deferred debt: WebRTC frame source can Ubuntu + aiortc, wake-word model training can dataset, Phase 4 features, ChromaDB multi-family isolation.
+
+## Session 2026-04-27 — Final Pre-Phase 4 Fix Sprint
+
+- Hoan thanh 12/12 fixes: WebRTC reconnect/state cleanup, frontend unload/logout cleanup, speech log privacy, SQLite foreign_keys, RAG prune error handling, MIC_DEVICE env, secure .env.example placeholder, logout double-verify cleanup, PWA icon verification, docs cleanup.
+- Them Group 29 vao `run_tests.py` voi 12 verification tests.
+- Final regression target: 176/176 PASS.
+- San sang Phase 4 sau pre-flight fix sprint.

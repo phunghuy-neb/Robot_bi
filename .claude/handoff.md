@@ -9,6 +9,7 @@
 - Phase 2 — Core Experience: hoàn thành ngày 2026-04-17.
 - Current phase: Phase 3 COMPLETE, waiting for Ubuntu PC with GPU.
 - Phase 3 Final Fix Sprint: hoan thanh 2026-04-26, 23 fixes audit pass 3 va Group 24 verification.
+- Final Pre-Phase 4 Fix Sprint: hoan thanh 2026-04-27, 12 fixes + Group 29 verification, 176/176 PASS.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
 - Entry point chính vẫn là `src_brain/main_loop.py`.
@@ -24,6 +25,7 @@
 - Wake-word model training can dataset rieng.
 - Phase 4 features: motor control, AEC, multi-family ChromaDB isolation, homework expansion.
 - Test end-to-end tren may that voi mic, loa, camera va mobile browser.
+- Bat dau Phase 4 sau khi verify hardware Ubuntu PC co GPU.
 
 ## BUG ĐANG MỞ
 
@@ -55,3 +57,10 @@
 - Hoan thanh 23 fixes audit pass 3, khong them feature moi ngoai scope.
 - Them Group 24 vao `run_tests.py` voi 17 tests; final result 138/138 PASS.
 - Changelog: `changelog/2026-04-26-phase3-final-fix-sprint.md`.
+
+## SESSION 2026-04-27 - Final Pre-Phase 4 Fix Sprint
+
+- Hoan thanh 12/12 fixes truoc Phase 4: WebRTC cleanup, frontend stream cleanup, privacy logging, SQLite FK, RAG prune handling, MIC_DEVICE env, auth logout cleanup, docs/PWA verification.
+- Them Group 29 vao `run_tests.py` voi 12 tests.
+- Final result: 176/176 PASS.
+- Changelog: `changelog/2026-04-27-final-pre-phase4-fix-sprint.md`.

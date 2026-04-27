@@ -29,6 +29,7 @@ def get_db_connection():
     conn = sqlite3.connect(DB_PATH, timeout=30, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys = ON")
     try:
         yield conn
     finally:
@@ -344,6 +345,7 @@ def _migrate_turns_role_constraint(conn) -> None:
     if "'homework'" in create_sql:
         return
 
+    conn.execute("PRAGMA foreign_keys = OFF")
     conn.execute("ALTER TABLE turns RENAME TO turns_old")
     conn.execute(
         '''
@@ -369,6 +371,7 @@ def _migrate_turns_role_constraint(conn) -> None:
         CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id)
         '''
     )
+    conn.execute("PRAGMA foreign_keys = ON")
 
 
 def create_session(family_id: str) -> str:

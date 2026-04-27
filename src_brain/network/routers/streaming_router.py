@@ -9,6 +9,7 @@ streaming_router.py — WebSocket + Mom Direct Talk endpoints cho Robot Bi API.
 """
 import asyncio
 import logging
+import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
@@ -25,7 +26,8 @@ AUDIO_SAMPLE_RATE  = 16000
 AUDIO_CHANNELS     = 1
 AUDIO_CHUNK_MS     = 100
 AUDIO_CHUNK_FRAMES = int(AUDIO_SAMPLE_RATE * AUDIO_CHUNK_MS / 1000)
-AUDIO_MIC_DEVICE   = 1
+_mic_raw = os.getenv("MIC_DEVICE", "").strip()
+AUDIO_MIC_DEVICE   = int(_mic_raw) if _mic_raw.isdigit() else 1
 
 try:
     import numpy as np

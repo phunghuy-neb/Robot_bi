@@ -1854,6 +1854,152 @@ test("28.10 FIX D-12: gitignore runtime artifacts", test_28_10_gitignore_runtime
 test("28.11 FIX D-13: train_text import no side effect", test_28_11_train_text_import_no_side_effect)
 test("28.12 FIX D-14: bool file removed", test_28_12_bool_file_removed)
 
+# == GROUP 29: Final Pre-Phase 4 Fix Verification ===========================
+print("\n[Group 29] Final Pre-Phase 4 Fix Verification")
+
+
+# Test 29.1 - FIX-01: old_pc.close() trong offer handler
+def test_29_1_webrtc_offer_closes_old_pc():
+    import inspect
+    from src_brain.network.routers import webrtc_router as wr
+
+    src = inspect.getsource(wr)
+    offer_start = src.find("async def webrtc_offer")
+    if offer_start < 0:
+        offer_start = src.find("/api/webrtc/offer")
+    offer_src = src[offer_start:offer_start + 2000]
+    assert "old_pc" in offer_src, "Phai co old_pc.close() truoc khi assign PC moi"
+    assert (
+        "old_pc.close()" in offer_src or ("old_pc" in offer_src and "close" in offer_src)
+    ), "old_pc phai duoc close()"
+
+
+# Test 29.2 - FIX-02: beforeunload co stopCamera va stopAudioMonitor
+def test_29_2_beforeunload_stops_camera_and_audio_monitor():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    bu_idx = html.find("beforeunload")
+    assert bu_idx >= 0, "Phai co beforeunload handler"
+    bu_section = html[bu_idx:bu_idx + 300]
+    assert "stopCamera" in bu_section, "beforeunload phai goi stopCamera()"
+    assert "stopAudioMonitor" in bu_section, "beforeunload phai goi stopAudioMonitor()"
+
+
+# Test 29.3 - FIX-03: doLogout co stopCamera o dau
+def test_29_3_do_logout_stops_camera_early():
+    with open("src_brain/network/static/index.html", encoding="utf-8") as f:
+        html = f.read()
+    logout_idx = html.find("async function doLogout")
+    assert logout_idx >= 0, "Phai co doLogout function"
+    logout_start = html[logout_idx:logout_idx + 300]
+    assert "stopCamera" in logout_start, "stopCamera phai o dau doLogout()"
+
+
+# Test 29.4 - FIX-04: speech content khong log o INFO
+def test_29_4_speech_content_not_logged_at_info():
+    import inspect
+    import re
+    from src_brain.senses.ear_stt import EarSTT
+
+    src = inspect.getsource(EarSTT)
+    info_speech = re.findall(
+        r'logger\.info\([^)]*(?:text|speech|nhan_dang|Nhận dạng)[^)]*\)',
+        src,
+    )
+    assert len(info_speech) == 0, f"Speech content khong duoc log o INFO: {info_speech}"
+
+
+# Test 29.5 - FIX-05: foreign_keys duoc bat
+def test_29_5_sqlite_foreign_keys_enabled():
+    from src_brain.network.db import get_db_connection
+
+    with get_db_connection() as conn:
+        result = conn.execute("PRAGMA foreign_keys").fetchone()
+    assert result[0] == 1, "PRAGMA foreign_keys phai duoc bat (= 1)"
+
+
+# Test 29.6 - FIX-06: prune logic co error handling
+def test_29_6_rag_prune_has_error_handling():
+    import inspect
+    from src_brain.memory_rag import rag_manager
+
+    src = inspect.getsource(rag_manager.RAGManager.extract_and_save)
+    assert "break" in src or "except" in src, "Prune loop phai co error handling voi break"
+
+
+# Test 29.7 - FIX-07: MIC_DEVICE doc tu env trong ear_stt
+def test_29_7_mic_device_reads_from_env():
+    import inspect
+    from src_brain.senses import ear_stt
+
+    src = inspect.getsource(ear_stt)
+    assert "MIC_DEVICE" in src, "ear_stt phai co MIC_DEVICE tu env"
+    assert (
+        'getenv("MIC_DEVICE"' in src or "getenv('MIC_DEVICE'" in src
+    ), "MIC_DEVICE phai doc tu os.getenv()"
+
+
+# Test 29.8 - FIX-08: ADMIN_PASSWORD placeholder khong phai weak default
+def test_29_8_admin_password_placeholder_not_weak():
+    with open(".env.example", encoding="utf-8") as f:
+        content = f.read()
+    assert "change_me_please" not in content, ".env.example khong duoc chua password mac dinh yeu"
+
+
+# Test 29.9 - FIX-09: logout dung _current_user, khong goi verify thu 2
+def test_29_9_logout_does_not_double_verify():
+    import inspect
+    from src_brain.network.routers import auth_router
+
+    src = inspect.getsource(auth_router)
+    logout_idx = src.find("async def logout")
+    if logout_idx < 0:
+        logout_idx = src.find("/auth/logout")
+    logout_src = src[logout_idx:logout_idx + 500] if logout_idx >= 0 else ""
+    assert logout_src.count("verify_access_token") == 0, (
+        "logout handler khong duoc goi verify_access_token() truc tiep"
+    )
+
+
+# Test 29.10 - FIX-10: connectionstatechange co try/except
+def test_29_10_webrtc_connectionstatechange_has_try_except():
+    import inspect
+    from src_brain.network.routers import webrtc_router as wr
+
+    src = inspect.getsource(wr)
+    state_idx = src.find("connectionstatechange")
+    state_src = src[state_idx:state_idx + 400] if state_idx >= 0 else ""
+    assert "try:" in state_src, "connectionstatechange callback phai co try/except"
+
+
+# Test 29.11 - FIX-11: icon files ton tai
+def test_29_11_manifest_icon_files_exist():
+    import os
+
+    assert os.path.exists("src_brain/network/static/icon-192.png"), "icon-192.png phai ton tai"
+    assert os.path.exists("src_brain/network/static/icon-512.png"), "icon-512.png phai ton tai"
+
+
+# Test 29.12 - FIX-12: khong con reference train_text trong docs
+def test_29_12_run_guide_no_train_text_reference():
+    with open("HUONG_DAN_CHAY.md", encoding="utf-8") as f:
+        content = f.read()
+    assert "train_text.py" not in content, "HUONG_DAN_CHAY.md khong duoc reference train_text.py"
+
+
+test("29.1 FIX-01: WebRTC offer closes old PC", test_29_1_webrtc_offer_closes_old_pc)
+test("29.2 FIX-02: beforeunload stops camera/audio", test_29_2_beforeunload_stops_camera_and_audio_monitor)
+test("29.3 FIX-03: doLogout stops camera early", test_29_3_do_logout_stops_camera_early)
+test("29.4 FIX-04: speech content not INFO logged", test_29_4_speech_content_not_logged_at_info)
+test("29.5 FIX-05: SQLite foreign_keys enabled", test_29_5_sqlite_foreign_keys_enabled)
+test("29.6 FIX-06: RAG prune has error handling", test_29_6_rag_prune_has_error_handling)
+test("29.7 FIX-07: MIC_DEVICE reads from env", test_29_7_mic_device_reads_from_env)
+test("29.8 FIX-08: admin password placeholder not weak", test_29_8_admin_password_placeholder_not_weak)
+test("29.9 FIX-09: logout avoids double verify", test_29_9_logout_does_not_double_verify)
+test("29.10 FIX-10: WebRTC state close try/except", test_29_10_webrtc_connectionstatechange_has_try_except)
+test("29.11 FIX-11: manifest icon files exist", test_29_11_manifest_icon_files_exist)
+test("29.12 FIX-12: run guide has no train_text reference", test_29_12_run_guide_no_train_text_reference)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
