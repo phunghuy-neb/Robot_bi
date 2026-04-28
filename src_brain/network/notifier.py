@@ -8,17 +8,18 @@ SRS 4.2: Thu vien clip su kien + Nhat ky chat
 import asyncio
 import json
 import logging
+import os
 import threading
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from src_brain.network.db import get_db_connection
+from src_brain.network.db import ensure_family_exists, get_db_connection
 
 logger = logging.getLogger("notifier")
 
-EventType = Literal["motion", "stranger", "known_face", "cry", "chat", "system"]
+EventType = Literal["motion", "stranger", "known_face", "cry", "chat", "system", "homework"]
 
 _MAX_EVENTS = 500
 _WS_ENABLED = False
@@ -32,6 +33,11 @@ def set_ws_broadcaster(fn) -> None:
     global _ws_broadcast_fn, _WS_ENABLED
     _ws_broadcast_fn = fn
     _WS_ENABLED = (fn is not None)
+
+
+def _normalize_family_id(family_id: str | None = None) -> str:
+    fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
+    return fid or "default"
 
 
 class EventNotifier:
@@ -64,6 +70,7 @@ class EventNotifier:
             parsed_metadata = {}
         return {
             "id": row["event_id"],
+            "family_id": row["family_id"],
             "timestamp": row["timestamp"],
             "type": row["type"],
             "message": row["message"],
@@ -78,9 +85,12 @@ class EventNotifier:
         message: str,
         clip_path: str | None = None,
         metadata: dict | None = None,
+        family_id: str | None = None,
     ) -> bool:
+        family_id = ensure_family_exists(_normalize_family_id(family_id))
         event = {
             "id": f"{int(time.time() * 1000)}",
+            "family_id": family_id,
             "timestamp": datetime.now().isoformat(),
             "type": event_type,
             "message": message,
@@ -100,7 +110,12 @@ class EventNotifier:
                 if loop and not loop.is_closed():
                     asyncio.run_coroutine_threadsafe(
                         _ws_broadcast_fn(
-                            {"type": "notification", "event_type": event_type, "message": message}
+                            {
+                                "type": "notification",
+                                "family_id": family_id,
+                                "event_type": event_type,
+                                "message": message,
+                            }
                         ),
                         loop,
                     )
@@ -114,6 +129,7 @@ class EventNotifier:
             "known_face": "[FAC]",
             "chat": "[CHT]",
             "system": "[SYS]",
+            "homework": "[HWK]",
         }
         icon = icons.get(event_type, "[EVT]")
         if event_type == "chat":
@@ -123,7 +139,7 @@ class EventNotifier:
         self._send_ws(event)
         return True
 
-    def push_chat_log(self, user_text: str, bi_response: str) -> bool:
+    def push_chat_log(self, user_text: str, bi_response: str, family_id: str | None = None) -> bool:
         logger.info("[Chat] session=%s user_len=%d ai_len=%d", "unknown", len(user_text), len(bi_response))
         return self.push_event(
             event_type="chat",
@@ -133,16 +149,22 @@ class EventNotifier:
                 "bi_response": bi_response,
                 "word_count": len(user_text.split()),
             },
+            family_id=family_id,
         )
 
-    def get_unread_events(self, event_type: EventType | None = None) -> list[dict]:
+    def get_unread_events(
+        self,
+        event_type: EventType | None = None,
+        family_id: str | None = None,
+    ) -> list[dict]:
+        family_id = _normalize_family_id(family_id)
         with self._lock:
             query = """
-                SELECT event_id, timestamp, type, message, clip_path, metadata_json, is_read
+                SELECT family_id, event_id, timestamp, type, message, clip_path, metadata_json, is_read
                 FROM events
-                WHERE is_read = 0
+                WHERE family_id = ? AND is_read = 0
             """
-            params = []
+            params = [family_id]
             if event_type:
                 query += " AND type = ?"
                 params.append(event_type)
@@ -151,22 +173,30 @@ class EventNotifier:
                 rows = conn.execute(query, tuple(params)).fetchall()
             return [self._row_to_event(row) for row in rows]
 
-    def mark_all_read(self) -> None:
+    def mark_all_read(self, family_id: str | None = None) -> None:
+        family_id = _normalize_family_id(family_id)
         with self._lock:
             with get_db_connection() as conn:
-                conn.execute("UPDATE events SET is_read = 1 WHERE is_read = 0")
+                conn.execute(
+                    "UPDATE events SET is_read = 1 WHERE family_id = ? AND is_read = 0",
+                    (family_id,),
+                )
                 conn.commit()
             for event in self._events:
-                event["read"] = True
+                if event.get("family_id") == family_id:
+                    event["read"] = True
 
-    def get_stats(self) -> dict:
+    def get_stats(self, family_id: str | None = None) -> dict:
+        family_id = _normalize_family_id(family_id)
         with self._lock:
             with get_db_connection() as conn:
                 total_row = conn.execute(
-                    "SELECT COUNT(*) AS total_events FROM events"
+                    "SELECT COUNT(*) AS total_events FROM events WHERE family_id = ?",
+                    (family_id,),
                 ).fetchone()
                 unread_row = conn.execute(
-                    "SELECT COUNT(*) AS unread FROM events WHERE is_read = 0"
+                    "SELECT COUNT(*) AS unread FROM events WHERE family_id = ? AND is_read = 0",
+                    (family_id,),
                 ).fetchone()
             return {
                 "total_events": int(total_row["total_events"]) if total_row else 0,
@@ -175,14 +205,17 @@ class EventNotifier:
                 "queue_file": str(self._queue_file),
             }
 
-    def _load_queue(self) -> list[dict]:
+    def _load_queue(self, family_id: str | None = None) -> list[dict]:
+        family_id = _normalize_family_id(family_id)
         with get_db_connection() as conn:
             rows = conn.execute(
                 """
-                SELECT event_id, timestamp, type, message, clip_path, metadata_json, is_read
+                SELECT family_id, event_id, timestamp, type, message, clip_path, metadata_json, is_read
                 FROM events
+                WHERE family_id = ?
                 ORDER BY db_id ASC
-                """
+                """,
+                (family_id,),
             ).fetchall()
         return [self._row_to_event(row) for row in rows]
 
@@ -192,11 +225,12 @@ class EventNotifier:
             conn.execute(
                 """
                 INSERT OR IGNORE INTO events (
-                    event_id, timestamp, type, message, clip_path,
+                    family_id, event_id, timestamp, type, message, clip_path,
                     metadata_json, is_read, import_key
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
+                    event["family_id"],
                     event["id"],
                     event["timestamp"],
                     event["type"],
@@ -210,11 +244,12 @@ class EventNotifier:
             conn.execute(
                 """
                 DELETE FROM events
-                WHERE db_id NOT IN (
-                    SELECT db_id FROM events ORDER BY db_id DESC LIMIT ?
+                WHERE family_id = ?
+                  AND db_id NOT IN (
+                    SELECT db_id FROM events WHERE family_id = ? ORDER BY db_id DESC LIMIT ?
                 )
                 """,
-                (_MAX_EVENTS,),
+                (event["family_id"], event["family_id"], _MAX_EVENTS),
             )
             conn.commit()
 

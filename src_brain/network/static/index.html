@@ -844,6 +844,9 @@
     <div class="tab" onclick="switchTab('threads')">
       <span class="tab-icon">📚</span>Hội thoại
     </div>
+    <div class="tab" onclick="switchTab('homework')">
+      <span class="tab-icon">📚</span>Bài tập
+    </div>
     <div class="tab" onclick="switchTab('settings')">
       <span class="tab-icon">⚙️</span>Cài đặt
     </div>
@@ -991,6 +994,19 @@
           <span id="threadDetailTitle" style="font-weight:700; margin-left:10px;"></span>
         </div>
         <div id="threadTurns"></div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-homework">
+      <div id="homeworkList">
+        <div class="loading">Đang tải...</div>
+      </div>
+      <div id="homeworkDetail" style="display:none;">
+        <div style="padding:10px 0;">
+          <button class="btn btn-outline" onclick="showThreadList()"> Quay lại</button>
+          <span id="homeworkDetailTitle" style="font-weight:700; margin-left:10px;"></span>
+        </div>
+        <div id="homeworkTurns"></div>
       </div>
     </div>
 
@@ -1237,12 +1253,13 @@
       document.getElementById('statusTxt').textContent = online ? 'Đã kết nối' : 'Mất kết nối';
     }
 
-    function onRealtimeEvent(evt) {
-      if (evt.type === 'notification') {
-        showNotificationBanner(evt.event_type, evt.message);
-        return;
-      }
-      toast(`${evtIcon(evt.type)} ${evt.message}`);
+	    function onRealtimeEvent(evt) {
+	      if (evt.type === 'notification') {
+	        showNotificationBanner(evt.event_type, evt.message);
+	        if (evt.event_type === 'homework' && activeTab === 'homework') loadHomework();
+	        return;
+	      }
+	      toast(`${evtIcon(evt.type)} ${evt.message}`);
       if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
       else { if (activeTab === 'events') loadEvents(); }
       if (activeTab === 'status') loadStatus();
@@ -1272,11 +1289,11 @@
       setTimeout(dismiss, 5000);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    //  Tab
-    // ══════════════════════════════════════════════════════════════
-    let activeTab = 'status';
-    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads', 'settings'];
+	    // ══════════════════════════════════════════════════════════════
+	    //  Tab
+	    // ══════════════════════════════════════════════════════════════
+	    let activeTab = 'status';
+	    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads', 'homework', 'settings'];
 
     function switchTab(name) {
       const previousTab = activeTab;
@@ -1298,13 +1315,13 @@
     }
 
     function loadTab(name) {
-      const fn = {
-        status: loadStatus, chat: loadChats, events: loadEvents,
-        memory: loadMemories, tasks: loadTasks, threads: loadThreads,
-        settings: loadSettings
-      };
-      if (fn[name]) fn[name]();
-    }
+	      const fn = {
+	        status: loadStatus, chat: loadChats, events: loadEvents,
+	        memory: loadMemories, tasks: loadTasks, threads: loadThreads,
+	        homework: loadHomework, settings: loadSettings
+	      };
+	      if (fn[name]) fn[name]();
+	    }
 
     // ══════════════════════════════════════════════════════════════
     //  API helpers
@@ -1776,8 +1793,8 @@
     // ══════════════════════════════════════════════════════════════
     //  Helpers
     // ══════════════════════════════════════════════════════════════
-    const EVT_ICONS = { motion: '🚶', stranger: '🚨', cry: '😢', known_face: '👋', chat: '💬', system: 'ℹ️' };
-    function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
+	    const EVT_ICONS = { motion: '🚶', stranger: '🚨', cry: '😢', known_face: '👋', chat: '💬', system: 'ℹ️', homework: '📚' };
+	    function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
 
     // ════════════════════════════════════════════════════════════════
     //  Threads
@@ -1824,15 +1841,66 @@
         card.appendChild(meta);
         card.appendChild(makeEl('div', 'thread-arrow', '›'));
         return card;
-      }));
-    }
+	      }));
+	    }
 
-    async function showThreadDetail(session_id) {
-      const listEl = document.getElementById('threadList');
-      const detailEl = document.getElementById('threadDetail');
-      const titleEl = document.getElementById('threadDetailTitle');
-      const turnsEl = document.getElementById('threadTurns');
-      if (!listEl || !detailEl || !titleEl || !turnsEl) return;
+	    async function loadHomework(limit = 21) {
+	      const listEl = document.getElementById('homeworkList');
+	      const detailEl = document.getElementById('homeworkDetail');
+	      if (!listEl || !detailEl) return;
+
+	      const safeLimit = Math.max(1, Math.min(Number(limit) || 21, 50));
+	      detailEl.style.display = 'none';
+	      listEl.style.display = 'block';
+	      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+	      const data = await apiFetch(`/api/conversations/homework?limit=${safeLimit}`);
+	      const sessions = data && Array.isArray(data.sessions) ? data.sessions : [];
+	      if (!data) {
+	        listEl.innerHTML = '<div class="empty">Không tải được bài tập</div>';
+	        return;
+	      }
+	      if (!sessions.length) {
+	        listEl.innerHTML = '<div class="empty">Chưa có bài tập nào</div>';
+	        return;
+	      }
+
+	      const showMore = safeLimit === 21 && sessions.length > 20;
+	      const visibleSessions = showMore ? sessions.slice(0, 20) : sessions;
+	      const cards = visibleSessions.map(session => {
+	        const card = makeEl('div', 'card thread-card');
+	        card.addEventListener('click', () => showThreadDetail(session.session_id));
+	        card.appendChild(makeEl('div', 'homework-badge', '📚 Bài tập'));
+	        card.appendChild(makeEl('div', 'thread-title', session.title || 'Hội thoại không tên'));
+	        const meta = makeEl('div', 'thread-meta');
+	        meta.appendChild(makeEl('span', '', fmtTime(session.started_at)));
+	        meta.appendChild(makeEl('span', '', `${Number(session.turn_count || 0)} lượt`));
+	        card.appendChild(meta);
+	        card.appendChild(makeEl('div', 'thread-arrow', '›'));
+	        return card;
+	      });
+	      if (showMore) {
+	        const more = makeEl('button', 'btn btn-outline btn-full', 'Xem tất cả');
+	        more.type = 'button';
+	        more.addEventListener('click', () => loadHomework(50));
+	        cards.push(more);
+	      }
+	      listEl.replaceChildren(...cards);
+	    }
+
+	    function getThreadUi() {
+	      const prefix = activeTab === 'homework' ? 'homework' : 'thread';
+	      return {
+	        listEl: document.getElementById(`${prefix}List`),
+	        detailEl: document.getElementById(`${prefix}Detail`),
+	        titleEl: document.getElementById(`${prefix}DetailTitle`),
+	        turnsEl: document.getElementById(prefix === 'homework' ? 'homeworkTurns' : 'threadTurns')
+	      };
+	    }
+	
+	    async function showThreadDetail(session_id) {
+	      const { listEl, detailEl, titleEl, turnsEl } = getThreadUi();
+	      if (!listEl || !detailEl || !titleEl || !turnsEl) return;
 
       listEl.style.display = 'none';
       detailEl.style.display = 'block';
@@ -1871,13 +1939,13 @@
       }));
     }
 
-    function showThreadList() {
-      const listEl = document.getElementById('threadList');
-      const detailEl = document.getElementById('threadDetail');
-      if (detailEl) detailEl.style.display = 'none';
-      if (listEl) listEl.style.display = 'block';
-      loadThreads();
-    }
+	    function showThreadList() {
+	      const { listEl, detailEl } = getThreadUi();
+	      if (detailEl) detailEl.style.display = 'none';
+	      if (listEl) listEl.style.display = 'block';
+	      if (activeTab === 'homework') loadHomework();
+	      else loadThreads();
+	    }
 
     async function deleteThread(session_id) {
       if (!confirm('Xóa hội thoại này?')) return;

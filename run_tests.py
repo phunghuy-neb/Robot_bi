@@ -2000,6 +2000,320 @@ test("29.10 FIX-10: WebRTC state close try/except", test_29_10_webrtc_connection
 test("29.11 FIX-11: manifest icon files exist", test_29_11_manifest_icon_files_exist)
 test("29.12 FIX-12: run guide has no train_text reference", test_29_12_run_guide_no_train_text_reference)
 
+# == GROUP 30: Phase 4.4 Multi-Family Isolation ===============================
+print("\n[Group 30] Phase 4.4 Multi-Family Isolation")
+
+
+def _phase44_headers(username_prefix: str, family_id: str, is_admin: bool = False) -> dict:
+    from src_brain.network.auth import create_access_token, create_user
+    from src_brain.network.db import get_db_connection
+
+    unique = _uuid.uuid4().hex[:8]
+    user = create_user(f"{username_prefix}_{unique}", "Password1!", family_id)
+    if is_admin:
+        with get_db_connection() as conn:
+            conn.execute(
+                "UPDATE users SET is_admin = 1 WHERE user_id = ?",
+                (str(user["user_id"]),),
+            )
+            conn.commit()
+    token = create_access_token(str(user["user_id"]), user["family_name"])
+    return {"Authorization": f"Bearer {token}"}
+
+
+def test_30_1_rag_family_filter_real():
+    import gc
+    import shutil
+    from src_brain.memory_rag.rag_manager import RAGManager
+
+    test_db = "src_brain/memory_rag/_family_isolation_test_db"
+    if os.path.exists(test_db):
+        shutil.rmtree(test_db)
+    rag = RAGManager(db_path=test_db)
+    try:
+        fam_a = f"rag-a-{_uuid.uuid4().hex[:6]}"
+        fam_b = f"rag-b-{_uuid.uuid4().hex[:6]}"
+        assert rag.add_manual_memory("Family A secret: blue dinosaur", family_id=fam_a) is True
+        assert rag.add_manual_memory("Family B secret: red robot", family_id=fam_b) is True
+
+        memories_a = rag.list_memories(family_id=fam_a)
+        memories_b = rag.list_memories(family_id=fam_b)
+        assert len(memories_a) == 1
+        assert len(memories_b) == 1
+        assert "blue dinosaur" in memories_a[0]["fact"]
+        assert "red robot" in memories_b[0]["fact"]
+        assert not rag.delete_memory(memories_b[0]["id"], family_id=fam_a)
+
+        context_a = rag.retrieve("red robot", family_id=fam_a)
+        assert "red robot" not in context_a.lower()
+    finally:
+        del rag
+        gc.collect()
+        try:
+            shutil.rmtree(test_db)
+        except Exception:
+            pass
+
+
+def test_30_2_conversation_api_family_scope():
+    from fastapi.testclient import TestClient
+    from src_brain.network.api_server import app
+    from src_brain.network.db import add_turn, create_session
+
+    fam_a = f"conv-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"conv-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("conv_a", fam_a)
+    session_a = create_session(fam_a)
+    session_b = create_session(fam_b)
+    add_turn(session_a, "user", "hello from A", family_id=fam_a)
+    add_turn(session_b, "user", "hello from B", family_id=fam_b)
+
+    client = TestClient(app)
+    list_resp = client.get("/api/conversations", headers=headers_a)
+    assert list_resp.status_code == 200
+    listed = [row["session_id"] for row in list_resp.json()["conversations"]]
+    assert session_a in listed
+    assert session_b not in listed
+
+    detail_resp = client.get(f"/api/conversations/{session_b}", headers=headers_a)
+    assert detail_resp.status_code == 404
+
+
+def test_30_3_events_family_scope():
+    from src_brain.network.notifier import EventNotifier
+
+    fam_a = f"evt-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"evt-b-{_uuid.uuid4().hex[:6]}"
+    msg_a = f"event A {_uuid.uuid4().hex}"
+    msg_b = f"event B {_uuid.uuid4().hex}"
+    notifier_local = EventNotifier()
+    notifier_local.push_event("system", msg_a, family_id=fam_a)
+    notifier_local.push_event("system", msg_b, family_id=fam_b)
+
+    events_a = notifier_local.get_unread_events(family_id=fam_a)
+    assert any(evt["message"] == msg_a for evt in events_a)
+    assert all(evt["message"] != msg_b for evt in events_a)
+
+    notifier_local.mark_all_read(family_id=fam_a)
+    events_b = notifier_local.get_unread_events(family_id=fam_b)
+    assert any(evt["message"] == msg_b for evt in events_b)
+
+
+def test_30_4_tasks_family_scope():
+    from src_brain.network.task_manager import TaskManager
+
+    fam_a = f"task-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"task-b-{_uuid.uuid4().hex[:6]}"
+    tm_local = TaskManager(family_id=fam_a)
+    try:
+        task_a = tm_local.add_task("Task family A", "07:10", family_id=fam_a)
+        task_b = tm_local.add_task("Task family B", "07:20", family_id=fam_b)
+
+        tasks_a = tm_local.get_all(family_id=fam_a)
+        assert any(task["id"] == task_a["id"] for task in tasks_a)
+        assert all(task["id"] != task_b["id"] for task in tasks_a)
+        assert tm_local.complete_task(task_b["id"], family_id=fam_a) is False
+        assert tm_local.complete_task(task_b["id"], family_id=fam_b) is True
+        assert tm_local.get_total_stars(family_id=fam_a) == 0
+        assert tm_local.get_total_stars(family_id=fam_b) >= 1
+    finally:
+        tm_local.delete_task(task_a["id"], family_id=fam_a)
+        tm_local.delete_task(task_b["id"], family_id=fam_b)
+        tm_local.stop()
+
+
+def test_30_5_admin_family_endpoints_and_delete_cleanup():
+    import gc
+    import shutil
+    from fastapi.testclient import TestClient
+    from src_brain.network.api_server import app
+    from src_brain.network.auth import create_user
+    from src_brain.network.db import add_turn, create_session, get_db_connection
+    from src_brain.network.notifier import EventNotifier
+    from src_brain.network.task_manager import TaskManager
+    from src_brain.memory_rag.rag_manager import RAGManager
+    import src_brain.network.state as _state
+
+    client = TestClient(app)
+    admin_headers = _phase44_headers("admin44", f"admin-{_uuid.uuid4().hex[:6]}", is_admin=True)
+    user_headers = _phase44_headers("user44", f"user-{_uuid.uuid4().hex[:6]}")
+    fam = f"delete-{_uuid.uuid4().hex[:8]}"
+    test_db = f"src_brain/memory_rag/_family_delete_test_db_{_uuid.uuid4().hex[:8]}"
+    old_rag = _state._rag
+    rag = None
+
+    try:
+        blocked = client.post("/api/admin/families", json={"family_id": fam}, headers=user_headers)
+        assert blocked.status_code == 403
+
+        created = client.post(
+            "/api/admin/families",
+            json={"family_id": fam, "display_name": "Delete Test"},
+            headers=admin_headers,
+        )
+        assert created.status_code == 200
+        listed = client.get("/api/admin/families", headers=admin_headers)
+        assert listed.status_code == 200
+        assert any(row["family_id"] == fam for row in listed.json()["families"])
+
+        rag = RAGManager(db_path=test_db)
+        _state._rag = rag
+        assert rag.add_manual_memory("family delete chroma cleanup memory", family_id=fam)
+
+        create_user(f"user_{_uuid.uuid4().hex[:8]}", "Password1!", fam)
+        session_id = create_session(fam)
+        add_turn(session_id, "user", "family delete test", family_id=fam)
+        notifier_local = EventNotifier()
+        notifier_local.push_event("system", "family delete event", family_id=fam)
+        tm_local = TaskManager(family_id=fam)
+        task = tm_local.add_task("family delete task", "08:00", family_id=fam)
+        tm_local.stop()
+
+        deleted = client.delete(f"/api/admin/families/{fam}", headers=admin_headers)
+        assert deleted.status_code == 200
+        memories_after = rag.list_memories(family_id=fam)
+        assert len(memories_after) == 0, "ChromaDB memories phai duoc xoa khi delete family"
+
+        with get_db_connection() as conn:
+            family_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM families WHERE family_id = ?",
+                (fam,),
+            ).fetchone()["c"]
+            user_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM users WHERE family_name = ?",
+                (fam,),
+            ).fetchone()["c"]
+            conv_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM conversations WHERE family_id = ?",
+                (fam,),
+            ).fetchone()["c"]
+            turn_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM turns WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()["c"]
+            event_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM events WHERE family_id = ?",
+                (fam,),
+            ).fetchone()["c"]
+            task_count = conn.execute(
+                "SELECT COUNT(*) AS c FROM tasks WHERE task_id = ?",
+                (task["id"],),
+            ).fetchone()["c"]
+        assert family_count == user_count == conv_count == turn_count == event_count == task_count == 0
+    finally:
+        _state._rag = old_rag
+        if rag is not None:
+            del rag
+        gc.collect()
+        try:
+            shutil.rmtree(test_db)
+        except Exception:
+            pass
+
+
+def test_30_6_family_foreign_keys_present():
+    from src_brain.network.db import get_db_connection
+
+    with get_db_connection() as conn:
+        fk_map = {
+            table: [row["table"] for row in conn.execute(f"PRAGMA foreign_key_list({table})").fetchall()]
+            for table in ("users", "events", "tasks", "conversations", "turns")
+        }
+    assert "families" in fk_map["users"]
+    assert "families" in fk_map["events"]
+    assert "families" in fk_map["tasks"]
+    assert "families" in fk_map["conversations"]
+    assert "conversations" in fk_map["turns"]
+
+
+test("30.1 RAG: ChromaDB family filter is real", test_30_1_rag_family_filter_real)
+test("30.2 Conversations: API scoped by family", test_30_2_conversation_api_family_scope)
+test("30.3 Events: unread/read scope by family", test_30_3_events_family_scope)
+test("30.4 Tasks: operations scoped by family", test_30_4_tasks_family_scope)
+test("30.5 Admin: family endpoints and cleanup", test_30_5_admin_family_endpoints_and_delete_cleanup)
+test("30.6 DB: family foreign keys present", test_30_6_family_foreign_keys_present)
+
+# == GROUP 31: Task 4.5 Homework System ====================================
+print("\n[Group 31] Task 4.5 - Homework System")
+
+
+def test_31_1_classify_homework_true_cases():
+    from src_brain.ai_core.homework_classifier import classify_homework
+
+    assert classify_homework("5 cộng 3 bằng mấy") is True
+    assert classify_homework("tại sao trời mưa") is True
+    assert classify_homework("bài tập về nhà hôm nay") is True
+
+
+def test_31_2_classify_homework_false_cases():
+    from src_brain.ai_core.homework_classifier import classify_homework
+
+    assert classify_homework("hôm nay ăn gì") is False
+    assert classify_homework("xin chào Bi") is False
+    assert classify_homework("kể chuyện cho con nghe") is False
+
+
+def test_31_3_mark_session_homework_callable():
+    from src_brain.network.db import mark_session_homework
+
+    assert callable(mark_session_homework)
+
+
+def test_31_4_get_homework_sessions_callable():
+    from src_brain.network.db import get_homework_sessions
+
+    assert callable(get_homework_sessions)
+
+
+def test_31_5_mark_and_retrieve_homework_session():
+    from src_brain.network.db import (
+        create_session,
+        get_homework_sessions,
+        init_db,
+        mark_session_homework,
+    )
+
+    init_db()
+    sid = create_session(family_id="test_hw_family")
+    assert mark_session_homework(sid) is True
+    sessions = get_homework_sessions("test_hw_family")
+    assert any(s["session_id"] == sid for s in sessions), (
+        "Session da mark phai xuat hien trong homework list"
+    )
+
+
+def test_31_6_unmarked_session_not_in_homework():
+    from src_brain.network.db import create_session, get_homework_sessions
+
+    sid2 = create_session(family_id="test_hw_family")
+    sessions2 = get_homework_sessions("test_hw_family")
+    sid2_in_hw = any(s["session_id"] == sid2 for s in sessions2)
+    assert not sid2_in_hw, "Session chua mark khong duoc xuat hien trong homework"
+
+
+def test_31_7_homework_route_registered():
+    from src_brain.network.routers.conversation_router import router
+
+    paths = [r.path for r in router.routes]
+    assert "/api/conversations/homework" in paths, "Homework endpoint phai duoc dang ky"
+
+
+def test_31_8_homework_classifier_importable():
+    import src_brain.ai_core.homework_classifier as hc
+
+    assert hasattr(hc, "classify_homework")
+    assert callable(hc.classify_homework)
+
+
+test("31.1 HomeworkClassifier: true cases", test_31_1_classify_homework_true_cases)
+test("31.2 HomeworkClassifier: false cases", test_31_2_classify_homework_false_cases)
+test("31.3 DB: mark_session_homework callable", test_31_3_mark_session_homework_callable)
+test("31.4 DB: get_homework_sessions callable", test_31_4_get_homework_sessions_callable)
+test("31.5 DB: mark and retrieve homework session", test_31_5_mark_and_retrieve_homework_session)
+test("31.6 DB: unmarked session excluded", test_31_6_unmarked_session_not_in_homework)
+test("31.7 API: homework route registered", test_31_7_homework_route_registered)
+test("31.8 HomeworkClassifier: importable", test_31_8_homework_classifier_importable)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

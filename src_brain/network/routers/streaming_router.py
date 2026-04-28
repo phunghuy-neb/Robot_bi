@@ -62,14 +62,20 @@ async def ws_endpoint(websocket: WebSocket):
     token = websocket.query_params.get("token", "")
     try:
         from src_brain.network.auth import verify_access_token
-        verify_access_token(token)
+        payload = verify_access_token(token)
     except Exception:
         await websocket.close(code=1008)
         return
-    await _state._ws_manager.connect(websocket)
+    family_id = payload["family"]
+    await _state._ws_manager.connect(websocket, family_id=family_id)
     if _state._notifier:
         try:
-            unread = _state._fetch_events_from_db(unread_only=True, limit=20, newest_first=True)
+            unread = _state._fetch_events_from_db(
+                unread_only=True,
+                limit=20,
+                newest_first=True,
+                family_id=family_id,
+            )
             unread.reverse()
             for evt in unread:
                 await websocket.send_json(evt)

@@ -156,6 +156,7 @@ class RAGManager:
                 name=_COLLECTION_NAME,
                 metadata={"hnsw:space": "cosine"},
             )
+            self._migrate_missing_family_metadata()
             logger.info("ChromaDB khởi tạo tại: %s", self._db_path)
         except ImportError:
             raise RuntimeError(
@@ -184,6 +185,55 @@ class RAGManager:
     def _embed(self, text: str) -> list[float]:
         """Chuyển text thành vector embedding."""
         return self._embed_model.encode(text, convert_to_numpy=True).tolist()
+
+    @staticmethod
+    def _normalize_family_id(family_id: str | None = None) -> str:
+        fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
+        return fid or "default"
+
+    def _family_where(self, family_id: str | None = None) -> dict:
+        return {"family_id": self._normalize_family_id(family_id)}
+
+    def _count_memories(self, family_id: str | None = None) -> int:
+        try:
+            results = self._collection.get(
+                where=self._family_where(family_id),
+                include=["metadatas"],
+                limit=max(_MAX_MEMORIES, 1),
+            )
+            return len(results.get("ids", []))
+        except Exception as e:
+            logger.warning("[RAG] Count theo family failed: %s", e)
+            return 0
+
+    def _memory_belongs_to_family(self, memory_id: str, family_id: str | None = None) -> bool:
+        results = self._collection.get(
+            ids=[memory_id],
+            where=self._family_where(family_id),
+            include=["metadatas"],
+        )
+        return bool(results.get("ids"))
+
+    def _migrate_missing_family_metadata(self) -> None:
+        try:
+            total = self._collection.count()
+            if total == 0:
+                return
+            results = self._collection.get(include=["metadatas"], limit=total)
+            ids_to_update = []
+            metadatas = []
+            default_family = self._normalize_family_id("default")
+            for doc_id, meta in zip(results.get("ids", []), results.get("metadatas", [])):
+                metadata = dict(meta or {})
+                if not metadata.get("family_id"):
+                    metadata["family_id"] = default_family
+                    ids_to_update.append(doc_id)
+                    metadatas.append(metadata)
+            if ids_to_update:
+                self._collection.update(ids=ids_to_update, metadatas=metadatas)
+                logger.info("[RAG] Da gan family_id=default cho %d memory cu", len(ids_to_update))
+        except Exception as e:
+            logger.warning("[RAG] Bo qua migrate family metadata: %s", e)
 
     def _extract_facts(self, user_text: str, bi_text: str) -> list[str]:
         """
@@ -263,7 +313,7 @@ class RAGManager:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def extract_and_save(self, user_text: str, bi_text: str) -> bool:
+    def extract_and_save(self, user_text: str, bi_text: str, family_id: str | None = None) -> bool:
         """
         Trích xuất facts từ cặp hội thoại và lưu vào ChromaDB.
 
@@ -277,6 +327,7 @@ class RAGManager:
         if not user_text or not user_text.strip():
             return False
 
+        family_id = self._normalize_family_id(family_id)
         facts = self._extract_facts(user_text, bi_text)
         if not facts:
             logger.debug("Không tìm được fact nào trong: '%s'", user_text[:60])
@@ -295,14 +346,16 @@ class RAGManager:
             metadatas.append({
                 "timestamp":   datetime.now().isoformat(),
                 "source":      "conversation",
+                "family_id":   family_id,
                 "user_input":  user_text[:200],
                 "bi_response": bi_text[:200],
             })
 
         try:
-            current_count = self._collection.count()
+            current_count = self._count_memories(family_id)
             while current_count + len(ids) > _MAX_MEMORIES:
                 oldest = self._collection.get(
+                    where=self._family_where(family_id),
                     limit=1,
                     include=["documents", "metadatas"],
                 )
@@ -329,7 +382,7 @@ class RAGManager:
             logger.error("Lỗi khi lưu fact vào ChromaDB: %s", e)
             return False
 
-    def retrieve(self, query: str, k: int = _MAX_FACTS_PER_QUERY) -> str:
+    def retrieve(self, query: str, k: int = _MAX_FACTS_PER_QUERY, family_id: str | None = None) -> str:
         """
         Tìm kiếm top-k facts liên quan đến query, trả về context string.
 
@@ -344,7 +397,8 @@ class RAGManager:
         if not query or not query.strip():
             return ""
 
-        total_items = self._collection.count()
+        family_id = self._normalize_family_id(family_id)
+        total_items = self._count_memories(family_id)
         if total_items == 0:
             return ""
 
@@ -353,6 +407,7 @@ class RAGManager:
             results = self._collection.query(
                 query_embeddings=[query_embedding],
                 n_results=min(k, total_items),
+                where=self._family_where(family_id),
                 include=["documents", "distances"],
             )
 
@@ -383,7 +438,7 @@ class RAGManager:
             logger.error("Lỗi khi truy vấn ChromaDB: %s", e)
             return ""
 
-    def list_memories(self) -> list[dict]:
+    def list_memories(self, family_id: str | None = None) -> list[dict]:
         """
         Trả về toàn bộ facts đã lưu, sắp xếp theo timestamp mới nhất.
 
@@ -391,11 +446,13 @@ class RAGManager:
             Danh sách dict: {"id", "fact", "timestamp", "source"}
         """
         try:
-            total = self._collection.count()
+            family_id = self._normalize_family_id(family_id)
+            total = self._count_memories(family_id)
             if total == 0:
                 return []
 
             results = self._collection.get(
+                where=self._family_where(family_id),
                 include=["documents", "metadatas"],
                 limit=total,
             )
@@ -419,7 +476,7 @@ class RAGManager:
             logger.error("Lỗi khi lấy danh sách memories: %s", e)
             return []
 
-    def delete_memory(self, memory_id: str) -> bool:
+    def delete_memory(self, memory_id: str, family_id: str | None = None) -> bool:
         """
         Xóa fact theo ID.
 
@@ -432,14 +489,17 @@ class RAGManager:
         if not memory_id:
             return False
         try:
-            self._collection.delete(ids=[memory_id])
+            family_id = self._normalize_family_id(family_id)
+            if not self._memory_belongs_to_family(memory_id, family_id):
+                return False
+            self._collection.delete(ids=[memory_id], where=self._family_where(family_id))
             logger.info("Đã xóa memory ID: %s", memory_id)
             return True
         except Exception as e:
             logger.error("Lỗi khi xóa memory '%s': %s", memory_id, e)
             return False
 
-    def get_stats(self) -> dict:
+    def get_stats(self, family_id: str | None = None) -> dict:
         """
         Thống kê tổng quan về trí nhớ.
 
@@ -447,11 +507,16 @@ class RAGManager:
             dict: {"total_facts", "oldest_timestamp", "newest_timestamp"}
         """
         try:
-            total = self._collection.count()
+            family_id = self._normalize_family_id(family_id)
+            total = self._count_memories(family_id)
             if total == 0:
                 return {"total_facts": 0, "oldest_timestamp": None, "newest_timestamp": None}
 
-            results = self._collection.get(include=["metadatas"], limit=total)
+            results = self._collection.get(
+                where=self._family_where(family_id),
+                include=["metadatas"],
+                limit=total,
+            )
             timestamps = [
                 m.get("timestamp", "") for m in results["metadatas"] if m.get("timestamp")
             ]
@@ -466,7 +531,7 @@ class RAGManager:
             logger.error("Lỗi khi lấy stats: %s", e)
             return {"total_facts": 0, "oldest_timestamp": None, "newest_timestamp": None}
 
-    def add_manual_memory(self, fact: str, source: str = "parent") -> bool:
+    def add_manual_memory(self, fact: str, source: str = "parent", family_id: str | None = None) -> bool:
         """
         Thêm fact thủ công vào ChromaDB (dùng cho Parent App).
         Khác với extract_and_save(): không cần cặp hội thoại, chỉ cần fact string.
@@ -486,6 +551,7 @@ class RAGManager:
 
         fact = fact.strip()
         try:
+            family_id = self._normalize_family_id(family_id)
             fact_id = str(uuid.uuid4())
             self._collection.add(
                 ids=[fact_id],
@@ -494,6 +560,7 @@ class RAGManager:
                 metadatas=[{
                     "timestamp":   datetime.now().isoformat(),
                     "source":      source,
+                    "family_id":   family_id,
                     "user_input":  "",
                     "bi_response": "",
                 }],
@@ -504,7 +571,7 @@ class RAGManager:
             logger.error("Lỗi add_manual_memory: %s", e)
             return False
 
-    def update_memory(self, memory_id: str, new_fact: str) -> bool:
+    def update_memory(self, memory_id: str, new_fact: str, family_id: str | None = None) -> bool:
         """
         Cập nhật nội dung một fact đã lưu (SRS 4.3: Sửa / xoá trí nhớ).
 
@@ -518,13 +585,18 @@ class RAGManager:
         if not memory_id or not new_fact or not new_fact.strip():
             return False
         try:
-            self._collection.update(
+            family_id = self._normalize_family_id(family_id)
+            if not self._memory_belongs_to_family(memory_id, family_id):
+                return False
+            self._collection.delete(ids=[memory_id], where=self._family_where(family_id))
+            self._collection.add(
                 ids=[memory_id],
                 embeddings=[self._embed(new_fact.strip())],
                 documents=[new_fact.strip()],
                 metadatas=[{
                     "timestamp":   datetime.now().isoformat(),
                     "source":      "parent_edit",
+                    "family_id":   family_id,
                     "user_input":  "",
                     "bi_response": "",
                 }],
@@ -535,7 +607,7 @@ class RAGManager:
             logger.error("Lỗi update_memory '%s': %s", memory_id, e)
             return False
 
-    def export_memories(self) -> list[dict]:
+    def export_memories(self, family_id: str | None = None) -> list[dict]:
         """
         Export toàn bộ memories ra list dict (SRS 4.3: Export trí nhớ).
         Dùng cho Parent App backup/restore.
@@ -543,9 +615,9 @@ class RAGManager:
         Returns:
             list[dict] với đầy đủ: id, fact, timestamp, source
         """
-        return self.list_memories()
+        return self.list_memories(family_id=family_id)
 
-    def clear_all_memories(self) -> bool:
+    def clear_all_memories(self, family_id: str | None = None) -> bool:
         """
         Xóa toàn bộ memories (dùng khi reset robot hoặc đổi người dùng).
         CẢNH BÁO: Không thể hoàn tác!
@@ -554,7 +626,11 @@ class RAGManager:
             True nếu xóa thành công
         """
         try:
-            all_items = self._collection.get()
+            family_id = self._normalize_family_id(family_id)
+            all_items = self._collection.get(
+                where=self._family_where(family_id),
+                include=["metadatas"],
+            )
             if all_items["ids"]:
                 self._collection.delete(ids=all_items["ids"])
             logger.info("Đã xóa toàn bộ %d memories", len(all_items["ids"]))

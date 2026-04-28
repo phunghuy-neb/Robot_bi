@@ -79,6 +79,7 @@ async def get_events(
     limit: int = Query(default=20, ge=1, le=200),
     _current_user: dict = Depends(get_current_user),
 ):
+    family_id = _require_family(_current_user)
     if not _state._notifier:
         return {"events": [], "total": 0}
     events = _state._fetch_events_from_db(
@@ -86,15 +87,21 @@ async def get_events(
         unread_only=unread_only,
         limit=limit,
         newest_first=True,
+        family_id=family_id,
     )
-    total = _state._count_events_from_db(event_type=type, unread_only=unread_only)
+    total = _state._count_events_from_db(
+        event_type=type,
+        unread_only=unread_only,
+        family_id=family_id,
+    )
     return {"events": events, "total": total}
 
 
 @router.post("/api/events/read_all")
 async def mark_read(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
     if _state._notifier:
-        _state._notifier.mark_all_read()
+        _state._notifier.mark_all_read(family_id=family_id)
     return {"status": "ok"}
 
 
@@ -105,6 +112,7 @@ async def get_chats(
     limit: int = Query(default=20, ge=1, le=200),
     _current_user: dict = Depends(get_current_user),
 ):
+    family_id = _require_family(_current_user)
     if not _state._notifier:
         return {"chats": [], "total": 0}
     chats = _state._fetch_events_from_db(
@@ -112,25 +120,28 @@ async def get_chats(
         unread_only=False,
         limit=limit,
         newest_first=True,
+        family_id=family_id,
     )
-    total = _state._count_events_from_db(event_type="chat", unread_only=False)
+    total = _state._count_events_from_db(
+        event_type="chat",
+        unread_only=False,
+        family_id=family_id,
+    )
     return {"chats": chats, "total": total}
 
 
 # ── REST: Memories ────────────────────────────────────────────────────────
 
-# TODO Phase 4: filter ChromaDB query theo family_id khi multi-family
 @router.get("/api/memories")
 async def list_memories(current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
     logger.info("[Memory] access family=%s action=%s", family_id, "list")
     if not _state._rag:
         return {"memories": [], "total": 0}
-    memories = _state._rag.list_memories()
+    memories = _state._rag.list_memories(family_id=family_id)
     return {"memories": memories, "total": len(memories)}
 
 
-# TODO Phase 4: filter ChromaDB query theo family_id khi multi-family
 @router.post("/api/memories")
 async def add_memory(body: MemoryIn, current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
@@ -139,42 +150,39 @@ async def add_memory(body: MemoryIn, current_user: dict = Depends(get_current_us
         raise HTTPException(400, "text không được rỗng")
     if not _state._rag:
         raise HTTPException(503, "RAG chưa khởi động")
-    ok = _state._rag.add_manual_memory(body.text.strip())
+    ok = _state._rag.add_manual_memory(body.text.strip(), family_id=family_id)
     return {"status": "ok" if ok else "fail"}
 
 
 # Export phải đứng trước /{memory_id} để không bị capture
-# TODO Phase 4: filter ChromaDB query theo family_id khi multi-family
 @router.get("/api/memories/export")
 async def export_memories(current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
     logger.info("[Memory] access family=%s action=%s", family_id, "export")
     if not _state._rag:
         return []
-    return _state._rag.export_memories()
+    return _state._rag.export_memories(family_id=family_id)
 
 
-# TODO Phase 4: filter ChromaDB query theo family_id khi multi-family
 @router.put("/api/memories/{memory_id}")
 async def update_memory(memory_id: str, body: MemoryUpdate, current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
     logger.info("[Memory] access family=%s action=%s", family_id, "update")
     if not _state._rag:
         raise HTTPException(503, "RAG chưa khởi động")
-    ok = _state._rag.update_memory(memory_id, body.text)
+    ok = _state._rag.update_memory(memory_id, body.text, family_id=family_id)
     if not ok:
         raise HTTPException(404, "Không tìm thấy memory")
     return {"status": "ok"}
 
 
-# TODO Phase 4: filter ChromaDB query theo family_id khi multi-family
 @router.delete("/api/memories/{memory_id}")
 async def delete_memory(memory_id: str, current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
     logger.info("[Memory] access family=%s action=%s", family_id, "delete")
     if not _state._rag:
         raise HTTPException(503, "RAG chưa khởi động")
-    ok = _state._rag.delete_memory(memory_id)
+    ok = _state._rag.delete_memory(memory_id, family_id=family_id)
     if not ok:
         raise HTTPException(404, "Không tìm thấy memory")
     return {"status": "ok"}
@@ -198,9 +206,10 @@ async def puppet_say(body: PuppetIn, _current_user: dict = Depends(get_current_u
 
 @router.get("/api/tasks")
 async def get_tasks(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
     if not _state._task_manager:
         return []
-    return _state._task_manager.get_all()
+    return _state._task_manager.get_all(family_id=family_id)
 
 
 @router.post("/api/tasks")
@@ -208,26 +217,35 @@ async def add_task(
     body: TaskCreate,
     _current_user: dict = Depends(get_current_user),
 ):
+    family_id = _require_family(_current_user)
     if not _state._task_manager:
         raise HTTPException(503, "Task manager chưa khởi động")
-    return _state._task_manager.add_task(body.name, body.remind_time)
+    return _state._task_manager.add_task(body.name, body.remind_time, family_id=family_id)
 
 
 # stars phải đứng trước /{task_id} để không bị capture
 @router.get("/api/tasks/stars")
 async def get_stars(_current_user: dict = Depends(get_current_user)):
-    return {"total_stars": _state._task_manager.get_total_stars() if _state._task_manager else 0}
+    family_id = _require_family(_current_user)
+    return {
+        "total_stars": (
+            _state._task_manager.get_total_stars(family_id=family_id)
+            if _state._task_manager else 0
+        )
+    }
 
 
 @router.post("/api/tasks/{task_id}/complete")
 async def complete_task(task_id: str, _current_user: dict = Depends(get_current_user)):
-    if _state._task_manager and _state._task_manager.complete_task(task_id):
-        return {"ok": True, "stars": _state._task_manager.get_total_stars()}
+    family_id = _require_family(_current_user)
+    if _state._task_manager and _state._task_manager.complete_task(task_id, family_id=family_id):
+        return {"ok": True, "stars": _state._task_manager.get_total_stars(family_id=family_id)}
     raise HTTPException(404, "Task không tìm thấy hoặc đã hoàn thành")
 
 
 @router.delete("/api/tasks/{task_id}")
 async def delete_task(task_id: str, _current_user: dict = Depends(get_current_user)):
-    if _state._task_manager and _state._task_manager.delete_task(task_id):
+    family_id = _require_family(_current_user)
+    if _state._task_manager and _state._task_manager.delete_task(task_id, family_id=family_id):
         return {"ok": True}
     raise HTTPException(404, "Task không tìm thấy")

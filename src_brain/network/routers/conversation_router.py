@@ -1,21 +1,22 @@
 """
 conversation_router.py — Conversation Threads endpoints cho Robot Bi API.
   GET    /api/conversations                        — Danh sách sessions
+  GET    /api/conversations/homework               — Danh sách sessions bài tập
   GET    /api/conversations/{session_id}           — Chi tiết session + turns
   DELETE /api/conversations/{session_id}           — Xóa session
-  POST   /api/conversations/{session_id}/homework  — Thêm homework turn
+  POST   /api/conversations/{session_id}/homework  — Đánh dấu session bài tập
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
 
 from src_brain.network.auth import get_current_user
-from src_brain.network.db import add_turn, get_db_connection, get_session_turns
+from src_brain.network.db import (
+    get_db_connection,
+    get_homework_sessions,
+    get_session_turns,
+    mark_session_homework,
+)
 
 router = APIRouter()
-
-
-class HomeworkTurnIn(BaseModel):
-    content: str
 
 
 def _require_family(current_user: dict) -> str:
@@ -66,6 +67,17 @@ async def list_conversations(
     return {"conversations": conversations, "total": total}
 
 
+@router.get("/api/conversations/homework")
+async def list_homework_conversations(
+    limit: int = Query(default=20, ge=1, le=50),
+    offset: int = Query(default=0, ge=0),
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    sessions = get_homework_sessions(family_id, limit, offset)
+    return {"sessions": sessions, "total": len(sessions)}
+
+
 @router.get("/api/conversations/{session_id}")
 async def get_conversation(
     session_id: str,
@@ -94,7 +106,7 @@ async def get_conversation(
             "ended_at": row["ended_at"],
             "turn_count": row["turn_count"],
         },
-        "turns": get_session_turns(session_id),
+        "turns": get_session_turns(session_id, family_id=family_id),
     }
 
 
@@ -116,7 +128,16 @@ async def delete_conversation(
         if not row:
             raise HTTPException(404, "Conversation khong tim thay")
 
-        conn.execute("DELETE FROM turns WHERE session_id = ?", (session_id,))
+        conn.execute(
+            """
+            DELETE FROM turns
+            WHERE session_id IN (
+                SELECT session_id FROM conversations
+                WHERE session_id = ? AND family_id = ?
+            )
+            """,
+            (session_id, family_id),
+        )
         conn.execute(
             "DELETE FROM conversations WHERE session_id = ? AND family_id = ?",
             (session_id, family_id),
@@ -127,15 +148,10 @@ async def delete_conversation(
 
 
 @router.post("/api/conversations/{session_id}/homework")
-async def add_homework_turn(
+async def mark_homework_conversation(
     session_id: str,
-    body: HomeworkTurnIn,
     _current_user: dict = Depends(get_current_user),
 ):
-    content = body.content.strip()
-    if not content:
-        raise HTTPException(400, "content khong duoc rong")
-
     family_id = _require_family(_current_user)
     with get_db_connection() as conn:
         row = conn.execute(
@@ -150,5 +166,7 @@ async def add_homework_turn(
     if not row:
         raise HTTPException(404, "Conversation khong tim thay")
 
-    turn_id = add_turn(session_id, "homework", content)
-    return {"turn_id": turn_id, "session_id": session_id}
+    ok = mark_session_homework(session_id, family_id=family_id)
+    if not ok:
+        raise HTTPException(404, "Conversation khong tim thay")
+    return {"ok": True}

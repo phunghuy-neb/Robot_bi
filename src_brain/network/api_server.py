@@ -5,6 +5,7 @@ Entry point: init_server() + start_api_server() từ main_loop.py.
 
 Routes được tổ chức thành routers/:
   auth_router         — /api/auth/*, /auth/*
+  admin_router        — /api/admin/families/*
   conversation_router — /api/conversations/*
   streaming_router    — /ws, /api/audio/stream, /api/mom/*
   control_router      — /api/status, /api/events/*, /api/tasks/*, /api/memories/*, /api/puppet
@@ -34,6 +35,7 @@ import uvicorn
 import src_brain.network.state as _state
 from src_brain.network.log_config import setup_logging
 from src_brain.network.routers.auth_router import router as auth_router
+from src_brain.network.routers.admin_router import router as admin_router
 from src_brain.network.routers.conversation_router import router as conversation_router, _require_family
 from src_brain.network.routers.streaming_router import router as streaming_router
 from src_brain.network.routers.control_router import router as control_router
@@ -73,6 +75,7 @@ app = FastAPI(title="Robot Bi — Parent App API", version="2.0")
 app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(conversation_router)
 app.include_router(streaming_router)
 app.include_router(control_router)

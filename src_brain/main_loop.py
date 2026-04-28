@@ -29,6 +29,7 @@ from src_brain.ai_core.core_ai import BiAI
 from src_brain.memory_rag.rag_manager import RAGManager
 from src_brain.senses.eye_vision import EyeVision
 from src_brain.ai_core.safety_filter import SafetyFilter
+from src_brain.ai_core.homework_classifier import classify_homework
 from src_brain.senses.cry_detector import CryDetector
 from src_brain.network.db import (
     init_db,
@@ -36,6 +37,7 @@ from src_brain.network.db import (
     create_session,
     close_session,
     add_turn,
+    mark_session_homework,
 )
 from src_brain.network.notifier import get_notifier
 from src_brain.network.api_server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
@@ -60,6 +62,7 @@ class RobotBiApp:
         self._chunk_counter = 0
         self._loop = asyncio.new_event_loop()
         self._current_session_id = None
+        self._family_id = FAMILY_ID
 
         # Daemon thread xử lý audio queue: play → unload → xóa file
         self._worker_thread = threading.Thread(
@@ -218,6 +221,21 @@ class RobotBiApp:
         finally:
             self._current_session_id = None
 
+    def _mark_homework_if_needed(self, session_id: str | None, user_text: str) -> None:
+        if not session_id:
+            return
+        try:
+            if not classify_homework(user_text):
+                return
+            if mark_session_homework(session_id, family_id=self._family_id):
+                self.notifier.push_event(
+                    "homework",
+                    f"Bé vừa hỏi bài: {user_text[:50]}",
+                    family_id=self._family_id,
+                )
+        except Exception as e:
+            logger.warning("[Bi - Homework] Loi classify/mark homework: %s", e)
+
     def _shutdown(self):
         if self._shutdown_done:
             return
@@ -305,7 +323,7 @@ class RobotBiApp:
 
                         threading.Thread(target=_name_session, daemon=True).start()
                         is_first_turn_of_session = False
-                    rag_context = self.rag.retrieve(user_text)
+                    rag_context = self.rag.retrieve(user_text, family_id=FAMILY_ID)
                     if rag_context:
                         user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
                         # DEBUG: chứa PII - tắt trong production.
@@ -366,16 +384,19 @@ class RobotBiApp:
                     sanitized_reply = " ".join(sanitized_reply_parts).strip()
                     if full_reply:
                         add_turn(self._current_session_id, 'assistant', sanitized_reply)
+                        self._mark_homework_if_needed(self._current_session_id, user_text_goc)
                         self._close_current_session()
                         threading.Thread(
                             target=self.rag.extract_and_save,
                             args=(user_text_goc, sanitized_reply),
+                            kwargs={"family_id": FAMILY_ID},
                             daemon=True,
                         ).start()
                         # Log hội thoại cho Parent App (non-blocking)
                         threading.Thread(
                             target=self.notifier.push_chat_log,
                             args=(user_text_goc, sanitized_reply),
+                            kwargs={"family_id": FAMILY_ID},
                             daemon=True,
                         ).start()
                     else:

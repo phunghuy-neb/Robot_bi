@@ -47,7 +47,7 @@ except ImportError:
     _ARGON2_AVAILABLE = False
     logger.warning("[Auth] argon2-cffi chua duoc cai dat — hash password bi vo hieu hoa")
 
-from src_brain.network.db import get_db_connection
+from src_brain.network.db import ensure_family_exists, get_db_connection
 
 
 def hash_password(plain: str) -> str:
@@ -74,6 +74,7 @@ def create_user(username: str, password: str, family_name: str) -> dict:
     """
     from fastapi import HTTPException
 
+    family_name = ensure_family_exists(family_name)
     password_hash = hash_password(password)
 
     with get_db_connection() as conn:
@@ -155,7 +156,11 @@ def seed_admin_if_empty() -> None:
 
         password_hash = hash_password(admin_password)
         conn.execute(
-            "INSERT INTO users (username, password_hash, family_name) VALUES (?, ?, ?)",
+            "INSERT OR IGNORE INTO families (family_id, display_name, created_at) VALUES (?, ?, ?)",
+            ("Admin", "Admin", datetime.now(timezone.utc).isoformat()),
+        )
+        conn.execute(
+            "INSERT INTO users (username, password_hash, family_name, is_admin) VALUES (?, ?, ?, 1)",
             (admin_username, password_hash, "Admin"),
         )
         conn.commit()

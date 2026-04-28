@@ -13,22 +13,29 @@ Class: TaskManager
   stop()
 """
 
+import os
 import threading
 import time
 import uuid
 from datetime import datetime
 
-from src_brain.network.db import get_db_connection
+from src_brain.network.db import ensure_family_exists, get_db_connection
+
+
+def _normalize_family_id(family_id: str | None = None) -> str:
+    fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
+    return fid or "default"
 
 
 class TaskManager:
-    def __init__(self, tts_callback=None):
+    def __init__(self, tts_callback=None, family_id: str | None = None):
         """
         tts_callback: callable(text) - goi de Bi phat am nhac nho.
         Neu None, van hoat dong - chi khong phat TTS.
         """
         self.tts_callback = tts_callback
-        self._tasks: list = self._load()
+        self.family_id = ensure_family_exists(_normalize_family_id(family_id))
+        self._tasks: list = self._load(self.family_id)
         self._lock = threading.Lock()
         self._running = True
         threading.Thread(
@@ -43,6 +50,7 @@ class TaskManager:
         completed_date = row["completed_date"]
         return {
             "id": row["task_id"],
+            "family_id": row["family_id"],
             "name": row["name"],
             "remind_time": row["remind_time"],
             "completed_today": completed_date == today,
@@ -53,50 +61,62 @@ class TaskManager:
             "last_reminded_date": row["last_reminded_date"],
         }
 
-    def _load(self) -> list:
+    def _load(self, family_id: str | None = None) -> list:
+        family_id = ensure_family_exists(_normalize_family_id(family_id or self.family_id))
         with get_db_connection() as conn:
             today = datetime.now().strftime("%Y-%m-%d")
             conn.execute(
                 """
                 UPDATE tasks
                 SET completed_date = '2000-01-01'
-                WHERE completed_today = 1
+                WHERE family_id = ?
+                  AND completed_today = 1
                   AND (completed_date IS NULL OR completed_date = '')
-                """
+                """,
+                (family_id,),
             )
             conn.execute(
                 """
                 UPDATE tasks
                 SET completed_today = 0
-                WHERE completed_today = 1
+                WHERE family_id = ?
+                  AND completed_today = 1
                   AND COALESCE(completed_date, '') != ?
                 """,
-                (today,),
+                (family_id, today),
             )
             conn.commit()
             rows = conn.execute(
                 """
-                SELECT task_id, name, remind_time, completed_today,
+                SELECT family_id, task_id, name, remind_time, completed_today,
                        completed_date, stars, created_at, last_reminded,
                        last_reminded_date
                 FROM tasks
+                WHERE family_id = ?
                 ORDER BY db_id ASC
-                """
+                """,
+                (family_id,),
             ).fetchall()
         return [self._row_to_task(row) for row in rows]
 
-    def _refresh_tasks(self) -> None:
-        self._tasks = self._load()
+    def _refresh_tasks(self, family_id: str | None = None) -> list:
+        family_id = _normalize_family_id(family_id or self.family_id)
+        tasks = self._load(family_id)
+        if family_id == self.family_id:
+            self._tasks = tasks
+        return tasks
 
-    def add_task(self, name: str, remind_time: str) -> dict:
+    def add_task(self, name: str, remind_time: str, family_id: str | None = None) -> dict:
         """
         Them nhiem vu moi.
         name: ten nhiem vu, vi du "Danh rang"
         remind_time: "HH:MM", vi du "07:30"
         Returns: task dict moi tao
         """
+        family_id = ensure_family_exists(_normalize_family_id(family_id or self.family_id))
         task = {
             "id": str(uuid.uuid4()),
+            "family_id": family_id,
             "name": name,
             "remind_time": remind_time,
             "completed_today": False,
@@ -111,12 +131,13 @@ class TaskManager:
                 conn.execute(
                     """
                     INSERT INTO tasks (
-                        task_id, name, remind_time, completed_today,
+                        family_id, task_id, name, remind_time, completed_today,
                         completed_date, stars, created_at, last_reminded,
                         last_reminded_date, import_key
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
+                        task["family_id"],
                         task["id"],
                         task["name"],
                         task["remind_time"],
@@ -130,15 +151,16 @@ class TaskManager:
                     ),
                 )
                 conn.commit()
-            self._refresh_tasks()
+            self._refresh_tasks(family_id)
         return task
 
-    def complete_task(self, task_id: str) -> bool:
+    def complete_task(self, task_id: str, family_id: str | None = None) -> bool:
         """
         Danh dau nhiem vu hoan thanh, cong 1 sao.
         Returns True neu thanh cong, False neu khong tim thay / da hoan thanh.
         """
         today = datetime.now().strftime("%Y-%m-%d")
+        family_id = _normalize_family_id(family_id or self.family_id)
         with self._lock:
             with get_db_connection() as conn:
                 cursor = conn.execute(
@@ -148,21 +170,23 @@ class TaskManager:
                         completed_date = ?,
                         stars = COALESCE(stars, 0) + 1
                     WHERE task_id = ?
+                      AND family_id = ?
                       AND COALESCE(completed_date, '') != ?
                     """,
-                    (today, task_id, today),
+                    (today, task_id, family_id, today),
                 )
                 conn.commit()
             if cursor.rowcount > 0:
-                self._refresh_tasks()
+                self._refresh_tasks(family_id)
                 return True
         return False
 
-    def get_all(self) -> list:
+    def get_all(self, family_id: str | None = None) -> list:
         """Tra ve danh sach tat ca nhiem vu (ban copy)."""
+        family_id = _normalize_family_id(family_id or self.family_id)
         with self._lock:
-            self._refresh_tasks()
-            return list(self._tasks)
+            tasks = self._refresh_tasks(family_id)
+            return list(tasks)
 
     def _save(self) -> None:
         """Persist in-memory task edits used by tests and migrations."""
@@ -177,6 +201,7 @@ class TaskManager:
                             last_reminded = ?,
                             last_reminded_date = ?
                         WHERE task_id = ?
+                          AND family_id = ?
                         """,
                         (
                             1 if task.get("completed_today") else 0,
@@ -184,38 +209,43 @@ class TaskManager:
                             task.get("last_reminded"),
                             task.get("last_reminded_date"),
                             task["id"],
+                            task.get("family_id") or self.family_id,
                         ),
                     )
                 conn.commit()
 
-    def delete_task(self, task_id: str) -> bool:
+    def delete_task(self, task_id: str, family_id: str | None = None) -> bool:
         """Xoa nhiem vu theo ID. Returns True neu thanh cong."""
+        family_id = _normalize_family_id(family_id or self.family_id)
         with self._lock:
             with get_db_connection() as conn:
                 cursor = conn.execute(
-                    "DELETE FROM tasks WHERE task_id = ?",
-                    (task_id,),
+                    "DELETE FROM tasks WHERE task_id = ? AND family_id = ?",
+                    (task_id, family_id),
                 )
                 conn.commit()
             if cursor.rowcount > 0:
-                self._refresh_tasks()
+                self._refresh_tasks(family_id)
                 return True
         return False
 
-    def get_total_stars(self) -> int:
+    def get_total_stars(self, family_id: str | None = None) -> int:
         """Tong so sao tich luy tu tat ca nhiem vu."""
+        family_id = _normalize_family_id(family_id or self.family_id)
         with self._lock:
             with get_db_connection() as conn:
                 row = conn.execute(
-                    "SELECT COALESCE(SUM(stars), 0) AS total_stars FROM tasks"
+                    "SELECT COALESCE(SUM(stars), 0) AS total_stars FROM tasks WHERE family_id = ?",
+                    (family_id,),
                 ).fetchone()
             return int(row["total_stars"]) if row else 0
 
-    def _mark_reminded(self, task_id: str) -> bool:
+    def _mark_reminded(self, task_id: str, family_id: str | None = None) -> bool:
         """Mark a task as reminded at the current date and minute."""
         now_dt = datetime.now()
         today = now_dt.strftime("%Y-%m-%d")
         reminded_at = now_dt.strftime("%Y-%m-%d %H:%M")
+        family_id = _normalize_family_id(family_id or self.family_id)
         with self._lock:
             with get_db_connection() as conn:
                 cursor = conn.execute(
@@ -224,12 +254,13 @@ class TaskManager:
                     SET last_reminded = ?,
                         last_reminded_date = ?
                     WHERE task_id = ?
+                      AND family_id = ?
                     """,
-                    (reminded_at, today, task_id),
+                    (reminded_at, today, task_id, family_id),
                 )
                 conn.commit()
             if cursor.rowcount > 0:
-                self._refresh_tasks()
+                self._refresh_tasks(family_id)
                 return True
         return False
 
@@ -241,7 +272,7 @@ class TaskManager:
             now = now_dt.strftime("%H:%M")
             messages_to_speak = []
             with self._lock:
-                self._refresh_tasks()
+                self._refresh_tasks(self.family_id)
                 for task in self._tasks:
                     last_reminded = task.get("last_reminded") or ""
                     reminded_date = last_reminded[:10] if len(last_reminded) >= 10 else ""
@@ -261,8 +292,9 @@ class TaskManager:
                                 SET last_reminded = ?,
                                     last_reminded_date = ?
                                 WHERE task_id = ?
+                                  AND family_id = ?
                                 """,
-                                (reminded_at, today, task["id"]),
+                                (reminded_at, today, task["id"], self.family_id),
                             )
                             conn.commit()
                         task["last_reminded"] = reminded_at

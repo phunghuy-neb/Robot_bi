@@ -7,9 +7,11 @@
 
 - Phase 1 — Security & Data Layer: hoàn thành.
 - Phase 2 — Core Experience: hoàn thành ngày 2026-04-17.
-- Current phase: Phase 3 COMPLETE, waiting for Ubuntu PC with GPU.
+- Current phase: Phase 4 started; Tasks 4.4 multi-family isolation and 4.5 homework system COMPLETE.
 - Phase 3 Final Fix Sprint: hoan thanh 2026-04-26, 23 fixes audit pass 3 va Group 24 verification.
 - Final Pre-Phase 4 Fix Sprint: hoan thanh 2026-04-27, 12 fixes + Group 29 verification, 176/176 PASS.
+- Task 4.4 Multi-family isolation: hoan thanh 2026-04-28, Group 30 isolation tests, 182/182 PASS.
+- Task 4.5 Homework system: hoan thanh 2026-04-28, Group 31 homework tests, 190/190 PASS.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
 - Entry point chính vẫn là `src_brain/main_loop.py`.
@@ -23,7 +25,7 @@
 - Chuyen sang Ubuntu PC co GPU de verify runtime thuc te.
 - WebRTC frame source can Ubuntu + aiortc.
 - Wake-word model training can dataset rieng.
-- Phase 4 features: motor control, AEC, multi-family ChromaDB isolation, homework expansion.
+- Phase 4 features con lai: motor control, AEC.
 - Test end-to-end tren may that voi mic, loa, camera va mobile browser.
 - Bat dau Phase 4 sau khi verify hardware Ubuntu PC co GPU.
 
@@ -41,6 +43,8 @@
 - Camera delay fix: thread riêng, queue bridge, `CAP_PROP_BUFFERSIZE=1`.
 - SafetyFilter: luôn post-LLM và pre-TTS.
 - RAG threshold 0.50 và deduplication không được regress.
+- Multi-family isolation: ChromaDB `where={"family_id": family_id}`, conversations/events/tasks family scope, admin family endpoints require `is_admin`.
+- Homework system: classifier khong goi LLM, mark conversations bang `is_homework`, va API homework phai family-scoped.
 - Groq primary `llama-3.3-70b-versatile` + Gemini fallback phải giữ nguyên.
 - JWT auth, refresh rotation, middleware guard, và rate limiting phải giữ nguyên.
 - Wake-word/session/conversation threads additions của Phase 2 hiện là protected; xem `PROJECT.md` để biết danh sách chuẩn.
@@ -64,3 +68,18 @@
 - Them Group 29 vao `run_tests.py` voi 12 tests.
 - Final result: 176/176 PASS.
 - Changelog: `changelog/2026-04-27-final-pre-phase4-fix-sprint.md`.
+
+## SESSION 2026-04-28 - Phase 4 Task 4.4 Multi-family Isolation
+
+- Hoan thanh family registry/admin role, SQLite family scoping, RAG ChromaDB real family filters, notifier/TaskManager/API family isolation, va WebSocket family-scoped replay/broadcast.
+- Them `/api/admin/families` POST/GET/DELETE voi `is_admin` check va explicit cleanup.
+- Them Group 30 vao `run_tests.py` voi 6 tests.
+- Final result: 182/182 PASS.
+- Changelog: `changelog/2026-04-28-task-4-4-multifamily-isolation.md`.
+
+## SESSION 2026-04-28 - Phase 4 Task 4.5 Homework System
+
+- Hoan thanh local homework classifier, schema flags tren conversations, DB helpers, main loop mark sau persist `sanitized_reply`, API homework list/mark, va Parent App tab `Bai tap`.
+- Them Group 31 vao `run_tests.py` voi 8 tests.
+- Final result: 190/190 PASS.
+- Changelog: `changelog/2026-04-28-task-4-5-homework-system.md`.

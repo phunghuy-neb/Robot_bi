@@ -4,7 +4,7 @@ WARNING: Edit PROJECT.md then run: python sync.py
 WARNING: Any manual changes will be overwritten
 # PROJECT.md — Hướng dẫn Dự án Robot Bi (Single Source of Truth)
 
-> Cập nhật: 2026-04-17 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
+> Cập nhật: 2026-04-28 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
 > Đây là file **NGUỒN DUY NHẤT**. CLAUDE.md và AGENTS.md là bản sao tự động.
 
 ## MANDATORY RULES CHO CẢ CLAUDE CODE CLI VÀ CODEX CLI
@@ -50,6 +50,7 @@ WARNING: Any manual changes will be overwritten
 - `/api/conversations`, `/api/conversations/{id}`, `/api/conversations/{id}/homework` endpoints
 - `index.html`: tab `Hội thoại`, `loadThreads()`, `showThreadDetail()` — không remove
 - `.gitignore`: runtime files (`event_queue.json`, `tasks.json`, `robot_bi.db`) không có dấu ngoặc kép, không bị git track.
+- Task 4.4 multi-family isolation: ChromaDB query phải có `where={"family_id": family_id}`; conversations/events/tasks phải scope theo `family_id`; admin family endpoints phải require `is_admin`.
 
 **Nếu đụng vào những phần này phải chạy full test và kiểm tra regression.**
 
@@ -119,18 +120,19 @@ Wake-word dev/test path, session UUID, auto-title, conversation threads API + Pa
 **Phase 3 — Parent Features [HOAN THANH 2026-04-27]**  
 WebRTC camera, push notification, account settings, frontend cleanup, backend hardening, docs freeze.
 
-**Phase 4 — Advanced**  
-Motor control, AEC, multi-family isolation, homework system
+**Phase 4 — Advanced [ĐANG LÀM]**  
+Multi-family isolation và homework system hoàn thành 2026-04-28; còn motor control, AEC.
 
 ## Schema Database mục tiêu (SQLite — `src_brain/network/robot_bi.db`)
 
-- `users`: user_id, username, password_hash, family_name, created_at, is_active
+- `families`: family_id, display_name, created_at
+- `users`: user_id, username, password_hash, family_name, created_at, is_active, is_admin
 - `auth_tokens`: token_id, user_id, refresh_token_hash, expires_at, created_at
 - `login_attempts`: ip_address, attempt_count, first_attempt_at, locked_until
-- `conversations`: session_id, family_id, started_at, ended_at, title
+- `conversations`: session_id, family_id, started_at, ended_at, title, turn_count, is_homework, homework_marked_at
 - `turns`: turn_id, session_id, role, content, timestamp
 - `events`: event_id, family_id, type, data, created_at (migrate từ event_queue.json)
-- `tasks`: task_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key (schema khớp task_manager.py)
+- `tasks`: task_id, family_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key (schema khớp task_manager.py)
 
 ## Lệnh hay dùng
 
@@ -172,3 +174,22 @@ python -m src_brain.main_loop     # Chạy trực tiếp
 - Them Group 29 vao `run_tests.py` voi 12 verification tests.
 - Final regression target: 176/176 PASS.
 - San sang Phase 4 sau pre-flight fix sprint.
+
+## Session 2026-04-28 — Phase 4 Task 4.4 Multi-family Isolation
+
+- Hoan thanh Task 4.4: them bang `families`, `is_admin`, FK/cascade cho schema moi, va explicit cleanup khi xoa family.
+- RAG ChromaDB da gan `family_id` metadata, query/list/export/update/delete/clear deu filter theo family; memory cu thieu metadata duoc backfill ve `default`.
+- Conversations/events/tasks da scope theo family trong API, DB helpers, notifier, TaskManager, va WebSocket unread/broadcast.
+- Them admin endpoints: `POST /api/admin/families`, `GET /api/admin/families`, `DELETE /api/admin/families/{family_id}` voi admin role check.
+- Them Group 30 vao `run_tests.py` voi 6 isolation tests.
+- Final regression target: 182/182 PASS.
+
+## Session 2026-04-28 — Phase 4 Task 4.5 Homework System
+
+- Hoan thanh Task 4.5: classifier local `classify_homework()` khong goi LLM, detect bai tap bang keyword/regex co normalize Unicode.
+- Them schema `conversations.is_homework`, `homework_marked_at`, DB helpers `mark_session_homework()` va `get_homework_sessions()` co family scope.
+- Main loop mark homework sau khi TTS xong va sau khi persist `sanitized_reply`, gui event `homework` cho Parent App.
+- Them API `GET /api/conversations/homework` va cap nhat `POST /api/conversations/{session_id}/homework` de mark session.
+- Parent App co tab `Bai tap`, list homework sessions, dung lai thread detail va reload khi nhan notification `homework`.
+- Them Group 31 vao `run_tests.py` voi 8 tests.
+- Final regression target: 190/190 PASS.

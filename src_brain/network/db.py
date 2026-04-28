@@ -23,6 +23,32 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _normalize_family_id(family_id: str | None) -> str:
+    fid = (family_id or "").strip()
+    return fid or "default"
+
+
+def _ensure_family_exists_conn(conn, family_id: str | None, display_name: str | None = None) -> str:
+    fid = _normalize_family_id(family_id)
+    label = (display_name or fid).strip() or fid
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO families (family_id, display_name, created_at)
+        VALUES (?, ?, ?)
+        """,
+        (fid, label, _utc_now_iso()),
+    )
+    return fid
+
+
+def ensure_family_exists(family_id: str | None, display_name: str | None = None) -> str:
+    """Create the family row if missing and return the normalized family_id."""
+    with get_db_connection() as conn:
+        fid = _ensure_family_exists_conn(conn, family_id, display_name)
+        conn.commit()
+        return fid
+
+
 @contextmanager
 def get_db_connection():
     """Tra ve connection voi WAL mode bat"""
@@ -90,11 +116,24 @@ def init_db() -> None:
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         with get_db_connection() as conn:
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS families (
+                    family_id TEXT PRIMARY KEY,
+                    display_name TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+                '''
+            )
+            _ensure_family_exists_conn(conn, "default", "default")
+
             # Tao bang events
             conn.execute(
                 '''
                 CREATE TABLE IF NOT EXISTS events (
                     db_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    family_id TEXT NOT NULL DEFAULT 'default'
+                        REFERENCES families(family_id) ON DELETE CASCADE,
                     event_id TEXT,
                     timestamp TEXT,
                     type TEXT NOT NULL,
@@ -106,12 +145,24 @@ def init_db() -> None:
                 )
                 '''
             )
+            event_cols = {row[1] for row in conn.execute("PRAGMA table_info(events)").fetchall()}
+            if "family_id" not in event_cols:
+                conn.execute("ALTER TABLE events ADD COLUMN family_id TEXT DEFAULT 'default'")
+            conn.execute(
+                """
+                UPDATE events
+                SET family_id = 'default'
+                WHERE family_id IS NULL OR family_id = ''
+                """
+            )
 
             # Tao bang tasks - khop voi task_manager.py
             conn.execute(
                 '''
                 CREATE TABLE IF NOT EXISTS tasks (
                     db_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    family_id TEXT NOT NULL DEFAULT 'default'
+                        REFERENCES families(family_id) ON DELETE CASCADE,
                     task_id TEXT,
                     name TEXT NOT NULL,
                     remind_time TEXT,
@@ -126,10 +177,19 @@ def init_db() -> None:
                 '''
             )
             task_cols = {row[1] for row in conn.execute("PRAGMA table_info(tasks)").fetchall()}
+            if "family_id" not in task_cols:
+                conn.execute("ALTER TABLE tasks ADD COLUMN family_id TEXT DEFAULT 'default'")
             if "completed_date" not in task_cols:
                 conn.execute("ALTER TABLE tasks ADD COLUMN completed_date TEXT")
             if "last_reminded_date" not in task_cols:
                 conn.execute("ALTER TABLE tasks ADD COLUMN last_reminded_date TEXT")
+            conn.execute(
+                """
+                UPDATE tasks
+                SET family_id = 'default'
+                WHERE family_id IS NULL OR family_id = ''
+                """
+            )
             conn.execute(
                 """
                 UPDATE tasks
@@ -141,6 +201,8 @@ def init_db() -> None:
             for index_sql in (
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_events_import_key ON events(import_key)",
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_import_key ON tasks(import_key)",
+                "CREATE INDEX IF NOT EXISTS idx_events_family_db ON events(family_id, db_id)",
+                "CREATE INDEX IF NOT EXISTS idx_tasks_family_db ON tasks(family_id, db_id)",
             ):
                 try:
                     conn.execute(index_sql)
@@ -166,12 +228,25 @@ def init_db() -> None:
                     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT UNIQUE NOT NULL,
                     password_hash TEXT NOT NULL,
-                    family_name TEXT NOT NULL,
+                    family_name TEXT NOT NULL REFERENCES families(family_id) ON DELETE CASCADE,
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
                     is_active INTEGER DEFAULT 1,
+                    is_admin INTEGER NOT NULL DEFAULT 0,
                     token_version INTEGER NOT NULL DEFAULT 0
                 )
                 '''
+            )
+            user_cols = {row[1] for row in conn.execute("PRAGMA table_info(users)").fetchall()}
+            if "is_admin" not in user_cols:
+                conn.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0")
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO families (family_id, display_name, created_at)
+                SELECT DISTINCT family_name, family_name, ?
+                FROM users
+                WHERE family_name IS NOT NULL AND family_name != ''
+                """,
+                (_utc_now_iso(),),
             )
 
             # Migration: them token_version neu chua co (cho DB cu)
@@ -206,20 +281,49 @@ def init_db() -> None:
                 '''
                 CREATE TABLE IF NOT EXISTS conversations (
                     session_id TEXT PRIMARY KEY,
-                    family_id TEXT DEFAULT 'default',
+                    family_id TEXT NOT NULL DEFAULT 'default'
+                        REFERENCES families(family_id) ON DELETE CASCADE,
                     started_at TEXT NOT NULL,
                     ended_at TEXT,
                     title TEXT,
-                    turn_count INTEGER DEFAULT 0
+                    turn_count INTEGER DEFAULT 0,
+                    is_homework INTEGER NOT NULL DEFAULT 0,
+                    homework_marked_at TEXT DEFAULT NULL
                 )
                 '''
+            )
+            conversation_cols = {
+                row[1] for row in conn.execute("PRAGMA table_info(conversations)").fetchall()
+            }
+            if "family_id" not in conversation_cols:
+                conn.execute("ALTER TABLE conversations ADD COLUMN family_id TEXT DEFAULT 'default'")
+            if "is_homework" not in conversation_cols:
+                conn.execute("ALTER TABLE conversations ADD COLUMN is_homework INTEGER NOT NULL DEFAULT 0")
+            if "homework_marked_at" not in conversation_cols:
+                conn.execute("ALTER TABLE conversations ADD COLUMN homework_marked_at TEXT DEFAULT NULL")
+            conn.execute(
+                """
+                UPDATE conversations
+                SET family_id = 'default',
+                    is_homework = COALESCE(is_homework, 0)
+                WHERE family_id IS NULL OR family_id = '' OR is_homework IS NULL
+                """
+            )
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO families (family_id, display_name, created_at)
+                SELECT DISTINCT family_id, family_id, ?
+                FROM conversations
+                WHERE family_id IS NOT NULL AND family_id != ''
+                """,
+                (_utc_now_iso(),),
             )
 
             conn.execute(
                 '''
                 CREATE TABLE IF NOT EXISTS turns (
                     turn_id TEXT PRIMARY KEY,
-                    session_id TEXT NOT NULL REFERENCES conversations(session_id),
+                    session_id TEXT NOT NULL REFERENCES conversations(session_id) ON DELETE CASCADE,
                     role TEXT NOT NULL CHECK(role IN ('user','assistant','homework')),
                     content TEXT NOT NULL,
                     timestamp TEXT NOT NULL
@@ -232,6 +336,57 @@ def init_db() -> None:
                 CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id)
                 '''
             )
+            conn.execute(
+                '''
+                CREATE INDEX IF NOT EXISTS idx_conversations_family_started
+                ON conversations(family_id, started_at)
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE INDEX IF NOT EXISTS idx_conversations_family_homework_started
+                ON conversations(family_id, is_homework, started_at)
+                '''
+            )
+            for trigger_sql in (
+                '''
+                CREATE TRIGGER IF NOT EXISTS trg_users_family_auto
+                BEFORE INSERT ON users
+                WHEN NEW.family_name IS NOT NULL AND NEW.family_name != ''
+                BEGIN
+                    INSERT OR IGNORE INTO families(family_id, display_name, created_at)
+                    VALUES (NEW.family_name, NEW.family_name, datetime('now'));
+                END
+                ''',
+                '''
+                CREATE TRIGGER IF NOT EXISTS trg_conversations_family_auto
+                BEFORE INSERT ON conversations
+                WHEN NEW.family_id IS NOT NULL AND NEW.family_id != ''
+                BEGIN
+                    INSERT OR IGNORE INTO families(family_id, display_name, created_at)
+                    VALUES (NEW.family_id, NEW.family_id, datetime('now'));
+                END
+                ''',
+                '''
+                CREATE TRIGGER IF NOT EXISTS trg_events_family_auto
+                BEFORE INSERT ON events
+                WHEN NEW.family_id IS NOT NULL AND NEW.family_id != ''
+                BEGIN
+                    INSERT OR IGNORE INTO families(family_id, display_name, created_at)
+                    VALUES (NEW.family_id, NEW.family_id, datetime('now'));
+                END
+                ''',
+                '''
+                CREATE TRIGGER IF NOT EXISTS trg_tasks_family_auto
+                BEFORE INSERT ON tasks
+                WHEN NEW.family_id IS NOT NULL AND NEW.family_id != ''
+                BEGIN
+                    INSERT OR IGNORE INTO families(family_id, display_name, created_at)
+                    VALUES (NEW.family_id, NEW.family_id, datetime('now'));
+                END
+                ''',
+            ):
+                conn.execute(trigger_sql)
 
             _migrate_turns_role_constraint(conn)
 
@@ -342,7 +497,7 @@ def _migrate_turns_role_constraint(conn) -> None:
         return
 
     create_sql = (row["sql"] or "").replace(" ", "").lower()
-    if "'homework'" in create_sql:
+    if "'homework'" in create_sql and "ondeletecascade" in create_sql:
         return
 
     conn.execute("PRAGMA foreign_keys = OFF")
@@ -351,7 +506,7 @@ def _migrate_turns_role_constraint(conn) -> None:
         '''
         CREATE TABLE turns (
             turn_id TEXT PRIMARY KEY,
-            session_id TEXT NOT NULL REFERENCES conversations(session_id),
+            session_id TEXT NOT NULL REFERENCES conversations(session_id) ON DELETE CASCADE,
             role TEXT NOT NULL CHECK(role IN ('user','assistant','homework')),
             content TEXT NOT NULL,
             timestamp TEXT NOT NULL
@@ -375,6 +530,7 @@ def _migrate_turns_role_constraint(conn) -> None:
 
 
 def create_session(family_id: str) -> str:
+    family_id = ensure_family_exists(family_id)
     session_id = uuid4().hex
     with get_db_connection() as conn:
         conn.execute(
@@ -388,68 +544,216 @@ def create_session(family_id: str) -> str:
     return session_id
 
 
-def close_session(session_id: str) -> None:
+def _resolve_session_family_conn(conn, session_id: str) -> str | None:
+    row = conn.execute(
+        "SELECT family_id FROM conversations WHERE session_id = ?",
+        (session_id,),
+    ).fetchone()
+    return row["family_id"] if row else None
+
+
+def close_session(session_id: str, family_id: str | None = None) -> None:
     with get_db_connection() as conn:
+        fid = _normalize_family_id(family_id) if family_id else _resolve_session_family_conn(conn, session_id)
+        if not fid:
+            return
         conn.execute(
             '''
             UPDATE conversations
             SET ended_at = ?
-            WHERE session_id = ?
+            WHERE session_id = ? AND family_id = ?
             ''',
-            (_utc_now_iso(), session_id),
+            (_utc_now_iso(), session_id, fid),
         )
         conn.commit()
 
 
-def add_turn(session_id: str, role: str, content: str) -> str:
+def add_turn(session_id: str, role: str, content: str, family_id: str | None = None) -> str:
     if role not in {"user", "assistant", "homework"}:
         raise ValueError("Invalid turn role")
     turn_id = uuid4().hex
     with get_db_connection() as conn:
-        conn.execute(
+        fid = _normalize_family_id(family_id) if family_id else _resolve_session_family_conn(conn, session_id)
+        if not fid:
+            raise ValueError("Session not found")
+        cur = conn.execute(
             '''
             INSERT INTO turns (turn_id, session_id, role, content, timestamp)
-            VALUES (?, ?, ?, ?, ?)
+            SELECT ?, c.session_id, ?, ?, ?
+            FROM conversations c
+            WHERE c.session_id = ? AND c.family_id = ?
             ''',
-            (turn_id, session_id, role, content, _utc_now_iso()),
+            (turn_id, role, content, _utc_now_iso(), session_id, fid),
         )
+        if cur.rowcount == 0:
+            raise ValueError("Session not found")
         conn.execute(
             '''
             UPDATE conversations
             SET turn_count = turn_count + 1
-            WHERE session_id = ?
+            WHERE session_id = ? AND family_id = ?
             ''',
-            (session_id,),
+            (session_id, fid),
         )
         conn.commit()
     return turn_id
 
 
-def get_session_turns(session_id: str) -> list[dict]:
+def get_session_turns(session_id: str, family_id: str | None = None) -> list[dict]:
     with get_db_connection() as conn:
+        fid = _normalize_family_id(family_id) if family_id else _resolve_session_family_conn(conn, session_id)
+        if not fid:
+            return []
         rows = conn.execute(
             '''
-            SELECT turn_id, session_id, role, content, timestamp
-            FROM turns
-            WHERE session_id = ?
-            ORDER BY timestamp ASC
+            SELECT t.turn_id, t.session_id, t.role, t.content, t.timestamp
+            FROM turns t
+            JOIN conversations c ON c.session_id = t.session_id
+            WHERE t.session_id = ? AND c.family_id = ?
+            ORDER BY t.timestamp ASC
             ''',
-            (session_id,),
+            (session_id, fid),
         ).fetchall()
     return [dict(row) for row in rows]
 
 
-def update_session_title(session_id: str, title: str) -> None:
+def update_session_title(session_id: str, title: str, family_id: str | None = None) -> None:
     with get_db_connection() as conn:
+        fid = _normalize_family_id(family_id) if family_id else _resolve_session_family_conn(conn, session_id)
+        if not fid:
+            return
         conn.execute(
             '''
             UPDATE conversations
             SET title = ?
-            WHERE session_id = ?
+            WHERE session_id = ? AND family_id = ?
             ''',
-            (title, session_id),
+            (title, session_id, fid),
         )
         conn.commit()
+
+
+def mark_session_homework(session_id: str, family_id: str | None = None) -> bool:
+    if not session_id:
+        return False
+    with get_db_connection() as conn:
+        fid = _normalize_family_id(family_id) if family_id else _resolve_session_family_conn(conn, session_id)
+        if not fid:
+            return False
+        cur = conn.execute(
+            """
+            UPDATE conversations
+            SET is_homework = 1,
+                homework_marked_at = datetime('now')
+            WHERE session_id = ? AND family_id = ?
+            """,
+            (session_id, fid),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+
+def get_homework_sessions(
+    family_id: str,
+    limit: int = 20,
+    offset: int = 0,
+) -> list[dict]:
+    fid = _normalize_family_id(family_id)
+    safe_limit = max(1, min(int(limit), 50))
+    safe_offset = max(0, int(offset))
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT *
+            FROM conversations
+            WHERE family_id = ? AND is_homework = 1
+            ORDER BY started_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            (fid, safe_limit, safe_offset),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def list_families() -> list[dict]:
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT f.family_id, f.display_name, f.created_at,
+                   COUNT(DISTINCT u.user_id) AS user_count
+            FROM families f
+            LEFT JOIN users u ON u.family_name = f.family_id
+            GROUP BY f.family_id, f.display_name, f.created_at
+            ORDER BY f.created_at ASC, f.family_id ASC
+            """
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def create_family_record(family_id: str, display_name: str | None = None) -> dict | None:
+    fid = _normalize_family_id(family_id)
+    label = (display_name or fid).strip() or fid
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            INSERT OR IGNORE INTO families (family_id, display_name, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (fid, label, _utc_now_iso()),
+        )
+        conn.commit()
+        if cur.rowcount == 0:
+            return None
+    return {"family_id": fid, "display_name": label}
+
+
+def delete_family_record(family_id: str) -> bool:
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT family_id FROM families WHERE family_id = ?",
+            (fid,),
+        ).fetchone()
+        if not row:
+            return False
+
+        user_rows = conn.execute(
+            "SELECT user_id FROM users WHERE family_name = ?",
+            (fid,),
+        ).fetchall()
+        user_ids = [str(row["user_id"]) for row in user_rows]
+        if user_ids:
+            placeholders = ",".join("?" for _ in user_ids)
+            conn.execute(
+                f"DELETE FROM auth_tokens WHERE user_id IN ({placeholders})",
+                tuple(user_ids),
+            )
+
+        conn.execute(
+            """
+            DELETE FROM turns
+            WHERE session_id IN (
+                SELECT session_id FROM conversations WHERE family_id = ?
+            )
+            """,
+            (fid,),
+        )
+        conn.execute("DELETE FROM conversations WHERE family_id = ?", (fid,))
+        conn.execute("DELETE FROM events WHERE family_id = ?", (fid,))
+        conn.execute("DELETE FROM tasks WHERE family_id = ?", (fid,))
+        conn.execute("DELETE FROM users WHERE family_name = ?", (fid,))
+        cur = conn.execute("DELETE FROM families WHERE family_id = ?", (fid,))
+        conn.commit()
+        return cur.rowcount > 0
+
+
+def is_user_admin(user_id: str) -> bool:
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT is_admin, is_active FROM users WHERE user_id = ?",
+            (str(user_id),),
+        ).fetchone()
+    return bool(row and row["is_active"] and row["is_admin"])
 
 
 def get_token_version(user_id: str) -> int:
