@@ -2314,6 +2314,148 @@ test("31.6 DB: unmarked session excluded", test_31_6_unmarked_session_not_in_hom
 test("31.7 API: homework route registered", test_31_7_homework_route_registered)
 test("31.8 HomeworkClassifier: importable", test_31_8_homework_classifier_importable)
 
+# == GROUP 32: Review Fixes — normalize/homework columns ====================
+print("\n[Group 32] Review Fixes — normalize consistency + homework columns")
+
+
+def test_32_1_normalize_family_id_respects_env():
+    """_normalize_family_id(None) phai tra ve gia tri tu FAMILY_ID env."""
+    import importlib
+    orig = os.environ.get("FAMILY_ID")
+    try:
+        os.environ["FAMILY_ID"] = "envtestfamily"
+        import src_brain.network.db as _db
+        result = _db._normalize_family_id(None)
+        assert result == "envtestfamily", (
+            f"_normalize_family_id(None) expected 'envtestfamily', got '{result}'"
+        )
+        # Explicit value phai override env
+        result2 = _db._normalize_family_id("explicit")
+        assert result2 == "explicit", (
+            f"_normalize_family_id('explicit') expected 'explicit', got '{result2}'"
+        )
+    finally:
+        if orig is None:
+            os.environ.pop("FAMILY_ID", None)
+        else:
+            os.environ["FAMILY_ID"] = orig
+
+
+def test_32_2_normalize_family_id_default_fallback():
+    """_normalize_family_id(None) phai tra 'default' khi FAMILY_ID khong set."""
+    orig = os.environ.pop("FAMILY_ID", None)
+    try:
+        import src_brain.network.db as _db
+        result = _db._normalize_family_id(None)
+        assert result == "default", (
+            f"Expected 'default' fallback, got '{result}'"
+        )
+    finally:
+        if orig is not None:
+            os.environ["FAMILY_ID"] = orig
+
+
+def test_32_3_normalize_unified_across_modules():
+    """notifier, task_manager phai import _normalize_family_id tu db.py."""
+    import src_brain.network.notifier as _notifier
+    import src_brain.network.task_manager as _task_manager
+    import src_brain.network.db as _db
+
+    assert getattr(_notifier, "_normalize_family_id", None) \
+        is _db._normalize_family_id, \
+        "notifier._normalize_family_id phải là cùng object với db._normalize_family_id"
+    assert getattr(_task_manager, "_normalize_family_id", None) \
+        is _db._normalize_family_id, \
+        "task_manager._normalize_family_id phải là cùng object với db._normalize_family_id"
+
+
+def test_32_4_get_homework_sessions_explicit_columns():
+    """get_homework_sessions phai tra ve dung columns, khong co extra columns."""
+    from src_brain.network.db import (
+        create_session,
+        get_homework_sessions,
+        init_db,
+        mark_session_homework,
+    )
+
+    init_db()
+    sid = create_session(family_id="test_cols_fix3")
+    mark_session_homework(sid)
+    sessions = get_homework_sessions("test_cols_fix3")
+    assert len(sessions) > 0, "Phai co it nhat 1 homework session"
+    expected_keys = {
+        "session_id", "family_id", "title",
+        "started_at", "ended_at", "turn_count",
+        "is_homework", "homework_marked_at",
+    }
+    actual_keys = set(sessions[0].keys())
+    assert actual_keys == expected_keys, (
+        f"Column mismatch. Extra: {actual_keys - expected_keys}, "
+        f"Missing: {expected_keys - actual_keys}"
+    )
+
+
+def test_32_5_seed_admin_uses_lowercase_family():
+    """seed_admin_if_empty phai dung family_id='admin' (lowercase), khong phai 'Admin'."""
+    import inspect
+    from src_brain.network.auth import seed_admin_if_empty
+
+    src = inspect.getsource(seed_admin_if_empty)
+    assert '"Admin"' not in src, (
+        "seed_admin_if_empty khong duoc dung 'Admin' (capitalize) — phai dung 'admin'"
+    )
+    assert '"admin"' in src, (
+        "seed_admin_if_empty phai dung family_id='admin' (lowercase)"
+    )
+
+
+def test_32_6_clear_all_memories_accepts_family_id():
+    """RAGManager.clear_all_memories phai nhan family_id param."""
+    import inspect
+    from src_brain.memory_rag.rag_manager import RAGManager
+
+    sig = inspect.signature(RAGManager.clear_all_memories)
+    assert "family_id" in sig.parameters, (
+        "clear_all_memories phai co family_id parameter"
+    )
+
+
+def test_32_7_migrate_admin_family_case_runtime():
+    """_migrate_admin_family_case phai doi 'Admin' → 'admin' khi chay init_db()."""
+    import src_brain.network.db as _db
+
+    # Insert legacy 'Admin' family directly, bypassing normalize
+    with _db.get_db_connection() as conn:
+        conn.execute(
+            "INSERT OR IGNORE INTO families (family_id, display_name, created_at) "
+            "VALUES ('Admin', 'Admin', datetime('now'))"
+        )
+        conn.commit()
+
+    # Force re-init so _migrate_admin_family_case runs
+    _db._INITIALIZED = False
+    _db.init_db()
+
+    with _db.get_db_connection() as conn:
+        admin_cap = conn.execute(
+            "SELECT family_id FROM families WHERE family_id = 'Admin'"
+        ).fetchone()
+        admin_low = conn.execute(
+            "SELECT family_id FROM families WHERE family_id = 'admin'"
+        ).fetchone()
+
+    assert admin_cap is None, "'Admin' phai duoc xoa sau migration"
+    assert admin_low is not None, "'admin' phai ton tai sau migration"
+
+
+test("32.1 normalize: respects FAMILY_ID env var", test_32_1_normalize_family_id_respects_env)
+test("32.2 normalize: 'default' fallback when env not set", test_32_2_normalize_family_id_default_fallback)
+test("32.3 normalize: unified import across modules", test_32_3_normalize_unified_across_modules)
+test("32.4 get_homework_sessions: explicit columns only", test_32_4_get_homework_sessions_explicit_columns)
+test("32.5 seed_admin: uses lowercase 'admin' family", test_32_5_seed_admin_uses_lowercase_family)
+test("32.6 clear_all_memories: accepts family_id param", test_32_6_clear_all_memories_accepts_family_id)
+test("32.7 DB: _migrate_admin_family_case runtime", test_32_7_migrate_admin_family_case_runtime)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

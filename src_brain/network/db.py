@@ -4,6 +4,7 @@ db.py - SQLite storage helpers for Robot Bi network persistence.
 
 import json
 import logging
+import os
 import sqlite3
 import threading
 from contextlib import contextmanager
@@ -25,7 +26,7 @@ def _utc_now_iso() -> str:
 
 def _normalize_family_id(family_id: str | None) -> str:
     fid = (family_id or "").strip()
-    return fid or "default"
+    return fid or os.getenv("FAMILY_ID", "default")
 
 
 def _ensure_family_exists_conn(conn, family_id: str | None, display_name: str | None = None) -> str:
@@ -390,6 +391,9 @@ def init_db() -> None:
 
             _migrate_turns_role_constraint(conn)
 
+            # Normalize legacy capitalized 'Admin' family to lowercase 'admin'
+            _migrate_admin_family_case(conn)
+
             conn.commit()
 
             # Migrate du lieu cu
@@ -529,6 +533,23 @@ def _migrate_turns_role_constraint(conn) -> None:
     conn.execute("PRAGMA foreign_keys = ON")
 
 
+def _migrate_admin_family_case(conn) -> None:
+    """Rename legacy 'Admin' (capital A) family to lowercase 'admin' if present."""
+    row = conn.execute("SELECT family_id FROM families WHERE family_id = 'Admin'").fetchone()
+    if not row:
+        return
+    conn.execute(
+        "INSERT OR IGNORE INTO families (family_id, display_name, created_at) VALUES ('admin', 'admin', ?)",
+        (_utc_now_iso(),),
+    )
+    # FK is ON but 'admin' now exists, so these UPDATEs are safe
+    conn.execute("UPDATE users SET family_name = 'admin' WHERE family_name = 'Admin'")
+    conn.execute("UPDATE conversations SET family_id = 'admin' WHERE family_id = 'Admin'")
+    conn.execute("UPDATE events SET family_id = 'admin' WHERE family_id = 'Admin'")
+    conn.execute("UPDATE tasks SET family_id = 'admin' WHERE family_id = 'Admin'")
+    conn.execute("DELETE FROM families WHERE family_id = 'Admin'")
+
+
 def create_session(family_id: str) -> str:
     family_id = ensure_family_exists(family_id)
     session_id = uuid4().hex
@@ -664,7 +685,9 @@ def get_homework_sessions(
     with get_db_connection() as conn:
         rows = conn.execute(
             """
-            SELECT *
+            SELECT session_id, family_id, title,
+                   started_at, ended_at, turn_count,
+                   is_homework, homework_marked_at
             FROM conversations
             WHERE family_id = ? AND is_homework = 1
             ORDER BY started_at DESC
@@ -717,6 +740,8 @@ def delete_family_record(family_id: str) -> bool:
         if not row:
             return False
 
+        # Delete order matters: child rows before parent rows.
+        # auth_tokens has no FK to families — must cascade manually via user_id.
         user_rows = conn.execute(
             "SELECT user_id FROM users WHERE family_name = ?",
             (fid,),
@@ -724,11 +749,13 @@ def delete_family_record(family_id: str) -> bool:
         user_ids = [str(row["user_id"]) for row in user_rows]
         if user_ids:
             placeholders = ",".join("?" for _ in user_ids)
+            # Step 1: auth_tokens (no FK to families; references users)
             conn.execute(
                 f"DELETE FROM auth_tokens WHERE user_id IN ({placeholders})",
                 tuple(user_ids),
             )
 
+        # Step 2: turns (FK → conversations, not families directly)
         conn.execute(
             """
             DELETE FROM turns
@@ -738,10 +765,14 @@ def delete_family_record(family_id: str) -> bool:
             """,
             (fid,),
         )
+        # Steps 3-5: tables with FK → families (ON DELETE CASCADE would handle
+        # these if FK enforcement is active, but explicit deletes are safer)
         conn.execute("DELETE FROM conversations WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM events WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM tasks WHERE family_id = ?", (fid,))
+        # Step 6: users (FK → families)
         conn.execute("DELETE FROM users WHERE family_name = ?", (fid,))
+        # Step 7: families (parent row — delete last)
         cur = conn.execute("DELETE FROM families WHERE family_id = ?", (fid,))
         conn.commit()
         return cur.rowcount > 0

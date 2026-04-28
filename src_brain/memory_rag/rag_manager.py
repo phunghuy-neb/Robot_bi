@@ -34,6 +34,8 @@ import logging
 from datetime import datetime
 from typing import Optional
 
+from src_brain.network.db import _normalize_family_id
+
 logger = logging.getLogger("rag_manager")
 logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -186,13 +188,8 @@ class RAGManager:
         """Chuyển text thành vector embedding."""
         return self._embed_model.encode(text, convert_to_numpy=True).tolist()
 
-    @staticmethod
-    def _normalize_family_id(family_id: str | None = None) -> str:
-        fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
-        return fid or "default"
-
     def _family_where(self, family_id: str | None = None) -> dict:
-        return {"family_id": self._normalize_family_id(family_id)}
+        return {"family_id": _normalize_family_id(family_id)}
 
     def _count_memories(self, family_id: str | None = None) -> int:
         try:
@@ -222,7 +219,7 @@ class RAGManager:
             results = self._collection.get(include=["metadatas"], limit=total)
             ids_to_update = []
             metadatas = []
-            default_family = self._normalize_family_id("default")
+            default_family = _normalize_family_id("default")
             for doc_id, meta in zip(results.get("ids", []), results.get("metadatas", [])):
                 metadata = dict(meta or {})
                 if not metadata.get("family_id"):
@@ -327,7 +324,7 @@ class RAGManager:
         if not user_text or not user_text.strip():
             return False
 
-        family_id = self._normalize_family_id(family_id)
+        family_id = _normalize_family_id(family_id)
         facts = self._extract_facts(user_text, bi_text)
         if not facts:
             logger.debug("Không tìm được fact nào trong: '%s'", user_text[:60])
@@ -397,7 +394,7 @@ class RAGManager:
         if not query or not query.strip():
             return ""
 
-        family_id = self._normalize_family_id(family_id)
+        family_id = _normalize_family_id(family_id)
         total_items = self._count_memories(family_id)
         if total_items == 0:
             return ""
@@ -446,7 +443,7 @@ class RAGManager:
             Danh sách dict: {"id", "fact", "timestamp", "source"}
         """
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             total = self._count_memories(family_id)
             if total == 0:
                 return []
@@ -489,7 +486,7 @@ class RAGManager:
         if not memory_id:
             return False
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             if not self._memory_belongs_to_family(memory_id, family_id):
                 return False
             self._collection.delete(ids=[memory_id], where=self._family_where(family_id))
@@ -507,7 +504,7 @@ class RAGManager:
             dict: {"total_facts", "oldest_timestamp", "newest_timestamp"}
         """
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             total = self._count_memories(family_id)
             if total == 0:
                 return {"total_facts": 0, "oldest_timestamp": None, "newest_timestamp": None}
@@ -551,7 +548,7 @@ class RAGManager:
 
         fact = fact.strip()
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             fact_id = str(uuid.uuid4())
             self._collection.add(
                 ids=[fact_id],
@@ -585,7 +582,7 @@ class RAGManager:
         if not memory_id or not new_fact or not new_fact.strip():
             return False
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             if not self._memory_belongs_to_family(memory_id, family_id):
                 return False
             self._collection.delete(ids=[memory_id], where=self._family_where(family_id))
@@ -626,13 +623,16 @@ class RAGManager:
             True nếu xóa thành công
         """
         try:
-            family_id = self._normalize_family_id(family_id)
+            family_id = _normalize_family_id(family_id)
             all_items = self._collection.get(
                 where=self._family_where(family_id),
                 include=["metadatas"],
             )
             if all_items["ids"]:
-                self._collection.delete(ids=all_items["ids"])
+                self._collection.delete(
+                    ids=all_items["ids"],
+                    where=self._family_where(family_id),
+                )
             logger.info("Đã xóa toàn bộ %d memories", len(all_items["ids"]))
             return True
         except Exception as e:

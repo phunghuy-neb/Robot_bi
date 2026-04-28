@@ -157,11 +157,11 @@ def seed_admin_if_empty() -> None:
         password_hash = hash_password(admin_password)
         conn.execute(
             "INSERT OR IGNORE INTO families (family_id, display_name, created_at) VALUES (?, ?, ?)",
-            ("Admin", "Admin", datetime.now(timezone.utc).isoformat()),
+            ("admin", "admin", datetime.now(timezone.utc).isoformat()),
         )
         conn.execute(
             "INSERT INTO users (username, password_hash, family_name, is_admin) VALUES (?, ?, ?, 1)",
-            (admin_username, password_hash, "Admin"),
+            (admin_username, password_hash, "admin"),
         )
         conn.commit()
 

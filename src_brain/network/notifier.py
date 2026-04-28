@@ -8,14 +8,13 @@ SRS 4.2: Thu vien clip su kien + Nhat ky chat
 import asyncio
 import json
 import logging
-import os
 import threading
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from src_brain.network.db import ensure_family_exists, get_db_connection
+from src_brain.network.db import _normalize_family_id, ensure_family_exists, get_db_connection
 
 logger = logging.getLogger("notifier")
 
@@ -33,11 +32,6 @@ def set_ws_broadcaster(fn) -> None:
     global _ws_broadcast_fn, _WS_ENABLED
     _ws_broadcast_fn = fn
     _WS_ENABLED = (fn is not None)
-
-
-def _normalize_family_id(family_id: str | None = None) -> str:
-    fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
-    return fid or "default"
 
 
 class EventNotifier:

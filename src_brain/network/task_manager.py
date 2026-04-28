@@ -13,18 +13,12 @@ Class: TaskManager
   stop()
 """
 
-import os
 import threading
 import time
 import uuid
 from datetime import datetime
 
-from src_brain.network.db import ensure_family_exists, get_db_connection
-
-
-def _normalize_family_id(family_id: str | None = None) -> str:
-    fid = (family_id or os.getenv("FAMILY_ID", "default")).strip()
-    return fid or "default"
+from src_brain.network.db import _normalize_family_id, ensure_family_exists, get_db_connection
 
 
 class TaskManager:
