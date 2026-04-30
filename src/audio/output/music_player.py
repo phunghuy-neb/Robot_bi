@@ -114,11 +114,35 @@ class MusicPlayer:
             return False
 
     def play_lullaby(self, fade_duration_min: int = 15):
-        """Phat nhac ru ngu va ghi nhan fade duration mo phong."""
+        """ Phát nhạc ru ngủ từ resources/music/lullabies/ 
+        Giảm volume từ 80% → 0% trong fade_duration_min phút 
+        Dùng threading.Timer để fade gradient 
+        Tắt hẳn khi volume = 0 """
         try:
+            self.set_volume(80)
             result = self.play(category="lullabies")
             if self.track is not None:
                 self.track["fade_duration_min"] = max(1, int(fade_duration_min))
+            
+            total_steps = 10
+            
+            def _fade_step(current_vol, target_vol, steps_remaining):
+                if steps_remaining <= 0 or current_vol <= 0:
+                    self.stop()
+                    return
+                new_vol = current_vol - (current_vol / steps_remaining)
+                self.set_volume(int(new_vol))
+                import threading
+                timer = threading.Timer(
+                    fade_duration_min * 60 / total_steps,
+                    _fade_step,
+                    args=[new_vol, 0, steps_remaining - 1]
+                )
+                timer.daemon = True
+                timer.start()
+
+            _fade_step(80, 0, total_steps)
+            
             return result
         except Exception:
             logger.exception("[MusicPlayer] play_lullaby failed")

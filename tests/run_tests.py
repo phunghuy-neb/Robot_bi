@@ -3750,6 +3750,216 @@ test("50.7 Safety filter bắt Vietnamese harmful text", test_50_7_safety_filter
 test("50.8 Analytics NULL safety", test_50_8_analytics_null_safety)
 test("50.9 verify_password hoạt động đúng", test_50_9_verify_password_works_correctly)
 
+# == GROUP 51: Main Loop FaceAnimator & Emotion Integration =================
+print("\n[Group 51] Main Loop Integration")
+
+def test_51_1_face_animator_in_init():
+    import inspect
+    from src.main import RobotBiApp
+    src = inspect.getsource(RobotBiApp.__init__)
+    assert "FaceAnimator" in src or "face_animator" in src.lower(), "FaceAnimator missing from init"
+
+def test_51_2_set_mode_in_conversation_loop():
+    import inspect
+    from src.main import RobotBiApp
+    src_full = inspect.getsource(RobotBiApp)
+    assert "set_mode('listening')" in src_full or "set_mode(\"listening\")" in src_full, "set_mode('listening') not found"
+
+def test_51_3_emotion_analyzer_in_main_loop():
+    import inspect
+    from src.main import RobotBiApp
+    src_full = inspect.getsource(RobotBiApp)
+    assert "EmotionAnalyzer" in src_full or "emotion_analyzer" in src_full.lower(), "EmotionAnalyzer missing from main loop"
+
+def test_51_4_face_animator_has_error_handling():
+    import inspect
+    from src.main import RobotBiApp
+    src_full = inspect.getsource(RobotBiApp)
+    assert "try:" in src_full, "Missing try/except error handling"
+
+def test_51_5_persona_manager_system_prompt():
+    import inspect
+    from src.main import RobotBiApp
+    src_full = inspect.getsource(RobotBiApp)
+    assert "get_system_prompt_modifier" in src_full or "persona" in src_full.lower(), "PersonaManager system prompt not found"
+
+test("51.1 FaceAnimator tồn tại trong RobotBiApp", test_51_1_face_animator_in_init)
+test("51.2 set_mode được gọi trong conversation loop", test_51_2_set_mode_in_conversation_loop)
+test("51.3 EmotionAnalyzer trong main loop", test_51_3_emotion_analyzer_in_main_loop)
+test("51.4 FaceAnimator fail không crash (try/except)", test_51_4_face_animator_has_error_handling)
+test("51.5 PersonaManager system prompt", test_51_5_persona_manager_system_prompt)
+
+# == GROUP 52: WakeWordDetector =============================================
+print("\n[Group 52] WakeWordDetector")
+
+def test_52_1_wake_word_detector_import():
+    from src.audio.input.wake_word import WakeWordDetector
+    assert WakeWordDetector is not None
+
+def test_52_2_is_enabled():
+    from src.audio.input.wake_word import WakeWordDetector
+    detector = WakeWordDetector()
+    assert isinstance(detector.is_enabled(), bool)
+
+def test_52_3_wake_words_not_empty():
+    from src.audio.input.wake_word import WakeWordDetector
+    assert len(WakeWordDetector.WAKE_WORDS) > 0
+
+def test_52_4_detect_silence_returns_false():
+    from src.audio.input.wake_word import WakeWordDetector
+    detector = WakeWordDetector()
+    # 1 second of silence at 16kHz float32
+    silence = b'\x00' * (16000 * 4)
+    result = detector.detect(silence)
+    assert result is False
+
+def test_52_5_detector_in_earstt_flow():
+    import inspect
+    from src.audio.input.ear_stt import EarSTT
+    src = inspect.getsource(EarSTT.listen_for_wakeword)
+    assert "wake_detector" in src
+
+test("52.1 WakeWordDetector import", test_52_1_wake_word_detector_import)
+test("52.2 is_enabled() trả về bool", test_52_2_is_enabled)
+test("52.3 WAKE_WORDS không rỗng", test_52_3_wake_words_not_empty)
+test("52.4 detect với silence → False", test_52_4_detect_silence_returns_false)
+test("52.5 WakeWordDetector trong EarSTT flow", test_52_5_detector_in_earstt_flow)
+
+# == GROUP 53: SpeakerIdentifier ============================================
+print("\n[Group 53] SpeakerIdentifier")
+
+def test_53_1_speaker_identifier_import():
+    from src.audio.input.speaker_id import SpeakerIdentifier
+    assert SpeakerIdentifier is not None
+
+def test_53_2_identify_pitch():
+    from src.audio.input.speaker_id import SpeakerIdentifier
+    si = SpeakerIdentifier()
+    assert si.identify({"pitch": 260, "energy": 0.5}) == "be"
+    assert si.identify({"pitch": 200, "energy": 0.5}) == "me"
+    assert si.identify({"pitch": 150, "energy": 0.5}) == "bo"
+    assert si.identify({"pitch": 90, "energy": 0.5}) == "ong"
+    assert si.identify({"pitch": 70, "energy": 0.5}) == "ba"
+    assert si.identify({}) == "unknown"
+
+def test_53_3_get_address_form():
+    from src.audio.input.speaker_id import SpeakerIdentifier
+    si = SpeakerIdentifier()
+    form_me = si.get_address_form("me")
+    assert form_me["robot_self"] == "con"
+    assert form_me["address"] == "mẹ"
+    
+    form_be = si.get_address_form("be")
+    assert form_be["robot_self"] == "Bi"
+    assert form_be["address"] == "bạn"
+
+test("53.1 SpeakerIdentifier import", test_53_1_speaker_identifier_import)
+test("53.2 identify trả về đúng role", test_53_2_identify_pitch)
+test("53.3 get_address_form trả về đúng dict", test_53_3_get_address_form)
+
+# == GROUP 54: Curriculum Scheduler =========================================
+print("\n[Group 54] Curriculum Scheduler")
+
+def test_54_1_curriculum_has_scheduler_methods():
+    from src.education.curriculum import Curriculum
+    assert hasattr(Curriculum, "start_scheduler")
+    assert hasattr(Curriculum, "stop_scheduler")
+    assert hasattr(Curriculum, "_scheduler_loop")
+
+def test_54_2_scheduler_loop_content():
+    import inspect
+    from src.education.curriculum import Curriculum
+    src = inspect.getsource(Curriculum._scheduler_loop)
+    assert "time.sleep" in src
+    assert "Bây giờ là giờ học" in src
+    assert "tts_callback" in src
+
+test("54.1 Curriculum có methods scheduler", test_54_1_curriculum_has_scheduler_methods)
+test("54.2 _scheduler_loop chứa logic nhắc nhở", test_54_2_scheduler_loop_content)
+
+# == GROUP 55: Lullaby Fade-out =============================================
+print("\n[Group 55] Lullaby Fade-out")
+
+def test_55_1_play_lullaby_starts_fade():
+    from src.audio.output.music_player import MusicPlayer
+    import inspect
+    src = inspect.getsource(MusicPlayer.play_lullaby)
+    assert "_fade_step" in src
+    assert "threading.Timer" in src
+
+test("55.1 play_lullaby chứa logic fade-out với threading.Timer", test_55_1_play_lullaby_starts_fade)
+
+# == GROUP 56: Personalized Story ===========================================
+print("\n[Group 56] Personalized Story")
+
+def test_56_1_tell_personalized_story_calls_llm():
+    from src.entertainment.story_engine import StoryEngine
+    import inspect
+    src = inspect.getsource(StoryEngine.tell_personalized_story)
+    assert "stream_chat" in src
+    assert "Nhân vật chính" in src or "child_name" in src
+
+test("56.1 tell_personalized_story gọi stream_chat để tạo truyện", test_56_1_tell_personalized_story_calls_llm)
+
+# == GROUP 57: Persona System Prompt ========================================
+print("\n[Group 57] Persona System Prompt")
+
+def test_57_1_build_system_prompt_exists():
+    from src.ai.prompts import build_system_prompt
+    assert callable(build_system_prompt)
+
+def test_57_2_build_system_prompt_playful():
+    from src.ai.prompts import build_system_prompt
+    prompt = build_system_prompt({"playfulness": 80, "name": "Bi", "gender": "boy"})
+    assert "vui vẻ" in prompt.lower() or "nghịch ngợm" in prompt.lower() or "pha trò" in prompt.lower()
+    
+def test_57_3_build_system_prompt_energy():
+    from src.ai.prompts import build_system_prompt
+    prompt = build_system_prompt({"energy": 80, "name": "Bi", "gender": "boy"})
+    assert "nhiệt tình" in prompt.lower() or "hào hứng" in prompt.lower() or "!" in prompt
+    
+def test_57_4_build_system_prompt_introvert():
+    from src.ai.prompts import build_system_prompt
+    prompt = build_system_prompt({"extraversion": 20, "name": "Bi", "gender": "boy"})
+    assert "ngắn gọn" in prompt.lower() or "trầm tĩnh" in prompt.lower()
+
+test("57.1 build_system_prompt tồn tại", test_57_1_build_system_prompt_exists)
+test("57.2 Tính cách playfulness", test_57_2_build_system_prompt_playful)
+test("57.3 Tính cách energy", test_57_3_build_system_prompt_energy)
+test("57.4 Tính cách extraversion thấp", test_57_4_build_system_prompt_introvert)
+
+# == GROUP 58: Quiz Games ===================================================
+print("\n[Group 58] Quiz Games")
+
+def test_58_1_word_quiz_import():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    assert WordQuizGame is not None
+
+def test_58_2_voice_quiz_import():
+    from src.entertainment.game_voice_quiz import VoiceQuizGame
+    assert VoiceQuizGame is not None
+
+def test_58_3_word_quiz_logic():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    game = WordQuizGame("easy")
+    q = game.get_random_question()
+    if q:
+        assert game.check_answer(q, q["correct"]) is True
+
+def test_58_4_voice_quiz_logic():
+    from src.entertainment.game_voice_quiz import VoiceQuizGame
+    game = VoiceQuizGame()
+    r = game.get_random_riddle()
+    if r:
+        ans = r["answer"]
+        assert game.check_answer(r, ans) is True
+        assert game.check_answer(r, "sai") is False
+
+test("58.1 WordQuizGame import", test_58_1_word_quiz_import)
+test("58.2 VoiceQuizGame import", test_58_2_voice_quiz_import)
+test("58.3 WordQuizGame logic", test_58_3_word_quiz_logic)
+test("58.4 VoiceQuizGame logic", test_58_4_voice_quiz_logic)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

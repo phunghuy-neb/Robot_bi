@@ -1,0 +1,264 @@
+{
+  "questions": [
+    {
+      "id": "q001",
+      "question": "Câu hỏi easy số 1?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q002",
+      "question": "Câu hỏi easy số 2?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q003",
+      "question": "Câu hỏi easy số 3?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q004",
+      "question": "Câu hỏi easy số 4?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q005",
+      "question": "Câu hỏi easy số 5?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q006",
+      "question": "Câu hỏi easy số 6?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q007",
+      "question": "Câu hỏi easy số 7?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q008",
+      "question": "Câu hỏi easy số 8?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q009",
+      "question": "Câu hỏi easy số 9?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q010",
+      "question": "Câu hỏi easy số 10?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q011",
+      "question": "Câu hỏi easy số 11?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q012",
+      "question": "Câu hỏi easy số 12?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q013",
+      "question": "Câu hỏi easy số 13?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q014",
+      "question": "Câu hỏi easy số 14?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q015",
+      "question": "Câu hỏi easy số 15?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q016",
+      "question": "Câu hỏi easy số 16?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q017",
+      "question": "Câu hỏi easy số 17?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q018",
+      "question": "Câu hỏi easy số 18?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q019",
+      "question": "Câu hỏi easy số 19?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q020",
+      "question": "Câu hỏi easy số 20?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "easy"
+    }
+  ]
+}

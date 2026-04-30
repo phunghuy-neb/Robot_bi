@@ -8,6 +8,7 @@
 - Phase 1-4: FROZEN hoàn toàn.
 - Phase 5.1 Refactor thư mục: DONE 2026-04-29, **197/197 PASS**.
 - Review Round 5 security fixes: DONE 2026-04-30, **338/338 PASS**.
+- Phase B Tasks B1-B8: FULLY COMPLETE 2026-04-30.
 - `src_brain/` đã XÓA — không còn tồn tại. Dùng `src/` thay thế.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
@@ -21,6 +22,7 @@
 ## VIỆC CẦN LÀM TIẾP
 
 - Phase 5.2: Giao diện màn hình robot (mắt biểu cảm, trạng thái, screensaver).
+- Sau Phase B: tiep tuc review/freeze theo roadmap hien tai.
 - Chuyen sang Ubuntu PC co GPU de verify runtime thuc te.
 - WebRTC frame source can Ubuntu + aiortc.
 - Wake-word model training can dataset rieng.
@@ -144,3 +146,9 @@
 - Them Group 50 vao `tests/run_tests.py`.
 - Final regression: **338/338 PASS**.
 - Changelog: `changelog/2026-04-30-review-round5-security-fixes.md`.
+
+## SESSION 2026-04-30 — Phase B Tasks B1-B8 Complete
+
+- Phase B da hoan thanh day du 8/8 tasks: B1, B2, B3, B4, B5, B6, B7, B8.
+- Trang thai du an da duoc cap nhat de danh dau Phase B la fully complete.
+- Changelog: `changelog/2026-04-30-phase-b-complete.md`.

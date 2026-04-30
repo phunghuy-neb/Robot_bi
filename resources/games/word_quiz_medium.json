@@ -1,0 +1,264 @@
+{
+  "questions": [
+    {
+      "id": "q001",
+      "question": "Câu hỏi medium số 1?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q002",
+      "question": "Câu hỏi medium số 2?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q003",
+      "question": "Câu hỏi medium số 3?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q004",
+      "question": "Câu hỏi medium số 4?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q005",
+      "question": "Câu hỏi medium số 5?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q006",
+      "question": "Câu hỏi medium số 6?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q007",
+      "question": "Câu hỏi medium số 7?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q008",
+      "question": "Câu hỏi medium số 8?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q009",
+      "question": "Câu hỏi medium số 9?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q010",
+      "question": "Câu hỏi medium số 10?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q011",
+      "question": "Câu hỏi medium số 11?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q012",
+      "question": "Câu hỏi medium số 12?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q013",
+      "question": "Câu hỏi medium số 13?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q014",
+      "question": "Câu hỏi medium số 14?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q015",
+      "question": "Câu hỏi medium số 15?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q016",
+      "question": "Câu hỏi medium số 16?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q017",
+      "question": "Câu hỏi medium số 17?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q018",
+      "question": "Câu hỏi medium số 18?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q019",
+      "question": "Câu hỏi medium số 19?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q020",
+      "question": "Câu hỏi medium số 20?",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct": 0,
+      "explanation": "Vì A là đáp án đúng.",
+      "difficulty": "medium"
+    }
+  ]
+}

@@ -37,6 +37,8 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 
+from src.audio.input.wake_word import WakeWordDetector
+
 logger = logging.getLogger(__name__)
 
 # ── Cấu hình ─────────────────────────────────────────────────────────────────
@@ -135,12 +137,14 @@ class EarSTT:
         self.silent_mode = False
         self._mic_error_logged = False
         self._probe_microphone()
+        self.wake_detector = WakeWordDetector()
 
         # Trigger lazy load ngay khi khởi tạo để không bị lag lần đầu nghe
         try:
             _get_whisper_model()
         except Exception as e:
             logger.warning("[Bi - Tai] Cảnh báo: không load được Whisper model: %s", e)
+
 
     def _probe_microphone(self) -> None:
         """Tìm cấu hình microphone có thể mở được mà không làm crash pipeline."""
@@ -343,35 +347,21 @@ class EarSTT:
 def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
         """
         Listen for the wake-word within the timeout window.
-
-        For development/testing, openWakeWord is initialized with `wakeword_models=[]`
-        so it uses the built-in "hey_jarvis" model as a proxy until a custom
-        "bi_oi" model is available.
+        Sử dụng WakeWordDetector với faster-whisper.
         """
-        global WAKEWORD_ENABLED, _wakeword_model, _wakeword_import_warning_logged
+        global WAKEWORD_ENABLED
 
-        if not WAKEWORD_ENABLED:
-            return False
-
-        try:
-            from openwakeword.model import Model
-        except Exception as e:
-            if not _wakeword_import_warning_logged:
-                logger.warning("[Bi - Tai] Warning wake-word: openwakeword import failed: %s", e)
-                _wakeword_import_warning_logged = True
-            WAKEWORD_ENABLED = False
+        # Dùng config của wake_detector thay vì WAKEWORD_ENABLED hardcoded
+        if not self.wake_detector.is_enabled():
             return False
 
         if self.silent_mode:
             return False
 
-        if _wakeword_model is None:
-            _wakeword_model = Model(wakeword_models=[])
-
-        chunk_frames = int(SAMPLE_RATE * 0.08)
+        chunk_frames = int(SAMPLE_RATE * 1.5)
         deadline = time.monotonic() + max(0.0, timeout)
 
-        logger.debug('[Bi - Tai] Chờ wake-word "%s"... (timeout=%gs)', WAKEWORD_PHRASE, timeout)
+        logger.debug('[Bi - Tai] Chờ wake-word... (timeout=%gs)', timeout)
 
         try:
             stream = self._create_input_stream(chunk_frames)
@@ -393,8 +383,8 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
                         continue
 
                     chunk, _ = stream.read(chunk_frames)
-                    scores = _wakeword_model.predict(np.asarray(chunk, dtype=np.float32).flatten())
-                    if any(float(score) > WAKEWORD_THRESHOLD for score in scores.values()):
+                    audio_bytes = np.asarray(chunk, dtype=np.float32).flatten().tobytes()
+                    if self.wake_detector.detect(audio_bytes):
                         self._play_beep()
                         return True
             finally:

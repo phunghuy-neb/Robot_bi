@@ -43,6 +43,11 @@ from src.infrastructure.notifications.notifier import get_notifier
 from src.api.server import init_server, start_api_server, get_puppet_queue, init_task_manager, is_mom_talking
 import src.infrastructure.sessions.state as _network_state
 
+from src.display.face_animator import FaceAnimator
+from src.ai.persona_manager import PersonaManager
+from src.emotion.emotion_analyzer import EmotionAnalyzer
+from src.emotion.emotion_alert import EmotionAlert
+
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
 logger = logging.getLogger(__name__)
@@ -81,6 +86,18 @@ class RobotBiApp:
 
         # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
+
+        try:
+            self._face = FaceAnimator(notifier=self.notifier)
+            self._persona = PersonaManager(family_id=self._family_id)
+            self._emotion = EmotionAnalyzer(family_id=self._family_id)
+            self._alert = EmotionAlert()
+        except Exception as e:
+            logger.error("[Init] Error init Face/Persona/Emotion: %s", e)
+            self._face = None
+            self._persona = None
+            self._emotion = None
+            self._alert = None
 
         # CryDetector — daemon thread song song
         self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
@@ -125,10 +142,20 @@ class RobotBiApp:
                 continue
             try:
                 pygame.mixer.music.load(audio_file)
+                if self._face:
+                    try:
+                        self._face.set_mode('talking')
+                    except Exception:
+                        pass
                 pygame.mixer.music.play()
                 while pygame.mixer.music.get_busy():
                     clock.tick(10)
                 pygame.mixer.music.unload()
+                if self._face:
+                    try:
+                        self._face.set_mode('idle')
+                    except Exception:
+                        pass
             except Exception as e:
                 logger.error("[Bi - Miệng] Lỗi phát audio: %s", e)
             finally:
@@ -237,6 +264,15 @@ class RobotBiApp:
         except Exception as e:
             logger.warning("[Bi - Homework] Loi classify/mark homework: %s", e)
 
+    def _check_emotion_alert(self):
+        try:
+            if self._alert and self._emotion:
+                self._alert.check_and_alert(
+                    self._family_id, self._emotion, self.notifier
+                )
+        except Exception:
+            pass
+
     def _shutdown(self):
         if self._shutdown_done:
             return
@@ -299,10 +335,36 @@ class RobotBiApp:
                         _time.sleep(0.5)
                         continue
 
+                    if self._face:
+                        try:
+                            self._face.set_mode('listening')
+                        except Exception:
+                            pass
+
                     user_text = self.ear.listen()
+                    
                     if not user_text:
+                        if self._face:
+                            try:
+                                self._face.set_mode('idle')
+                            except Exception:
+                                pass
                         self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
                         continue
+
+                    try:
+                        if self._emotion:
+                            emotion, confidence = self._emotion.analyze_text(user_text)
+                            self._emotion.record_emotion(
+                                emotion, confidence, family_id=self._family_id
+                            )
+                            # Check alert trong background thread
+                            threading.Thread(
+                                target=self._check_emotion_alert,
+                                daemon=True
+                            ).start()
+                    except Exception as e:
+                        logger.debug("[Emotion] Analysis skip: %s", e)
 
                     logger.debug("[Bi - Não] Đang suy nghĩ...")
                     buffer = ""
@@ -329,6 +391,20 @@ class RobotBiApp:
                         user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
                         # DEBUG: chứa PII - tắt trong production.
                         logger.debug("[Bi - Trí nhớ] %s", rag_context)
+
+                    if self._face:
+                        try:
+                            self._face.set_mode('thinking')
+                        except Exception:
+                            pass
+
+                    if self._persona:
+                        try:
+                            persona_mod = self._persona.get_system_prompt_modifier()
+                            if persona_mod:
+                                user_text = f"System Instruction: {persona_mod}\n\n{user_text}"
+                        except Exception as e:
+                            logger.debug("[Persona] Error: %s", e)
 
                     # Stream tokens từ LLM, tách câu theo . ? ! \n
                     full_reply_parts = []
@@ -376,6 +452,12 @@ class RobotBiApp:
 
                     # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                     self.audio_queue.join()
+
+                    if self._face:
+                        try:
+                            self._face.set_mode('idle')
+                        except Exception:
+                            pass
 
                     # Xử lý puppet sau khi Bi nói xong
                     self._handle_puppet_queue()

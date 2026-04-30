@@ -45,3 +45,32 @@ REFUSAL_RESPONSE = "Bi chưa có dữ liệu về vấn đề này."
 
 # ── Câu chào mở đầu ───────────────────────────────────────────────────────────
 GREETING = "Xin chào! Mình là Bi! Robot gia sư của bạn đây! Hôm nay bạn muốn học gì nào?"
+
+# ── Dynamic Prompt Builder ───────────────────────────────────────────────────
+def build_system_prompt(persona: dict) -> str:
+    """ Tạo system prompt dựa trên tính cách:
+    Nếu playfulness > 70:
+        "Hãy trả lời vui vẻ, nghịch ngợm, hay pha trò"
+    Nếu energy > 70:
+        "Hãy nhiệt tình, hào hứng, dùng nhiều dấu !"
+    Nếu extraversion < 30:
+        "Hãy trả lời ngắn gọn, trầm tĩnh"
+
+    Kết hợp với tên robot và giới tính.
+    """
+    name = persona.get("name", "Bi")
+    gender = persona.get("gender", "robot")
+    playfulness = persona.get("playfulness", 50)
+    energy = persona.get("energy", 50)
+    extraversion = persona.get("extraversion", 50)
+    
+    prompt = f"Bạn là {name}, một {gender} gia sư thông minh.\n"
+    
+    if playfulness > 70:
+        prompt += "Hãy trả lời vui vẻ, nghịch ngợm, hay pha trò.\n"
+    if energy > 70:
+        prompt += "Hãy nhiệt tình, hào hứng, dùng nhiều dấu !\n"
+    if extraversion < 30:
+        prompt += "Hãy trả lời ngắn gọn, trầm tĩnh.\n"
+        
+    return prompt

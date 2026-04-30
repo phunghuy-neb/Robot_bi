@@ -111,10 +111,37 @@ class StoryEngine:
             return {"title": "", "content": "", "duration_estimate": 0, "moral": ""}
 
     def tell_personalized_story(self, child_name: str, interests: list[str]) -> dict:
-        """Ke chuyen co ten be lam nhan vat chinh."""
+        """ Dùng LLM tạo truyện có: 
+        - Nhân vật chính tên = child_name 
+        - Chủ đề dựa trên interests (từ RAG memory) 
+        - Độ dài ~5 phút đọc 
+        - Kết thúc có moral lesson 
+        - Phù hợp tuổi 5-12
+        System prompt đặc biệt để LLM tạo truyện
+        ngắn gọn, sinh động, có tên bé trong đó.
+        """
         try:
-            topic = ", ".join(interests or ["hoc tap"])
-            return self.tell_story(custom_request=topic, character_name=child_name)
+            from src.ai.ai_engine import stream_chat
+            topic = ", ".join(interests or ["khám phá thế giới"])
+            prompt = (
+                f"Bạn là người kể chuyện cho trẻ em. Hãy kể một câu chuyện ngắn gọn (khoảng 3-5 phút đọc). "
+                f"Nhân vật chính là bé tên là {child_name}. "
+                f"Chủ đề câu chuyện liên quan đến: {topic}. "
+                f"Câu chuyện phải sinh động, phù hợp cho trẻ 5-12 tuổi và kết thúc bằng một bài học đạo đức rõ ràng. "
+                f"Chỉ trả về nội dung câu chuyện, không thêm giải thích gì khác."
+            )
+            messages = [{"role": "user", "content": prompt}]
+            
+            content = ""
+            for token in stream_chat(messages):
+                content += token
+                
+            return {
+                "title": f"Chuyến phiêu lưu của {child_name}",
+                "content": content.strip(),
+                "duration_estimate": 5,
+                "moral": "Bài học từ câu chuyện"
+            }
         except Exception:
             logger.exception("[StoryEngine] tell_personalized_story failed")
             return {"title": "", "content": "", "duration_estimate": 0, "moral": ""}
