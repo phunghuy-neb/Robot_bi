@@ -1,0 +1,8 @@
+{
+  "category": "vietnamese",
+  "tracks": [
+    {"id": "vi_001", "title": "Ca Dao Tuoi Tho", "artist": "Robot Bi", "duration_sec": 150, "language": "vi", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "vi_002", "title": "Em Yeu Truong Em", "artist": "Thieu nhi", "duration_sec": 180, "language": "vi", "copyright": true, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "vi_003", "title": "Ngay Vui Cua Be", "artist": "Robot Bi", "duration_sec": 135, "language": "vi", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null}
+  ]
+}

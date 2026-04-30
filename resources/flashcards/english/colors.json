@@ -1,0 +1,19 @@
+{
+  "subject": "english",
+  "topic": "colors",
+  "language": "en",
+  "cards": [
+    {"id": "en_color_001", "emoji": "🔴", "word": "RED", "phonetic": "/red/", "meaning": "Màu đỏ", "example": "The apple is red.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_002", "emoji": "🔵", "word": "BLUE", "phonetic": "/bluː/", "meaning": "Màu xanh dương", "example": "The sky is blue.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_003", "emoji": "🟢", "word": "GREEN", "phonetic": "/ɡriːn/", "meaning": "Màu xanh lá", "example": "The leaf is green.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_004", "emoji": "🟡", "word": "YELLOW", "phonetic": "/ˈjeloʊ/", "meaning": "Màu vàng", "example": "The sun is yellow.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_005", "emoji": "⚫", "word": "BLACK", "phonetic": "/blæk/", "meaning": "Màu đen", "example": "The cat is black.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_006", "emoji": "⚪", "word": "WHITE", "phonetic": "/waɪt/", "meaning": "Màu trắng", "example": "Snow is white.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_007", "emoji": "🟣", "word": "PURPLE", "phonetic": "/ˈpɜːrpl/", "meaning": "Màu tím", "example": "The flower is purple.", "difficulty": 2, "tags": ["color"]},
+    {"id": "en_color_008", "emoji": "🟠", "word": "ORANGE", "phonetic": "/ˈɔːrɪndʒ/", "meaning": "Màu cam", "example": "The orange is orange.", "difficulty": 2, "tags": ["color"]},
+    {"id": "en_color_009", "emoji": "🟤", "word": "BROWN", "phonetic": "/braʊn/", "meaning": "Màu nâu", "example": "The bear is brown.", "difficulty": 2, "tags": ["color"]},
+    {"id": "en_color_010", "emoji": "🌸", "word": "PINK", "phonetic": "/pɪŋk/", "meaning": "Màu hồng", "example": "The flower is pink.", "difficulty": 1, "tags": ["color"]},
+    {"id": "en_color_011", "emoji": "🩶", "word": "GRAY", "phonetic": "/ɡreɪ/", "meaning": "Màu xám", "example": "The cloud is gray.", "difficulty": 2, "tags": ["color"]},
+    {"id": "en_color_012", "emoji": "✨", "word": "GOLD", "phonetic": "/ɡoʊld/", "meaning": "Màu vàng kim", "example": "The star is gold.", "difficulty": 2, "tags": ["color"]}
+  ]
+}

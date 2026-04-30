@@ -1,0 +1,27 @@
+{
+  "subject": "math",
+  "topic": "addition",
+  "language": "vi",
+  "cards": [
+    {"id": "math_add_001", "emoji": "➕", "word": "1 + 1", "phonetic": "", "meaning": "2", "example": "1 quả táo + 1 quả táo = 2 quả táo", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_002", "emoji": "➕", "word": "1 + 2", "phonetic": "", "meaning": "3", "example": "1 + 2 = 3", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_003", "emoji": "➕", "word": "2 + 2", "phonetic": "", "meaning": "4", "example": "2 + 2 = 4", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_004", "emoji": "➕", "word": "2 + 3", "phonetic": "", "meaning": "5", "example": "2 + 3 = 5", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_005", "emoji": "➕", "word": "3 + 3", "phonetic": "", "meaning": "6", "example": "3 + 3 = 6", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_006", "emoji": "➕", "word": "3 + 4", "phonetic": "", "meaning": "7", "example": "3 + 4 = 7", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_007", "emoji": "➕", "word": "4 + 4", "phonetic": "", "meaning": "8", "example": "4 + 4 = 8", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_008", "emoji": "➕", "word": "4 + 5", "phonetic": "", "meaning": "9", "example": "4 + 5 = 9", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_009", "emoji": "➕", "word": "5 + 5", "phonetic": "", "meaning": "10", "example": "5 + 5 = 10", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_010", "emoji": "➕", "word": "6 + 4", "phonetic": "", "meaning": "10", "example": "6 + 4 = 10", "difficulty": 1, "tags": ["addition"]},
+    {"id": "math_add_011", "emoji": "➕", "word": "6 + 5", "phonetic": "", "meaning": "11", "example": "6 + 5 = 11", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_012", "emoji": "➕", "word": "7 + 5", "phonetic": "", "meaning": "12", "example": "7 + 5 = 12", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_013", "emoji": "➕", "word": "7 + 6", "phonetic": "", "meaning": "13", "example": "7 + 6 = 13", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_014", "emoji": "➕", "word": "8 + 6", "phonetic": "", "meaning": "14", "example": "8 + 6 = 14", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_015", "emoji": "➕", "word": "8 + 7", "phonetic": "", "meaning": "15", "example": "8 + 7 = 15", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_016", "emoji": "➕", "word": "9 + 7", "phonetic": "", "meaning": "16", "example": "9 + 7 = 16", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_017", "emoji": "➕", "word": "9 + 8", "phonetic": "", "meaning": "17", "example": "9 + 8 = 17", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_018", "emoji": "➕", "word": "10 + 8", "phonetic": "", "meaning": "18", "example": "10 + 8 = 18", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_019", "emoji": "➕", "word": "10 + 9", "phonetic": "", "meaning": "19", "example": "10 + 9 = 19", "difficulty": 2, "tags": ["addition"]},
+    {"id": "math_add_020", "emoji": "➕", "word": "10 + 10", "phonetic": "", "meaning": "20", "example": "10 + 10 = 20", "difficulty": 2, "tags": ["addition"]}
+  ]
+}

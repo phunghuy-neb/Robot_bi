@@ -1,0 +1,27 @@
+{
+  "subject": "english",
+  "topic": "animals",
+  "language": "en",
+  "cards": [
+    {"id": "en_animal_001", "emoji": "🐱", "word": "CAT", "phonetic": "/kæt/", "meaning": "Con mèo", "example": "The cat is sleeping.", "difficulty": 1, "tags": ["animal", "pet"]},
+    {"id": "en_animal_002", "emoji": "🐶", "word": "DOG", "phonetic": "/dɔːɡ/", "meaning": "Con chó", "example": "The dog is running.", "difficulty": 1, "tags": ["animal", "pet"]},
+    {"id": "en_animal_003", "emoji": "🐦", "word": "BIRD", "phonetic": "/bɜːrd/", "meaning": "Con chim", "example": "The bird can fly.", "difficulty": 1, "tags": ["animal"]},
+    {"id": "en_animal_004", "emoji": "🐟", "word": "FISH", "phonetic": "/fɪʃ/", "meaning": "Con cá", "example": "The fish swims.", "difficulty": 1, "tags": ["animal"]},
+    {"id": "en_animal_005", "emoji": "🐰", "word": "RABBIT", "phonetic": "/ˈræbɪt/", "meaning": "Con thỏ", "example": "The rabbit jumps.", "difficulty": 1, "tags": ["animal"]},
+    {"id": "en_animal_006", "emoji": "🐮", "word": "COW", "phonetic": "/kaʊ/", "meaning": "Con bò", "example": "The cow eats grass.", "difficulty": 1, "tags": ["animal", "farm"]},
+    {"id": "en_animal_007", "emoji": "🐷", "word": "PIG", "phonetic": "/pɪɡ/", "meaning": "Con lợn", "example": "The pig is pink.", "difficulty": 1, "tags": ["animal", "farm"]},
+    {"id": "en_animal_008", "emoji": "🐴", "word": "HORSE", "phonetic": "/hɔːrs/", "meaning": "Con ngựa", "example": "The horse runs fast.", "difficulty": 2, "tags": ["animal", "farm"]},
+    {"id": "en_animal_009", "emoji": "🦁", "word": "LION", "phonetic": "/ˈlaɪən/", "meaning": "Sư tử", "example": "The lion is strong.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_010", "emoji": "🐯", "word": "TIGER", "phonetic": "/ˈtaɪɡər/", "meaning": "Hổ", "example": "The tiger has stripes.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_011", "emoji": "🐘", "word": "ELEPHANT", "phonetic": "/ˈelɪfənt/", "meaning": "Voi", "example": "The elephant is big.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_012", "emoji": "🐵", "word": "MONKEY", "phonetic": "/ˈmʌŋki/", "meaning": "Khỉ", "example": "The monkey likes bananas.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_013", "emoji": "🦒", "word": "GIRAFFE", "phonetic": "/dʒəˈræf/", "meaning": "Hươu cao cổ", "example": "The giraffe has a long neck.", "difficulty": 3, "tags": ["animal", "wild"]},
+    {"id": "en_animal_014", "emoji": "🦓", "word": "ZEBRA", "phonetic": "/ˈziːbrə/", "meaning": "Ngựa vằn", "example": "The zebra is black and white.", "difficulty": 3, "tags": ["animal", "wild"]},
+    {"id": "en_animal_015", "emoji": "🐻", "word": "BEAR", "phonetic": "/ber/", "meaning": "Gấu", "example": "The bear is sleepy.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_016", "emoji": "🐼", "word": "PANDA", "phonetic": "/ˈpændə/", "meaning": "Gấu trúc", "example": "The panda eats bamboo.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_017", "emoji": "🦊", "word": "FOX", "phonetic": "/fɑːks/", "meaning": "Cáo", "example": "The fox is quick.", "difficulty": 2, "tags": ["animal", "wild"]},
+    {"id": "en_animal_018", "emoji": "🐸", "word": "FROG", "phonetic": "/frɔːɡ/", "meaning": "Ếch", "example": "The frog can jump.", "difficulty": 2, "tags": ["animal"]},
+    {"id": "en_animal_019", "emoji": "🦆", "word": "DUCK", "phonetic": "/dʌk/", "meaning": "Vịt", "example": "The duck swims in the pond.", "difficulty": 1, "tags": ["animal", "farm"]},
+    {"id": "en_animal_020", "emoji": "🐢", "word": "TURTLE", "phonetic": "/ˈtɜːrtl/", "meaning": "Rùa", "example": "The turtle walks slowly.", "difficulty": 2, "tags": ["animal"]}
+  ]
+}

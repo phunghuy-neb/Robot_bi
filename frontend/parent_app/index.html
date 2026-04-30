@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Robot Bi</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Robot Bi">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #222;
+      font-size: 14px;
+    }
+
+    /* ── Login overlay ── */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #4a90d9, #1a4f8a);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 28px;
+      width: 320px;
+      max-width: 90vw;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, .3);
+    }
+
+    .login-box h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1e40af;
+      margin-bottom: 6px;
+    }
+
+    .login-box p {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 22px;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 14px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      outline: none;
+      margin-bottom: 14px;
+      font-family: monospace;
+    }
+
+    .pin-input:focus {
+      border-color: #4a90d9;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: #4a90d9;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-login:active {
+      opacity: .8;
+    }
+
+    .login-err {
+      margin-top: 10px;
+      color: #ef4444;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #4a90d9, #2c6fad);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header h1 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stars-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: default;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+    }
+
+    .dot.off {
+      background: #f87171;
+    }
+
+    .btn-logout {
+      background: rgba(255, 255, 255, .2);
+      border: none;
+      color: white;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 48px;
+      z-index: 99;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 52px;
+      padding: 11px 4px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #6b7280;
+      border-bottom: 3px solid transparent;
+      transition: all .2s;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: #4a90d9;
+      border-bottom-color: #4a90d9;
+      font-weight: 700;
+    }
+
+    .tab .tab-icon {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    /* ── Content ── */
+    .content {
+      padding: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding-bottom: 24px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .stat-box {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    }
+
+    .stat-num {
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    /* ── Chat ── */
+    .chat-item {
+      margin-bottom: 14px;
+    }
+
+    .chat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-who {
+      font-size: 10px;
+      color: #9ca3af;
+      padding: 0 4px;
+    }
+
+    .bubble {
+      display: inline-block;
+      padding: 9px 13px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 88%;
+      word-break: break-word;
+    }
+
+    .bubble.user {
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .bubble.bi {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .bubble-user {
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .bubble-bi {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .chat-time {
+      font-size: 10px;
+      color: #d1d5db;
+      margin-top: 3px;
+      padding: 0 4px;
+    }
+
+    /* ── Events ── */
+    .evt-item {
+      display: flex;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f3f4f6;
+      align-items: flex-start;
+    }
+
+    .evt-item:last-child {
+      border-bottom: none;
+    }
+
+    .evt-icon {
+      font-size: 24px;
+      min-width: 34px;
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    .evt-body {
+      flex: 1;
+    }
+
+    .evt-msg {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .evt-time {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    .new-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #ef4444;
+      color: white;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Camera ── */
+    .camera-feed {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 10px;
+      display: block;
+      background: #1f2937;
+    }
+
+    .btn-cam-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+      width: 100%;
+      background: #1f2937;
+      color: white;
+      transition: background .2s;
+    }
+
+    .btn-cam-toggle.on {
+      background: #ef4444;
+    }
+
+    /* ── Memory ── */
+    .mem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .mem-item:last-child {
+      border-bottom: none;
+    }
+
+    .mem-body {
+      flex: 1;
+    }
+
+    .mem-text {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .mem-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    .btn-del {
+      background: none;
+      border: none;
+      color: #f87171;
+      cursor: pointer;
+      font-size: 19px;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    /* ── Tasks ── */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+
+    .task-check.done {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: white;
+      font-size: 12px;
+    }
+
+    .task-body {
+      flex: 1;
+    }
+
+    .task-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .task-name.done {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+
+    .task-time-badge {
+      font-size: 11px;
+      color: #4a90d9;
+      background: #eff6ff;
+      padding: 2px 7px;
+      border-radius: 8px;
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    .task-stars {
+      font-size: 13px;
+      color: #f59e0b;
+      margin-right: 4px;
+    }
+
+    .stars-total-big {
+      font-size: 36px;
+      font-weight: 900;
+      color: #f59e0b;
+      text-align: center;
+      padding: 10px 0 4px;
+    }
+
+    .stars-label {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    /* ── Forms ── */
+    textarea,
+    input[type=text],
+    input[type=time] {
+      width: 100%;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      resize: none;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color .2s;
+    }
+
+    textarea:focus,
+    input[type=text]:focus,
+    input[type=time]:focus {
+      outline: none;
+      border-color: #4a90d9;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-top: 10px;
+    }
+
+    .form-row input[type=text] {
+      flex: 1;
+    }
+
+    .form-row input[type=time] {
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity .15s;
+    }
+
+    .btn:active {
+      opacity: .8;
+    }
+
+    .btn-blue {
+      background: #4a90d9;
+      color: white;
+    }
+
+    .btn-green {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-outline {
+      background: #f0f7ff;
+      color: #4a90d9;
+      border: 1.5px solid #bfdbfe;
+      margin: 3px;
+    }
+
+    /* ── Puppet result ── */
+    .puppet-ok {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 13px;
+      display: none;
+    }
+
+    .puppet-err {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* ── Empty / Loading ── */
+    .empty {
+      text-align: center;
+      color: #d1d5db;
+      padding: 30px 0;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #d1d5db;
+      padding: 20px 0;
+      font-size: 13px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 22px;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* ── Notification banner ── */
+    .notif-banner {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      padding: .75rem 1rem;
+      border-radius: 8px;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      animation: slideIn .3s ease;
+      cursor: pointer;
+      color: #fff;
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(110%); }
+      to   { transform: translateX(0); }
+    }
+
+    /* ── Top action bar ── */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .action-bar span {
+      font-size: 12px;
+      color: #9ca3af;
+      flex: 1;
+    }
+
+    .thread-card {
+      position: relative;
+      cursor: pointer;
+      padding-right: 54px;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .thread-card:active {
+      transform: scale(.99);
+    }
+
+    .thread-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .thread-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .thread-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #cbd5e1;
+    }
+
+    .thread-delete {
+      position: absolute;
+      right: 36px;
+      top: 10px;
+      background: none;
+      border: none;
+      color: #f87171;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .thread-turn {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .thread-turn.user {
+      justify-content: flex-end;
+    }
+
+    .thread-turn.bi,
+    .thread-turn.homework {
+      justify-content: flex-start;
+    }
+
+    .thread-turn-body {
+      max-width: 88%;
+    }
+
+    .thread-turn-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .homework-badge {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* ── Persona ── */
+    .toggle-group { display: flex; gap: 8px; margin-bottom: 12px; }
+    .toggle-btn { flex: 1; padding: 9px; border: 1.5px solid #e5e7eb; border-radius: 10px; background: white; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; transition: all .2s; }
+    .toggle-btn.active { background: #4a90d9; color: white; border-color: #4a90d9; }
+    .slider-row { margin-bottom: 14px; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+    input[type=range] { width: 100%; accent-color: #4a90d9; cursor: pointer; }
+    .preview-box { background: #f8faff; border: 1.5px dashed #bfdbfe; border-radius: 10px; padding: 12px; font-size: 13px; color: #4b5563; font-style: italic; margin-top: 10px; }
+    .form-label { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; display: block; }
+    select { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: inherit; background: white; cursor: pointer; margin-bottom: 12px; }
+    select:focus { outline: none; border-color: #4a90d9; }
+
+    /* ── Emotion chart ── */
+    .emo-chart { display: flex; gap: 5px; align-items: flex-end; height: 80px; padding: 0 2px; }
+    .emo-col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .emo-bar-wrap { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; }
+    .emo-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; transition: height .5s ease; }
+    .emo-bar.happy  { background: #22c55e; }
+    .emo-bar.normal { background: #94a3b8; }
+    .emo-bar.sad    { background: #fb923c; }
+    .emo-bar.stress { background: #ef4444; }
+    .emo-day { font-size: 9px; color: #9ca3af; margin-top: 4px; }
+    .emo-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .emo-legend span { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+    .emo-legend span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+    .emo-legend .l-happy::before  { background: #22c55e; }
+    .emo-legend .l-normal::before { background: #94a3b8; }
+    .emo-legend .l-sad::before    { background: #fb923c; }
+    .emo-legend .l-stress::before { background: #ef4444; }
+    .emo-today-row { display: flex; align-items: center; gap: 12px; }
+    .emo-icon-big { font-size: 44px; line-height: 1; }
+    .emo-today-label { font-size: 20px; font-weight: 800; }
+    .emo-today-sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
+    .alert-card { background: #fef2f2; border: 1.5px solid #fca5a5; }
+    .alert-card .card-title { color: #ef4444; }
+    .tab-badge { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; vertical-align: middle; margin-left: 2px; }
+
+    /* ── Education ── */
+    .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .progress-label { font-size: 13px; font-weight: 600; min-width: 90px; }
+    .progress-bar-bg { flex: 1; height: 9px; background: #e5e7eb; border-radius: 5px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #4a90d9, #22c55e); transition: width .6s ease; }
+    .progress-pct { font-size: 12px; color: #9ca3af; min-width: 34px; text-align: right; }
+    .streak-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 20px; padding: 6px 14px; font-size: 14px; font-weight: 700; color: #ea580c; margin-bottom: 12px; }
+    .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .schedule-day-label { font-size: 9px; color: #9ca3af; font-weight: 700; margin-bottom: 4px; text-align: center; }
+    .schedule-cell { background: #f3f4f6; border-radius: 8px; padding: 5px 3px; min-height: 52px; font-size: 10px; cursor: pointer; transition: background .2s; text-align: center; }
+    .schedule-cell:hover { background: #dbeafe; }
+    .schedule-cell.has-item { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .schedule-cell .sc-icon { font-size: 18px; display: block; }
+    .schedule-cell .sc-time { color: #6b7280; font-size: 9px; display: block; }
+    .vocab-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .vocab-card { background: #f8faff; border: 1px solid #e0e7ff; border-radius: 10px; padding: 8px 4px; text-align: center; cursor: pointer; transition: box-shadow .2s; }
+    .vocab-card:hover { box-shadow: 0 2px 8px rgba(74,144,217,.2); }
+    .vocab-card .vc-emoji { font-size: 24px; display: block; }
+    .vocab-card .vc-word { font-size: 11px; font-weight: 700; color: #1e40af; }
+
+    /* ── Entertainment ── */
+    .music-player { background: linear-gradient(135deg, #1e1b4b, #312e81); border-radius: 14px; padding: 16px; color: white; margin-bottom: 10px; }
+    .music-now { font-size: 10px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .5px; }
+    .music-title { font-size: 17px; font-weight: 800; margin: 4px 0 2px; }
+    .music-artist { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 10px; }
+    .music-prog { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+    .music-prog-inner { height: 100%; background: white; border-radius: 2px; width: 35%; }
+    .music-controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
+    .music-controls button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px; }
+    .music-play-btn { width: 44px; height: 44px; background: white !important; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; color: #312e81 !important; font-size: 16px; }
+    .music-vol { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .music-vol input[type=range] { flex: 1; }
+    .music-vol span { font-size: 14px; }
+    .playlist-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 10px; }
+    .playlist-tabs::-webkit-scrollbar { display: none; }
+    .playlist-tab { flex-shrink: 0; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #6b7280; cursor: pointer; border: none; transition: all .2s; }
+    .playlist-tab.active { background: #4a90d9; color: white; }
+    .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .story-card { background: white; border-radius: 14px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.07); cursor: pointer; transition: transform .15s; }
+    .story-card:active { transform: scale(.98); }
+    .story-card .sc2-emoji { font-size: 32px; margin-bottom: 6px; }
+    .story-card .sc2-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .story-card .sc2-meta { font-size: 11px; color: #9ca3af; }
+    .game-card { display: flex; align-items: center; gap: 12px; padding: 14px; background: white; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.07); cursor: pointer; transition: transform .15s; }
+    .game-card:active { transform: scale(.98); }
+    .game-card .gc-icon { font-size: 36px; flex-shrink: 0; }
+    .game-card .gc-title { font-size: 15px; font-weight: 700; }
+    .game-card .gc-desc { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+    .game-score { font-size: 13px; color: #f59e0b; font-weight: 700; margin-left: auto; }
+
+    /* ── Video call ── */
+    .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+    .contact-item:last-child { border-bottom: none; }
+    .contact-avatar { width: 44px; height: 44px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .contact-name { font-size: 14px; font-weight: 700; }
+    .contact-status { font-size: 12px; color: #9ca3af; }
+    .contact-status.online { color: #22c55e; }
+    .call-btn-sm { background: #22c55e; color: white; border: none; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: auto; flex-shrink: 0; }
+    .call-btn-sm:disabled { background: #d1d5db; cursor: default; }
+    .call-history-item { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+    .call-history-item:last-child { border-bottom: none; }
+
+    /* ── Video modal ── */
+    .call-modal { position: fixed; inset: 0; background: #0f172a; z-index: 500; display: none; flex-direction: column; }
+    .call-modal.active { display: flex; }
+    .call-video-main { flex: 1; position: relative; background: #1e293b; display: flex; align-items: center; justify-content: center; }
+    .call-video-main video { width: 100%; height: 100%; object-fit: cover; }
+    .call-placeholder { font-size: 80px; }
+    .call-video-pip { position: absolute; bottom: 16px; right: 16px; width: 100px; height: 75px; border-radius: 10px; overflow: hidden; border: 2px solid rgba(255,255,255,.3); background: #334155; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .call-status-bar { padding: 12px 16px; background: rgba(0,0,0,.5); color: white; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+    .call-controls-bar { display: flex; justify-content: center; gap: 24px; padding: 20px; background: rgba(0,0,0,.5); }
+    .call-ctrl-btn { width: 52px; height: 52px; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .call-ctrl-btn.red { background: #ef4444; color: white; }
+    .call-ctrl-btn.gray { background: rgba(255,255,255,.15); color: white; }
+
+    /* ── Analytics ── */
+    .report-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+    .report-row:last-child { border-bottom: none; }
+    .report-key { font-size: 13px; color: #6b7280; }
+    .report-val { font-size: 14px; font-weight: 700; color: #1f2937; }
+    .report-compare { font-size: 11px; color: #22c55e; }
+    .report-compare.down { color: #ef4444; }
+    .activity-chart { display: flex; gap: 4px; align-items: flex-end; height: 56px; }
+    .activity-bar { flex: 1; border-radius: 3px 3px 0 0; background: #93c5fd; min-height: 2px; transition: height .4s ease; }
+    .activity-hour { font-size: 8px; color: #d1d5db; text-align: center; margin-top: 3px; }
+    .clips-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .clip-thumb { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; background: #1f2937; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+    .clip-thumb-del { position: absolute; top: 4px; right: 4px; background: rgba(239,68,68,.85); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; }
+    .clip-label { font-size: 10px; color: #9ca3af; margin-top: 3px; text-align: center; }
+    .filter-bar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip { flex-shrink: 0; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #6b7280; cursor: pointer; border: none; transition: all .2s; }
+    .filter-chip.active { background: #4a90d9; color: white; }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 400; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 380px; }
+    .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .btn-gray { background: #f3f4f6; color: #374151; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ LOGIN OVERLAY ═══ -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div style="font-size:48px; margin-bottom:10px;">🤖</div>
+      <h2>Robot Bi</h2>
+      <p>Đăng nhập để quản lý Robot Bi</p>
+      <input type="text" class="pin-input" id="loginUsername" autocomplete="username" placeholder="Tên đăng nhập"
+        style="letter-spacing:normal; font-size:16px; margin-bottom:10px;"
+        onkeydown="if(event.key==='Enter') document.getElementById('loginPassword').focus()">
+      <input type="password" class="pin-input" id="loginPassword" autocomplete="current-password" placeholder="Mật khẩu"
+        style="letter-spacing:normal; font-size:16px;" onkeydown="if(event.key==='Enter') doLogin()">
+      <button class="btn-login" onclick="doLogin()">Đăng nhập</button>
+      <div class="login-err" id="loginErr">Sai tên đăng nhập hoặc mật khẩu.</div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN APP ═══ -->
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span style="font-size:24px;">🤖</span>
+      <h1>Robot Bi</h1>
+    </div>
+    <div class="header-right">
+      <div class="stars-badge" id="headerStars">⭐ 0</div>
+      <div class="status-pill">
+        <span class="dot" id="dot"></span>
+        <span id="statusTxt">Đang kết nối...</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Thoát</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('status')">
+      <span class="tab-icon">📊</span>Trạng thái
+    </div>
+    <div class="tab" onclick="switchTab('chat')">
+      <span class="tab-icon">💬</span>Chat
+    </div>
+    <div class="tab" onclick="switchTab('events')">
+      <span class="tab-icon">🔔</span>Sự kiện
+    </div>
+    <div class="tab" onclick="switchTab('memory')">
+      <span class="tab-icon">🧠</span>Trí nhớ
+    </div>
+    <div class="tab" onclick="switchTab('tasks')">
+      <span class="tab-icon">✅</span>Nhiệm vụ
+    </div>
+    <div class="tab" onclick="switchTab('puppet')">
+      <span class="tab-icon">🎤</span>Nhập vai
+    </div>
+    <div class="tab" onclick="switchTab('threads')">
+      <span class="tab-icon">📚</span>Hội thoại
+    </div>
+    <div class="tab" onclick="switchTab('homework')">
+      <span class="tab-icon">📚</span>Bài tập
+    </div>
+    <div class="tab" onclick="switchTab('settings')">
+      <span class="tab-icon">⚙️</span>Cài đặt
+    </div>
+    <div class="tab" onclick="switchTab('persona')">
+      <span class="tab-icon">🎭</span>Tính cách
+    </div>
+    <div class="tab" onclick="switchTab('emotion')">
+      <span class="tab-icon">💙</span>Cảm xúc<span class="tab-badge" id="emotionBadge" style="display:none;"></span>
+    </div>
+    <div class="tab" onclick="switchTab('education')">
+      <span class="tab-icon">🎓</span>Học tập
+    </div>
+    <div class="tab" onclick="switchTab('entertainment')">
+      <span class="tab-icon">🎵</span>Giải trí
+    </div>
+    <div class="tab" onclick="switchTab('video')">
+      <span class="tab-icon">📹</span>Gọi video
+    </div>
+    <div class="tab" onclick="switchTab('analytics')">
+      <span class="tab-icon">📈</span>Báo cáo
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ── STATUS ── -->
+    <div class="section active" id="sec-status">
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading" style="grid-column:1/-1;">Đang tải...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sự kiện gần nhất</div>
+        <div id="recentEvt">
+          <div class="loading">...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAT ── -->
+    <div class="section" id="sec-chat">
+      <div id="chatList">
+        <div class="loading">Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- ── EVENTS + CAMERA ── -->
+    <div class="section" id="sec-events">
+      <!-- Camera live stream -->
+      <div class="card">
+        <div class="card-title">📹 Camera trực tiếp</div>
+        <video id="cameraFeed" autoplay muted playsinline
+               style="width:100%;border-radius:8px;display:none;"></video>
+        <img id="cameraFeedMjpeg" class="camera-feed" alt="Camera"
+             style="width:100%;border-radius:8px;display:none;" src="">
+        <button class="btn-cam-toggle" id="camBtn" onclick="toggleCamera()">
+          📷 Bật camera
+        </button>
+        <!-- Mic mẹ nói trực tiếp -->
+        <div id="mom-talk-section"
+          style="margin-top:16px;text-align:center;padding:12px;background:#fef3c7;border-radius:12px;border:1px solid #f59e0b;">
+          <p style="margin:0 0 8px 0;font-size:13px;color:#92400e;font-weight:600;">
+            📞 Nói chuyện trực tiếp với bé
+          </p>
+          <button id="btn-mom-mic" onclick="toggleMomMic()"
+            style="background:#f59e0b;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:16px;cursor:pointer;font-weight:600;">
+            🎤 Bật mic — Nói với bé
+          </button>
+          <p id="mom-mic-status" style="margin:8px 0 0 0;font-size:12px;color:#78716c;">
+            Bi đang hoạt động bình thường
+          </p>
+        </div>
+      </div>
+      <!-- Events list -->
+      <div class="action-bar">
+        <span>Sự kiện robot ghi nhận</span>
+        <button class="btn btn-blue" onclick="markAllRead()" style="padding:7px 12px;font-size:12px;">
+          ✓ Đọc hết
+        </button>
+      </div>
+      <div class="card" id="evtList">
+        <div class="loading">Đang tải...</div>
+      </div>
+    </div>
+
+    <!-- ── MEMORY ── -->
+    <div class="section" id="sec-memory">
+      <div class="card">
+        <div class="card-title">Thêm trí nhớ mới</div>
+        <textarea id="memInput" rows="2" placeholder="Ví dụ: Cuối tuần này bé đi sinh nhật bạn Minh"></textarea>
+        <button class="btn btn-green btn-full" onclick="addMemory()">
+          ➕ Thêm vào bộ nhớ Bi
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          Danh sách trí nhớ
+          <span id="memCnt" style="color:#4a90d9; font-weight:800;"></span>
+        </div>
+        <div id="memList">
+          <div class="loading">Đang tải...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TASKS ── -->
+    <div class="section" id="sec-tasks">
+      <div class="card">
+        <div class="stars-total-big" id="starsBig">⭐ 0</div>
+        <div class="stars-label">sao tích lũy</div>
+        <div class="card-title">Thêm nhiệm vụ mới</div>
+        <div class="form-row">
+          <input type="text" id="taskName" placeholder="Tên nhiệm vụ, ví dụ: Đánh răng">
+          <input type="time" id="taskTime" value="07:00">
+        </div>
+        <button class="btn btn-green btn-full" onclick="addTask()">
+          ➕ Thêm nhiệm vụ
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">Danh sách nhiệm vụ hôm nay</div>
+        <div id="taskList">
+          <div class="loading">Đang tải...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PUPPET ── -->
+    <div class="section" id="sec-puppet">
+      <div class="card">
+        <div class="card-title">🎭 Bi nói thay bạn</div>
+        <p style="color:#6b7280; font-size:13px; margin-bottom:10px; line-height:1.5;">
+          Nhập câu muốn Bi đọc to tại nhà. Lệnh được xếp hàng và đọc khi robot rảnh.
+        </p>
+        <textarea id="puppetInput" rows="3" placeholder="Ví dụ: Con ơi, đến giờ ăn cơm rồi!"></textarea>
+        <button class="btn btn-blue btn-full" id="puppetBtn" onclick="sendPuppet()">
+          📢 Bi đọc ngay
+        </button>
+        <div class="puppet-ok" id="puppetOk"></div>
+        <div class="puppet-err" id="puppetErr"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Câu mẫu nhanh</div>
+        <div>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Con ơi, đến giờ ăn cơm rồi!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Chúc bé ngủ ngon nha!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Bé ơi đi đánh răng đi nhé!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Mẹ thương con lắm!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Bé nhớ uống nước nhé!</button>
+          <button class="btn btn-outline" onclick="setTemplate(this)">Hôm nay bé học được gì rồi kể Bi nghe
+            nào!</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-threads">
+      <div id="threadList">
+        <div class="loading">Đang tải...</div>
+      </div>
+      <div id="threadDetail" style="display:none;">
+        <div style="padding:10px 0;">
+          <button class="btn btn-outline" onclick="showThreadList()"> Quay lại</button>
+          <span id="threadDetailTitle" style="font-weight:700; margin-left:10px;"></span>
+        </div>
+        <div id="threadTurns"></div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-homework">
+      <div id="homeworkList">
+        <div class="loading">Đang tải...</div>
+      </div>
+      <div id="homeworkDetail" style="display:none;">
+        <div style="padding:10px 0;">
+          <button class="btn btn-outline" onclick="showThreadList()"> Quay lại</button>
+          <span id="homeworkDetailTitle" style="font-weight:700; margin-left:10px;"></span>
+        </div>
+        <div id="homeworkTurns"></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="section" id="sec-settings">
+      <div class="card">
+        <div class="card-title">👤 Thông tin tài khoản</div>
+        <p style="margin:8px 0;">Tên đăng nhập: <strong id="settingUsername">...</strong></p>
+        <p style="margin:8px 0;">Gia đình: <strong id="settingFamily">...</strong></p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">🔒 Đổi mật khẩu</div>
+        <div style="display:flex; flex-direction:column; gap:10px; padding:8px 0;">
+          <input id="pwCurrent" type="password" placeholder="Mật khẩu hiện tại" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <input id="pwNew" type="password" placeholder="Mật khẩu mới (tối thiểu 8 ký tự)" minlength="8" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <input id="pwConfirm" type="password" placeholder="Xác nhận mật khẩu mới" style="padding:10px; border:1px solid #ccc; border-radius:6px; font-size:0.95rem;">
+          <div id="pwError" style="color:#e74c3c; font-size:0.9rem; display:none;"></div>
+          <button onclick="doChangePassword()" style="background:#2980b9; color:#fff; padding:11px; border:none; border-radius:6px; font-size:1rem; cursor:pointer;">Đổi mật khẩu</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">🚪 Đăng xuất</div>
+        <div style="padding: 8px 0;">
+          <button onclick="doLogoutAll()" style="background:#e74c3c; color:#fff; width:100%; padding:12px; border:none; border-radius:8px; font-size:1rem; cursor:pointer;">
+            Đăng xuất tất cả thiết bị
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── PERSONA ── -->
+    <div class="section" id="sec-persona">
+      <div class="card">
+        <div class="card-title">🤖 Tên robot</div>
+        <label class="form-label">Tên Bi sẽ dùng</label>
+        <input type="text" id="personaName" placeholder="Ví dụ: Bi, Robot Bi, Robi..." style="margin-bottom:12px;">
+        <label class="form-label">Giới tính</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="genderBoy" onclick="setGender('boy')">👦 Trai</button>
+          <button class="toggle-btn" id="genderGirl" onclick="setGender('girl')">👧 Gái</button>
+        </div>
+        <label class="form-label">Giọng nói</label>
+        <select id="personaVoice">
+          <option value="vi-VN-HoaiMyNeural">🎙️ Giọng Bắc (Hoài My)</option>
+          <option value="vi-VN-NamMinhNeural">🎙️ Giọng Nam (Nam Minh)</option>
+          <option value="vi-VN-child">🎙️ Giọng trẻ em</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-title">🎨 Tính cách</div>
+        <div class="slider-row">
+          <div class="slider-label"><span>😈 Nghịch ngợm</span><span>😇 Ngoan ngoãn</span></div>
+          <input type="range" id="sliderObedient" min="0" max="100" value="60" oninput="updatePersonaPreview()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>🗣️ Hướng ngoại</span><span>🤫 Hướng nội</span></div>
+          <input type="range" id="sliderIntrovert" min="0" max="100" value="40" oninput="updatePersonaPreview()">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>⚡ Năng động</span><span>🧘 Bình tĩnh</span></div>
+          <input type="range" id="sliderCalm" min="0" max="100" value="45" oninput="updatePersonaPreview()">
+        </div>
+        <div class="preview-box" id="personaPreview">Bi sẽ trả lời như thế này: "Ôi thú vị quá! Bạn có muốn Bi kể chuyện về điều đó không?" 🌟</div>
+        <button class="btn btn-blue btn-full" onclick="savePersona()" style="margin-top:12px;">💾 Lưu tính cách</button>
+        <div id="personaSaveMsg" style="display:none; margin-top:8px; padding:8px 12px; border-radius:8px; background:#dcfce7; color:#166534; font-size:13px;"></div>
+      </div>
+    </div>
+
+    <!-- ── EMOTION ── -->
+    <div class="section" id="sec-emotion">
+      <div id="emotionAlertBanner" style="display:none;" class="card alert-card">
+        <div class="card-title">⚠️ Cảnh báo cảm xúc</div>
+        <p id="emotionAlertMsg" style="font-size:13px; color:#b91c1c;"></p>
+      </div>
+      <div class="card">
+        <div class="card-title">💙 Hôm nay</div>
+        <div id="emotionToday" class="emo-today-row">
+          <div class="emo-icon-big">😊</div>
+          <div>
+            <div class="emo-today-label">Vui vẻ</div>
+            <div class="emo-today-sub">Cảm xúc chủ đạo hôm nay</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 7 ngày qua</div>
+        <div class="emo-chart" id="emoChart">
+          <div class="empty">Đang tải...</div>
+        </div>
+        <div class="emo-legend">
+          <span class="l-happy">Vui</span>
+          <span class="l-normal">Bình thường</span>
+          <span class="l-sad">Buồn</span>
+          <span class="l-stress">Stress</span>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="showEmotionJournal()">📖 Xem nhật ký đầy đủ</button>
+    </div>
+
+    <!-- ── EDUCATION ── -->
+    <div class="section" id="sec-education">
+      <div class="card">
+        <div class="streak-badge" id="eduStreak">🔥 0 ngày học liên tiếp</div>
+        <div class="card-title">📚 Tuần này bé đã học</div>
+        <div id="eduStats">
+          <div class="report-row"><span class="report-key">Từ mới</span><span class="report-val" id="eduWords">0</span></div>
+          <div class="report-row"><span class="report-key">Bài toán</span><span class="report-val" id="eduMath">0</span></div>
+          <div class="report-row"><span class="report-key">Câu hỏi</span><span class="report-val" id="eduQuestions">0</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Tiến độ môn học</div>
+        <div id="eduProgress">
+          <div class="progress-row"><span class="progress-label">🇬🇧 Tiếng Anh</span><div class="progress-bar-bg"><div class="progress-bar" id="progEn" style="width:0%"></div></div><span class="progress-pct" id="pctEn">0%</span></div>
+          <div class="progress-row"><span class="progress-label">🔢 Toán</span><div class="progress-bar-bg"><div class="progress-bar" id="progMath" style="width:0%"></div></div><span class="progress-pct" id="pctMath">0%</span></div>
+          <div class="progress-row"><span class="progress-label">🔬 Khoa học</span><div class="progress-bar-bg"><div class="progress-bar" id="progSci" style="width:0%"></div></div><span class="progress-pct" id="pctSci">0%</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Lịch học tuần</div>
+        <div class="schedule-grid" id="eduScheduleGrid">
+          <!-- Filled by JS -->
+        </div>
+        <button class="btn btn-outline btn-full" onclick="openScheduleModal()" style="margin-top:10px;">➕ Đặt lịch học</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📝 Từ vựng đã học</div>
+        <div class="form-row" style="margin-bottom:10px;">
+          <input type="text" id="vocabSearch" placeholder="Tìm từ..." oninput="filterVocab()" style="flex:1;">
+        </div>
+        <div class="vocab-grid" id="vocabGrid"><div class="empty">Chưa có từ vựng</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚙️ Cài đặt học tập</div>
+        <label class="form-label">Số từ mỗi phiên</label>
+        <div class="toggle-group" id="wordsPerSession">
+          <button class="toggle-btn" onclick="setWordsPerSession(5,this)">5</button>
+          <button class="toggle-btn active" onclick="setWordsPerSession(10,this)">10</button>
+          <button class="toggle-btn" onclick="setWordsPerSession(15,this)">15</button>
+          <button class="toggle-btn" onclick="setWordsPerSession(20,this)">20</button>
+        </div>
+        <label class="form-label" style="margin-top:8px;">Độ khó</label>
+        <select id="eduDifficulty">
+          <option value="easy">😊 Dễ</option>
+          <option value="medium" selected>🤔 Trung bình</option>
+          <option value="hard">🔥 Khó</option>
+        </select>
+        <label style="display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;">
+          <input type="checkbox" id="eduReminder" checked> Bật nhắc học tập hàng ngày
+        </label>
+        <button class="btn btn-blue btn-full" onclick="saveEduSettings()" style="margin-top:12px;">💾 Lưu cài đặt</button>
+      </div>
+    </div>
+
+    <!-- ── ENTERTAINMENT ── -->
+    <div class="section" id="sec-entertainment">
+      <div class="music-player">
+        <div class="music-now">🎵 Đang phát</div>
+        <div class="music-title" id="musicTitle">Chọn bài hát...</div>
+        <div class="music-artist" id="musicArtist">—</div>
+        <div class="music-prog"><div class="music-prog-inner" id="musicProgBar"></div></div>
+        <div class="music-controls">
+          <button onclick="musicCmd('prev')" title="Trước">⏮</button>
+          <button class="music-play-btn" id="musicPlayBtn" onclick="toggleMusicPlay()">▶</button>
+          <button onclick="musicCmd('next')" title="Tiếp">⏭</button>
+          <button onclick="musicCmd('shuffle')" title="Ngẫu nhiên">🔀</button>
+          <button onclick="musicCmd('repeat')" title="Lặp lại">🔁</button>
+        </div>
+        <div class="music-vol"><span>🔈</span><input type="range" min="0" max="100" value="70" oninput="setMusicVolume(this.value)"><span>🔊</span></div>
+      </div>
+      <div class="playlist-tabs" id="playlistTabs">
+        <button class="playlist-tab active" onclick="loadPlaylist('kids_vn',this)">🇻🇳 Thiếu nhi VN</button>
+        <button class="playlist-tab" onclick="loadPlaylist('kids_en',this)">🇬🇧 Thiếu nhi Anh</button>
+        <button class="playlist-tab" onclick="loadPlaylist('lullaby',this)">🌙 Nhạc ru ngủ</button>
+        <button class="playlist-tab" onclick="loadPlaylist('request',this)">💌 Yêu cầu phát</button>
+      </div>
+      <div class="card" id="playlistContainer">
+        <div class="loading">Đang tải danh sách nhạc...</div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <div class="card-title">📖 Kể chuyện</div>
+        <div class="playlist-tabs" id="storyFilterTabs">
+          <button class="playlist-tab active" onclick="filterStories('all',this)">Tất cả</button>
+          <button class="playlist-tab" onclick="filterStories('fairy',this)">🧚 Cổ tích</button>
+          <button class="playlist-tab" onclick="filterStories('fable',this)">🦊 Ngụ ngôn</button>
+          <button class="playlist-tab" onclick="filterStories('lullaby',this)">🌙 Ru ngủ</button>
+          <button class="playlist-tab" onclick="filterStories('custom',this)">✨ Tự sáng tác</button>
+        </div>
+        <div class="story-grid" id="storyGrid">
+          <div class="empty" style="grid-column:1/-1;">Đang tải...</div>
+        </div>
+        <button class="btn btn-outline btn-full" onclick="openCustomStoryModal()" style="margin-top:10px;">✍️ Tự sáng tác truyện mới</button>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <div class="card-title">🎮 Trò chơi</div>
+        <div class="game-card" onclick="startGame('voice-quiz')">
+          <div class="gc-icon">🎤</div>
+          <div><div class="gc-title">Đố vui giọng nói</div><div class="gc-desc">Trả lời câu hỏi bằng giọng nói</div></div>
+          <div class="game-score" id="scoreVoiceQuiz">⭐ 0</div>
+        </div>
+        <div class="game-card" onclick="startGame('word-quiz')">
+          <div class="gc-icon">📝</div>
+          <div><div class="gc-title">Đố chữ</div><div class="gc-desc">Đánh vần và nhận dạng từ</div></div>
+          <div class="game-score" id="scoreWordQuiz">⭐ 0</div>
+        </div>
+        <div class="game-card" onclick="startGame('math-quiz')">
+          <div class="gc-icon">🔢</div>
+          <div><div class="gc-title">Toán vui</div><div class="gc-desc">Tính toán nhanh</div></div>
+          <div class="game-score" id="scoreMathQuiz">⭐ 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIDEO CALL ── -->
+    <div class="section" id="sec-video">
+      <button class="btn btn-blue btn-full" onclick="startVideoCall(null)" style="padding:18px; font-size:18px; border-radius:16px; margin-bottom:14px;">
+        📹 Gọi video với Bi
+      </button>
+      <div class="card">
+        <div class="card-title">👨‍👩‍👧 Người thân</div>
+        <div id="contactList"><div class="loading">Đang tải...</div></div>
+        <button class="btn btn-outline btn-full" onclick="openAddContactModal()" style="margin-top:10px;">➕ Thêm người thân</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Lịch sử cuộc gọi</div>
+        <div id="callHistory"><div class="empty">Chưa có cuộc gọi nào</div></div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="section" id="sec-analytics">
+      <div class="card">
+        <div class="card-title">📊 Báo cáo tuần này</div>
+        <div id="weeklyReport">
+          <div class="report-row"><span class="report-key">⏱ Giờ dùng robot</span><span><span class="report-val" id="rptHours">—</span></span></div>
+          <div class="report-row"><span class="report-key">📚 Từ mới học được</span><span><span class="report-val" id="rptWords">—</span></span></div>
+          <div class="report-row"><span class="report-key">📖 Câu chuyện đã nghe</span><span><span class="report-val" id="rptStories">—</span></span></div>
+          <div class="report-row"><span class="report-key">😊 Cảm xúc trung bình</span><span><span class="report-val" id="rptEmotion">—</span></span></div>
+        </div>
+        <button class="btn btn-outline btn-full" onclick="sendWeeklyReport()" style="margin-top:10px;">📧 Gửi báo cáo qua email</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Hoạt động theo giờ hôm nay</div>
+        <div id="activityChartWrap" style="overflow-x:auto;">
+          <div style="display:flex; gap:4px; align-items:flex-end; height:60px;" id="activityChart"></div>
+          <div style="display:flex; gap:4px; margin-top:2px;" id="activityHours"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎬 Thư viện clip sự kiện</div>
+        <div class="filter-bar" id="clipsFilterBar">
+          <button class="filter-chip active" onclick="filterClips('all',this)">Tất cả</button>
+          <button class="filter-chip" onclick="filterClips('cry',this)">😢 Khóc</button>
+          <button class="filter-chip" onclick="filterClips('motion',this)">🚶 Chuyển động</button>
+          <button class="filter-chip" onclick="filterClips('stranger',this)">🚨 Người lạ</button>
+        </div>
+        <div class="clips-grid" id="clipsGrid"><div class="empty" style="grid-column:1/-1;">Chưa có clip nào</div></div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Schedule ── -->
+    <div class="modal-overlay" id="scheduleModal">
+      <div class="modal-box">
+        <div class="modal-title">📅 Đặt lịch học</div>
+        <label class="form-label">Ngày trong tuần</label>
+        <select id="schedDay">
+          <option value="0">Thứ Hai</option><option value="1">Thứ Ba</option><option value="2">Thứ Tư</option>
+          <option value="3">Thứ Năm</option><option value="4">Thứ Sáu</option><option value="5">Thứ Bảy</option><option value="6">Chủ Nhật</option>
+        </select>
+        <label class="form-label">Môn học</label>
+        <select id="schedSubject">
+          <option value="english">🇬🇧 Tiếng Anh</option>
+          <option value="math">🔢 Toán</option>
+          <option value="science">🔬 Khoa học</option>
+          <option value="history">🏛️ Lịch sử</option>
+          <option value="geography">🌍 Địa lý</option>
+        </select>
+        <label class="form-label">Giờ học</label>
+        <input type="time" id="schedTime" value="19:00">
+        <div class="modal-actions">
+          <button class="btn btn-gray btn-full" onclick="closeModal('scheduleModal')">Hủy</button>
+          <button class="btn btn-blue btn-full" onclick="saveScheduleItem()">Lưu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Custom Story ── -->
+    <div class="modal-overlay" id="customStoryModal">
+      <div class="modal-box">
+        <div class="modal-title">✍️ Tự sáng tác truyện</div>
+        <label class="form-label">Chủ đề câu chuyện</label>
+        <input type="text" id="storyTheme" placeholder="Ví dụ: Cậu bé dũng cảm đi rừng..." style="margin-bottom:12px;">
+        <label class="form-label">Tên nhân vật chính</label>
+        <input type="text" id="storyHero" placeholder="Tên nhân vật..." style="margin-bottom:12px;">
+        <div class="modal-actions">
+          <button class="btn btn-gray btn-full" onclick="closeModal('customStoryModal')">Hủy</button>
+          <button class="btn btn-blue btn-full" onclick="tellCustomStory()">🎙️ Bi kể ngay</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Add Contact ── -->
+    <div class="modal-overlay" id="addContactModal">
+      <div class="modal-box">
+        <div class="modal-title">➕ Thêm người thân</div>
+        <label class="form-label">Tên</label>
+        <input type="text" id="contactNameInput" placeholder="Ví dụ: Bà ngoại..." style="margin-bottom:12px;">
+        <label class="form-label">Link chia sẻ</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="contactLinkInput" placeholder="Link gọi video..." style="flex:1; margin-bottom:0;">
+          <button class="btn btn-outline" onclick="generateContactLink()" style="flex-shrink:0;">Tạo link</button>
+        </div>
+        <div class="modal-actions" style="margin-top:16px;">
+          <button class="btn btn-gray btn-full" onclick="closeModal('addContactModal')">Hủy</button>
+          <button class="btn btn-blue btn-full" onclick="saveContact()">Thêm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIDEO CALL MODAL ── -->
+    <div class="call-modal" id="callModal">
+      <div class="call-status-bar">
+        <span id="callStatusText">📹 Đang kết nối...</span>
+        <span id="callTimer" style="margin-left:auto; font-size:12px;">00:00</span>
+      </div>
+      <div class="call-video-main">
+        <video id="callVideoRemote" autoplay playsinline muted style="display:none;"></video>
+        <div class="call-placeholder" id="callPlaceholder">🤖</div>
+        <div class="call-video-pip">📱</div>
+      </div>
+      <div class="call-controls-bar">
+        <button class="call-ctrl-btn gray" id="callMuteBtn" onclick="toggleCallMute()" title="Tắt mic">🎤</button>
+        <button class="call-ctrl-btn red" onclick="endVideoCall()" title="Kết thúc">❌</button>
+        <button class="call-ctrl-btn gray" onclick="toggleCallVideo()" title="Tắt video">📹</button>
+      </div>
+    </div>
+
+  </div><!-- .content -->
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    'use strict';
+    const API = '';   // same origin
+
+    // ══════════════════════════════════════════════════════════════
+    //  Auth
+    // ══════════════════════════════════════════════════════════════
+    let _token = localStorage.getItem('bi_token') || '';
+    let _refreshToken = localStorage.getItem('bi_refresh') || '';
+    let _refreshPromise = null; // reset in finally inside tryRefreshToken
+
+    function authHeader() {
+      return _token ? { 'Authorization': 'Bearer ' + _token } : {};
+    }
+
+    async function doLogin() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!username || !password) return;
+      const err = document.getElementById('loginErr');
+      err.style.display = 'none';
+      try {
+        const r = await fetch('/auth/login/v2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (r.status === 429) {
+          const data = await r.json();
+          err.textContent = data.detail || 'Quá nhiều lần thử. Chờ một lúc rồi thử lại.';
+          err.style.display = 'block';
+          return;
+        }
+        if (!r.ok) throw new Error('wrong');
+        const data = await r.json();
+        _token = data.access_token;
+        _refreshToken = data.refresh_token;
+        localStorage.setItem('bi_token', _token);
+        localStorage.setItem('bi_refresh', _refreshToken);
+        document.getElementById('loginOverlay').style.display = 'none';
+        _wsLoggedOut = false;
+        connectWS();
+        loadStatus();
+      } catch (_) {
+        err.textContent = 'Sai tên đăng nhập hoặc mật khẩu.';
+        err.style.display = 'block';
+        document.getElementById('loginPassword').value = '';
+      }
+    }
+
+    async function doLogout() {
+      // BƯỚC 1: Dừng streams TRƯỚC khi xóa token (các call cần Bearer token)
+      try { stopCamera(); } catch (_) {}
+      try { stopAudioMonitor(); } catch (_) {}
+      if (momMicActive) await stopMomMic();
+
+      // BƯỚC 2: Đóng WebSocket, ngăn reconnect
+      _wsLoggedOut = true;
+      if (_wsReconnectTimer) {
+        clearTimeout(_wsReconnectTimer);
+        _wsReconnectTimer = null;
+      }
+      if (ws) { ws.close(); ws = null; }
+
+      // BƯỚC 3: Revoke refresh token phía server (token còn hợp lệ ở bước này)
+      if (_token && _refreshToken) {
+        await fetch('/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token },
+          body: JSON.stringify({ refresh_token: _refreshToken })
+        }).catch(() => { });
+      }
+
+      // BƯỚC 4: Xóa token và reset UI
+      _token = '';
+      _refreshToken = '';
+      localStorage.removeItem('bi_token');
+      localStorage.removeItem('bi_refresh');
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    async function doLogoutAll() {
+      try {
+        if (typeof momMicActive !== 'undefined' && momMicActive) {
+          await stopMomMic();
+        }
+      } catch (e) { console.warn('[logout-all] stopMomMic error:', e); }
+
+      try { stopCamera(); } catch (e) { }
+      try { stopAudioMonitor(); } catch (e) { }
+
+      if (_token) {
+        try {
+          await fetch('/api/auth/logout-all', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + _token }
+          });
+        } catch (e) { }
+      }
+
+      await doLogout();
+    }
+
+    async function loadSettings() {
+      try {
+        const r = await apiFetch('/api/auth/me');
+        document.getElementById('settingUsername').textContent = r.username || '—';
+        document.getElementById('settingFamily').textContent = r.family_name || '—';
+      } catch (_e) {
+        document.getElementById('settingUsername').textContent = '—';
+        document.getElementById('settingFamily').textContent = '—';
+      }
+    }
+
+    async function doChangePassword() {
+      const current = document.getElementById('pwCurrent').value;
+      const newPw = document.getElementById('pwNew').value;
+      const confirm = document.getElementById('pwConfirm').value;
+      const errEl = document.getElementById('pwError');
+      errEl.style.display = 'none';
+
+      if (newPw !== confirm) {
+        errEl.textContent = 'Mật khẩu mới và xác nhận không khớp';
+        errEl.style.display = 'block';
+        return;
+      }
+      try {
+        const data = await apiFetch('/api/auth/change-password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: current, new_password: newPw })
+        });
+        if (data && data.ok) {
+          alert(data.message || 'Đổi mật khẩu thành công');
+          doLogout();
+        } else {
+          errEl.textContent = (data && data.detail) || 'Có lỗi xảy ra';
+          errEl.style.display = 'block';
+        }
+      } catch (_e) {
+        errEl.textContent = 'Có lỗi xảy ra';
+        errEl.style.display = 'block';
+      }
+    }
+
+    // Kiểm tra token khi load trang
+    (function checkAuth() {
+      if (!_token) return;  // không có token → overlay hiện (mặc định)
+      fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + _token } })
+        .then(r => {
+          if (r.ok) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            _wsLoggedOut = false;
+            connectWS();
+            loadStatus();
+          } else {
+            // Token invalid — thử refresh
+            tryRefreshToken().then(ok => {
+              if (ok) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                _wsLoggedOut = false;
+                connectWS();
+                loadStatus();
+              } else {
+                _token = ''; localStorage.removeItem('bi_token');
+              }
+            });
+          }
+        })
+        .catch(() => {
+          const err = document.getElementById('loginErr');
+          if (err) {
+            err.textContent = 'Đang kết nối tới robot...';
+            err.style.display = 'block';
+          }
+          setTimeout(checkAuth, 3000);
+        });
+    })();
+
+    // ══════════════════════════════════════════════════════════════
+    //  WebSocket
+    // ══════════════════════════════════════════════════════════════
+    let ws = null, wsDelay = 1000, _wsLoggedOut = false;
+    let _wsReconnectTimer = null;
+
+    function connectWS() {
+      if (_wsLoggedOut || !_token) return;
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(_token)}`);
+
+      ws.onopen = () => {
+        wsDelay = 1000;
+        setStatus(true);
+      };
+      ws.onmessage = e => {
+        try { onRealtimeEvent(JSON.parse(e.data)); } catch (_) { }
+      };
+      ws.onclose = () => {
+        setStatus(false);
+        if (_wsLoggedOut) return;  // không reconnect sau logout
+        _wsReconnectTimer = setTimeout(connectWS, Math.min(wsDelay, 12000));
+        wsDelay = Math.min(wsDelay * 1.5, 12000);
+      };
+      ws.onerror = () => ws.close();
+    }
+
+    function setStatus(online) {
+      document.getElementById('dot').className = 'dot' + (online ? '' : ' off');
+      document.getElementById('statusTxt').textContent = online ? 'Đã kết nối' : 'Mất kết nối';
+    }
+
+	    function onRealtimeEvent(evt) {
+	      if (evt.type === 'notification') {
+	        showNotificationBanner(evt.event_type, evt.message);
+	        if (evt.event_type === 'homework' && activeTab === 'homework') loadHomework();
+	        if (evt.event_type === 'emotion_alert') {
+	          document.getElementById('emotionBadge').style.display = 'inline-block';
+	          if (activeTab === 'emotion') loadEmotion();
+	        }
+	        return;
+	      }
+	      toast(`${evtIcon(evt.type)} ${evt.message}`);
+      if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
+      else { if (activeTab === 'events') loadEvents(); }
+      if (activeTab === 'status') loadStatus();
+    }
+
+    let _notifCount = 0;
+    const _NOTIF_OFFSET = 70;
+
+    function showNotificationBanner(eventType, message) {
+      _notifCount++;
+      const icons = { cry: '😢', offline: '📴', homework: '📚' };
+      const icon = icons[eventType] || '🔔';
+      const colors = { cry: '#c0392b', offline: '#e67e22', homework: '#27ae60' };
+      const bg = colors[eventType] || '#555';
+
+      const banner = document.createElement('div');
+      banner.className = 'notif-banner';
+      banner.style.background = bg;
+      const existingBanners = document.querySelectorAll('.notif-banner');
+      const topOffset = 1 + (existingBanners.length * _NOTIF_OFFSET / 16);
+      banner.style.top = topOffset + 'rem';
+      banner.textContent = `${icon} ${message}`;
+
+      const dismiss = () => { if (banner.parentNode) banner.parentNode.removeChild(banner); };
+      banner.addEventListener('click', dismiss);
+      document.body.appendChild(banner);
+      setTimeout(dismiss, 5000);
+    }
+
+	    // ══════════════════════════════════════════════════════════════
+	    //  Tab
+	    // ══════════════════════════════════════════════════════════════
+	    let activeTab = 'status';
+	    const TAB_NAMES = ['status', 'chat', 'events', 'memory', 'tasks', 'puppet', 'threads', 'homework', 'settings', 'persona', 'emotion', 'education', 'entertainment', 'video', 'analytics'];
+
+    function switchTab(name) {
+      const previousTab = activeTab;
+      if (previousTab === 'events' && name !== 'events') {
+        if (typeof _camOn !== 'undefined' && _camOn) {
+          stopCamera();
+        }
+        if (typeof momMicActive !== 'undefined' && momMicActive) {
+          stopMomMic();
+        }
+      }
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', TAB_NAMES[i] === name);
+      });
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`sec-${name}`).classList.add('active');
+      activeTab = name;
+      loadTab(name);
+    }
+
+    function loadTab(name) {
+	      const fn = {
+	        status: loadStatus, chat: loadChats, events: loadEvents,
+	        memory: loadMemories, tasks: loadTasks, threads: loadThreads,
+	        homework: loadHomework, settings: loadSettings,
+	        persona: loadPersona, emotion: loadEmotion,
+	        education: loadEducation, entertainment: loadEntertainment,
+	        video: loadVideo, analytics: loadAnalytics
+	      };
+	      if (fn[name]) fn[name]();
+	    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  API helpers
+    // ══════════════════════════════════════════════════════════════
+    async function tryRefreshToken() {
+      if (_refreshPromise) return _refreshPromise;
+
+      _refreshPromise = (async () => {
+        try {
+          if (!_refreshToken) return false;
+          const rr = await fetch('/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: _refreshToken })
+          });
+          if (!rr.ok) return false;
+          const data = await rr.json();
+          _token = data.access_token;
+          _refreshToken = data.refresh_token;
+          localStorage.setItem('bi_token', _token);
+          localStorage.setItem('bi_refresh', _refreshToken);
+          return true;
+        } catch (_) {
+          return false;
+        } finally {
+          _refreshPromise = null;
+        }
+      })();
+
+      return _refreshPromise;
+    }
+
+    async function apiFetch(path, opts = {}) {
+      try {
+        // Authorization mới PHẢI override opts.headers cũ — đặt authHeader() sau cùng
+        const headers1 = Object.assign({}, opts.headers || {}, authHeader());
+        const r = await fetch(API + path, { ...opts, headers: headers1 });
+        if (r.status === 401) {
+          if (_refreshToken) {
+            const refreshed = await tryRefreshToken();
+            if (!refreshed) { doLogout(); return null; }
+            // Retry với token mới — authHeader() đặt sau cùng
+            const headers2 = Object.assign({}, opts.headers || {}, authHeader());
+            const retry = await fetch(API + path, { ...opts, headers: headers2 });
+            if (retry.ok) return await retry.json();
+          }
+          doLogout();
+          return null;
+        }
+        if (!r.ok) throw new Error(r.status);
+        return await r.json();
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Status
+    // ══════════════════════════════════════════════════════════════
+    async function loadStatus() {
+      const data = await apiFetch('/api/status');
+      const statsGrid = document.getElementById('statsGrid');
+      if (!data) {
+        statsGrid.innerHTML =
+          '<div class="empty" style="grid-column:1/-1;">Không kết nối được robot</div>';
+        return;
+      }
+      const n = data.notifier || {}, r = data.rag || {};
+      const stars = data.total_stars ?? 0;
+      updateStarsDisplay(stars);
+      statsGrid.replaceChildren(
+        statBox(n.total_events ?? 0, 'Sự kiện', '#4a90d9'),
+        statBox(n.unread ?? 0, 'Chưa đọc', '#ef4444'),
+        statBox(r.total_facts ?? 0, 'Trí nhớ', '#22c55e'),
+        statBox(`${stars} ⭐`, 'Sao', '#f59e0b'),
+      );
+
+      const evts = await apiFetch('/api/events?limit=4');
+      const el = document.getElementById('recentEvt');
+      if (evts && evts.events.length) {
+        el.replaceChildren(...evts.events.map(renderEvtItem));
+      } else {
+        el.innerHTML = '<div class="empty">Chưa có sự kiện</div>';
+      }
+    }
+
+    function makeEl(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined && text !== null) el.textContent = String(text);
+      return el;
+    }
+
+    function statBox(value, label, color) {
+      const box = makeEl('div', 'stat-box');
+      const num = makeEl('div', 'stat-num', value);
+      num.style.color = color;
+      box.appendChild(num);
+      box.appendChild(makeEl('div', 'stat-label', label));
+      return box;
+    }
+
+    function updateStarsDisplay(n) {
+      document.getElementById('headerStars').textContent = `⭐ ${n}`;
+      const bigEl = document.getElementById('starsBig');
+      if (bigEl) bigEl.textContent = `⭐ ${n}`;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Chat
+    // ══════════════════════════════════════════════════════════════
+    async function loadChats() {
+      const data = await apiFetch('/api/chats?limit=60');
+      const el = document.getElementById('chatList');
+      if (!data || !data.chats.length) {
+        el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
+        return;
+      }
+      el.replaceChildren(...data.chats.map(c => {
+        const m = c.metadata || {};
+        const t = fmtTime(c.timestamp);
+        const card = makeEl('div', 'card chat-item');
+        const userRow = makeEl('div', 'chat-row');
+        userRow.appendChild(makeEl('span', 'chat-who', `👦 Bé — ${t}`));
+        userRow.appendChild(makeEl('span', 'bubble user', m.user_text || c.message || ''));
+        card.appendChild(userRow);
+        if (m.bi_response) {
+          const biRow = makeEl('div', 'chat-row');
+          biRow.style.marginTop = '8px';
+          biRow.appendChild(makeEl('span', 'chat-who', '🤖 Bi'));
+          biRow.appendChild(makeEl('span', 'bubble bi', m.bi_response));
+          card.appendChild(biRow);
+        }
+        return card;
+      }));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Events
+    // ══════════════════════════════════════════════════════════════
+    async function loadEvents() {
+      const data = await apiFetch('/api/events?limit=100');
+      const el = document.getElementById('evtList');
+      if (!data) { el.innerHTML = '<div class="empty">Lỗi tải dữ liệu</div>'; return; }
+      const nonChat = data.events.filter(e => e.type !== 'chat' && e.type !== 'system');
+      if (!nonChat.length) {
+        el.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>';
+        return;
+      }
+      el.replaceChildren(...nonChat.map(renderEvtItem));
+    }
+
+    function renderEvtItem(evt) {
+      const item = makeEl('div', 'evt-item');
+      item.appendChild(makeEl('div', 'evt-icon', evtIcon(evt.type)));
+      const body = makeEl('div', 'evt-body');
+      const msg = makeEl('div', 'evt-msg', evt.message || '');
+      if (!evt.read) {
+        msg.appendChild(makeEl('span', 'new-badge', 'MỚI'));
+      }
+      body.appendChild(msg);
+      body.appendChild(makeEl('div', 'evt-time', fmtTime(evt.timestamp)));
+      item.appendChild(body);
+      return item;
+    }
+
+    async function markAllRead() {
+      await apiFetch('/api/events/read_all', { method: 'POST' });
+      loadEvents();
+      toast('✓ Đã đánh dấu tất cả đã đọc');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Camera
+    // ══════════════════════════════════════════════════════════════
+    let _camOn = false;
+
+    let _webrtcPc = null;
+
+    async function toggleCamera() {
+      const btn = document.getElementById('camBtn');
+      if (_camOn) {
+        stopCamera();
+        return;
+      }
+      btn.textContent = '⏳ Đang kết nối...';
+      btn.disabled = true;
+      const ok = await startWebRTC();
+      if (!ok) startMJPEG();
+      _camOn = true;
+      btn.textContent = '⏹ Tắt camera';
+      btn.classList.add('on');
+      btn.disabled = false;
+      startAudioMonitor();
+    }
+
+    async function startWebRTC() {
+      try {
+        const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+        _webrtcPc = pc;
+
+        pc.addTransceiver('video', { direction: 'recvonly' });
+
+        pc.ontrack = (evt) => {
+          const video = document.getElementById('cameraFeed');
+          video.srcObject = evt.streams[0];
+          video.style.display = 'block';
+        };
+
+        pc.onconnectionstatechange = () => {
+          const state = pc.connectionState;
+          if (state === 'failed' || state === 'closed' || state === 'disconnected') {
+            setTimeout(() => {
+              if (_webrtcPc !== pc || !_camOn) return;
+              console.debug('[WebRTC] Connection lost:', state);
+              const feed = document.getElementById('cameraFeed');
+              if (feed) {
+                feed.style.display = 'none';
+                feed.srcObject = null;
+              }
+              _webrtcPc = null;
+              _camOn = false;
+              startMJPEG();
+              if (typeof showNotificationBanner === 'function') {
+                showNotificationBanner('camera', 'WebRTC mất kết nối, đang dùng chế độ dự phòng');
+              }
+            }, 0);
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        // Chờ ICE gathering (tối đa 5s)
+        await Promise.race([
+          new Promise(resolve => {
+            if (pc.iceGatheringState === 'complete') { resolve(); return; }
+            pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') resolve(); };
+          }),
+          new Promise(resolve => setTimeout(resolve, 5000)),
+        ]);
+
+        const answer = await apiFetch('/api/webrtc/offer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type }),
+        });
+
+        if (!answer) {
+          pc.close();
+          _webrtcPc = null;
+          return false;
+        }
+
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        return true;
+      } catch (_e) {
+        if (_webrtcPc) { _webrtcPc.close(); _webrtcPc = null; }
+        return false;
+      }
+    }
+
+    function startMJPEG() {
+      const img = document.getElementById('cameraFeedMjpeg');
+      img.src = `/api/camera?auth=${encodeURIComponent(_token)}`;
+      img.style.display = 'block';
+    }
+
+    function stopCamera() {
+      // Dừng WebRTC
+      if (_webrtcPc) {
+        _webrtcPc.close();
+        _webrtcPc = null;
+        fetch('/api/webrtc/close', { method: 'POST', headers: authHeader() }).catch(() => {});
+        const video = document.getElementById('cameraFeed');
+        video.srcObject = null;
+        video.style.display = 'none';
+      }
+      // Dừng MJPEG
+      const img = document.getElementById('cameraFeedMjpeg');
+      img.src = '';
+      img.style.display = 'none';
+
+      _camOn = false;
+      document.getElementById('camBtn').textContent = '📷 Bật camera';
+      document.getElementById('camBtn').classList.remove('on');
+      stopAudioMonitor();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Memory
+    // ══════════════════════════════════════════════════════════════
+    async function loadMemories() {
+      const data = await apiFetch('/api/memories');
+      const el = document.getElementById('memList');
+      if (!data || !data.memories.length) {
+        el.innerHTML = '<div class="empty">Chưa có trí nhớ nào</div>';
+        document.getElementById('memCnt').textContent = '';
+        return;
+      }
+      document.getElementById('memCnt').textContent = `(${data.total})`;
+      el.replaceChildren(...data.memories.map(m => {
+        const item = makeEl('div', 'mem-item');
+        item.id = `m-${m.id}`;
+        const body = makeEl('div', 'mem-body');
+        body.appendChild(makeEl('div', 'mem-text', m.fact || ''));
+        const source = m.source === 'parent' ? '👨‍👩‍👧 Phụ huynh' :
+          (m.source === 'parent_edit' ? '✏️ Đã sửa' : '💬 Hội thoại');
+        body.appendChild(makeEl('div', 'mem-meta', `${source} · ${fmtTime(m.timestamp)}`));
+        item.appendChild(body);
+        const delBtn = makeEl('button', 'btn-del', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa';
+        delBtn.addEventListener('click', () => delMem(m.id));
+        item.appendChild(delBtn);
+        return item;
+      }));
+    }
+
+    async function addMemory() {
+      const txt = document.getElementById('memInput').value.trim();
+      if (!txt) { toast('Nhập nội dung trí nhớ!'); return; }
+      const r = await apiFetch('/api/memories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: txt })
+      });
+      if (r && r.status === 'ok') {
+        document.getElementById('memInput').value = '';
+        toast('✅ Đã thêm trí nhớ!');
+        loadMemories();
+        loadStatus();
+      } else {
+        toast('❌ Thêm thất bại, thử lại');
+      }
+    }
+
+    async function delMem(id) {
+      if (!confirm('Xóa trí nhớ này?')) return;
+      const r = await apiFetch(`/api/memories/${id}`, { method: 'DELETE' });
+      if (r) {
+        document.getElementById(`m-${id}`)?.remove();
+        toast('🗑 Đã xóa');
+        loadStatus();
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Tasks
+    // ══════════════════════════════════════════════════════════════
+    async function loadTasks() {
+      const data = await apiFetch('/api/tasks');
+      const el = document.getElementById('taskList');
+      // Refresh stars
+      const starsData = await apiFetch('/api/tasks/stars');
+      if (starsData) updateStarsDisplay(starsData.total_stars);
+
+      if (!data || data.length === 0) {
+        el.innerHTML = '<div class="empty">Chưa có nhiệm vụ nào</div>';
+        return;
+      }
+      el.replaceChildren(...data.map(t => {
+        const item = makeEl('div', 'task-item');
+        item.id = `task-${t.id}`;
+        const check = makeEl('div', `task-check ${t.completed_today ? 'done' : ''}`, t.completed_today ? '✓' : '');
+        check.title = t.completed_today ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành';
+        check.addEventListener('click', () => completeTask(t.id));
+        item.appendChild(check);
+
+        const body = makeEl('div', 'task-body');
+        body.appendChild(makeEl('div', `task-name ${t.completed_today ? 'done' : ''}`, t.name || ''));
+        body.appendChild(makeEl('span', 'task-time-badge', `⏰ ${t.remind_time || ''}`));
+        item.appendChild(body);
+
+        item.appendChild(makeEl('span', 'task-stars', `⭐ ${t.stars ?? 0}`));
+        const delBtn = makeEl('button', 'btn-del', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa';
+        delBtn.addEventListener('click', () => deleteTask(t.id));
+        item.appendChild(delBtn);
+        return item;
+      }));
+    }
+
+    async function addTask() {
+      const name = document.getElementById('taskName').value.trim();
+      const time = document.getElementById('taskTime').value;
+      if (!name) { toast('Nhập tên nhiệm vụ!'); return; }
+      if (!time) { toast('Chọn giờ nhắc!'); return; }
+      const r = await apiFetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, remind_time: time })
+      });
+      if (r && r.id) {
+        document.getElementById('taskName').value = '';
+        toast('✅ Đã thêm nhiệm vụ!');
+        loadTasks();
+      } else {
+        toast('❌ Thêm thất bại, thử lại');
+      }
+    }
+
+    async function completeTask(id) {
+      const r = await apiFetch(`/api/tasks/${id}/complete`, { method: 'POST' });
+      if (r && r.ok) {
+        toast(`✅ Hoàn thành! +1 ⭐`);
+        updateStarsDisplay(r.stars);
+        loadTasks();
+      } else {
+        toast('Nhiệm vụ đã hoàn thành rồi!');
+      }
+    }
+
+    async function deleteTask(id) {
+      if (!confirm('Xóa nhiệm vụ này?')) return;
+      const r = await apiFetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      if (r && r.ok) {
+        document.getElementById(`task-${id}`)?.remove();
+        toast('🗑 Đã xóa');
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Puppet
+    // ══════════════════════════════════════════════════════════════
+    async function sendPuppet() {
+      const txt = document.getElementById('puppetInput').value.trim();
+      if (!txt) { toast('Nhập câu muốn Bi đọc!'); return; }
+
+      const btn = document.getElementById('puppetBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang gửi...';
+
+      const ok = document.getElementById('puppetOk');
+      const err = document.getElementById('puppetErr');
+      ok.style.display = err.style.display = 'none';
+
+      const r = await apiFetch('/api/puppet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: txt })
+      });
+
+      btn.disabled = false;
+      btn.textContent = '📢 Bi đọc ngay';
+
+      if (r && r.status === 'queued') {
+        ok.textContent = `✅ Đã gửi: "${txt}"`;
+        ok.style.display = 'block';
+        document.getElementById('puppetInput').value = '';
+        setTimeout(() => ok.style.display = 'none', 4000);
+      } else {
+        err.textContent = '❌ Không gửi được. Robot có đang chạy không?';
+        err.style.display = 'block';
+        setTimeout(() => err.style.display = 'none', 4000);
+      }
+    }
+
+    function setTemplate(btn) {
+      document.getElementById('puppetInput').value = btn.textContent.trim();
+      document.getElementById('puppetInput').focus();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Helpers
+    // ══════════════════════════════════════════════════════════════
+	    const EVT_ICONS = { motion: '🚶', stranger: '🚨', cry: '😢', known_face: '👋', chat: '💬', system: 'ℹ️', homework: '📚' };
+	    function evtIcon(t) { return EVT_ICONS[t] || '📢'; }
+
+    // ════════════════════════════════════════════════════════════════
+    //  Threads
+    // ════════════════════════════════════════════════════════════════
+    async function loadThreads() {
+      const listEl = document.getElementById('threadList');
+      const detailEl = document.getElementById('threadDetail');
+      if (!listEl || !detailEl) return;
+
+      detailEl.style.display = 'none';
+      listEl.style.display = 'block';
+      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+      const data = await apiFetch('/api/conversations?limit=30');
+      const conversations = data && Array.isArray(data.conversations) ? data.conversations : [];
+
+      if (!data) {
+        listEl.innerHTML = '<div class="empty">Không tải được hội thoại</div>';
+        return;
+      }
+
+      if (!conversations.length) {
+        listEl.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>';
+        return;
+      }
+
+      listEl.replaceChildren(...conversations.map(session => {
+        const card = makeEl('div', 'card thread-card');
+        card.addEventListener('click', () => showThreadDetail(session.session_id));
+
+        const delBtn = makeEl('button', 'thread-delete', '🗑');
+        delBtn.type = 'button';
+        delBtn.title = 'Xóa hội thoại';
+        delBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          deleteThread(session.session_id);
+        });
+        card.appendChild(delBtn);
+
+        card.appendChild(makeEl('div', 'thread-title', session.title || 'Hội thoại không tên'));
+        const meta = makeEl('div', 'thread-meta');
+        meta.appendChild(makeEl('span', '', fmtTime(session.started_at)));
+        meta.appendChild(makeEl('span', '', `${Number(session.turn_count || 0)} lượt`));
+        card.appendChild(meta);
+        card.appendChild(makeEl('div', 'thread-arrow', '›'));
+        return card;
+	      }));
+	    }
+
+	    async function loadHomework(limit = 21) {
+	      const listEl = document.getElementById('homeworkList');
+	      const detailEl = document.getElementById('homeworkDetail');
+	      if (!listEl || !detailEl) return;
+
+	      const safeLimit = Math.max(1, Math.min(Number(limit) || 21, 50));
+	      detailEl.style.display = 'none';
+	      listEl.style.display = 'block';
+	      listEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+	      const data = await apiFetch(`/api/conversations/homework?limit=${safeLimit}`);
+	      const sessions = data && Array.isArray(data.sessions) ? data.sessions : [];
+	      if (!data) {
+	        listEl.innerHTML = '<div class="empty">Không tải được bài tập</div>';
+	        return;
+	      }
+	      if (!sessions.length) {
+	        listEl.innerHTML = '<div class="empty">Chưa có bài tập nào</div>';
+	        return;
+	      }
+
+	      const showMore = safeLimit === 21 && sessions.length > 20;
+	      const visibleSessions = showMore ? sessions.slice(0, 20) : sessions;
+	      const cards = visibleSessions.map(session => {
+	        const card = makeEl('div', 'card thread-card');
+	        card.addEventListener('click', () => showThreadDetail(session.session_id));
+	        card.appendChild(makeEl('div', 'homework-badge', '📚 Bài tập'));
+	        card.appendChild(makeEl('div', 'thread-title', session.title || 'Hội thoại không tên'));
+	        const meta = makeEl('div', 'thread-meta');
+	        meta.appendChild(makeEl('span', '', fmtTime(session.started_at)));
+	        meta.appendChild(makeEl('span', '', `${Number(session.turn_count || 0)} lượt`));
+	        card.appendChild(meta);
+	        card.appendChild(makeEl('div', 'thread-arrow', '›'));
+	        return card;
+	      });
+	      if (showMore) {
+	        const more = makeEl('button', 'btn btn-outline btn-full', 'Xem tất cả');
+	        more.type = 'button';
+	        more.addEventListener('click', () => loadHomework(50));
+	        cards.push(more);
+	      }
+	      listEl.replaceChildren(...cards);
+	    }
+
+	    function getThreadUi() {
+	      const prefix = activeTab === 'homework' ? 'homework' : 'thread';
+	      return {
+	        listEl: document.getElementById(`${prefix}List`),
+	        detailEl: document.getElementById(`${prefix}Detail`),
+	        titleEl: document.getElementById(`${prefix}DetailTitle`),
+	        turnsEl: document.getElementById(prefix === 'homework' ? 'homeworkTurns' : 'threadTurns')
+	      };
+	    }
+	
+	    async function showThreadDetail(session_id) {
+	      const { listEl, detailEl, titleEl, turnsEl } = getThreadUi();
+	      if (!listEl || !detailEl || !titleEl || !turnsEl) return;
+
+      listEl.style.display = 'none';
+      detailEl.style.display = 'block';
+      titleEl.textContent = 'Đang tải...';
+      turnsEl.innerHTML = '<div class="loading">Đang tải...</div>';
+
+      const data = await apiFetch(`/api/conversations/${session_id}`);
+      if (!data || !data.session) {
+        titleEl.textContent = 'Không tải được hội thoại';
+        turnsEl.innerHTML = '<div class="empty">Không tải được nội dung hội thoại</div>';
+        return;
+      }
+
+      const session = data.session;
+      const turns = Array.isArray(data.turns) ? data.turns : [];
+      titleEl.textContent = session.title || 'Hội thoại không tên';
+
+      if (!turns.length) {
+        turnsEl.innerHTML = '<div class="empty">Hội thoại chưa có nội dung</div>';
+        return;
+      }
+
+      turnsEl.replaceChildren(...turns.map(turn => {
+        const role = turn.role === 'user' ? 'user' : (turn.role === 'homework' ? 'homework' : 'bi');
+        const bubbleClass = role === 'user' ? 'bubble bubble-user' : 'bubble bubble-bi';
+        const who = role === 'user' ? '👦 Bé' : (role === 'homework' ? '📚 Bài tập' : '🤖 Bi');
+        const row = makeEl('div', `thread-turn ${role}`);
+        const body = makeEl('div', 'thread-turn-body');
+        if (role === 'homework') {
+          body.appendChild(makeEl('div', 'homework-badge', '📚 Bài tập'));
+        }
+        body.appendChild(makeEl('div', bubbleClass, turn.content || ''));
+        body.appendChild(makeEl('div', 'thread-turn-meta', `${who} • ${fmtTime(turn.timestamp)}`));
+        row.appendChild(body);
+        return row;
+      }));
+    }
+
+	    function showThreadList() {
+	      const { listEl, detailEl } = getThreadUi();
+	      if (detailEl) detailEl.style.display = 'none';
+	      if (listEl) listEl.style.display = 'block';
+	      if (activeTab === 'homework') loadHomework();
+	      else loadThreads();
+	    }
+
+    async function deleteThread(session_id) {
+      if (!confirm('Xóa hội thoại này?')) return;
+      const r = await apiFetch(`/api/conversations/${session_id}`, { method: 'DELETE' });
+      if (r && r.ok) {
+        toast('🗑 Đã xóa hội thoại');
+        showThreadList();
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtTime(ts) {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        return d.toLocaleString('vi-VN', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+      } catch (_) { return ts; }
+    }
+
+    let _toastTimer;
+    function toast(msg, ms = 3000) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Auto-refresh
+    // ══════════════════════════════════════════════════════════════
+    setInterval(() => { if (_token) loadTab(activeTab); }, 30000);
+
+    // ── Audio Monitoring (auto — gọi từ toggleCamera) ────────────────────────────
+    // Dùng MediaSource + <audio> element để force phát qua LOA NGOÀI (không phải earpiece)
+    let audioWs = null;
+    let audioPlaying = false;
+    let _audioEl = null;        // <audio> element
+    let _mediaSource = null;
+    let _sourceBuffer = null;
+    let _audioQueue = [];       // Buffer chunks chờ append
+    let _appendBusy = false;
+
+    function _getOrCreateAudioElement() {
+      if (_audioEl) return _audioEl;
+      _audioEl = document.createElement('audio');
+      _audioEl.autoplay = true;
+      _audioEl.playsInline = true;   // iOS: không fullscreen
+      _audioEl.setAttribute('playsinline', '');
+      _audioEl.setAttribute('webkit-playsinline', '');
+      _audioEl.style.display = 'none';
+      document.body.appendChild(_audioEl);
+      return _audioEl;
+    }
+
+    function _pcmInt16ToWavBlob(int16Array, sampleRate) {
+      // Tạo WAV blob từ PCM int16 để MediaSource có thể decode
+      const numSamples = int16Array.length;
+      const buffer = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(buffer);
+      const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);   // PCM
+      view.setUint16(22, 1, true);   // Mono
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, numSamples * 2, true);
+      new Int16Array(buffer, 44).set(int16Array);
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function startAudioMonitor() {
+      if (audioPlaying) return;
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (!token) return;
+
+      const el = _getOrCreateAudioElement();
+
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/api/audio/stream?token=${encodeURIComponent(token)}`;
+      audioWs = new WebSocket(wsUrl);
+      audioWs.binaryType = 'arraybuffer';
+
+      audioWs.onopen = () => { audioPlaying = true; };
+
+      audioWs.onmessage = (event) => {
+        if (!audioPlaying) return;
+        const arrayBuffer = event.data;
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) return;
+
+        // Convert int16 PCM → WAV blob → object URL → phát qua <audio>
+        const int16Array = new Int16Array(arrayBuffer);
+        const wavBlob = _pcmInt16ToWavBlob(int16Array, 16000);
+        const url = URL.createObjectURL(wavBlob);
+
+        const tmpAudio = new Audio(url);
+        tmpAudio.volume = 1.0;
+        tmpAudio.playsInline = true;
+        tmpAudio.setAttribute('playsinline', '');
+        tmpAudio.play().catch(() => { });
+        tmpAudio.onended = () => URL.revokeObjectURL(url);
+      };
+
+      audioWs.onclose = () => { stopAudioMonitor(); };
+      audioWs.onerror = () => { stopAudioMonitor(); };
+    }
+
+    function stopAudioMonitor() {
+      audioPlaying = false;
+      if (audioWs) { audioWs.close(); audioWs = null; }
+    }
+    // ── End Audio Monitoring ──────────────────────────────────────
+
+    // ── Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────────
+    let momMicActive = false;
+    let momMediaStream = null;
+    let momAudioWs = null;
+    let momScriptProcessor = null;
+    let momAudioCtx = null;
+
+    async function toggleMomMic() {
+      if (!momMicActive) {
+        await startMomMic();
+      } else {
+        stopMomMic();
+      }
+    }
+
+    async function startMomMic() {
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (!token) { alert('Vui lòng đăng nhập trước'); return; }
+
+      // Kiểm tra browser support
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(
+          'Trình duyệt không hỗ trợ mic.\n\n' +
+          'Giải pháp:\n' +
+          '1. Dùng Chrome hoặc Firefox\n' +
+          '2. Truy cập qua HTTPS (https://...)\n' +
+          '3. Android: vào chrome://flags → tìm "insecure" → thêm địa chỉ này'
+        );
+        return;
+      }
+
+      try {
+        // Xin quyền mic điện thoại
+        momMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+        });
+
+        // Báo server: mẹ bắt đầu nói — Bi tạm dừng
+        const startResp = await apiFetch('/api/mom/start', { method: 'POST' });
+        if (!startResp) throw new Error('Không thể báo server');
+
+        // Mở WebSocket gửi audio về server
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        momAudioWs = new WebSocket(`${protocol}//${location.host}/api/mom/audio?token=${encodeURIComponent(token)}`);
+        momAudioWs.binaryType = 'arraybuffer';
+
+        await new Promise((resolve, reject) => {
+          momAudioWs.onopen = resolve;
+          momAudioWs.onerror = () => reject(new Error('WebSocket lỗi'));
+          setTimeout(() => reject(new Error('Timeout kết nối')), 5000);
+        });
+
+        // Stream audio từ mic → WebSocket (KHÔNG connect vào destination — chỉ capture)
+        momAudioCtx = new AudioContext({ sampleRate: 16000 });
+        const source = momAudioCtx.createMediaStreamSource(momMediaStream);
+        momScriptProcessor = momAudioCtx.createScriptProcessor(512, 1, 1);
+
+        momScriptProcessor.onaudioprocess = (event) => {
+          if (!momMicActive || !momAudioWs || momAudioWs.readyState !== WebSocket.OPEN) return;
+          const float32 = event.inputBuffer.getChannelData(0);
+          momAudioWs.send(float32.buffer.slice(0));
+        };
+
+        // QUAN TRỌNG: connect vào destination để ScriptProcessor hoạt động
+        // nhưng volume = 0 để không phát tiếng lại vào loa điện thoại (echo)
+        const silentGain = momAudioCtx.createGain();
+        silentGain.gain.value = 0;  // Tắt tiếng local — chỉ gửi lên server
+        source.connect(momScriptProcessor);
+        momScriptProcessor.connect(silentGain);
+        silentGain.connect(momAudioCtx.destination);
+
+        momMicActive = true;
+        document.getElementById('btn-mom-mic').textContent = '🔴 Tắt mic — Trả lại cho Bi';
+        document.getElementById('btn-mom-mic').style.background = '#ef4444';
+        document.getElementById('mom-mic-status').textContent = '🟠 Mẹ đang nói — Bi đang tạm dừng';
+        document.getElementById('mom-mic-status').style.color = '#dc2626';
+
+      } catch (err) {
+        console.error('Lỗi bật mic mẹ:', err);
+        alert('Không thể bật mic: ' + err.message);
+        stopMomMic();
+      }
+    }
+
+    function stopMomMic() {
+      momMicActive = false;
+
+      if (momScriptProcessor) { momScriptProcessor.disconnect(); momScriptProcessor = null; }
+      if (momAudioCtx) { momAudioCtx.close(); momAudioCtx = null; }
+      if (momMediaStream) { momMediaStream.getTracks().forEach(t => t.stop()); momMediaStream = null; }
+      if (momAudioWs) { momAudioWs.close(); momAudioWs = null; }
+
+      // Báo server: mẹ dừng nói
+      const token = _token || localStorage.getItem('bi_token') || '';
+      if (token) {
+        fetch('/api/mom/stop', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).catch(() => { });
+      }
+
+      const btn = document.getElementById('btn-mom-mic');
+      const status = document.getElementById('mom-mic-status');
+      if (btn) { btn.textContent = '🎤 Bật mic — Nói với bé'; btn.style.background = '#f59e0b'; }
+      if (status) { status.textContent = 'Bi đang hoạt động bình thường'; status.style.color = '#78716c'; }
+    }
+
+    // Tự động dừng mic mẹ khi đóng tab/thoát web
+    window.addEventListener('beforeunload', () => {
+      try { stopCamera(); } catch (_) {}
+      try { stopAudioMonitor(); } catch (_) {}
+      if (momMicActive) { try { stopMomMic(); } catch (_) {} }
+      if (typeof endVideoCall === 'function') endVideoCall();
+    });
+    // ── End Mẹ nói chuyện trực tiếp ──────────────────────────────────────────────
+
+    // ══════════════════════════════════════════════════════════════
+    //  PERSONA (Task 6.1)
+    // ══════════════════════════════════════════════════════════════
+    let _personaGender = 'boy';
+
+    function setGender(g) {
+      _personaGender = g;
+      document.getElementById('genderBoy').classList.toggle('active', g === 'boy');
+      document.getElementById('genderGirl').classList.toggle('active', g === 'girl');
+      updatePersonaPreview();
+    }
+
+    const PERSONA_PREVIEWS = [
+      'Ôi hay quá! Bạn có muốn Bi kể thêm không? 🌟',
+      'Thú vị đó! Hãy để Bi tìm hiểu thêm nhé! 🔍',
+      'Hmm, Bi nghĩ vậy... Bạn thử hỏi kiểu khác xem sao? 🤔',
+      'Bi biết rồi! Để Bi giải thích từng bước nhé. 📝',
+      'Hay quá bạn ơi! Học thêm câu này nữa nhé: ... ✨',
+    ];
+
+    function updatePersonaPreview() {
+      const obedient = parseInt(document.getElementById('sliderObedient').value);
+      const introvert = parseInt(document.getElementById('sliderIntrovert').value);
+      let preview;
+      if (obedient > 70 && introvert < 40)
+        preview = 'Vâng ạ! Bi sẽ làm theo. Bạn có muốn Bi giải thích thêm không? 😊';
+      else if (obedient < 30)
+        preview = 'Ê ê! Hay ghê ta! Bi biết cái này, để Bi kể cho nghe nào! 😜';
+      else if (introvert > 70)
+        preview = 'Hmm... Bi đang nghĩ... Câu trả lời là... 🤫';
+      else
+        preview = PERSONA_PREVIEWS[Math.floor(Math.random() * PERSONA_PREVIEWS.length)];
+      document.getElementById('personaPreview').textContent = `Bi sẽ trả lời như thế này: "${preview}"`;
+    }
+
+    async function loadPersona() {
+      const data = await apiFetch('/api/persona');
+      if (!data) return; // 404 = chưa có → keep defaults
+      const persona = data.persona || data;
+      if (persona.name) document.getElementById('personaName').value = persona.name;
+      if (persona.gender) setGender(persona.gender);
+      if (persona.voice) document.getElementById('personaVoice').value = persona.voice;
+      if (persona.personality) {
+        const p = persona.personality;
+        if (p.playfulness !== undefined) document.getElementById('sliderObedient').value = 100 - parseInt(p.playfulness || 0);
+        if (p.extraversion !== undefined) document.getElementById('sliderIntrovert').value = 100 - parseInt(p.extraversion || 0);
+        if (p.energy !== undefined) document.getElementById('sliderCalm').value = 100 - parseInt(p.energy || 0);
+      }
+      updatePersonaPreview();
+    }
+
+    async function savePersona() {
+      const payload = {
+        name: document.getElementById('personaName').value.trim() || 'Bi',
+        gender: _personaGender,
+        voice: document.getElementById('personaVoice').value,
+        personality: {
+          playfulness: 100 - parseInt(document.getElementById('sliderObedient').value || 50),
+          extraversion: 100 - parseInt(document.getElementById('sliderIntrovert').value || 50),
+          energy: 100 - parseInt(document.getElementById('sliderCalm').value || 50),
+        },
+      };
+      const r = await apiFetch('/api/persona/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const msg = document.getElementById('personaSaveMsg');
+      if (r && (r.ok || r.status === 'ok')) {
+        msg.textContent = '✅ Đã lưu tính cách!';
+        msg.style.background = '#dcfce7'; msg.style.color = '#166534';
+      } else {
+        msg.textContent = '⚠️ Chưa tích hợp API — sẽ áp dụng sau.';
+        msg.style.background = '#fef3c7'; msg.style.color = '#92400e';
+      }
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 3500);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  EMOTION (Task 6.1)
+    // ══════════════════════════════════════════════════════════════
+    const EMO_ICONS = { happy: '😊', neutral: '😐', normal: '😐', sad: '😢', stressed: '😰', stress: '😰' };
+    const EMO_LABELS = { happy: 'Vui vẻ', neutral: 'Bình thường', normal: 'Bình thường', sad: 'Buồn', stressed: 'Căng thẳng', stress: 'Căng thẳng' };
+    const EMO_BAR_CLASS = { happy: 'happy', neutral: 'normal', normal: 'normal', sad: 'sad', stressed: 'stress', stress: 'stress' };
+    const DAY_NAMES = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+    async function loadEmotion() {
+      document.getElementById('emotionBadge').style.display = 'none';
+      await Promise.all([loadEmotionToday(), loadEmotionSummary()]);
+    }
+
+    async function loadEmotionToday() {
+      const data = await apiFetch('/api/emotion/today');
+      const el = document.getElementById('emotionToday');
+      const emotion = (data && data.dominant) ? data.dominant : 'neutral';
+      el.innerHTML = `
+        <div class="emo-icon-big">${EMO_ICONS[emotion] || '😐'}</div>
+        <div>
+          <div class="emo-today-label">${EMO_LABELS[emotion] || 'Bình thường'}</div>
+          <div class="emo-today-sub">${data ? 'Cảm xúc chủ đạo hôm nay' : 'Chưa có dữ liệu hôm nay'}</div>
+        </div>`;
+    }
+
+    async function loadEmotionSummary() {
+      const data = await apiFetch('/api/emotion/summary');
+      const chartEl = document.getElementById('emoChart');
+      const alertBanner = document.getElementById('emotionAlertBanner');
+      const alertMsg = document.getElementById('emotionAlertMsg');
+
+      if (!data || !data.days) {
+        // Show demo data when API not available
+        const demoData = [
+          { day: 'T2', breakdown: { happy: 60, neutral: 30, sad: 10, stressed: 0 } },
+          { day: 'T3', breakdown: { happy: 70, neutral: 20, sad: 5,  stressed: 5 } },
+          { day: 'T4', breakdown: { happy: 40, neutral: 40, sad: 15, stressed: 5 } },
+          { day: 'T5', breakdown: { happy: 55, neutral: 30, sad: 10, stressed: 5 } },
+          { day: 'T6', breakdown: { happy: 80, neutral: 15, sad: 5,  stressed: 0 } },
+          { day: 'T7', breakdown: { happy: 65, neutral: 25, sad: 5,  stressed: 5 } },
+          { day: 'CN', breakdown: { happy: 75, neutral: 20, sad: 5,  stressed: 0 } },
+        ];
+        renderEmoChart(demoData);
+        alertBanner.style.display = 'none';
+        return;
+      }
+
+      renderEmoChart(data.days);
+
+      if (data.alert) {
+        alertBanner.style.display = 'block';
+        alertMsg.textContent = data.alert_message || 'Bé có vẻ buồn hoặc căng thẳng nhiều ngày liên tiếp. Hãy chú ý thêm nhé! 💙';
+      } else {
+        alertBanner.style.display = 'none';
+      }
+    }
+
+    function renderEmoChart(days) {
+      const chartEl = document.getElementById('emoChart');
+      chartEl.innerHTML = '';
+      const maxH = 68;
+      days.forEach(d => {
+        const breakdown = d.breakdown || {
+          happy: d.happy || 0,
+          neutral: d.neutral ?? d.normal ?? 100,
+          sad: d.sad || 0,
+          stressed: d.stressed ?? d.stress ?? 0,
+        };
+        const total = (breakdown.happy || 0) + (breakdown.neutral || 0) + (breakdown.sad || 0) + (breakdown.stressed || 0) || 100;
+        const col = document.createElement('div');
+        col.className = 'emo-col';
+        const wrap = document.createElement('div');
+        wrap.className = 'emo-bar-wrap';
+        ['stressed', 'sad', 'neutral', 'happy'].forEach(k => {
+          if (!breakdown[k]) return;
+          const bar = document.createElement('div');
+          bar.className = `emo-bar ${EMO_BAR_CLASS[k] || k}`;
+          bar.style.height = Math.round((breakdown[k] / total) * maxH) + 'px';
+          bar.title = `${EMO_LABELS[k]}: ${breakdown[k]}%`;
+          wrap.appendChild(bar);
+        });
+        col.appendChild(wrap);
+        const lbl = document.createElement('div');
+        lbl.className = 'emo-day';
+        lbl.textContent = d.day || (d.date ? DAY_NAMES[new Date(d.date).getDay()] : '');
+        col.appendChild(lbl);
+        chartEl.appendChild(col);
+      });
+    }
+
+    function showEmotionJournal() {
+      toast('📖 Nhật ký chi tiết — sẽ mở trong bản cập nhật tiếp theo');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  EDUCATION (Task 7.1)
+    // ══════════════════════════════════════════════════════════════
+    const SUBJ_ICONS = { english: '🇬🇧', math: '🔢', science: '🔬', history: '🏛️', geography: '🌍' };
+    const DAYS_SHORT = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    let _schedule = JSON.parse(localStorage.getItem('bi_schedule') || '{}');
+    let _allVocab = [];
+
+    async function loadEducation() {
+      await Promise.all([loadEduSummary(), loadVocabulary()]);
+      await loadEducationSchedule();
+      renderScheduleGrid();
+      loadEduSettingsFromStorage();
+    }
+
+    async function loadEducationSchedule() {
+      try {
+        const data = await apiFetch('/api/education/schedule');
+        const apiSchedule = data && (data.schedule || data);
+        if (apiSchedule && Object.keys(apiSchedule).length > 0) {
+          Object.assign(_schedule, apiSchedule);
+          localStorage.setItem('bi_schedule', JSON.stringify(_schedule));
+        }
+      } catch (_e) {
+        console.debug('Schedule API unavailable, using localStorage');
+      }
+    }
+
+    async function loadEduSummary() {
+      const data = await apiFetch('/api/education/summary');
+      const streak = (data && data.streak) ? data.streak : 0;
+      document.getElementById('eduStreak').textContent = `🔥 ${streak} ngày học liên tiếp`;
+      document.getElementById('eduWords').textContent = (data && data.words_learned) ? data.words_learned : '—';
+      document.getElementById('eduMath').textContent = (data && data.math_solved) ? data.math_solved : '—';
+      document.getElementById('eduQuestions').textContent = (data && data.questions_answered) ? data.questions_answered : '—';
+
+      const progs = (data && data.subject_progress) || { english: 0, math: 0, science: 0 };
+      ['en', 'math', 'sci'].forEach((k, i) => {
+        const subj = ['english', 'math', 'science'][i];
+        const pct = Math.min(100, Math.round(progs[subj] || 0));
+        document.getElementById(`prog${k.charAt(0).toUpperCase() + k.slice(1)}`).style.width = pct + '%';
+        document.getElementById(`pct${k.charAt(0).toUpperCase() + k.slice(1)}`).textContent = pct + '%';
+      });
+    }
+
+    async function loadVocabulary() {
+      const data = await apiFetch('/api/education/vocabulary');
+      _allVocab = (data && Array.isArray(data.words)) ? data.words : getDemoVocab();
+      renderVocabGrid(_allVocab);
+    }
+
+    function getDemoVocab() {
+      return [
+        { emoji: '🐱', word: 'CAT' }, { emoji: '🐶', word: 'DOG' },
+        { emoji: '🍎', word: 'APPLE' }, { emoji: '🌳', word: 'TREE' },
+        { emoji: '🏠', word: 'HOUSE' }, { emoji: '🚗', word: 'CAR' },
+        { emoji: '📚', word: 'BOOK' }, { emoji: '✏️', word: 'PEN' },
+      ];
+    }
+
+    function renderVocabGrid(words) {
+      const grid = document.getElementById('vocabGrid');
+      if (!words.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Chưa có từ vựng nào</div>'; return; }
+      grid.replaceChildren(...words.slice(0, 32).map(w => {
+        const card = makeEl('div', 'vocab-card');
+        card.appendChild(makeEl('span', 'vc-emoji', w.emoji || '📝'));
+        card.appendChild(makeEl('span', 'vc-word', w.word || ''));
+        card.title = `Nghe phát âm: ${w.word}`;
+        card.addEventListener('click', () => speakWord(w.word));
+        return card;
+      }));
+    }
+
+    function filterVocab() {
+      const q = document.getElementById('vocabSearch').value.toLowerCase();
+      renderVocabGrid(_allVocab.filter(w => w.word.toLowerCase().includes(q)));
+    }
+
+    async function speakWord(word) {
+      const r = await apiFetch('/api/puppet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: word })
+      });
+      if (!r) toast(`🔊 ${word}`);
+    }
+
+    function renderScheduleGrid() {
+      const grid = document.getElementById('eduScheduleGrid');
+      grid.innerHTML = '';
+      DAYS_SHORT.forEach((day, i) => {
+        const col = document.createElement('div');
+        const lbl = makeEl('div', 'schedule-day-label', day);
+        col.appendChild(lbl);
+        const cell = makeEl('div', `schedule-cell ${_schedule[i] ? 'has-item' : ''}`);
+        if (_schedule[i]) {
+          cell.appendChild(makeEl('span', 'sc-icon', SUBJ_ICONS[_schedule[i].subject] || '📚'));
+          cell.appendChild(makeEl('span', 'sc-time', _schedule[i].time || ''));
+        }
+        cell.addEventListener('click', () => openScheduleModal(i));
+        col.appendChild(cell);
+        grid.appendChild(col);
+      });
+    }
+
+    function openScheduleModal(dayIdx) {
+      if (dayIdx !== undefined) document.getElementById('schedDay').value = dayIdx;
+      document.getElementById('scheduleModal').classList.add('active');
+    }
+
+    function saveScheduleItem() {
+      const day = parseInt(document.getElementById('schedDay').value);
+      const subject = document.getElementById('schedSubject').value;
+      const time = document.getElementById('schedTime').value;
+      _schedule[day] = { subject, time };
+      localStorage.setItem('bi_schedule', JSON.stringify(_schedule));
+
+      apiFetch('/api/education/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day, subject, time })
+      }).catch(() => {}); // best-effort
+
+      closeModal('scheduleModal');
+      renderScheduleGrid();
+      toast('✅ Đã lưu lịch học!');
+    }
+
+    function setWordsPerSession(n, btn) {
+      document.querySelectorAll('#wordsPerSession .toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      localStorage.setItem('bi_words_per_session', n);
+    }
+
+    function saveEduSettings() {
+      const settings = {
+        words_per_session: localStorage.getItem('bi_words_per_session') || 10,
+        difficulty: document.getElementById('eduDifficulty').value,
+        reminder: document.getElementById('eduReminder').checked,
+      };
+      localStorage.setItem('bi_edu_settings', JSON.stringify(settings));
+      apiFetch('/api/education/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      }).catch(() => {});
+      toast('✅ Đã lưu cài đặt học tập!');
+    }
+
+    function loadEduSettingsFromStorage() {
+      const s = JSON.parse(localStorage.getItem('bi_edu_settings') || '{}');
+      if (s.difficulty) document.getElementById('eduDifficulty').value = s.difficulty;
+      if (s.reminder !== undefined) document.getElementById('eduReminder').checked = s.reminder;
+      const wps = localStorage.getItem('bi_words_per_session');
+      if (wps) {
+        document.querySelectorAll('#wordsPerSession .toggle-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.textContent.trim() === String(wps));
+        });
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  ENTERTAINMENT (Task 8.1)
+    // ══════════════════════════════════════════════════════════════
+    let _musicPlaying = false;
+    let _currentPlaylist = 'kids_vn';
+    let _currentPlaylistCategory = 'vietnamese';
+    let _allStories = [];
+    const DEMO_SONGS = {
+      kids_vn: [
+        { title: 'Cá vàng bơi', artist: 'Nhạc thiếu nhi VN', icon: '🐠' },
+        { title: 'Đàn vịt con', artist: 'Nhạc thiếu nhi VN', icon: '🦆' },
+        { title: 'Bé ơi bé ngủ', artist: 'Nhạc ru', icon: '🌙' },
+      ],
+      kids_en: [
+        { title: 'Twinkle Twinkle', artist: 'Nursery Rhyme', icon: '⭐' },
+        { title: 'ABC Song', artist: 'Learning Songs', icon: '📚' },
+      ],
+      lullaby: [
+        { title: 'Ru con', artist: 'Nhạc dân ca', icon: '🌙' },
+        { title: 'Con cò bay lả', artist: 'Dân ca', icon: '🐦' },
+      ],
+      request: [],
+    };
+    const DEMO_STORIES = [
+      { emoji: '🐺', title: 'Ba chú heo con', duration: '8 phút', age: '4+', type: 'fairy' },
+      { emoji: '🐢', title: 'Rùa và Thỏ', duration: '5 phút', age: '3+', type: 'fable' },
+      { emoji: '🌙', title: 'Giấc mơ diệu kỳ', duration: '6 phút', age: '3+', type: 'lullaby' },
+      { emoji: '🦊', title: 'Cáo và Quạ', duration: '4 phút', age: '4+', type: 'fable' },
+      { emoji: '👸', title: 'Nàng Bạch Tuyết', duration: '10 phút', age: '5+', type: 'fairy' },
+      { emoji: '🦁', title: 'Sư tử và Chuột', duration: '5 phút', age: '4+', type: 'fable' },
+    ];
+
+    async function loadEntertainment() {
+      loadPlaylist(_currentPlaylist, document.querySelector('.playlist-tab.active'));
+      await loadStories('all');
+      await loadGameScores();
+    }
+
+    async function loadPlaylist(type, btn) {
+      _currentPlaylist = type;
+      if (btn) {
+        document.querySelectorAll('.playlist-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      const categoryMap = { kids_vn: 'vietnamese', kids_en: 'english', lullaby: 'lullabies', request: 'vietnamese' };
+      const category = categoryMap[type] || 'vietnamese';
+      _currentPlaylistCategory = category;
+      const data = await apiFetch(`/api/music/playlist?category=${category}`);
+      const songs = (data && Array.isArray(data.tracks)) ? data.tracks : (DEMO_SONGS[type] || []);
+      const container = document.getElementById('playlistContainer');
+      if (!songs.length) {
+        container.innerHTML = '<div class="empty">Chưa có bài hát nào</div>';
+        return;
+      }
+      container.replaceChildren(...songs.map((s, i) => {
+        const item = makeEl('div', 'evt-item');
+        item.appendChild(makeEl('div', 'evt-icon', s.icon || '🎵'));
+        const body = makeEl('div', 'evt-body');
+        body.appendChild(makeEl('div', 'evt-msg', s.title || ''));
+        body.appendChild(makeEl('div', 'evt-time', s.artist || ''));
+        item.appendChild(body);
+        const playBtn = makeEl('button', 'btn btn-outline', '▶ Phát');
+        playBtn.style.cssText = 'padding:5px 10px;font-size:12px;flex-shrink:0;';
+        playBtn.addEventListener('click', () => playTrack(s));
+        item.appendChild(playBtn);
+        return item;
+      }));
+    }
+
+    async function loadStories(type) {
+      const data = await apiFetch('/api/story/list');
+      _allStories = (data && Array.isArray(data.stories)) ? data.stories : DEMO_STORIES;
+      filterStories(type);
+    }
+
+    function filterStories(type, btn) {
+      if (btn) {
+        document.querySelectorAll('#storyFilterTabs .playlist-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      const categoryMap = { fairy: 'fairy_tale', fable: 'fable', lullaby: 'bedtime', custom: 'custom' };
+      const category = categoryMap[type] || type;
+      const filtered = type === 'all' ? _allStories : _allStories.filter(s => (s.type || s.category) === category);
+      const grid = document.getElementById('storyGrid');
+      if (!filtered.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Không có truyện phù hợp</div>'; return; }
+      grid.replaceChildren(...filtered.map(s => {
+        const card = makeEl('div', 'story-card');
+        card.appendChild(makeEl('div', 'sc2-emoji', s.emoji || '📖'));
+        card.appendChild(makeEl('div', 'sc2-title', s.title || ''));
+        card.appendChild(makeEl('div', 'sc2-meta', `${s.duration || ''} · ${s.age || ''}`));
+        card.addEventListener('click', () => tellStory(s));
+        return card;
+      }));
+    }
+
+    async function loadGameScores() {
+      const data = await apiFetch('/api/game/scores');
+      if (data) {
+        if (data.voice_quiz !== undefined) document.getElementById('scoreVoiceQuiz').textContent = `⭐ ${data.voice_quiz}`;
+        if (data.word_quiz !== undefined) document.getElementById('scoreWordQuiz').textContent = `⭐ ${data.word_quiz}`;
+        if (data.math_quiz !== undefined) document.getElementById('scoreMathQuiz').textContent = `⭐ ${data.math_quiz}`;
+      }
+    }
+
+    function playTrack(song) {
+      document.getElementById('musicTitle').textContent = song.title || '—';
+      document.getElementById('musicArtist').textContent = song.artist || '—';
+      _musicPlaying = true;
+      document.getElementById('musicPlayBtn').textContent = '⏸';
+      apiFetch('/api/music/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          track_id: song.id || song.track_id,
+          category: song.category || _currentPlaylistCategory,
+        })
+      }).then(r => {
+        if (!r) toast('⚠️ Không thể phát — API chưa sẵn sàng');
+      });
+    }
+
+    function toggleMusicPlay() {
+      _musicPlaying = !_musicPlaying;
+      document.getElementById('musicPlayBtn').textContent = _musicPlaying ? '⏸' : '▶';
+      apiFetch(`/api/music/${_musicPlaying ? 'play' : 'stop'}`, { method: 'POST' }).catch(() => {});
+    }
+
+    function musicCmd(cmd) {
+      const apiCmd = cmd === 'prev' ? 'previous' : cmd;
+      apiFetch(`/api/music/${apiCmd}`, { method: 'POST' }).catch(() => {});
+      toast(`🎵 ${cmd === 'next' ? 'Bài tiếp theo' : cmd === 'prev' ? 'Bài trước' : cmd}`);
+    }
+
+    function setMusicVolume(v) {
+      apiFetch('/api/music/volume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level: parseInt(v) })
+      }).catch(() => {});
+    }
+
+    async function tellStory(s) {
+      const r = await apiFetch('/api/story/tell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          story_id: s.id || s.story_id,
+          character_name: null,
+        })
+      });
+      if (r && (r.title || r.content)) toast(`📖 Bi đang kể: "${r.title || s.title}"`);
+      else toast('⚠️ Không thể kể — API chưa sẵn sàng');
+    }
+
+    function openCustomStoryModal() {
+      document.getElementById('customStoryModal').classList.add('active');
+    }
+
+    async function tellCustomStory() {
+      const theme = document.getElementById('storyTheme').value.trim();
+      const hero = document.getElementById('storyHero').value.trim();
+      if (!theme) { toast('Nhập chủ đề câu chuyện!'); return; }
+      closeModal('customStoryModal');
+      const r = await apiFetch('/api/story/tell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          custom_request: theme,
+          character_name: hero || null,
+        })
+      });
+      if (r && (r.title || r.content)) toast('📖 Bi đang sáng tác truyện...');
+      else toast('⚠️ Không thể sáng tác — API chưa sẵn sàng');
+    }
+
+    async function startGame(type) {
+      const endpoints = {
+        'word-quiz': '/api/game/word-quiz/start',
+        'voice-quiz': '/api/game/voice-quiz/start',
+      };
+      const endpoint = endpoints[type];
+      if (!endpoint) {
+        toast('🎮 Sắp ra mắt!');
+        return;
+      }
+      const r = await apiFetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      if (r && r.status === 'started') toast(`🎮 Trò chơi bắt đầu! Hỏi bé xem sao.`);
+      else toast('⚠️ Không thể bắt đầu game — API chưa sẵn sàng');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  VIDEO CALL (Task 10.1)
+    // ══════════════════════════════════════════════════════════════
+    let _callActive = false;
+    let _activeCallId = null;
+    let _callTimer = null;
+    let _callSeconds = 0;
+    let _callMuted = false;
+    let _callVideoOff = false;
+    let _contacts = JSON.parse(localStorage.getItem('bi_contacts') || '[]');
+
+    async function loadVideo() {
+      renderContactList();
+      await loadCallHistory();
+    }
+
+    function renderContactList() {
+      const el = document.getElementById('contactList');
+      if (!_contacts.length) {
+        el.innerHTML = '<div class="empty">Chưa có người thân. Thêm để bắt đầu gọi video!</div>';
+        return;
+      }
+      el.replaceChildren(..._contacts.map((c, i) => {
+        const item = makeEl('div', 'contact-item');
+        const avatar = makeEl('div', 'contact-avatar', c.emoji || '👤');
+        item.appendChild(avatar);
+        const info = makeEl('div', '');
+        info.appendChild(makeEl('div', 'contact-name', c.name || 'Người thân'));
+        const status = makeEl('div', 'contact-status', '● Không rõ');
+        info.appendChild(status);
+        item.appendChild(info);
+        const btn = makeEl('button', 'call-btn-sm', '📹 Gọi');
+        btn.addEventListener('click', () => startVideoCall(c));
+        item.appendChild(btn);
+        return item;
+      }));
+    }
+
+    async function loadCallHistory() {
+      const data = await apiFetch('/api/video/contacts');
+      const el = document.getElementById('callHistory');
+      const hist = (data && data.history) ? data.history : [];
+      if (!hist.length) { el.innerHTML = '<div class="empty">Chưa có cuộc gọi nào</div>'; return; }
+      el.replaceChildren(...hist.slice(0, 10).map(h => {
+        const item = makeEl('div', 'call-history-item');
+        item.appendChild(makeEl('span', '', `📹 ${h.name || '—'}`));
+        item.appendChild(makeEl('span', '', `${h.duration || '—'}`));
+        item.appendChild(makeEl('span', 'evt-time', fmtTime(h.at)));
+        return item;
+      }));
+    }
+
+    function openAddContactModal() {
+      document.getElementById('contactLinkInput').value = '';
+      document.getElementById('contactNameInput').value = '';
+      document.getElementById('addContactModal').classList.add('active');
+    }
+
+    function generateContactLink() {
+      const link = `${location.origin}/call/${Math.random().toString(36).substr(2, 8)}`;
+      document.getElementById('contactLinkInput').value = link;
+    }
+
+    function saveContact() {
+      const name = document.getElementById('contactNameInput').value.trim();
+      if (!name) { toast('Nhập tên người thân!'); return; }
+      const emojis = ['👩', '👨', '👵', '👴', '👧', '👦', '🧑'];
+      _contacts.push({ name, link: document.getElementById('contactLinkInput').value, emoji: emojis[_contacts.length % emojis.length] });
+      localStorage.setItem('bi_contacts', JSON.stringify(_contacts));
+      closeModal('addContactModal');
+      renderContactList();
+      toast(`✅ Đã thêm ${name}!`);
+    }
+
+    function startVideoCall(contact) {
+      const modal = document.getElementById('callModal');
+      modal.classList.add('active');
+      document.getElementById('callStatusText').textContent = contact ? `📹 Đang gọi ${contact.name}...` : '📹 Đang kết nối với Bi...';
+      document.getElementById('callPlaceholder').style.display = 'flex';
+      _callActive = true; _callSeconds = 0;
+      _activeCallId = null;
+      _callTimer = setInterval(() => {
+        _callSeconds++;
+        const m = String(Math.floor(_callSeconds / 60)).padStart(2, '0');
+        const s = String(_callSeconds % 60).padStart(2, '0');
+        document.getElementById('callTimer').textContent = `${m}:${s}`;
+      }, 1000);
+
+      apiFetch('/api/video/call/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact_name: contact ? contact.name : 'robot' })
+      }).then(r => {
+        if (r && _callActive) {
+          _activeCallId = r.call_id || r.id || null;
+          document.getElementById('callStatusText').textContent = `📹 Đang gọi${contact ? ' ' + contact.name : ''}`;
+        }
+      }).catch(() => {});
+    }
+
+    function endVideoCall() {
+      if (!_callActive) return;
+      clearInterval(_callTimer);
+      _callActive = false;
+      document.getElementById('callModal').classList.remove('active');
+      apiFetch('/api/video/call/end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ call_id: _activeCallId || '' })
+      }).catch(() => {});
+      _activeCallId = null;
+      toast(`📹 Cuộc gọi kết thúc — ${document.getElementById('callTimer').textContent}`);
+    }
+
+    function toggleCallMute() {
+      _callMuted = !_callMuted;
+      document.getElementById('callMuteBtn').textContent = _callMuted ? '🔇' : '🎤';
+      document.getElementById('callMuteBtn').style.background = _callMuted ? 'rgba(239,68,68,.4)' : 'rgba(255,255,255,.15)';
+    }
+
+    function toggleCallVideo() { toast(_callVideoOff ? '📹 Camera bật' : '🚫 Camera tắt'); _callVideoOff = !_callVideoOff; }
+
+    // ══════════════════════════════════════════════════════════════
+    //  ANALYTICS (Task 10.2)
+    // ══════════════════════════════════════════════════════════════
+    let _clipsData = [];
+    let _clipsFilter = 'all';
+
+    async function loadAnalytics() {
+      await Promise.all([loadWeeklyReport(), loadClips()]);
+      renderActivityChart();
+    }
+
+    async function loadWeeklyReport() {
+      const data = await apiFetch('/api/analytics/weekly');
+      document.getElementById('rptHours').textContent   = data ? `${data.hours || 0} giờ` : '—';
+      document.getElementById('rptWords').textContent   = data ? `${data.words || 0} từ` : '—';
+      document.getElementById('rptStories').textContent = data ? `${data.stories || 0} truyện` : '—';
+      document.getElementById('rptEmotion').textContent = data ? (EMO_LABELS[data.avg_emotion] || data.avg_emotion || '—') : '—';
+    }
+
+    function renderActivityChart() {
+      const chartEl = document.getElementById('activityChart');
+      const hoursEl = document.getElementById('activityHours');
+      chartEl.innerHTML = ''; hoursEl.innerHTML = '';
+      const hours = [6,8,10,12,14,16,18,20,22];
+      const heights = [2, 8, 15, 25, 10, 40, 55, 38, 18];
+      hours.forEach((h, i) => {
+        const bar = makeEl('div', 'activity-bar');
+        bar.style.height = heights[i] + 'px';
+        chartEl.appendChild(bar);
+        const lbl = makeEl('div', 'activity-hour', h + 'h');
+        hoursEl.appendChild(lbl);
+      });
+    }
+
+    async function loadClips() {
+      const data = await apiFetch('/api/clips/list');
+      _clipsData = (data && Array.isArray(data.clips)) ? data.clips : [];
+      renderClips();
+    }
+
+    function filterClips(type, btn) {
+      _clipsFilter = type;
+      if (btn) {
+        document.querySelectorAll('#clipsFilterBar .filter-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderClips();
+    }
+
+    function renderClips() {
+      const grid = document.getElementById('clipsGrid');
+      const CLIP_ICONS = { cry: '😢', motion: '🚶', stranger: '🚨', known_face: '👋' };
+      const filtered = _clipsFilter === 'all' ? _clipsData : _clipsData.filter(c => c.type === _clipsFilter);
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Chưa có clip nào</div>';
+        return;
+      }
+      grid.replaceChildren(...filtered.map(c => {
+        const wrap = document.createElement('div');
+        const thumb = makeEl('div', 'clip-thumb', CLIP_ICONS[c.type] || '📹');
+        thumb.title = c.type;
+        thumb.addEventListener('click', () => toast(`▶ Xem clip: ${fmtTime(c.created_at)}`));
+        const del = makeEl('button', 'clip-thumb-del', '✕');
+        del.addEventListener('click', (e) => { e.stopPropagation(); deleteClip(c.id); });
+        thumb.appendChild(del);
+        wrap.appendChild(thumb);
+        wrap.appendChild(makeEl('div', 'clip-label', fmtTime(c.created_at)));
+        return wrap;
+      }));
+    }
+
+    async function deleteClip(id) {
+      if (!confirm('Xóa clip này?')) return;
+      const r = await apiFetch(`/api/clips/${id}`, { method: 'DELETE' });
+      if (r && r.ok) {
+        _clipsData = _clipsData.filter(c => c.id !== id);
+        renderClips();
+        toast('🗑 Đã xóa clip');
+      } else {
+        toast('❌ Xóa thất bại');
+      }
+    }
+
+    function sendWeeklyReport() {
+      toast('📧 Chức năng gửi email sẽ có trong bản cập nhật tiếp theo');
+    }
+
+    // ── Modal helpers ──────────────────────────────────────────────
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js');
+    }
+  </script>
+</body>
+
+</html>

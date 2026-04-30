@@ -1,0 +1,9 @@
+{
+  "stories": [
+    {"id": "fairy_001", "title": "Co Be Lo Lem", "category": "fairy_tale", "age_min": 4, "age_max": 10, "duration_min": 5, "content": "Ngay xua co mot co be cham chi va tot bung. Du gap kho khan, em van giu long nhan hau va cuoi cung duoc moi nguoi yeu quy.", "moral": "Long tot bung luon duoc den dap"},
+    {"id": "fairy_002", "title": "Cay Tre Tram Dot", "category": "fairy_tale", "age_min": 5, "age_max": 10, "duration_min": 5, "content": "Mot chang trai hien lanh luon lam viec cham chi. Nho that tha va kien tri, chang vuot qua thu thach va tim duoc hanh phuc.", "moral": "That tha va kien tri se chien thang"},
+    {"id": "fairy_003", "title": "Tam Cam", "category": "fairy_tale", "age_min": 6, "age_max": 12, "duration_min": 6, "content": "Tam hien hau, cham chi va biet yeu thuong. Sau nhieu thu thach, dieu tot dep da den voi Tam.", "moral": "Song hien lanh va dung cam"},
+    {"id": "fairy_004", "title": "Su Tich Qua Dua Hau", "category": "fairy_tale", "age_min": 5, "age_max": 10, "duration_min": 4, "content": "Mai An Tiem song tu lap tren dao vang. Bang cong suc va tri thong minh, gia dinh tim ra qua dua hau mat lanh.", "moral": "Tu lap va lao dong tao nen thanh qua"},
+    {"id": "fairy_005", "title": "Thanh Giong", "category": "fairy_tale", "age_min": 5, "age_max": 12, "duration_min": 5, "content": "Cau be Giong lon nhanh de bao ve lang xom. Sau chien thang, Giong bay ve troi trong long biet on cua moi nguoi.", "moral": "Dung cam de bao ve dieu tot"}
+  ]
+}

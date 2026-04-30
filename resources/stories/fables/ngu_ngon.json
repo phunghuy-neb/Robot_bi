@@ -1,0 +1,9 @@
+{
+  "stories": [
+    {"id": "fable_001", "title": "Rua Va Tho", "category": "fable", "age_min": 4, "age_max": 10, "duration_min": 3, "content": "Tho chay rat nhanh nen chu quan. Rua di cham nhung deu dan, cuoi cung ve dich truoc.", "moral": "Kien tri quan trong hon khoe khoang"},
+    {"id": "fable_002", "title": "Kien Va Ve Sau", "category": "fable", "age_min": 4, "age_max": 10, "duration_min": 3, "content": "Mua he kien cham chi de danh thuc an. Ve sau chi hat ca nen mua dong bi doi.", "moral": "Biet chuan bi cho tuong lai"},
+    {"id": "fable_003", "title": "Cao Va Chum Nho", "category": "fable", "age_min": 5, "age_max": 10, "duration_min": 3, "content": "Cao muon an nho nhung khong voi toi. Cao bo di va noi nho con xanh.", "moral": "Hay thanh that voi cam xuc cua minh"},
+    {"id": "fable_004", "title": "Cau Be Chan Cuu", "category": "fable", "age_min": 5, "age_max": 10, "duration_min": 3, "content": "Cau be nhieu lan noi doi co soi. Khi soi den that, khong ai tin cau nua.", "moral": "Noi that giup moi nguoi tin tuong"},
+    {"id": "fable_005", "title": "Su Tu Va Chuot Nhat", "category": "fable", "age_min": 4, "age_max": 9, "duration_min": 3, "content": "Su tu tha chuot nho. Sau nay chuot can day luoi cuu su tu.", "moral": "Ai cung co the giup ich"}
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "subject": "math",
+  "topic": "shapes",
+  "language": "vi",
+  "cards": [
+    {"id": "math_shape_001", "emoji": "⚪", "word": "CIRCLE", "phonetic": "/ˈsɜːrkl/", "meaning": "Hình tròn", "example": "A wheel is a circle.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_002", "emoji": "◼️", "word": "SQUARE", "phonetic": "/skwer/", "meaning": "Hình vuông", "example": "A window can be a square.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_003", "emoji": "🔺", "word": "TRIANGLE", "phonetic": "/ˈtraɪæŋɡl/", "meaning": "Hình tam giác", "example": "A triangle has three sides.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_004", "emoji": "▭", "word": "RECTANGLE", "phonetic": "/ˈrektæŋɡl/", "meaning": "Hình chữ nhật", "example": "A door is a rectangle.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_005", "emoji": "⭐", "word": "STAR", "phonetic": "/stɑːr/", "meaning": "Hình ngôi sao", "example": "A star shines.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_006", "emoji": "❤️", "word": "HEART", "phonetic": "/hɑːrt/", "meaning": "Hình trái tim", "example": "The heart is red.", "difficulty": 1, "tags": ["shape"]},
+    {"id": "math_shape_007", "emoji": "◇", "word": "DIAMOND", "phonetic": "/ˈdaɪəmənd/", "meaning": "Hình thoi", "example": "A diamond has four sides.", "difficulty": 2, "tags": ["shape"]},
+    {"id": "math_shape_008", "emoji": "⬟", "word": "PENTAGON", "phonetic": "/ˈpentəɡɑːn/", "meaning": "Hình ngũ giác", "example": "A pentagon has five sides.", "difficulty": 2, "tags": ["shape"]},
+    {"id": "math_shape_009", "emoji": "⬡", "word": "HEXAGON", "phonetic": "/ˈheksəɡɑːn/", "meaning": "Hình lục giác", "example": "A hexagon has six sides.", "difficulty": 2, "tags": ["shape"]},
+    {"id": "math_shape_010", "emoji": "🥚", "word": "OVAL", "phonetic": "/ˈoʊvl/", "meaning": "Hình bầu dục", "example": "An egg is oval.", "difficulty": 2, "tags": ["shape"]}
+  ]
+}

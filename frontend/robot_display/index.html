@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=480, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Robot Bi — Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===== BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e1a;
+  --cyan: #00d4ff;
+  --gold: #ffd700;
+  --green: #00ff88;
+  --purple: #c084fc;
+  --white: #ffffff;
+  --accent: var(--cyan);
+  --glow: 0 0 20px var(--cyan), 0 0 40px rgba(0,212,255,0.4);
+  --face-size: 220px;
+}
+
+html, body {
+  width: 480px; height: 320px;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--white);
+  user-select: none;
+}
+
+/* ===== PARTICLES ===== */
+#particles {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: var(--cyan);
+  opacity: 0;
+  animation: float-particle linear infinite;
+}
+@keyframes float-particle {
+  0%   { transform: translateY(320px) translateX(0); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10px) translateX(var(--dx, 20px)); opacity: 0; }
+}
+
+/* ===== MAIN STAGE ===== */
+#stage {
+  position: relative;
+  width: 480px; height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: filter 0.8s ease;
+}
+#stage.sleeping { filter: brightness(0.3); }
+
+/* ===== FACE CONTAINER ===== */
+#face-wrap {
+  position: relative;
+  width: var(--face-size);
+  height: var(--face-size);
+  transition: transform 0.3s ease;
+}
+#face-wrap.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+
+/* ===== SVG FACE ===== */
+#robot-face {
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+
+/* Eye glow filter */
+#robot-face defs .eye-glow feFlood { flood-color: var(--accent); }
+
+/* Pupils (JS moves via transform) */
+.pupil {
+  transition: transform 0.5s ease, r 0.3s ease;
+}
+
+/* Eye blink — scaleY on eye group */
+.eye-group {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.08s ease;
+}
+.eye-group.blink { animation: blink-anim 0.15s ease-in-out; }
+@keyframes blink-anim {
+  0%,100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.05); }
+}
+
+/* Happy eyes (talking) */
+.eye-arc {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.happy .eye-arc { opacity: 1; }
+.happy .eye-circle { opacity: 0; }
+
+/* Pulse rings (listening) */
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: none;
+}
+.listening .pulse-ring {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+.pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+.pulse-ring:nth-child(3) { animation-delay: 1s; }
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Spinner ring (thinking) */
+.spinner-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  stroke-dasharray: 60 200;
+  stroke-dashoffset: 0;
+  transition: opacity 0.3s;
+}
+.thinking .spinner-ring {
+  opacity: 1;
+  animation: spin-ring 1.5s linear infinite;
+}
+@keyframes spin-ring {
+  to { stroke-dashoffset: -260; }
+}
+
+/* Mouth animations */
+#mouth-path { transition: d 0.2s ease; }
+.talking #mouth-path { animation: mouth-talk 0.35s ease-in-out infinite alternate; }
+@keyframes mouth-talk {
+  from { d: path("M 110 162 Q 140 168 170 162"); }
+  to   { d: path("M 110 162 Q 140 185 170 162"); }
+}
+
+/* ===== STATUS TEXT ===== */
+#status-text {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.3s, color 0.3s;
+  text-shadow: 0 0 10px var(--accent);
+  min-height: 20px;
+  text-align: center;
+}
+#status-text.visible { opacity: 1; }
+
+/* ===== DOTS (thinking) ===== */
+#dots {
+  display: flex; gap: 6px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#dots.visible { opacity: 1; }
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: dot-bounce 0.8s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.15s; }
+.dot:nth-child(3) { animation-delay: 0.30s; }
+@keyframes dot-bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ===== AUDIO WAVES (talking) ===== */
+#audio-wave {
+  display: flex; gap: 3px; align-items: flex-end;
+  margin-top: 6px; opacity: 0;
+  transition: opacity 0.3s;
+  height: 16px;
+}
+#audio-wave.visible { opacity: 1; }
+.wave-bar {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--gold);
+  animation: wave-bar 0.6s ease-in-out infinite alternate;
+}
+.wave-bar:nth-child(1) { height: 4px;  animation-delay: 0.0s; }
+.wave-bar:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 14px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 8px;  animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 12px; animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { height: 6px;  animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { height: 10px; animation-delay: 0.15s; }
+@keyframes wave-bar {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1.2); }
+}
+
+/* ===== ZZZ (sleeping) ===== */
+#zzz-container {
+  position: absolute;
+  top: 30px; right: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+#zzz-container.visible { opacity: 1; }
+.zzz-letter {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--purple);
+  position: absolute;
+  animation: zzz-float 2.5s ease-in-out infinite;
+  opacity: 0;
+  text-shadow: 0 0 8px var(--purple);
+}
+.zzz-letter:nth-child(1) { font-size: 12px; bottom: 0;  right: 0;  animation-delay: 0s; }
+.zzz-letter:nth-child(2) { font-size: 16px; bottom: 15px; right: -8px; animation-delay: 0.8s; }
+.zzz-letter:nth-child(3) { font-size: 20px; bottom: 35px; right: -18px; animation-delay: 1.6s; }
+@keyframes zzz-float {
+  0%   { transform: translate(0,0) rotate(-15deg); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translate(-10px, -30px) rotate(10deg); opacity: 0; }
+}
+
+/* ===== FLASHCARD OVERLAY ===== */
+#flashcard-overlay {
+  position: fixed; inset: 0;
+  background: #f8f9fa;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  color: #1a1a2e;
+}
+#flashcard-overlay.active { display: flex; }
+
+#fc-emoji { font-size: 80px; line-height: 1; text-align: center; flex: 0 0 auto; }
+#fc-word  { font-size: 48px; font-weight: 900; color: #1a1a2e; line-height: 1.1; text-align: center; }
+#fc-phonetic { font-size: 18px; color: #555; margin-top: 2px; }
+#fc-meaning { font-size: 20px; font-weight: 700; color: #0066cc; margin-top: 4px; }
+
+#fc-progress-wrap {
+  width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+}
+#fc-bar-bg { flex: 1; height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+#fc-bar    { height: 100%; background: linear-gradient(90deg, #00d4ff, #0066cc); border-radius: 3px; transition: width 0.4s ease; }
+#fc-count  { font-size: 13px; color: #777; white-space: nowrap; }
+
+#fc-say-btn {
+  margin-top: 6px;
+  padding: 5px 14px;
+  border: 2px solid #0066cc;
+  border-radius: 20px;
+  background: transparent;
+  color: #0066cc;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+#fc-say-btn:hover { background: #0066cc; color: #fff; }
+
+/* ===== REWARD ===== */
+#reward-overlay {
+  position: fixed; inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  display: none;
+}
+#reward-overlay.active { display: block; }
+
+.confetti-piece {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  animation: confetti-fall 1.5s ease-in forwards;
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(340px) rotate(720deg); opacity: 0; }
+}
+
+#reward-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 32px; font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px var(--gold), 2px 2px 0 #a00;
+  animation: reward-pop 1.8s ease-out forwards;
+  white-space: nowrap;
+}
+@keyframes reward-pop {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+  30%  { transform: translate(-50%,-50%) scale(1.3); opacity: 1; }
+  70%  { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%,-80%) scale(0.8); opacity: 0; }
+}
+
+#mini-bi {
+  position: absolute;
+  bottom: 60px; right: 20px;
+  font-size: 36px;
+  animation: mini-bi-bounce 1.8s ease-out forwards;
+  opacity: 0;
+}
+@keyframes mini-bi-bounce {
+  0%   { transform: translateY(20px) scale(0); opacity: 0; }
+  20%  { transform: translateY(0) scale(1.2); opacity: 1; }
+  50%  { transform: translateY(-8px) scale(1); opacity: 1; }
+  70%  { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+}
+
+/* ===== DEMO CONTROLS ===== */
+#demo-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.85);
+  padding: 5px 8px;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  align-items: center;
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.3s, transform 0.3s;
+}
+#demo-bar.visible { opacity: 1; transform: translateY(0); }
+
+.demo-btn {
+  padding: 3px 8px;
+  border: 1px solid var(--cyan);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--cyan);
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px; font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.demo-btn:hover { background: var(--cyan); color: #000; }
+.demo-btn.gold  { border-color: var(--gold); color: var(--gold); }
+.demo-btn.gold:hover { background: var(--gold); color: #000; }
+.demo-btn.green { border-color: var(--green); color: var(--green); }
+.demo-btn.green:hover { background: var(--green); color: #000; }
+
+#hint-label {
+  font-size: 9px; color: #666;
+  margin-left: auto;
+}
+
+/* ── Battery ── */
+#battery {
+  position: fixed;
+  bottom: 38px; right: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #00d4ff;
+  z-index: 10;
+  display: none;
+  text-shadow: 0 0 6px currentColor;
+}
+#battery.warn  { color: #ffd700; }
+#battery.low   { color: #ff4444; animation: bat-blink 1s step-end infinite; }
+@keyframes bat-blink { 50% { opacity: 0; } }
+
+/* ── Story bubble ── */
+#story-bubble {
+  position: absolute;
+  top: 18px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 8px 14px;
+  max-width: 420px;
+  font-size: 13px;
+  color: #f0e8d0;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  line-height: 1.4;
+}
+#story-bubble.visible { opacity: 1; }
+
+/* ── Game HUD ── */
+#game-hud {
+  position: absolute;
+  top: 10px;
+  display: flex;
+  gap: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+#game-hud.visible { opacity: 1; }
+#game-score-el, #game-timer-el {
+  background: rgba(0,0,0,0.5);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ── Music notes ── */
+.music-note {
+  position: absolute;
+  font-size: 18px;
+  pointer-events: none;
+  animation: note-float 2s ease-out forwards;
+}
+@keyframes note-float {
+  0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--nx,20px), -60px) rotate(30deg) scale(0.5); opacity: 0; }
+}
+
+/* ── Warm story overlay ── */
+#story-warm-overlay {
+  position: fixed; inset: 0;
+  background: rgba(255,180,60,0.06);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s;
+  z-index: 0;
+}
+#story-warm-overlay.visible { opacity: 1; }
+
+/* ── Holiday overlay ── */
+#holiday-overlay {
+  position: fixed; inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+}
+.snow-flake {
+  position: absolute;
+  top: -10px;
+  color: white;
+  font-size: 14px;
+  pointer-events: none;
+  animation: snow-fall linear infinite;
+  opacity: 0.7;
+}
+@keyframes snow-fall {
+  to { transform: translateY(340px) rotate(360deg); opacity: 0; }
+}
+.heart-float {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  animation: heart-rise 3s ease-out forwards;
+  opacity: 0;
+}
+@keyframes heart-rise {
+  0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-300px) scale(1.2); opacity: 0; }
+}
+.balloon {
+  position: absolute;
+  font-size: 28px;
+  pointer-events: none;
+  animation: balloon-rise linear infinite;
+}
+@keyframes balloon-rise {
+  from { transform: translateY(340px); opacity: 1; }
+  to   { transform: translateY(-30px); opacity: 0; }
+}
+.holiday-msg {
+  position: fixed;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.65);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  z-index: 55;
+  animation: msg-in 0.5s ease;
+  cursor: pointer;
+}
+@keyframes msg-in {
+  from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+  to   { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* ── Pronunciation result ── */
+#pronun-result {
+  position: absolute;
+  bottom: 210px; left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 110;
+}
+#pronun-result.visible { opacity: 1; }
+#pronun-result.correct  { background: #22c55e; color: white; }
+#pronun-result.close    { background: #f59e0b; color: white; }
+#pronun-result.wrong    { background: #ef4444; color: white; }
+
+/* ── Streak in flashcard ── */
+#fc-streak {
+  position: absolute;
+  top: 10px; right: 12px;
+  font-size: 16px;
+  font-weight: 900;
+  color: #ef4444;
+  background: rgba(255,255,255,0.9);
+  border-radius: 14px;
+  padding: 3px 10px;
+  display: none;
+}
+#fc-subject {
+  position: absolute;
+  top: 10px; left: 12px;
+  font-size: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  padding: 3px 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Particles background -->
+<canvas id="particles"></canvas>
+
+<!-- Main stage -->
+<div id="stage">
+
+  <!-- ZZZ sleeping indicator -->
+  <div id="zzz-container">
+    <span class="zzz-letter">Z</span>
+    <span class="zzz-letter">Z</span>
+    <span class="zzz-letter">Z</span>
+  </div>
+
+  <!-- Robot face SVG -->
+  <div id="face-wrap">
+    <svg id="robot-face" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Eye glow filter -->
+        <filter id="eye-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <!-- Soft glow for accent -->
+        <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <!-- Face gradient -->
+        <radialGradient id="face-grad" cx="50%" cy="45%" r="50%">
+          <stop offset="0%" stop-color="#1a2540"/>
+          <stop offset="100%" stop-color="#0d1225"/>
+        </radialGradient>
+        <!-- Eye iris gradient -->
+        <radialGradient id="iris-grad" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#60f0ff"/>
+          <stop offset="60%" stop-color="#00d4ff"/>
+          <stop offset="100%" stop-color="#0088cc"/>
+        </radialGradient>
+      </defs>
+
+      <!-- ── Face base ── -->
+      <ellipse cx="140" cy="145" rx="110" ry="115" fill="url(#face-grad)" stroke="#1e3050" stroke-width="2"/>
+
+      <!-- ── Ear panels ── -->
+      <rect x="18" y="105" width="20" height="50" rx="5" fill="#0d1225" stroke="#1e3050" stroke-width="1.5"/>
+      <rect x="242" y="105" width="20" height="50" rx="5" fill="#0d1225" stroke="#1e3050" stroke-width="1.5"/>
+      <!-- Ear details -->
+      <rect x="22" y="113" width="12" height="8"  rx="2" fill="#00d4ff" opacity="0.4"/>
+      <rect x="22" y="125" width="12" height="4"  rx="2" fill="#00d4ff" opacity="0.3"/>
+      <rect x="22" y="133" width="12" height="8"  rx="2" fill="#00d4ff" opacity="0.4"/>
+      <rect x="246" y="113" width="12" height="8" rx="2" fill="#00d4ff" opacity="0.4"/>
+      <rect x="246" y="125" width="12" height="4" rx="2" fill="#00d4ff" opacity="0.3"/>
+      <rect x="246" y="133" width="12" height="8" rx="2" fill="#00d4ff" opacity="0.4"/>
+
+      <!-- ── Head top antenna ── -->
+      <rect x="135" y="24" width="10" height="18" rx="5" fill="#1e3050"/>
+      <circle cx="140" cy="20" r="6" fill="#00d4ff" filter="url(#soft-glow)" opacity="0.9"/>
+
+      <!-- ── LEFT EYE group ── -->
+      <g class="eye-group" id="left-eye-group">
+        <!-- Pulse rings (listening) -->
+        <circle class="pulse-ring" cx="100" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0"/>
+        <circle class="pulse-ring" cx="100" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="1" opacity="0"/>
+        <circle class="pulse-ring" cx="100" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0"/>
+        <!-- Spinner ring (thinking) -->
+        <circle class="spinner-ring" cx="100" cy="130" r="32" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Eye socket -->
+        <circle cx="100" cy="130" r="28" fill="#060a14" stroke="#1e3050" stroke-width="1.5"/>
+        <!-- Iris -->
+        <circle class="eye-circle" cx="100" cy="130" r="22" fill="url(#iris-grad)" filter="url(#eye-glow)"/>
+        <!-- Shine -->
+        <ellipse cx="108" cy="122" rx="5" ry="3.5" fill="rgba(255,255,255,0.8)" transform="rotate(-20,108,122)"/>
+        <!-- Pupil -->
+        <circle class="pupil" id="left-pupil" cx="100" cy="130" r="10" fill="#030711"/>
+        <!-- Happy arc eye (talking mode) -->
+        <path class="eye-arc" d="M 76 130 Q 100 108 124 130" fill="#00d4ff" stroke="none"/>
+      </g>
+
+      <!-- ── RIGHT EYE group ── -->
+      <g class="eye-group" id="right-eye-group">
+        <circle class="pulse-ring" cx="180" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="1.5" opacity="0"/>
+        <circle class="pulse-ring" cx="180" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="1" opacity="0"/>
+        <circle class="pulse-ring" cx="180" cy="130" r="30" fill="none" stroke="#00ff88" stroke-width="0.5" opacity="0"/>
+        <circle class="spinner-ring" cx="180" cy="130" r="32" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="180" cy="130" r="28" fill="#060a14" stroke="#1e3050" stroke-width="1.5"/>
+        <circle class="eye-circle" cx="180" cy="130" r="22" fill="url(#iris-grad)" filter="url(#eye-glow)"/>
+        <ellipse cx="188" cy="122" rx="5" ry="3.5" fill="rgba(255,255,255,0.8)" transform="rotate(-20,188,122)"/>
+        <circle class="pupil" id="right-pupil" cx="180" cy="130" r="10" fill="#030711"/>
+        <path class="eye-arc" d="M 156 130 Q 180 108 204 130" fill="#00d4ff" stroke="none"/>
+      </g>
+
+      <!-- ── MOUTH ── -->
+      <path id="mouth-path" d="M 110 167 Q 140 180 170 167"
+        fill="none" stroke="#00d4ff" stroke-width="3.5" stroke-linecap="round"/>
+
+      <!-- ── Cheek blush ── -->
+      <ellipse cx="72" cy="160" rx="16" ry="9" fill="#ff6b9d" opacity="0.18"/>
+      <ellipse cx="208" cy="160" rx="16" ry="9" fill="#ff6b9d" opacity="0.18"/>
+
+      <!-- ── Chin panel ── -->
+      <rect x="115" y="215" width="50" height="14" rx="5" fill="#0d1225" stroke="#1e3050" stroke-width="1"/>
+      <circle cx="130" cy="222" r="3" fill="#00d4ff" opacity="0.5"/>
+      <circle cx="140" cy="222" r="3" fill="#1e3050"/>
+      <circle cx="150" cy="222" r="3" fill="#00d4ff" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <!-- Status label -->
+  <div id="status-text"></div>
+
+  <!-- Thinking dots -->
+  <div id="dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- Audio wave bars -->
+  <div id="audio-wave">
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- Battery indicator -->
+<div id="battery"></div>
+
+<!-- Story warm tint -->
+<div id="story-warm-overlay"></div>
+
+<!-- Holiday overlay -->
+<div id="holiday-overlay"></div>
+
+<!-- Game HUD -->
+<div id="game-hud">
+  <div id="game-score-el">⭐ 0</div>
+  <div id="game-timer-el" style="display:none;">⏱ 30s</div>
+</div>
+
+<!-- Story text bubble -->
+<div id="story-bubble"></div>
+
+<!-- Pronunciation result -->
+<div id="pronun-result"></div>
+
+<!-- Flashcard overlay -->
+<div id="flashcard-overlay" style="position:relative;">
+  <div id="fc-subject">📚</div>
+  <div id="fc-streak">🔥 0</div>
+  <div id="fc-flag" style="font-size:22px; margin-bottom:2px;">🇺🇸</div>
+  <div id="fc-emoji">🐱</div>
+  <div id="fc-word">CAT</div>
+  <div id="fc-phonetic">/kæt/</div>
+  <div id="fc-meaning">Con mèo</div>
+  <div id="fc-progress-wrap">
+    <div id="fc-bar-bg"><div id="fc-bar" style="width:30%"></div></div>
+    <div id="fc-count">3/10</div>
+  </div>
+  <button id="fc-say-btn">🔊 Nói lại</button>
+</div>
+
+<!-- Reward overlay -->
+<div id="reward-overlay">
+  <div id="reward-text">Giỏi lắm! +⭐</div>
+  <div id="mini-bi">😄</div>
+</div>
+
+<!-- Demo control bar -->
+<div id="demo-bar">
+  <button class="demo-btn" onclick="RobotDisplay.setMode('idle')">IDLE</button>
+  <button class="demo-btn green" onclick="RobotDisplay.setMode('listening')">LISTEN</button>
+  <button class="demo-btn" onclick="RobotDisplay.setMode('thinking')" style="border-color:#c084fc;color:#c084fc">THINK</button>
+  <button class="demo-btn gold" onclick="RobotDisplay.setMode('talking')">TALK</button>
+  <button class="demo-btn" onclick="RobotDisplay.setMode('sleeping')" style="border-color:#888;color:#888">SLEEP</button>
+  <span style="color:#333;font-size:10px">|</span>
+  <button class="demo-btn gold" onclick="RobotDisplay.showFlashcard({emoji:'🐱',word:'CAT',phonetic:'/kæt/',meaning:'Con mèo',current:3,total:10})">FC</button>
+  <button class="demo-btn gold" onclick="RobotDisplay.showReward()">⭐</button>
+  <span style="color:#333;font-size:10px">|</span>
+  <button class="demo-btn" onclick="RobotDisplay.setEmotion('happy')" style="border-color:#ffd700;color:#ffd700">😊</button>
+  <button class="demo-btn" onclick="RobotDisplay.setEmotion('sad')" style="border-color:#60a0ff;color:#60a0ff">😢</button>
+  <button class="demo-btn" onclick="RobotDisplay.setEmotion('excited')" style="border-color:#ff6bff;color:#ff6bff">🎉</button>
+  <button class="demo-btn" onclick="RobotDisplay.setEmotion('angry')" style="border-color:#ff4444;color:#ff4444">😠</button>
+  <button class="demo-btn" onclick="RobotDisplay.setEmotion('surprised')" style="border-color:#ffaa00;color:#ffaa00">😲</button>
+  <span style="color:#333;font-size:10px">|</span>
+  <button class="demo-btn gold" onclick="RobotDisplay.setMode('music')">🎵</button>
+  <button class="demo-btn" onclick="RobotDisplay.setMode('storytelling')" style="border-color:#f0c060;color:#f0c060">📖</button>
+  <button class="demo-btn green" onclick="RobotDisplay.setMode('game')">🎮</button>
+  <button class="demo-btn" onclick="RobotDisplay.triggerIdle('yawn')" style="border-color:#aaa;color:#aaa">😪</button>
+  <button class="demo-btn" onclick="RobotDisplay.triggerIdle('stretch')" style="border-color:#aaa;color:#aaa">🙆</button>
+  <button class="demo-btn" onclick="RobotDisplay.triggerHoliday('christmas')" style="border-color:#ff6666;color:#ff6666">🎄</button>
+  <button class="demo-btn" onclick="RobotDisplay.setBattery(25)" style="border-color:#ff4444;color:#ff4444">🔋</button>
+  <span id="hint-label">SPACE / hover</span>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   ROBOT DISPLAY — Core Engine
+   ══════════════════════════════════════════════ */
+
+(function() {
+  'use strict';
+
+  // ── State ──
+  let currentMode = 'idle';
+  let blinkTimer, lookTimer;
+  let sleepTimeout;
+
+  // ── DOM refs ──
+  const stage       = document.getElementById('stage');
+  const faceWrap    = document.getElementById('face-wrap');
+  const leftEye     = document.getElementById('left-eye-group');
+  const rightEye    = document.getElementById('right-eye-group');
+  const leftPupil   = document.getElementById('left-pupil');
+  const rightPupil  = document.getElementById('right-pupil');
+  const mouthPath   = document.getElementById('mouth-path');
+  const statusText  = document.getElementById('status-text');
+  const dotsEl      = document.getElementById('dots');
+  const waveEl      = document.getElementById('audio-wave');
+  const zzzEl       = document.getElementById('zzz-container');
+  const fcOverlay   = document.getElementById('flashcard-overlay');
+  const rewardEl    = document.getElementById('reward-overlay');
+  const demoBar     = document.getElementById('demo-bar');
+
+  // ── Particle canvas ──
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 480; canvas.height = 320;
+  const PARTICLES = [];
+  for (let i = 0; i < 35; i++) spawnParticle(true);
+
+  function spawnParticle(init) {
+    PARTICLES.push({
+      x: Math.random() * 480,
+      y: init ? Math.random() * 320 : 320 + 5,
+      size: Math.random() * 1.8 + 0.4,
+      speed: Math.random() * 0.4 + 0.15,
+      dx: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.5 + 0.1,
+    });
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, 480, 320);
+    // Only draw if not in flashcard mode
+    if (fcOverlay.classList.contains('active')) return;
+    for (let i = PARTICLES.length - 1; i >= 0; i--) {
+      const p = PARTICLES[i];
+      p.y -= p.speed;
+      p.x += p.dx;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${p.alpha})`;
+      ctx.fill();
+      if (p.y < -5) { PARTICLES.splice(i, 1); spawnParticle(false); }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // ── Eye blink ──
+  function scheduleBlink() {
+    clearTimeout(blinkTimer);
+    const delay = 2800 + Math.random() * 1800;
+    blinkTimer = setTimeout(() => {
+      if (currentMode === 'sleeping') { scheduleBlink(); return; }
+      [leftEye, rightEye].forEach(g => {
+        g.classList.add('blink');
+        setTimeout(() => g.classList.remove('blink'), 200);
+      });
+      scheduleBlink();
+    }, delay);
+  }
+
+  // ── Pupil wander ──
+  function movePupils(dx, dy) {
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const lx = clamp(100 + dx, 88, 112);
+    const ly = clamp(130 + dy, 118, 142);
+    const rx = clamp(180 + dx, 168, 192);
+    const ry = clamp(130 + dy, 118, 142);
+    leftPupil.setAttribute('cx', lx);
+    leftPupil.setAttribute('cy', ly);
+    rightPupil.setAttribute('cx', rx);
+    rightPupil.setAttribute('cy', ry);
+  }
+
+  function scheduleLook() {
+    clearTimeout(lookTimer);
+    const delay = 1800 + Math.random() * 1600;
+    lookTimer = setTimeout(() => {
+      if (currentMode === 'sleeping' || currentMode === 'thinking') { scheduleLook(); return; }
+      const dx = (Math.random() - 0.5) * 14;
+      const dy = (Math.random() - 0.5) * 10;
+      movePupils(dx, dy);
+      scheduleLook();
+    }, delay);
+  }
+
+  // ── Accent color helper ──
+  function setAccent(color) {
+    document.documentElement.style.setProperty('--accent', color);
+  }
+
+  // ── Clear all active visual states ──
+  function clearAll() {
+    if (typeof clearAllExtras === 'function') clearAllExtras();
+    stage.className = '';
+    faceWrap.classList.remove('breathe');
+    [leftEye, rightEye].forEach(g => {
+      g.classList.remove('listening', 'thinking', 'happy');
+    });
+    mouthPath.style.animation = '';
+    statusText.classList.remove('visible');
+    dotsEl.classList.remove('visible');
+    waveEl.classList.remove('visible');
+    zzzEl.classList.remove('visible');
+    // Reset mouth to default smile
+    mouthPath.setAttribute('d', 'M 110 167 Q 140 180 170 167');
+    // Reset pupils to center
+    movePupils(0, 0);
+  }
+
+  // ══════════════════════════════════════
+  // MODE IMPLEMENTATIONS
+  // ══════════════════════════════════════
+
+  const MODES = {
+
+    idle() {
+      clearAll();
+      setAccent('#00d4ff');
+      // Default smile stays, pupils wander naturally
+    },
+
+    listening() {
+      clearAll();
+      setAccent('#00ff88');
+      [leftEye, rightEye].forEach(g => g.classList.add('listening'));
+      movePupils(0, -3); // slightly more open
+      statusText.style.color = 'var(--green)';
+      statusText.textContent = 'Bi đang nghe...';
+      statusText.classList.add('visible');
+    },
+
+    thinking() {
+      clearAll();
+      setAccent('#c084fc');
+      [leftEye, rightEye].forEach(g => g.classList.add('thinking'));
+      movePupils(0, -8); // pupils up = thinking
+      dotsEl.classList.add('visible');
+      // dot colors
+      document.querySelectorAll('.dot').forEach(d => d.style.background = '#c084fc');
+    },
+
+    talking() {
+      clearAll();
+      setAccent('#ffd700');
+      [leftEye, rightEye].forEach(g => g.classList.add('happy'));
+      waveEl.classList.add('visible');
+      // Mouth animate via CSS class on stage
+      stage.classList.add('talking');
+    },
+
+    sleeping() {
+      clearAll();
+      setAccent('#9966cc');
+      stage.classList.add('sleeping');
+      faceWrap.classList.add('breathe');
+      zzzEl.classList.add('visible');
+      // Close eyes: scaleY very small
+      [leftEye, rightEye].forEach(g => {
+        g.style.transform = 'scaleY(0.08)';
+        g.style.transition = 'transform 0.8s ease';
+      });
+      // Set droopy mouth
+      mouthPath.setAttribute('d', 'M 115 168 Q 140 172 165 168');
+    },
+  };
+
+  // Instant eye restore (called when setMode() overrides sleep without animation)
+  function wakeUpInstant() {
+    [leftEye, rightEye].forEach(g => { g.style.transform = ''; });
+  }
+
+  // ══════════════════════════════════════
+  // EMOTION OVERRIDES
+  // ══════════════════════════════════════
+
+  const EMOTIONS = {
+    happy() {
+      RobotDisplay.setMode('talking');
+      setTimeout(() => RobotDisplay.setMode('idle'), 2000);
+    },
+    sad() {
+      clearAll();
+      setAccent('#6090ff');
+      // Pupils down
+      movePupils(0, 8);
+      // Sad mouth (curve down)
+      mouthPath.setAttribute('d', 'M 110 175 Q 140 163 170 175');
+      statusText.style.color = '#6090ff';
+      statusText.textContent = '...';
+      statusText.classList.add('visible');
+    },
+    excited() {
+      clearAll();
+      setAccent('#ff6bff');
+      [leftEye, rightEye].forEach(g => g.classList.add('happy'));
+      // Wide mouth
+      mouthPath.setAttribute('d', 'M 105 164 Q 140 190 175 164');
+      // Extra glow
+      stage.style.filter = 'brightness(1.1)';
+      setTimeout(() => { stage.style.filter = ''; }, 2500);
+    },
+    angry() {
+      clearAll();
+      setAccent('#ff4444');
+      movePupils(0, 3);
+      // Frown
+      mouthPath.setAttribute('d', 'M 110 178 Q 140 165 170 178');
+      // Squint: compress eyes slightly
+      [leftEye, rightEye].forEach(g => {
+        g.style.transform = 'scaleY(0.7)';
+        g.style.transition = 'transform 0.3s ease';
+      });
+    },
+    surprised() {
+      clearAll();
+      setAccent('#ffaa00');
+      // Big pupils
+      leftPupil.setAttribute('r', '13');
+      rightPupil.setAttribute('r', '13');
+      // O mouth
+      mouthPath.setAttribute('d', 'M 128 163 Q 140 180 152 163');
+      setTimeout(() => {
+        leftPupil.setAttribute('r', '10');
+        rightPupil.setAttribute('r', '10');
+      }, 1500);
+    },
+  };
+
+  // ══════════════════════════════════════
+  // FLASHCARD
+  // ══════════════════════════════════════
+
+  function showFlashcard(data) {
+    document.getElementById('fc-emoji').textContent    = data.emoji    || '❓';
+    document.getElementById('fc-word').textContent     = data.word     || '';
+    document.getElementById('fc-phonetic').textContent = data.phonetic || '';
+    document.getElementById('fc-meaning').textContent  = data.meaning  || '';
+    const pct = data.total ? (data.current / data.total * 100) : 0;
+    document.getElementById('fc-bar').style.width = pct + '%';
+    document.getElementById('fc-count').textContent =
+      (data.current || 0) + '/' + (data.total || 0);
+    fcOverlay.classList.add('active');
+  }
+
+  function hideFlashcard() {
+    fcOverlay.classList.remove('active');
+  }
+
+  document.getElementById('fc-say-btn').onclick = () => {
+    // Visual feedback only — actual TTS triggered externally
+    const btn = document.getElementById('fc-say-btn');
+    btn.textContent = '🔊 ...';
+    setTimeout(() => { btn.textContent = '🔊 Nói lại'; }, 800);
+  };
+
+  // ══════════════════════════════════════
+  // REWARD
+  // ══════════════════════════════════════
+
+  function showReward() {
+    const overlay = rewardEl;
+    // Remove old confetti
+    overlay.querySelectorAll('.confetti-piece').forEach(e => e.remove());
+    // Reset animations
+    overlay.classList.remove('active');
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+
+    // Spawn confetti
+    const colors = ['#ffd700','#ff6b9d','#00d4ff','#00ff88','#ff6bff','#ffaa00'];
+    for (let i = 0; i < 50; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const side = Math.random() < 0.5;
+      el.style.cssText = `
+        left: ${side ? Math.random() * 100 : 380 + Math.random() * 100}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${1.0 + Math.random() * 0.8}s;
+        animation-delay: ${Math.random() * 0.4}s;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        width: ${4 + Math.random() * 8}px;
+        height: ${4 + Math.random() * 8}px;
+      `;
+      overlay.appendChild(el);
+    }
+    setTimeout(() => overlay.classList.remove('active'), 2200);
+  }
+
+  // ══════════════════════════════════════
+  // PUBLIC API
+  // ══════════════════════════════════════
+
+  window.RobotDisplay = {
+    setMode(mode) {
+      if (!MODES[mode]) { console.warn('Unknown mode:', mode); return; }
+      if (currentMode === 'sleeping') wakeUpInstant();
+      currentMode = mode;
+      MODES[mode]();
+    },
+    showFlashcard,
+    hideFlashcard,
+    showReward,
+    setEmotion(emotion) {
+      const fn = EMOTIONS[emotion];
+      if (!fn) { console.warn('Unknown emotion:', emotion); return; }
+      fn();
+    },
+    getMode() { return currentMode; },
+  };
+
+  // ══════════════════════════════════════
+  // DEMO BAR — show/hide
+  // ══════════════════════════════════════
+
+  let demoVisible = false;
+  function showDemo() { demoBar.classList.add('visible'); demoVisible = true; }
+  function hideDemo() { demoBar.classList.remove('visible'); demoVisible = false; }
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); demoVisible ? hideDemo() : showDemo(); }
+  });
+  demoBar.addEventListener('mouseenter', showDemo);
+
+  // ══════════════════════════════════════
+  // IDLE BEHAVIORS (Task 6.2)
+  // ══════════════════════════════════════
+
+  const IDLE_BEHAVIORS = {
+    yawn() {
+      // Close eyes slowly, open mouth wide, then return
+      [leftEye, rightEye].forEach(g => {
+        g.style.transform = 'scaleY(0.1)';
+        g.style.transition = 'transform 0.5s ease';
+      });
+      mouthPath.setAttribute('d', 'M 115 160 Q 140 195 165 160');
+      setTimeout(() => {
+        [leftEye, rightEye].forEach(g => { g.style.transform = ''; });
+        mouthPath.setAttribute('d', 'M 110 167 Q 140 180 170 167');
+      }, 1200);
+    },
+    stretch() {
+      faceWrap.style.transform = 'scale(1.1)';
+      faceWrap.style.transition = 'transform 0.4s ease';
+      setTimeout(() => {
+        faceWrap.style.transform = 'scale(1)';
+        setTimeout(() => { faceWrap.style.transform = ''; faceWrap.style.transition = ''; }, 400);
+      }, 600);
+    },
+    look_clock() {
+      movePupils(10, -9); // up-right (clock direction)
+      setTimeout(() => movePupils(0, 0), 1500);
+    },
+    fidget() {
+      let count = 0;
+      const interval = setInterval(() => {
+        movePupils(0, count % 2 === 0 ? -8 : 8);
+        count++;
+        if (count >= 6) { clearInterval(interval); movePupils(0, 0); }
+      }, 280);
+    },
+  };
+
+  function triggerIdleBehavior(name) {
+    const fn = IDLE_BEHAVIORS[name];
+    if (fn) fn();
+  }
+
+  // Random idle timer (30-60s, fires only in idle mode)
+  let idleActTimer;
+  function scheduleIdleAct() {
+    clearTimeout(idleActTimer);
+    const delay = 30000 + Math.random() * 30000;
+    idleActTimer = setTimeout(() => {
+      if (currentMode === 'idle') {
+        const acts = Object.keys(IDLE_BEHAVIORS);
+        triggerIdleBehavior(acts[Math.floor(Math.random() * acts.length)]);
+      }
+      scheduleIdleAct();
+    }, delay);
+  }
+
+  // ══════════════════════════════════════
+  // BATTERY (Task 6.2)
+  // ══════════════════════════════════════
+
+  const batteryEl = document.getElementById('battery');
+  function setBatteryDisplay(pct) {
+    if (pct == null) { batteryEl.style.display = 'none'; return; }
+    pct = Math.max(0, Math.min(100, parseInt(pct)));
+    const icon = pct > 70 ? '🔋' : pct > 20 ? '🪫' : '🔴';
+    batteryEl.textContent = `${icon} ${pct}%`;
+    batteryEl.className = pct > 50 ? '' : (pct > 20 ? 'warn' : 'low');
+    batteryEl.style.display = 'block';
+    if (pct < 20) RobotDisplay.setMode('sleeping'); // battery low → sleep
+  }
+
+  // ══════════════════════════════════════
+  // WAKE-UP ANIMATION (Task 6.2)
+  // ══════════════════════════════════════
+
+  function wakeUpAnimation() {
+    // Eyes open from scaleY(0.08) → 1 over 0.6s
+    [leftEye, rightEye].forEach(g => {
+      g.style.transition = 'transform 0.6s ease';
+      g.style.transform = 'scaleY(1)';
+      setTimeout(() => { g.style.transform = ''; g.style.transition = ''; }, 650);
+    });
+    // Quick stretch
+    setTimeout(() => IDLE_BEHAVIORS.stretch(), 400);
+  }
+
+  // ══════════════════════════════════════
+  // NEW MODES: music, storytelling, game
+  // ══════════════════════════════════════
+
+  let _bpm = 120;
+  let _musicBounceTimer = null;
+  let _noteTimer = null;
+  let _gameTimerInterval = null;
+
+  Object.assign(MODES, {
+    music() {
+      clearAll();
+      setAccent('#ffd700');
+      // Half-closed eyes (enjoying music)
+      [leftEye, rightEye].forEach(g => {
+        g.style.transform = 'scaleY(0.65)';
+        g.style.transition = 'transform 0.3s ease';
+      });
+      // Bounce to BPM
+      const interval = Math.round(60000 / _bpm);
+      let up = true;
+      _musicBounceTimer = setInterval(() => {
+        faceWrap.style.transform = up ? 'translateY(-6px)' : 'translateY(2px)';
+        faceWrap.style.transition = `transform ${interval * 0.4}ms ease`;
+        up = !up;
+      }, interval);
+      // Spawn music notes
+      _noteTimer = setInterval(() => spawnMusicNote(), 800);
+    },
+
+    storytelling() {
+      clearAll();
+      setAccent('#f0c060');
+      document.getElementById('story-warm-overlay').classList.add('visible');
+      // Dreamy eyes: look slightly up-left
+      movePupils(-5, -6);
+      mouthPath.setAttribute('d', 'M 112 167 Q 140 176 168 167');
+    },
+
+    game() {
+      clearAll();
+      setAccent('#00ff88');
+      [leftEye, rightEye].forEach(g => g.classList.add('happy'));
+      document.getElementById('game-hud').classList.add('visible');
+      mouthPath.setAttribute('d', 'M 105 164 Q 140 188 175 164');
+    },
+  });
+
+  // Extra cleanup called by clearAll (defined after base clearAll)
+  function clearAllExtras() {
+    if (_musicBounceTimer) { clearInterval(_musicBounceTimer); _musicBounceTimer = null; }
+    if (_noteTimer) { clearInterval(_noteTimer); _noteTimer = null; }
+    if (_gameTimerInterval) { clearInterval(_gameTimerInterval); _gameTimerInterval = null; }
+    [leftEye, rightEye].forEach(g => { g.style.transform = ''; g.style.transition = ''; });
+    faceWrap.style.transform = '';
+    document.getElementById('story-warm-overlay').classList.remove('visible');
+    document.getElementById('game-hud').classList.remove('visible');
+    document.getElementById('story-bubble').classList.remove('visible');
+  }
+
+  function spawnMusicNote() {
+    const notes = ['♪', '♫', '♬', '🎵'];
+    const el = document.createElement('div');
+    el.className = 'music-note';
+    el.textContent = notes[Math.floor(Math.random() * notes.length)];
+    el.style.cssText = `left:${80 + Math.random() * 320}px; top:${100 + Math.random() * 100}px;
+      --nx:${(Math.random() - 0.5) * 60}px; color:var(--gold); z-index:10;`;
+    stage.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+
+  // ══════════════════════════════════════
+  // FLASHCARD ENHANCEMENTS (Task 7.2)
+  // ══════════════════════════════════════
+
+  const LANG_FLAGS = { en: '🇺🇸', ja: '🇯🇵', ko: '🇰🇷', zh: '🇨🇳', fr: '🇫🇷' };
+  const LANG_COLORS = { en: '#0066cc', ja: '#dc143c', ko: '#8b008b', zh: '#cc4400', fr: '#003399' };
+  const SUBJ_ICONS_MAP = { english: '📚', math: '🔢', science: '🔬', history: '🏛️', geography: '🌍' };
+  let _streak = 0;
+
+  const _origShowFlashcard = showFlashcard;
+  function showFlashcard(data) {
+    _origShowFlashcard(data);
+    // Language flag
+    const lang = data.language || 'en';
+    document.getElementById('fc-flag').textContent = LANG_FLAGS[lang] || '🌐';
+    // Subject icon
+    const subj = data.subject || 'english';
+    document.getElementById('fc-subject').textContent = SUBJ_ICONS_MAP[subj] || '📚';
+    document.getElementById('fc-subject').style.display = 'block';
+    // Accent color per language
+    const color = LANG_COLORS[lang] || '#0066cc';
+    document.getElementById('fc-word').style.color = color;
+    // Streak
+    const streakEl = document.getElementById('fc-streak');
+    if (_streak > 0) {
+      streakEl.textContent = `🔥 ${_streak}`;
+      streakEl.style.display = 'block';
+    } else {
+      streakEl.style.display = 'none';
+    }
+  }
+
+  function showPronunciationResult(score) {
+    const el = document.getElementById('pronun-result');
+    el.className = 'pronun-result';
+    if (score >= 80) {
+      el.textContent = '✅ Phát âm chuẩn!';
+      el.className = 'visible correct';
+      _streak++;
+      showReward();
+    } else if (score >= 50) {
+      el.textContent = '🟡 Gần đúng! Thử lại nhé';
+      el.className = 'visible close';
+      _streak = 0;
+    } else {
+      el.textContent = '❌ Bi nói lại nhé!';
+      el.className = 'visible wrong';
+      _streak = 0;
+    }
+    el.id = 'pronun-result';
+    setTimeout(() => { el.className = ''; el.id = 'pronun-result'; }, 2500);
+  }
+
+  // ══════════════════════════════════════
+  // HOLIDAY SYSTEM (Task 6.3)
+  // ══════════════════════════════════════
+
+  const holidayOverlay = document.getElementById('holiday-overlay');
+  let _activeHoliday = null;
+  let _holidayCleanup = null;
+
+  const HOLIDAYS = {
+    christmas: {
+      check(m, d) { return m === 12 && d === 25; },
+      activate() {
+        // Snow + Santa hat hint
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < 25; i++) {
+          const flake = document.createElement('div');
+          flake.className = 'snow-flake';
+          flake.textContent = ['❄', '❅', '❆'][Math.floor(Math.random() * 3)];
+          flake.style.cssText = `left:${Math.random() * 480}px; animation-duration:${3 + Math.random() * 4}s; animation-delay:${Math.random() * 4}s; font-size:${10 + Math.random() * 10}px;`;
+          frag.appendChild(flake);
+        }
+        holidayOverlay.appendChild(frag);
+        showHolidayMsg('🎄 Giáng sinh vui vẻ! 🎅');
+        setAccent('#ff6666');
+      },
+    },
+    newyear: {
+      check(m, d) { return m === 1 && d === 1; },
+      activate() {
+        showHolidayMsg('🎆 Chúc Mừng Năm Mới! 🎇');
+        showReward();
+        setAccent('#ffd700');
+      },
+    },
+    valentine: {
+      check(m, d) { return m === 2 && d === 14; },
+      activate() {
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < 8; i++) {
+          const heart = document.createElement('div');
+          heart.className = 'heart-float';
+          heart.textContent = '💝';
+          heart.style.cssText = `left:${20 + Math.random() * 440}px; bottom:60px; animation-delay:${Math.random() * 4}s;`;
+          frag.appendChild(heart);
+        }
+        holidayOverlay.appendChild(frag);
+        showHolidayMsg('💕 Chúc mừng Valentine! 💕');
+        setAccent('#ff6b9d');
+      },
+    },
+    womensday: {
+      check(m, d) { return m === 3 && d === 8; },
+      activate() { showHolidayMsg('🌸 Chúc mừng ngày 8/3! 🌸'); setAccent('#ff6bff'); },
+    },
+    childrensday: {
+      check(m, d) { return m === 6 && d === 1; },
+      activate() {
+        const frag = document.createDocumentFragment();
+        ['🎈','🎀','🎉','🎊'].forEach((e, i) => {
+          const b = document.createElement('div');
+          b.className = 'balloon';
+          b.textContent = e;
+          b.style.cssText = `left:${60 + i * 110}px; animation-duration:${4 + i}s; animation-delay:${i * 0.5}s;`;
+          frag.appendChild(b);
+        });
+        holidayOverlay.appendChild(frag);
+        showHolidayMsg('🎈 Chúc mừng Quốc tế Thiếu nhi! 🎈');
+        setAccent('#00ff88');
+      },
+    },
+    halloween: {
+      check(m, d) { return m === 10 && d === 31; },
+      activate() {
+        showHolidayMsg('🎃 Happy Halloween! 👻');
+        setAccent('#ff7700');
+        stage.style.filter = 'brightness(0.7) hue-rotate(30deg)';
+        setTimeout(() => { stage.style.filter = ''; }, 8000);
+      },
+    },
+  };
+
+  function showHolidayMsg(text) {
+    const existing = document.querySelector('.holiday-msg');
+    if (existing) existing.remove();
+    const el = document.createElement('div');
+    el.className = 'holiday-msg';
+    el.textContent = text;
+    el.addEventListener('click', () => el.remove());
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 8000);
+  }
+
+  function clearHoliday() {
+    holidayOverlay.innerHTML = '';
+    document.querySelector('.holiday-msg')?.remove();
+    if (_holidayCleanup) _holidayCleanup();
+    _activeHoliday = null;
+    _holidayCleanup = null;
+  }
+
+  function triggerHoliday(name) {
+    clearHoliday();
+    const h = HOLIDAYS[name];
+    if (!h) return;
+    _activeHoliday = name;
+    h.activate();
+  }
+
+  function detectTodayHoliday() {
+    const now = new Date();
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+    for (const [name, h] of Object.entries(HOLIDAYS)) {
+      if (h.check(m, d)) { triggerHoliday(name); return name; }
+    }
+    return null;
+  }
+
+  // ══════════════════════════════════════
+  // EXTENDED PUBLIC API
+  // ══════════════════════════════════════
+
+  Object.assign(window.RobotDisplay, {
+    setBattery(pct) { setBatteryDisplay(pct); },
+    triggerIdle(name) { triggerIdleBehavior(name); },
+    wakeUp() { wakeUpAnimation(); if (currentMode === 'sleeping') { currentMode = 'idle'; MODES.idle(); } },
+    setBPM(bpm) {
+      _bpm = bpm;
+      if (currentMode === 'music') { clearAll(); MODES.music(); }
+    },
+    updateStoryText(text) {
+      const el = document.getElementById('story-bubble');
+      el.textContent = text;
+      el.classList.add('visible');
+    },
+    updateGameScore(score) { document.getElementById('game-score-el').textContent = `⭐ ${score}`; },
+    updateTimer(seconds) {
+      const el = document.getElementById('game-timer-el');
+      el.style.display = 'block';
+      el.textContent = `⏱ ${seconds}s`;
+      clearInterval(_gameTimerInterval);
+      let s = seconds;
+      _gameTimerInterval = setInterval(() => {
+        s--;
+        el.textContent = `⏱ ${s}s`;
+        if (s <= 0) { clearInterval(_gameTimerInterval); el.style.display = 'none'; }
+      }, 1000);
+    },
+    updateStreak(count) {
+      _streak = count;
+      document.getElementById('fc-streak').textContent = `🔥 ${count}`;
+      document.getElementById('fc-streak').style.display = count > 0 ? 'block' : 'none';
+    },
+    showPronunciationResult,
+    triggerHoliday,
+    getActiveHoliday() { return _activeHoliday; },
+    triggerBirthday(name) {
+      showHolidayMsg(`🎂 Chúc mừng sinh nhật ${name || ''}! 🎉`);
+      showReward();
+      setAccent('#ffd700');
+    },
+  });
+
+  // ══════════════════════════════════════
+  // BOOT
+  // ══════════════════════════════════════
+
+  scheduleBlink();
+  scheduleLook();
+  scheduleIdleAct();
+  RobotDisplay.setMode('idle');
+  detectTodayHoliday();
+
+  // Sleep is driven externally via setMode('sleeping') — no auto-sleep timer
+
+})();
+</script>
+</body>
+</html>

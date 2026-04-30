@@ -1,0 +1,8 @@
+{
+  "category": "lullabies",
+  "tracks": [
+    {"id": "lullaby_001", "title": "Ru Con", "artist": "Dan ca Viet Nam", "duration_sec": 180, "language": "vi", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "lullaby_002", "title": "Dem Yen Binh", "artist": "Robot Bi", "duration_sec": 240, "language": "vi", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "lullaby_003", "title": "Soft Moon", "artist": "Robot Bi", "duration_sec": 210, "language": "en", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null}
+  ]
+}

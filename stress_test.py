@@ -18,12 +18,12 @@ baseline = get_ram_mb()
 print(f"Baseline RAM: {baseline:.0f} MB")
 
 modules = [
-    ("SafetyFilter",  "from src_brain.ai_core.safety_filter import SafetyFilter; SafetyFilter()"),
-    ("RAGManager",    "from src_brain.memory_rag.rag_manager import RAGManager; RAGManager()"),
-    ("EyeVision",     "from src_brain.senses.eye_vision import EyeVision; EyeVision(camera_index=99)"),
-    ("CryDetector",   "from src_brain.senses.cry_detector import CryDetector; CryDetector()"),
-    ("EventNotifier", "from src_brain.network.notifier import get_notifier; get_notifier()"),
-    ("BiAI",          "from src_brain.ai_core.core_ai import BiAI; BiAI()"),
+    ("SafetyFilter",  "from src.safety.safety_filter import SafetyFilter; SafetyFilter()"),
+    ("RAGManager",    "from src.memory.rag_manager import RAGManager; RAGManager()"),
+    ("EyeVision",     "from src.vision.camera_stream import EyeVision; EyeVision(camera_index=99)"),
+    ("CryDetector",   "from src.audio.analysis.cry_detector import CryDetector; CryDetector()"),
+    ("EventNotifier", "from src.infrastructure.notifications.notifier import get_notifier; get_notifier()"),
+    ("BiAI",          "from src.ai.ai_engine import BiAI; BiAI()"),
 ]
 
 total = baseline
@@ -48,7 +48,7 @@ print(f"SRS NFR-01 (<=13GB): {status}")
 
 print("\n--- Latency Test SafetyFilter ---")
 try:
-    from src_brain.ai_core.safety_filter import SafetyFilter
+    from src.safety.safety_filter import SafetyFilter
     sf = SafetyFilter()
     test_texts = [
         "Bau troi mau xanh vi anh sang bi tan xa nhe ban!",

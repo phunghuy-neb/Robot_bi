@@ -1,0 +1,8 @@
+{
+  "category": "english",
+  "tracks": [
+    {"id": "en_song_001", "title": "Hello Friends", "artist": "Robot Bi", "duration_sec": 120, "language": "en", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "en_song_002", "title": "ABC Practice", "artist": "Robot Bi", "duration_sec": 140, "language": "en", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null},
+    {"id": "en_song_003", "title": "Counting Stars Lesson", "artist": "Robot Bi", "duration_sec": 160, "language": "en", "copyright": false, "file": null, "youtube_id": null, "spotify_id": null}
+  ]
+}

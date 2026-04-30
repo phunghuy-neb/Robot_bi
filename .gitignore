@@ -16,15 +16,13 @@ __pycache__/
 # Hugging Face & Model cache
 .hf_cache/
 **/.hf_cache/
-src_brain/senses/.hf_cache/
-src_brain/memory_rag/.hf_cache/
 
 # ChromaDB database & test data
 chroma_db/
 **/chroma_db/
-src_brain/memory_rag/chroma_db/
-src_brain/memory_rag/_test_db/
-src_brain/memory_rag/_audit_test_db/
+runtime/_test_db/
+runtime/_audit_test_db/
+runtime/_family_*_test_db/
 
 # Temporary & log files
 logs/
@@ -45,7 +43,12 @@ Thumbs.db
 # Folder .claude - BẮT BUỘC PHẢI PUSH
 !.claude/
 !.claude/handoff.md
-src_brain/network/event_queue.json
-src_brain/network/tasks.json
-src_brain/network/robot_bi.db
+# Runtime directory (DB, chroma, logs, caches)
+runtime/
+!runtime/.gitkeep
+
+# Legacy (đã chuyển sang runtime/)
+event_queue.json
+tasks.json
+robot_bi.db
 data/

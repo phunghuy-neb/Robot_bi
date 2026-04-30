@@ -1,0 +1,27 @@
+{
+  "subject": "english",
+  "topic": "numbers",
+  "language": "en",
+  "cards": [
+    {"id": "en_number_001", "emoji": "1️⃣", "word": "ONE", "phonetic": "/wʌn/", "meaning": "Số một", "example": "I have one book.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_002", "emoji": "2️⃣", "word": "TWO", "phonetic": "/tuː/", "meaning": "Số hai", "example": "Two cats are here.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_003", "emoji": "3️⃣", "word": "THREE", "phonetic": "/θriː/", "meaning": "Số ba", "example": "Three birds fly.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_004", "emoji": "4️⃣", "word": "FOUR", "phonetic": "/fɔːr/", "meaning": "Số bốn", "example": "Four dogs run.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_005", "emoji": "5️⃣", "word": "FIVE", "phonetic": "/faɪv/", "meaning": "Số năm", "example": "Five apples.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_006", "emoji": "6️⃣", "word": "SIX", "phonetic": "/sɪks/", "meaning": "Số sáu", "example": "Six pens.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_007", "emoji": "7️⃣", "word": "SEVEN", "phonetic": "/ˈsevn/", "meaning": "Số bảy", "example": "Seven days.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_008", "emoji": "8️⃣", "word": "EIGHT", "phonetic": "/eɪt/", "meaning": "Số tám", "example": "Eight balls.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_009", "emoji": "9️⃣", "word": "NINE", "phonetic": "/naɪn/", "meaning": "Số chín", "example": "Nine flowers.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_010", "emoji": "🔟", "word": "TEN", "phonetic": "/ten/", "meaning": "Số mười", "example": "Ten fingers.", "difficulty": 1, "tags": ["number"]},
+    {"id": "en_number_011", "emoji": "11", "word": "ELEVEN", "phonetic": "/ɪˈlevn/", "meaning": "Số mười một", "example": "Eleven stars.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_012", "emoji": "12", "word": "TWELVE", "phonetic": "/twelv/", "meaning": "Số mười hai", "example": "Twelve months.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_013", "emoji": "13", "word": "THIRTEEN", "phonetic": "/ˌθɜːrˈtiːn/", "meaning": "Số mười ba", "example": "Thirteen pencils.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_014", "emoji": "14", "word": "FOURTEEN", "phonetic": "/ˌfɔːrˈtiːn/", "meaning": "Số mười bốn", "example": "Fourteen books.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_015", "emoji": "15", "word": "FIFTEEN", "phonetic": "/ˌfɪfˈtiːn/", "meaning": "Số mười lăm", "example": "Fifteen cards.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_016", "emoji": "16", "word": "SIXTEEN", "phonetic": "/ˌsɪksˈtiːn/", "meaning": "Số mười sáu", "example": "Sixteen crayons.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_017", "emoji": "17", "word": "SEVENTEEN", "phonetic": "/ˌsevnˈtiːn/", "meaning": "Số mười bảy", "example": "Seventeen ducks.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_018", "emoji": "18", "word": "EIGHTEEN", "phonetic": "/ˌeɪˈtiːn/", "meaning": "Số mười tám", "example": "Eighteen fish.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_019", "emoji": "19", "word": "NINETEEN", "phonetic": "/ˌnaɪnˈtiːn/", "meaning": "Số mười chín", "example": "Nineteen toys.", "difficulty": 2, "tags": ["number"]},
+    {"id": "en_number_020", "emoji": "20", "word": "TWENTY", "phonetic": "/ˈtwenti/", "meaning": "Số hai mươi", "example": "Twenty students.", "difficulty": 2, "tags": ["number"]}
+  ]
+}

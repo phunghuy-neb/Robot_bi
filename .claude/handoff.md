@@ -5,29 +5,25 @@
 
 ## TRẠNG THÁI HIỆN TẠI
 
-- Phase 1 — Security & Data Layer: hoàn thành.
-- Phase 2 — Core Experience: hoàn thành ngày 2026-04-17.
-- Current phase: Phase 4 started; Tasks 4.4 multi-family isolation and 4.5 homework system COMPLETE.
-- Phase 3 Final Fix Sprint: hoan thanh 2026-04-26, 23 fixes audit pass 3 va Group 24 verification.
-- Final Pre-Phase 4 Fix Sprint: hoan thanh 2026-04-27, 12 fixes + Group 29 verification, 176/176 PASS.
-- Task 4.4 Multi-family isolation: hoan thanh 2026-04-28, Group 30 isolation tests, 182/182 PASS.
-- Task 4.5 Homework system: hoan thanh 2026-04-28, Group 31 homework tests, 190/190 PASS.
+- Phase 1-4: FROZEN hoàn toàn.
+- Phase 5.1 Refactor thư mục: DONE 2026-04-29, **197/197 PASS**.
+- `src_brain/` đã XÓA — không còn tồn tại. Dùng `src/` thay thế.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
-- Entry point chính vẫn là `src_brain/main_loop.py`.
-- LLM chính vẫn đi qua `stream_chat(messages)` trong `src_brain/ai_core/core_ai.py`.
+- Entry point chính: `src/main.py` (trước đây là `src_brain/main_loop.py`).
+- LLM chính vẫn đi qua `stream_chat(messages)` trong `src/ai/ai_engine.py`.
 - Backend AI vẫn là Groq primary, Gemini fallback.
 - STT vẫn là `faster-whisper`; GPU giữ `large-v2 + float16`, CPU fallback dùng `WHISPER_CPU_MODEL`.
-- Parent App hiện đã có tab `Hội thoại` để xem conversation threads qua JWT-protected API.
+- DB: `runtime/robot_bi.db`; ChromaDB: `runtime/chroma_db/`; Static: `frontend/parent_app/`.
+- Tests: `python tests/run_tests.py` (trước đây là `python run_tests.py`).
 
 ## VIỆC CẦN LÀM TIẾP
 
+- Phase 5.2: Giao diện màn hình robot (mắt biểu cảm, trạng thái, screensaver).
 - Chuyen sang Ubuntu PC co GPU de verify runtime thuc te.
 - WebRTC frame source can Ubuntu + aiortc.
 - Wake-word model training can dataset rieng.
 - Phase 4 features con lai: motor control, AEC.
-- Test end-to-end tren may that voi mic, loa, camera va mobile browser.
-- Bat dau Phase 4 sau khi verify hardware Ubuntu PC co GPU.
 
 ## BUG ĐANG MỞ
 
@@ -83,3 +79,55 @@
 - Them Group 31 vao `run_tests.py` voi 8 tests.
 - Final result: 190/190 PASS.
 - Changelog: `changelog/2026-04-28-task-4-5-homework-system.md`.
+
+## SESSION 2026-04-29 — Phase 5.1 Refactor Thư Mục
+
+- Di chuyen toan bo `src_brain/` → `src/` theo cau truc domain moi.
+- `src_brain/` da XOA. Khong con tham chieu den `src_brain` o bat ky dau.
+- Import paths: `src_brain.X` → `src.X` theo mapping trong migration script.
+- Paths moi: DB=`runtime/robot_bi.db`, ChromaDB=`runtime/chroma_db/`, Frontend=`frontend/parent_app/`.
+- Tests di chuyen tu `run_tests.py` → `tests/run_tests.py`.
+- Tao docs/ROADMAP.md, .github/workflows/test.yml, config/env/, resources/, infra/, frontend/robot_display/.
+- Final regression: **197/197 PASS**.
+- Changelog: `changelog/2026-04-29-phase5-1-refactor.md`.
+
+## SESSION 2026-04-30 — Review Fixes Phase 6-10
+
+- Fix P0-P1 frontend/backend mismatch cho persona, emotion, music playlist, va emotion chart breakdown.
+- Them routes video call va game trong FastAPI, dang ky vao `src/api/server.py`.
+- Loai bo `datetime.utcnow()` trong `src/`.
+- Persist learning schedule vao SQLite bang bang `learning_schedules`.
+- Them Group 46 vao `tests/run_tests.py`.
+- Final regression: **309/309 PASS**.
+- Changelog: `changelog/2026-04-30-review-fixes-phase6-10.md`.
+
+## SESSION 2026-04-30 — API Contract Review Fixes
+
+- Root dashboard route da tro den `frontend/parent_app`.
+- Parent App music play gui `track_id/category`.
+- Parent App story tell gui `story_id/custom_request` va chap nhan response `{title, content}`.
+- Parent App game cards goi dung word/voice quiz routes; math quiz hien sap ra mat.
+- `verify_db_clean.py` dung import `src.infrastructure.database.db`.
+- Them Group 47 vao `tests/run_tests.py`.
+- Final regression: **315/315 PASS**.
+- Changelog: `changelog/2026-04-30-api-contract-review-fixes.md`.
+
+## SESSION 2026-04-30 — Review Round 3 Runtime Fixes
+
+- Family delete cleanup xoa them `learning_schedules`, emotion tables, persona, education sessions, va curriculum schedules.
+- Parent App video call end gui dung `call_id`.
+- Parent App music volume gui `level`.
+- Parent App education schedule load tu API truoc render, localStorage la cache/fallback.
+- `stress_test.py` dung import `src.*` sau refactor.
+- Them Group 48 vao `tests/run_tests.py`.
+- Final regression: **321/321 PASS**.
+- Changelog: `changelog/2026-04-30-review-round3-runtime-fixes.md`.
+
+## SESSION 2026-04-30 — Review Round 4 Fixes
+
+- DB upgrade migration copy one-time tu cac DB path cu sang `runtime/robot_bi.db` neu DB moi chua co data.
+- Video call `end_call()` enforce family isolation truoc khi ket thuc call.
+- Music transport routes `next/previous/shuffle/repeat` da dang ky va `MusicPlayer` co methods tuong ung; Parent App map `prev` sang `previous`.
+- Them Group 49 vao `tests/run_tests.py`.
+- Final regression: **329/329 PASS**.
+- Changelog: `changelog/2026-04-30-review-round4-fixes.md`.

@@ -1,0 +1,7 @@
+{
+  "stories": [
+    {"id": "bedtime_001", "title": "Trang Nho Ngoai Hien", "category": "bedtime", "age_min": 3, "age_max": 9, "duration_min": 2, "content": "Dem xuong rat em. Trang nho sang diu dang, noi voi Bi rang hay hit tho cham va nghi ve mot ngay vui.", "moral": "Ngu ngon giup ngay mai khoe manh"},
+    {"id": "bedtime_002", "title": "Dam May Di Ngu", "category": "bedtime", "age_min": 3, "age_max": 8, "duration_min": 2, "content": "Dam may trang troi nhe qua bau troi. May gap nhung ngoi sao va cung nhau ngu mot giac that yen binh.", "moral": "Binh yen bat dau tu hoi tho nhe"},
+    {"id": "bedtime_003", "title": "Khu Vuon Im Lang", "category": "bedtime", "age_min": 3, "age_max": 8, "duration_min": 3, "content": "Trong khu vuon, la cay khe reo. Moi bong hoa khep canh, chuc Bi ngu ngon va mo mot giac mo dep.", "moral": "Co the nghi ngoi sau mot ngay cham chi"}
+  ]
+}

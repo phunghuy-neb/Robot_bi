@@ -1,0 +1,22 @@
+{
+  "subject": "english",
+  "topic": "school_items",
+  "language": "en",
+  "cards": [
+    {"id": "en_school_001", "emoji": "✏️", "word": "PENCIL", "phonetic": "/ˈpensl/", "meaning": "Bút chì", "example": "I write with a pencil.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_002", "emoji": "🖊️", "word": "PEN", "phonetic": "/pen/", "meaning": "Bút mực", "example": "This is my pen.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_003", "emoji": "📚", "word": "BOOK", "phonetic": "/bʊk/", "meaning": "Sách", "example": "Open your book.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_004", "emoji": "📓", "word": "NOTEBOOK", "phonetic": "/ˈnoʊtbʊk/", "meaning": "Vở", "example": "My notebook is blue.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_005", "emoji": "🎒", "word": "BAG", "phonetic": "/bæɡ/", "meaning": "Cặp sách", "example": "My bag is heavy.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_006", "emoji": "📏", "word": "RULER", "phonetic": "/ˈruːlər/", "meaning": "Thước kẻ", "example": "Use a ruler.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_007", "emoji": "🧽", "word": "ERASER", "phonetic": "/ɪˈreɪsər/", "meaning": "Cục tẩy", "example": "I need an eraser.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_008", "emoji": "🖍️", "word": "CRAYON", "phonetic": "/ˈkreɪɑːn/", "meaning": "Bút sáp màu", "example": "The crayon is red.", "difficulty": 2, "tags": ["school", "art"]},
+    {"id": "en_school_009", "emoji": "✂️", "word": "SCISSORS", "phonetic": "/ˈsɪzərz/", "meaning": "Kéo", "example": "Use scissors carefully.", "difficulty": 2, "tags": ["school"]},
+    {"id": "en_school_010", "emoji": "🧴", "word": "GLUE", "phonetic": "/ɡluː/", "meaning": "Keo dán", "example": "Glue the paper.", "difficulty": 2, "tags": ["school", "art"]},
+    {"id": "en_school_011", "emoji": "📄", "word": "PAPER", "phonetic": "/ˈpeɪpər/", "meaning": "Giấy", "example": "Draw on the paper.", "difficulty": 1, "tags": ["school"]},
+    {"id": "en_school_012", "emoji": "🖥️", "word": "COMPUTER", "phonetic": "/kəmˈpjuːtər/", "meaning": "Máy tính", "example": "The computer is on.", "difficulty": 2, "tags": ["school"]},
+    {"id": "en_school_013", "emoji": "🪑", "word": "CHAIR", "phonetic": "/tʃer/", "meaning": "Ghế", "example": "Sit on the chair.", "difficulty": 1, "tags": ["classroom"]},
+    {"id": "en_school_014", "emoji": "🧮", "word": "ABACUS", "phonetic": "/ˈæbəkəs/", "meaning": "Bàn tính", "example": "The abacus helps counting.", "difficulty": 3, "tags": ["math"]},
+    {"id": "en_school_015", "emoji": "📐", "word": "TRIANGLE", "phonetic": "/ˈtraɪæŋɡl/", "meaning": "Ê ke", "example": "The triangle is on the desk.", "difficulty": 2, "tags": ["school", "math"]}
+  ]
+}

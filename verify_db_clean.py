@@ -8,7 +8,7 @@ sys.path.insert(0, '.')
 from dotenv import load_dotenv
 load_dotenv()
 
-from src_brain.network.db import init_db, get_db_connection
+from src.infrastructure.database.db import init_db, get_db_connection
 init_db()
 
 with get_db_connection() as conn:

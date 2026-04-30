@@ -4,7 +4,7 @@ WARNING: Edit PROJECT.md then run: python sync.py
 WARNING: Any manual changes will be overwritten
 # PROJECT.md — Hướng dẫn Dự án Robot Bi (Single Source of Truth)
 
-> Cập nhật: 2026-04-28 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
+> Cập nhật: 2026-04-29 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
 > Đây là file **NGUỒN DUY NHẤT**. CLAUDE.md và AGENTS.md là bản sao tự động.
 
 ## QUY TẮC BẮT BUỘC CHO CẢ CLAUDE CODE CLI VÀ CODEX CLI
@@ -12,7 +12,7 @@ WARNING: Any manual changes will be overwritten
 1. **PROJECT.md là file nguồn sự thật duy nhất**. Chỉ được sửa file này.
 2. Không bao giờ sửa trực tiếp CLAUDE.md hoặc AGENTS.md.
 3. Trước khi sửa bất kỳ code nào: Đọc phần **PROTECTED FIXES** và **handoff.md**.
-4. Sau khi sửa xong: **BẮT BUỘC chạy `python run_tests.py`**. Nếu có test fail → phải fix trước khi kết thúc session.
+4. Sau khi sửa xong: **BẮT BUỘC chạy `python tests/run_tests.py`**. Nếu có test fail → phải fix trước khi kết thúc session.
 5. Khi kết thúc session: Cập nhật PROJECT.md → cập nhật handoff.md → tạo file trong thư mục `changelog/` → chạy `python sync.py`.
 6. CLAUDE.md và AGENTS.md là file AUTO-GENERATED. Bất kỳ thay đổi tay nào cũng sẽ bị ghi đè.
 
@@ -35,7 +35,7 @@ WARNING: Any manual changes will be overwritten
 - JWT access token + refresh token với rotation (Step 1.5) — `create_access_token` (HS256, 60 phút), `create_refresh_token`/`store_refresh_token` (sha256, 30 ngày), `verify_access_token`, `rotate_refresh_token` (atomic revoke+insert). Endpoint `/auth/refresh` + `/auth/logout`. `JWT_SECRET_KEY` + `JWT_ALGORITHM` từ `.env`. `python-jose[cryptography]` thêm vào requirements. Bảng `auth_tokens` tạo trong `db.py`.
 - JWT middleware bảo vệ tất cả endpoints (Step 1.6) — `get_current_user()` dùng `HTTPBearer(auto_error=False)` trong `auth.py`, raise 401 + `WWW-Authenticate: Bearer`. Áp dụng `Depends(get_current_user)` lên 17 REST routes. Camera dùng `_camera_auth` (header + `?auth=` query param). 3 WebSocket handlers xác thực JWT qua `?token=` query param, đóng code 1008 nếu invalid. Thêm `GET /health` (no auth). Whitelist: `/health`, `/api/status`, `/api/mom/status`, `/api/auth/login`, `/api/auth/logout`, `/auth/register`, `/auth/login/v2`, `/auth/refresh`, `/`, `/static/*`.
 - `JWT_SECRET_KEY` phải luôn đọc từ `.env` — không có default value, không hardcode.
-- SQLite DB path cố định: `src_brain/network/robot_bi.db` — không đổi path, không đổi tên file.
+- SQLite DB path cố định: `runtime/robot_bi.db` (từ Phase 5.1) — không đổi path, không đổi tên file.
 - `verify_access_token()` và `rotate_refresh_token()` trong `auth.py` — không thay đổi logic xác thực.
 - Rate limiting bảng `login_attempts` — không bypass, không xóa bảng này.
 - SQLite schema bảng `tasks`: `task_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key` — phải khớp với `task_manager.py`, không được đổi tên cột.
@@ -75,7 +75,7 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 | Vision        | `opencv-python`                      | CAP_DSHOW                                |
 | Cry Detection | YAMNet TFLite + energy fallback      | `cry_detector.py`                        |
 | Network       | `fastapi` + `uvicorn` + `websockets` | HTTPS 8443                               |
-| Storage       | SQLite                               | `src_brain/network/robot_bi.db`          |
+| Storage       | SQLite                               | `runtime/robot_bi.db`                   |
 | Auth          | `argon2-cffi` + `python-jose`        | JWT access(60m) + refresh(30d)           |
 | Wake-word     | `openwakeword`                       | `WAKEWORD_ENABLED=False` mặc định, bật khi model sẵn sàng |
 | Session tracking | SQLite `conversations` + `turns`  | Session UUID theo mỗi lần wake           |
@@ -86,11 +86,14 @@ AI backend: Groq (primary) + Gemini (fallback). Không dùng Ollama.
 
 (Đọc trước khi sửa bất kỳ file nào — không bịa tên class/hàm)
 
-- **Entry point chính**: `src_brain/main_loop.py`
-- **LLM**: phải qua `stream_chat(messages)` trong `core_ai.py`
-- **STT**: `ear_stt.py` (faster-whisper)
-- **TTS**: `mouth_tts.py` (edge-tts + pyttsx3 fallback)
-- **Safety**: phải chạy trước TTS
+- **Entry point chính**: `src/main.py` (từ Phase 5.1, trước đây là `src_brain/main_loop.py`)
+- **LLM**: phải qua `stream_chat(messages)` trong `src/ai/ai_engine.py`
+- **STT**: `src/audio/input/ear_stt.py` (faster-whisper)
+- **TTS**: `src/audio/output/mouth_tts.py` (edge-tts + pyttsx3 fallback)
+- **Safety**: `src/safety/safety_filter.py` — phải chạy trước TTS
+- **API server**: `src/api/server.py` + `src/api/routers/`
+- **DB**: `src/infrastructure/database/db.py` — lưu tại `runtime/robot_bi.db`
+- **Frontend**: `frontend/parent_app/` (index.html, manifest.json, sw.js)
 - **API keys**: lấy từ `.env` (không hardcode)
 
 ## Vấn đề đã biết
@@ -123,7 +126,10 @@ WebRTC camera, push notification, account settings, frontend cleanup, backend ha
 **Phase 4 — Advanced [ĐANG LÀM]**  
 Multi-family isolation và homework system hoàn thành 2026-04-28; còn motor control, AEC.
 
-## Schema Database mục tiêu (SQLite — `src_brain/network/robot_bi.db`)
+**Phase 5 — Màn hình Robot [ĐANG LÀM]**  
+5.1 Refactor thư mục HOÀN THÀNH 2026-04-29 (src_brain/ → src/, 197/197 PASS); 5.2 Giao diện màn hình robot (todo).
+
+## Schema Database mục tiêu (SQLite — `runtime/robot_bi.db`)
 
 - `families`: family_id, display_name, created_at
 - `users`: user_id, username, password_hash, family_name, created_at, is_active, is_admin
@@ -139,8 +145,8 @@ Multi-family isolation và homework system hoàn thành 2026-04-28; còn motor c
 ```bash
 python sync.py                    # Đồng bộ CLAUDE.md + AGENTS.md
 start_robot.bat                   # Khởi động robot (tự chạy sync.py)
-python run_tests.py               # BẮT BUỘC sau mọi thay đổi
-python -m src_brain.main_loop     # Chạy trực tiếp
+python tests/run_tests.py         # BẮT BUỘC sau mọi thay đổi
+python src/main.py                # Chạy trực tiếp
 ```
 
 ## Session gần nhất — Phase 2 hoàn thành: Core Experience
@@ -193,3 +199,50 @@ python -m src_brain.main_loop     # Chạy trực tiếp
 - Parent App co tab `Bai tap`, list homework sessions, dung lai thread detail va reload khi nhan notification `homework`.
 - Them Group 31 vao `run_tests.py` voi 8 tests.
 - Final regression target: 190/190 PASS.
+
+## Session 2026-04-29 — Phase 5.1 Refactor Thư Mục
+
+- Hoan thanh refactor thuần túy: di chuyển toàn bộ `src_brain/` → `src/` với cấu trúc domain rõ ràng.
+- Tao cau truc moi: `src/ai/`, `src/safety/`, `src/memory/`, `src/audio/input|output|analysis/`, `src/vision/`, `src/education/`, `src/api/`, `src/infrastructure/`.
+- Di chuyen 27 Python files, 5 frontend files (frontend/parent_app/), 1 test file (tests/run_tests.py).
+- Cap nhat toan bo import paths: `src_brain.X` → `src.X` theo mapping moi.
+- Fix hardcoded paths: DB tai `runtime/robot_bi.db`, ChromaDB tai `runtime/chroma_db/`, HF cache tai `runtime/.hf_cache/`, static files tai `frontend/parent_app/`.
+- Xoa `src_brain/` sau khi verify 197/197 PASS.
+- Tao 40+ placeholder files cho Phase 5-10 roadmap.
+- Tao docs/ROADMAP.md, .github/workflows/test.yml, config/env/, resources/, infra/, frontend/robot_display/.
+- Final regression target: 197/197 PASS.
+
+## Session 2026-04-30 — Review Fixes Phase 6-10
+
+- Hoan thanh P0 frontend mismatch: persona GET nested response, emotion today `dominant`, persona save `personality`.
+- Hoan thanh P1: music playlist `category/tracks`, emotion weekly `breakdown`, parent chart doc dung shape moi.
+- Hoan thanh P2: dang ky video call routes va word/voice game routes.
+- Hoan thanh P3: thay `datetime.utcnow()` bang timezone-aware `datetime.now(timezone.utc)` va persist learning schedule vao SQLite.
+- Them Group 46 vao `tests/run_tests.py` voi 6 verification tests.
+- Final regression target: 309/309 PASS.
+
+## Session 2026-04-30 — API Contract Review Fixes
+
+- Fix root dashboard route trong `ops_router.py` tro den `frontend/parent_app/index.html`.
+- Fix Parent App music/story/game actions dung backend API contract.
+- Fix `verify_db_clean.py` import DB module moi sau refactor.
+- Them Group 47 vao `tests/run_tests.py` voi 6 verification tests.
+- Final regression target: 315/315 PASS.
+
+## Session 2026-04-30 — Review Round 3 Runtime Fixes
+
+- Fix family delete cleanup cho cac bang scoped moi: `learning_schedules`, emotion tables, persona, education sessions, va curriculum schedules.
+- Fix Parent App video call luu/gui `call_id` khi end call.
+- Fix Parent App music volume gui field `level` dung contract backend.
+- Fix Parent App education schedule load tu `/api/education/schedule` truoc khi render, localStorage chi la cache/fallback.
+- Fix `stress_test.py` import paths tu `src_brain.*` sang `src.*`.
+- Them Group 48 vao `tests/run_tests.py` voi 6 verification tests.
+- Final regression target: 321/321 PASS.
+
+## Session 2026-04-30 — Review Round 4 Fixes
+
+- Fix DB upgrade migration: copy one-time tu DB cu `src_brain/network/robot_bi.db`, `src_brain/network/data/robot_bi.db`, hoac `robot_bi.db` sang `runtime/robot_bi.db` neu DB moi chua co data.
+- Fix video call family isolation: `end_call()` verify call thuoc family cua user truoc khi ket thuc.
+- Fix music transport 404: them routes `next/previous/shuffle/repeat`, methods trong `MusicPlayer`, va frontend map `prev` sang `previous`.
+- Them Group 49 vao `tests/run_tests.py` voi 8 verification tests.
+- Final regression target: 329/329 PASS.
