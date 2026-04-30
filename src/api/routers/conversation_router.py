@@ -75,7 +75,17 @@ async def list_homework_conversations(
 ):
     family_id = _require_family(_current_user)
     sessions = get_homework_sessions(family_id, limit, offset)
-    return {"sessions": sessions, "total": len(sessions)}
+    with get_db_connection() as conn:
+        total_row = conn.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM conversations
+            WHERE family_id = ? AND is_homework = 1
+            """,
+            (family_id,),
+        ).fetchone()
+    total = int(total_row["total"] or 0) if total_row else 0
+    return {"sessions": sessions, "total": total}
 
 
 @router.get("/api/conversations/{session_id}")

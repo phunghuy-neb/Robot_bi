@@ -10,6 +10,7 @@ import logging
 import os
 import json
 import time
+import threading
 import requests
 from pathlib import Path
 from typing import Generator
@@ -47,6 +48,7 @@ _GEMINI_URL = (
 # Trạng thái quota nội bộ
 _groq_fail_streak = 0
 _groq_cooldown_until = 0.0
+_groq_lock = threading.Lock()
 _GROQ_COOLDOWN = _CONFIG.get("groq_cooldown_seconds", 60)
 
 
@@ -137,8 +139,12 @@ def _stream_gemini(messages: list, system_prompt: str) -> Generator[str, None, N
         "contents": contents,
         "generationConfig": {"maxOutputTokens": 512, "temperature": 0.7},
     }
-    url = f"{_GEMINI_URL}?key={GEMINI_API_KEY}&alt=sse"
-    resp = requests.post(url, json=payload, stream=True, timeout=20)
+    url = f"{_GEMINI_URL}?alt=sse"
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY,
+    }
+    resp = requests.post(url, headers=headers, json=payload, stream=True, timeout=20)
 
     if resp.status_code == 429:
         raise RuntimeError("Gemini quota exceeded (429)")
@@ -184,20 +190,27 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
 
     system_prompt = _get_system_prompt()
     now = time.time()
+    with _groq_lock:
+        groq_cooldown_until = _groq_cooldown_until
 
     # --- Thử Groq trước (nhanh nhất) ---
-    if now > _groq_cooldown_until:
+    if now > groq_cooldown_until:
         try:
             logger.debug("[Bi - Não] Groq (Llama 70B)...")
             yield from _stream_groq(messages, system_prompt)
-            _groq_fail_streak = 0
+            with _groq_lock:
+                _groq_fail_streak = 0
             return
         except Exception as e:
-            _groq_fail_streak += 1
+            cooldown_started = False
+            with _groq_lock:
+                _groq_fail_streak += 1
+                if _groq_fail_streak >= 3:
+                    _groq_cooldown_until = now + _GROQ_COOLDOWN
+                    _groq_fail_streak = 0
+                    cooldown_started = True
             logger.warning("[Bi - Não] Groq lỗi (%s) — chuyển Gemini", e)
-            if _groq_fail_streak >= 3:
-                _groq_cooldown_until = now + _GROQ_COOLDOWN
-                _groq_fail_streak = 0
+            if cooldown_started:
                 logger.warning("[Bi - Não] Groq tạm dừng %ss", _GROQ_COOLDOWN)
 
     # --- Fallback Gemini ---

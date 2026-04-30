@@ -878,6 +878,21 @@ def delete_family_record(family_id: str) -> bool:
         conn.execute("DELETE FROM tasks WHERE family_id = ?", (fid,))
 
         # Steps 6-12: newer family-scoped feature tables.
+        ALLOWED_CLEANUP_TABLES = frozenset({
+            "conversations",
+            "events",
+            "tasks",
+            "users",
+            "auth_tokens",
+            "learning_schedules",
+            "emotion_logs",
+            "emotion_journal",
+            "emotion_alerts",
+            "persona",
+            "education_sessions",
+            "turns",
+            "curriculum_schedules",
+        })
         for table_name in (
             "learning_schedules",
             "emotion_logs",
@@ -887,6 +902,9 @@ def delete_family_record(family_id: str) -> bool:
             "education_sessions",
             "curriculum_schedules",
         ):
+            if table_name not in ALLOWED_CLEANUP_TABLES:
+                logger.error("[DB] Rejected invalid table name: %s", table_name)
+                continue
             try:
                 conn.execute(f"DELETE FROM {table_name} WHERE family_id = ?", (fid,))
             except Exception:

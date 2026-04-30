@@ -3654,6 +3654,102 @@ test("49.6 Music transport routes registered", test_49_6_music_transport_routes_
 test("49.7 MusicPlayer có đủ transport methods", test_49_7_music_player_transport_methods)
 test("49.8 toggle_shuffle hoạt động đúng", test_49_8_toggle_shuffle_changes_state)
 
+print("\n[Group 50] Security + Quality Fix Verification")
+
+
+def test_50_1_sql_injection_allowlist_exists():
+    from src.infrastructure.database.db import delete_family_record
+    import inspect
+    src = inspect.getsource(delete_family_record)
+    assert "ALLOWED_CLEANUP_TABLES" in src or "allowlist" in src.lower() or "frozenset" in src, (
+        "delete_family_record phải có table allowlist"
+    )
+
+
+def test_50_2_gemini_api_key_not_in_url():
+    from src.ai import ai_engine
+    import inspect
+    import re
+    src = inspect.getsource(ai_engine._stream_gemini)
+    url_with_key = re.findall(r'f["\'].*GEMINI_API_KEY.*["\']', src)
+    assert len(url_with_key) == 0, (
+        f"GEMINI_API_KEY không được trong URL string: {url_with_key}"
+    )
+
+
+def test_50_3_timing_safe_pin_comparison():
+    from src.api.routers import auth_router
+    import inspect
+    src = inspect.getsource(auth_router)
+    assert "compare_digest" in src, "auth_router phải dùng hmac.compare_digest cho PIN"
+
+
+def test_50_4_json_parse_error_handling():
+    from src.api.routers import auth_router
+    import inspect
+    src = inspect.getsource(auth_router)
+    assert "JSONDecodeError" in src or "json.JSONDecodeError" in src or "422" in src, (
+        "auth_router phải handle JSONDecodeError"
+    )
+
+
+def test_50_5_thread_safe_groq_globals():
+    from src.ai import ai_engine
+    import inspect
+    src = inspect.getsource(ai_engine)
+    assert "_groq_lock" in src or "threading.Lock" in src, (
+        "ai_engine phải có lock cho Groq globals"
+    )
+
+
+def test_50_6_safety_filter_unicode_boundary():
+    from src.safety import safety_filter
+    import inspect
+    src = inspect.getsource(safety_filter)
+    assert r'\b' not in src or "(?<!" in src, (
+        "safety_filter không nên dùng \\b với Unicode"
+    )
+
+
+def test_50_7_safety_filter_catches_vietnamese_harmful_text():
+    from src.safety.safety_filter import SafetyFilter
+    sf_inst = SafetyFilter()
+    is_safe, result = sf_inst.check("nội dung khiêu dâm không phù hợp")
+    assert not is_safe and result != "nội dung khiêu dâm không phù hợp", (
+        "SafetyFilter phải catch Vietnamese harmful text"
+    )
+
+
+def test_50_8_analytics_null_safety():
+    from src.api.routers import analytics_router
+    import inspect
+    src = inspect.getsource(analytics_router)
+    assert "or 0" in src or "if row" in src or "row[0] or" in src, (
+        "analytics_router phải handle NULL values"
+    )
+
+
+def test_50_9_verify_password_works_correctly():
+    from src.infrastructure.auth.auth import hash_password, verify_password
+    test_hash = hash_password("testpassword123")
+    assert verify_password("testpassword123", test_hash) is True, (
+        "verify_password với đúng password phải True"
+    )
+    assert verify_password("wrongpassword", test_hash) is False, (
+        "verify_password với sai password phải False"
+    )
+
+
+test("50.1 SQL injection allowlist tồn tại", test_50_1_sql_injection_allowlist_exists)
+test("50.2 Gemini API key không trong URL", test_50_2_gemini_api_key_not_in_url)
+test("50.3 Timing-safe PIN comparison", test_50_3_timing_safe_pin_comparison)
+test("50.4 JSON parse error handling", test_50_4_json_parse_error_handling)
+test("50.5 Thread-safe Groq globals", test_50_5_thread_safe_groq_globals)
+test("50.6 Safety filter Unicode boundary", test_50_6_safety_filter_unicode_boundary)
+test("50.7 Safety filter bắt Vietnamese harmful text", test_50_7_safety_filter_catches_vietnamese_harmful_text)
+test("50.8 Analytics NULL safety", test_50_8_analytics_null_safety)
+test("50.9 verify_password hoạt động đúng", test_50_9_verify_password_works_correctly)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

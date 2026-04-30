@@ -25,7 +25,7 @@ def _count_rows(query: str, params: tuple) -> int:
             row = conn.execute(query, params).fetchone()
         if row is None:
             return 0
-        return int(row[0])
+        return int(row[0] or 0)
     except Exception as exc:
         logger.debug("[Analytics] count query skipped: %s", exc)
         return 0

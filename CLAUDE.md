@@ -4,7 +4,7 @@ WARNING: Edit PROJECT.md then run: python sync.py
 WARNING: Any manual changes will be overwritten
 # PROJECT.md — Hướng dẫn Dự án Robot Bi (Single Source of Truth)
 
-> Cập nhật: 2026-04-29 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
+> Cập nhật: 2026-04-30 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
 > Đây là file **NGUỒN DUY NHẤT**. CLAUDE.md và AGENTS.md là bản sao tự động.
 
 ## QUY TẮC BẮT BUỘC CHO CẢ CLAUDE CODE CLI VÀ CODEX CLI
@@ -246,3 +246,16 @@ python src/main.py                # Chạy trực tiếp
 - Fix music transport 404: them routes `next/previous/shuffle/repeat`, methods trong `MusicPlayer`, va frontend map `prev` sang `previous`.
 - Them Group 49 vao `tests/run_tests.py` voi 8 verification tests.
 - Final regression target: 329/329 PASS.
+
+## Session 2026-04-30 — Review Round 5 Security Fixes
+
+- Fix SQL injection risk trong `delete_family_record()` bang table allowlist cho cleanup loop.
+- Fix Gemini API key exposure: `GEMINI_API_KEY` khong con nam trong URL, chuyen sang header `x-goog-api-key`.
+- Verify `verify_password()` argon2 order dung: `verify(hash, password)`; khong can sua `auth.py`.
+- Fix PIN timing attack bang `hmac.compare_digest()`.
+- Fix malformed JSON trong `auth_router.py` tra 422 thay vi 500.
+- Fix thread safety cho Groq cooldown globals bang `_groq_lock`.
+- Fix `main.py`: persist/check `sanitized_reply`, dispatch RAG thread truoc khi close session, va hoist `pygame.time.Clock()`.
+- Fix analytics NULL count, SafetyFilter Unicode boundary, va homework conversation total count.
+- Them Group 50 vao `tests/run_tests.py` voi 9 security/quality tests.
+- Final regression target: 338/338 PASS.

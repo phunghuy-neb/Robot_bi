@@ -112,6 +112,7 @@ class RobotBiApp:
 
     def _audio_worker_loop(self):
         """Worker thread: nhận audio file từ queue, phát, unload, xóa."""
+        clock = pygame.time.Clock()
         while True:
             item = self.audio_queue.get()
             if item is None:
@@ -126,7 +127,7 @@ class RobotBiApp:
                 pygame.mixer.music.load(audio_file)
                 pygame.mixer.music.play()
                 while pygame.mixer.music.get_busy():
-                    pygame.time.Clock().tick(10)
+                    clock.tick(10)
                 pygame.mixer.music.unload()
             except Exception as e:
                 logger.error("[Bi - Miệng] Lỗi phát audio: %s", e)
@@ -382,16 +383,16 @@ class RobotBiApp:
                     # ── RAG: Lưu facts vào ChromaDB (background, không block audio) ──
                     full_reply = "".join(full_reply_parts).strip()
                     sanitized_reply = " ".join(sanitized_reply_parts).strip()
-                    if full_reply:
+                    if sanitized_reply:
                         add_turn(self._current_session_id, 'assistant', sanitized_reply)
                         self._mark_homework_if_needed(self._current_session_id, user_text_goc)
-                        self._close_current_session()
                         threading.Thread(
                             target=self.rag.extract_and_save,
                             args=(user_text_goc, sanitized_reply),
                             kwargs={"family_id": FAMILY_ID},
                             daemon=True,
                         ).start()
+                        self._close_current_session()
                         # Log hội thoại cho Parent App (non-blocking)
                         threading.Thread(
                             target=self.notifier.push_chat_log,

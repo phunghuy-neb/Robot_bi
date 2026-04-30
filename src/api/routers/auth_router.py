@@ -11,7 +11,9 @@ auth_router.py — Auth endpoints cho Robot Bi API.
 import logging
 import math
 import os
+import json
 import re as _re
+import hmac
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -30,6 +32,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 REGISTRATION_ENABLED = os.getenv("REGISTRATION_ENABLED", "false").lower() == "true"
+
+
+async def _read_json_body(request: Request) -> dict:
+    try:
+        return await request.json()
+    except (json.JSONDecodeError, Exception) as exc:
+        raise HTTPException(status_code=422, detail="Invalid JSON body") from exc
 
 
 @router.post("/api/auth/login")
@@ -64,7 +73,10 @@ async def login(request: Request, pin: str = Body(..., embed=True)):
                     detail=f"Quá nhiều lần thử. Vui lòng thử lại sau {remaining_minutes} phút.",
                 )
 
-        if pin == _state.AUTH_PIN:
+        if hmac.compare_digest(
+            str(pin).encode(),
+            str(_state.AUTH_PIN).encode(),
+        ):
             conn.execute(
                 "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
                 "WHERE ip_address = ?",
@@ -162,7 +174,7 @@ async def register_user(request: Request):
             )
         conn.commit()
 
-    body = await request.json()
+    body = await _read_json_body(request)
     username: str = body.get("username", "").strip()
     password: str = body.get("password", "")
     # family_name KHÔNG đọc từ client — server tự gán để tránh spoofing
@@ -197,7 +209,7 @@ async def login_v2(request: Request):
         store_refresh_token,
     )
 
-    body = await request.json()
+    body = await _read_json_body(request)
     username: str = body.get("username", "").strip()
     password: str = body.get("password", "")
 
@@ -300,7 +312,7 @@ async def refresh_token_endpoint(request: Request):
     """
     from src.infrastructure.auth.auth import rotate_refresh_token, create_access_token
 
-    body = await request.json()
+    body = await _read_json_body(request)
     old_refresh = body.get("refresh_token", "").strip()
 
     if not old_refresh:
@@ -339,7 +351,7 @@ async def logout_v2(request: Request, _current_user: dict = Depends(get_current_
 
     user_id = str(_current_user["user_id"])
 
-    body = await request.json()
+    body = await _read_json_body(request)
     refresh_token_str = body.get("refresh_token", "").strip()
     if not refresh_token_str:
         raise HTTPException(status_code=422, detail="Thieu refresh_token")
@@ -400,7 +412,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 @router.put("/api/auth/change-password")
 async def change_password(request: Request, current_user: dict = Depends(get_current_user)):
     """Đổi mật khẩu. Revoke tất cả refresh token sau khi đổi thành công."""
-    body = await request.json()
+    body = await _read_json_body(request)
     current_pw: str = body.get("current_password", "")
     new_pw: str = body.get("new_password", "")
     user_id = str(current_user["user_id"])

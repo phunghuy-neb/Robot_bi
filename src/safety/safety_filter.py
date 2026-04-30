@@ -41,15 +41,15 @@ _BLACKLIST_WORDS = [
 # Dùng để phát hiện output LLM có nội dung không phù hợp trẻ em.
 _SENSITIVE_PATTERNS = [
     # Bạo lực rõ ràng
-    r'\b(giết|bắn|đánh nhau|chiến tranh|vũ khí|bom|dao găm|súng)\b',
+    r'(?<!\w)(giết|bắn|đánh nhau|chiến tranh|vũ khí|bom|dao găm|súng)(?!\w)',
     # Chính trị
-    r'\b(chính trị|đảng phái|biểu tình|cách mạng|lật đổ|chế độ)\b',
+    r'(?<!\w)(chính trị|đảng phái|biểu tình|cách mạng|lật đổ|chế độ)(?!\w)',
     # Tôn giáo cực đoan
-    r'\b(thánh chiến|khủng bố|cực đoan|tử đạo)\b',
+    r'(?<!\w)(thánh chiến|khủng bố|cực đoan|tử đạo)(?!\w)',
     # Tự hại
-    r'\b(tự tử|tự làm đau|cắt tay|tự sát)\b',
+    r'(?<!\w)(tự tử|tự làm đau|cắt tay|tự sát)(?!\w)',
     # Nội dung người lớn — pattern chung
-    r'\b(sex|porn|18\+|khiêu dâm|nội dung người lớn)\b',
+    r'(?<!\w)(sex|porn|18\+|khiêu dâm|nội dung người lớn)(?!\w)',
 ]
 
 
@@ -69,7 +69,7 @@ class SafetyFilter:
         ]
         # Compile blacklist thành pattern word-boundary để tránh partial match
         self._blacklist_regexes = [
-            (word, re.compile(r'\b' + re.escape(word) + r'\b', re.IGNORECASE | re.UNICODE))
+            (word, re.compile(r'(?<!\w)' + re.escape(word) + r'(?!\w)', re.IGNORECASE | re.UNICODE))
             for word in _BLACKLIST_WORDS
         ]
 

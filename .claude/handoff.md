@@ -7,6 +7,7 @@
 
 - Phase 1-4: FROZEN hoàn toàn.
 - Phase 5.1 Refactor thư mục: DONE 2026-04-29, **197/197 PASS**.
+- Review Round 5 security fixes: DONE 2026-04-30, **338/338 PASS**.
 - `src_brain/` đã XÓA — không còn tồn tại. Dùng `src/` thay thế.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
@@ -131,3 +132,15 @@
 - Them Group 49 vao `tests/run_tests.py`.
 - Final regression: **329/329 PASS**.
 - Changelog: `changelog/2026-04-30-review-round4-fixes.md`.
+
+## SESSION 2026-04-30 — Review Round 5 Security Fixes
+
+- SQL cleanup table names trong `delete_family_record()` da co allowlist truoc khi interpolate vao SQL.
+- Gemini fallback khong con dua API key vao URL; key gui qua header `x-goog-api-key`.
+- `verify_password()` da duoc verify voi argon2-cffi: thu tu hien tai `verify(hash, password)` la dung, khong sua code.
+- PIN login dung `hmac.compare_digest()`; malformed JSON trong auth routes tra 422.
+- Groq fail/cooldown globals co `_groq_lock`; `main.py` dung `sanitized_reply`, dispatch RAG truoc khi close session, va hoist `pygame.time.Clock()`.
+- Analytics count handle NULL, SafetyFilter dung Unicode-aware boundary, homework conversation total dung COUNT query.
+- Them Group 50 vao `tests/run_tests.py`.
+- Final regression: **338/338 PASS**.
+- Changelog: `changelog/2026-04-30-review-round5-security-fixes.md`.
