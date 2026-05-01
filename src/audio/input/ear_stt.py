@@ -352,7 +352,7 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
         global WAKEWORD_ENABLED
 
         # Dùng config của wake_detector thay vì WAKEWORD_ENABLED hardcoded
-        if not self.wake_detector.is_enabled():
+        if not hasattr(self, 'wake_detector') or not self.wake_detector.is_enabled():
             return False
 
         if self.silent_mode:
