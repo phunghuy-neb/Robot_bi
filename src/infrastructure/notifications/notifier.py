@@ -129,12 +129,18 @@ class EventNotifier:
         if event_type == "chat":
             logger.debug("[Notifier] %s CHAT event stored", icon)
         else:
-            logger.info("[Notifier] %s %s: %s", icon, event_type.upper(), message)
+            logger.info(
+                "[Notifier] %s %s event stored family=%s message_len=%d",
+                icon,
+                event_type.upper(),
+                family_id,
+                len(message or ""),
+            )
         self._send_ws(event)
         return True
 
     def push_chat_log(self, user_text: str, bi_response: str, family_id: str | None = None) -> bool:
-        logger.info("[Chat] session=%s user_len=%d ai_len=%d", "unknown", len(user_text), len(bi_response))
+        logger.debug("[Chat] session=%s user_len=%d ai_len=%d", "unknown", len(user_text), len(bi_response))
         return self.push_event(
             event_type="chat",
             message=f"Be: {user_text[:100]}",

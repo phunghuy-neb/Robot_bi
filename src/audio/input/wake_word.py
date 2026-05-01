@@ -2,10 +2,10 @@ import os
 import numpy as np
 
 class WakeWordDetector:
-    WAKE_WORDS = ["bi ơi", "bị ơi", "bi ui", "bị ui"]
+    WAKE_WORDS = ["bi ơi", "bị ơi", "bi ui", "bị ui", "bi hơi", "bi oi"]
 
     def __init__(self):
-        self._enabled = os.getenv("WAKEWORD_ENABLED", "true").lower() == "true"
+        self._enabled = os.getenv("WAKEWORD_ENABLED", "false").lower() == "true"
         self._threshold = float(os.getenv("WAKEWORD_THRESHOLD", "0.7"))
         self._model = None  # lazy load
 

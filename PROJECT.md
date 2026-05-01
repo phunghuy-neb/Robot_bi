@@ -261,3 +261,11 @@ python src/main.py                # Chạy trực tiếp
 - Phase B da hoan thanh day du 8/8 tasks: B1, B2, B3, B4, B5, B6, B7, B8.
 - Cap nhat tai lieu trang thai de danh dau Phase B la fully complete.
 - Changelog: `changelog/2026-04-30-phase-b-complete.md`.
+
+## Session 2026-05-01 — Backend Deep Review Fixes
+
+- Fix 13 group backend issues tu Deep Review: WordQuizGame contract/high score, VoiceQuiz schema/fuzzy match, state event parser, EmotionAlert analyzer compatibility, unified education schedule, education/analytics/game/video/emotion API contracts, PII-safe logging, va wake-word defaults.
+- Them bang `game_scores` vao SQLite va cleanup family-scoped cho bang moi.
+- Them Group 59 vao `tests/run_tests.py` voi 11 API contract tests.
+- Final regression target: 374/374 PASS.
+- Changelog: `changelog/2026-05-01-backend-deep-review-fixes.md`.

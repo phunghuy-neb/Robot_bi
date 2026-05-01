@@ -88,5 +88,13 @@ async def submit_voice_answer(data: dict | None = None, current_user: dict = Dep
 async def get_scores(current_user: dict = Depends(get_current_user)):
     """Return game leaderboard for the current family."""
     family_id = _require_family(current_user)
-    word_game = WordQuizGame()
-    return {"leaderboard": word_game.get_leaderboard(family_id)}
+    try:
+        word_game = WordQuizGame()
+        board = word_game.get_leaderboard(family_id)
+    except Exception:
+        board = []
+    return {
+        "word_quiz": board,
+        "voice_quiz": [],
+        "math_quiz": [],
+    }

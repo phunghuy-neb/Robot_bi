@@ -198,7 +198,7 @@ async def puppet_say(body: PuppetIn, _current_user: dict = Depends(get_current_u
     if not text:
         raise HTTPException(400, "text không được rỗng")
     _state._puppet_queue.put(text)
-    _logger.info("[Puppet] Queued: '%s'", text[:60])
+    _logger.debug("[Puppet] Queued text_len=%d", len(text))
     return {"status": "queued", "text": text}
 
 

@@ -106,7 +106,7 @@ class MouthTTS:
 
     def speak(self, text):
         """Blocking TTS — dùng cho test độc lập."""
-        logger.info("[Bi - Miệng] Đang nói: %s", text)
+        logger.debug("[Bi - Miệng] Đang nói text_len=%d", len(text or ""))
         audio_file = asyncio.run(self._generate_audio(text, chunk_index=0))
         if audio_file is None:
             logger.warning("[Bi - Miệng] Không thể generate audio.")

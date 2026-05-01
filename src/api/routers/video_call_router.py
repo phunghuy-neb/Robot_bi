@@ -36,6 +36,13 @@ async def get_contacts(current_user: dict = Depends(get_current_user)):
     return {"contacts": _manager.get_contacts(family_id)}
 
 
+@router.get("/api/video/history")
+async def get_call_history(current_user: dict = Depends(get_current_user)):
+    """Return persisted call history placeholder for the current family."""
+    _require_family(current_user)
+    return {"history": []}
+
+
 @router.post("/api/video/contacts")
 async def add_contact(data: dict | None = None, current_user: dict = Depends(get_current_user)):
     """Add a contact for the current family."""

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import copy
-import json
 import logging
 import threading
 import time
 from datetime import datetime, timezone
 
-from src.infrastructure.database.db import get_db_connection
+from src.infrastructure.database.db import (
+    get_db_connection,
+    get_learning_schedule,
+    save_learning_schedule,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,54 +52,26 @@ class Curriculum:
             logger.exception("[Curriculum] Khong the tao schema")
 
     def get_schedule(self, family_id) -> dict:
-        """Lay lich hoc cua family, fallback default 7 ngay."""
+        """Lay lich hoc cua family tu learning_schedules, fallback default."""
         try:
-            with get_db_connection() as conn:
-                row = conn.execute(
-                    "SELECT data FROM curriculum_schedules WHERE family_id = ?",
-                    (str(family_id),),
-                ).fetchone()
-            if not row:
-                return copy.deepcopy(self.DEFAULT_SCHEDULE)
-            data = json.loads(row["data"])
-            if not isinstance(data, dict):
-                return copy.deepcopy(self.DEFAULT_SCHEDULE)
             merged = copy.deepcopy(self.DEFAULT_SCHEDULE)
-            merged.update(data)
+            saved = get_learning_schedule(str(family_id))
+            if saved:
+                merged.update(saved)
             return merged
         except Exception:
             logger.exception("[Curriculum] get_schedule failed")
             return copy.deepcopy(self.DEFAULT_SCHEDULE)
 
     def update_schedule(self, family_id, schedule) -> bool:
-        """Luu lich hoc moi cho family."""
+        """Luu lich hoc moi vao learning_schedules."""
         try:
             if not isinstance(schedule, dict):
                 return False
-            merged = copy.deepcopy(self.DEFAULT_SCHEDULE)
-            for day in merged:
-                if day in schedule:
-                    value = schedule[day]
-                    if value is not None and not isinstance(value, dict):
-                        return False
-                    merged[day] = value
-            with get_db_connection() as conn:
-                conn.execute(
-                    """
-                    INSERT INTO curriculum_schedules (family_id, data, updated_at)
-                    VALUES (?, ?, ?)
-                    ON CONFLICT(family_id) DO UPDATE SET
-                        data = excluded.data,
-                        updated_at = excluded.updated_at
-                    """,
-                    (
-                        str(family_id),
-                        json.dumps(merged, ensure_ascii=False),
-                        datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    ),
-                )
-                conn.commit()
-            return True
+            for value in schedule.values():
+                if value is not None and not isinstance(value, dict):
+                    return False
+            return save_learning_schedule(str(family_id), schedule)
         except Exception:
             logger.exception("[Curriculum] update_schedule failed")
             return False

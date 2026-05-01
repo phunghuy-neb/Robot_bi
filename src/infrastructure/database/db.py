@@ -404,6 +404,16 @@ def init_db() -> None:
                 )
                 '''
             )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS game_scores (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    family_id TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                '''
+            )
             for trigger_sql in (
                 '''
                 CREATE TRIGGER IF NOT EXISTS trg_users_family_auto
@@ -892,6 +902,7 @@ def delete_family_record(family_id: str) -> bool:
             "education_sessions",
             "turns",
             "curriculum_schedules",
+            "game_scores",
         })
         for table_name in (
             "learning_schedules",
@@ -901,6 +912,7 @@ def delete_family_record(family_id: str) -> bool:
             "persona",
             "education_sessions",
             "curriculum_schedules",
+            "game_scores",
         ):
             if table_name not in ALLOWED_CLEANUP_TABLES:
                 logger.error("[DB] Rejected invalid table name: %s", table_name)

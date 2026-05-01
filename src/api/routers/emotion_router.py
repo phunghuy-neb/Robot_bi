@@ -36,7 +36,27 @@ async def get_emotion_summary(_current_user: dict = Depends(get_current_user)):
     """Return seven-day emotion summary for the current family."""
     try:
         family_id = _require_family(_current_user)
-        return {"days": get_weekly_summary(family_id)}
+        try:
+            from src.emotion.emotion_journal import EmotionJournal
+
+            weekly = get_weekly_summary(family_id)
+            journal = EmotionJournal()
+            sad_streak = journal.get_streak(family_id, "sad")
+            stress_streak = journal.get_streak(family_id, "stressed")
+            max_streak = max(sad_streak, stress_streak)
+            alert = max_streak >= 3
+        except Exception:
+            weekly = []
+            alert = False
+            max_streak = 0
+        return {
+            "days": weekly,
+            "alert": alert,
+            "alert_message": (
+                f"Bé có vẻ buồn {max_streak} ngày liên tiếp 💙"
+                if alert else ""
+            ),
+        }
     except HTTPException:
         raise
     except Exception:

@@ -1728,6 +1728,16 @@
 	        }
 	        return;
 	      }
+	      if (evt.type === 'face_mode') return;
+	      if (evt.type === 'battery_low') {
+	        showNotificationBanner('battery_low', evt.message || '🔋 Pin robot sắp hết!');
+	        return;
+	      }
+	      if (evt.type === 'music_play') {
+	        if (activeTab === 'entertainment') loadPlaylist(_currentPlaylistCategory || 'kids_vn');
+	        return;
+	      }
+	      if (evt.type === 'story_tell') return;
 	      toast(`${evtIcon(evt.type)} ${evt.message}`);
       if (evt.type === 'chat') { if (activeTab === 'chat') loadChats(); }
       else { if (activeTab === 'events') loadEvents(); }
@@ -2760,12 +2770,11 @@
       const data = await apiFetch('/api/emotion/today');
       const el = document.getElementById('emotionToday');
       const emotion = (data && data.dominant) ? data.dominant : 'neutral';
-      el.innerHTML = `
-        <div class="emo-icon-big">${EMO_ICONS[emotion] || '😐'}</div>
-        <div>
-          <div class="emo-today-label">${EMO_LABELS[emotion] || 'Bình thường'}</div>
-          <div class="emo-today-sub">${data ? 'Cảm xúc chủ đạo hôm nay' : 'Chưa có dữ liệu hôm nay'}</div>
-        </div>`;
+      const _iconDiv = makeEl('div', 'emo-icon-big', EMO_ICONS[emotion] || '😐');
+      const _textDiv = document.createElement('div');
+      _textDiv.appendChild(makeEl('div', 'emo-today-label', EMO_LABELS[emotion] || 'Bình thường'));
+      _textDiv.appendChild(makeEl('div', 'emo-today-sub', data ? 'Cảm xúc chủ đạo hôm nay' : 'Chưa có dữ liệu hôm nay'));
+      el.replaceChildren(_iconDiv, _textDiv);
     }
 
     async function loadEmotionSummary() {
@@ -3080,7 +3089,10 @@
       }
       const categoryMap = { fairy: 'fairy_tale', fable: 'fable', lullaby: 'bedtime', custom: 'custom' };
       const category = categoryMap[type] || type;
-      const filtered = type === 'all' ? _allStories : _allStories.filter(s => (s.type || s.category) === category);
+      const filtered = type === 'all' ? _allStories : _allStories.filter(s => {
+        const t = s.type || s.category || '';
+        return t === category || t === type;
+      });
       const grid = document.getElementById('storyGrid');
       if (!filtered.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Không có truyện phù hợp</div>'; return; }
       grid.replaceChildren(...filtered.map(s => {
@@ -3231,7 +3243,7 @@
     }
 
     async function loadCallHistory() {
-      const data = await apiFetch('/api/video/contacts');
+      const data = await apiFetch('/api/video/history');
       const el = document.getElementById('callHistory');
       const hist = (data && data.history) ? data.history : [];
       if (!hist.length) { el.innerHTML = '<div class="empty">Chưa có cuộc gọi nào</div>'; return; }

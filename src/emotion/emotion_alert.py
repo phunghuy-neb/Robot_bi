@@ -37,27 +37,41 @@ class EmotionAlert:
         except Exception:
             logger.exception("[EmotionAlert] Khong the tao schema")
 
-    def check_and_alert(self, family_id, journal, notifier) -> bool:
+    def check_and_alert(self, family_id, journal_or_analyzer, notifier) -> bool:
         """
         Kiem tra neu be buon/stress qua nguong va push event canh bao.
+
+        Accepts either EmotionJournal (get_streak) or EmotionAnalyzer
+        (get_weekly_summary). main.py passes the analyzer instance.
 
         Returns True neu da gui alert.
         """
         try:
-            sad_streak = journal.get_streak(family_id, "sad")
-            stressed_streak = journal.get_streak(family_id, "stressed")
+            if hasattr(journal_or_analyzer, "get_streak"):
+                sad_streak = journal_or_analyzer.get_streak(family_id, "sad")
+                stressed_streak = journal_or_analyzer.get_streak(
+                    family_id, "stressed"
+                )
+            else:
+                summary = journal_or_analyzer.get_weekly_summary(family_id)
+                sad_streak = sum(
+                    1
+                    for day in summary[-self.ALERT_THRESHOLD:]
+                    if day.get("dominant") in ("sad", "stressed")
+                )
+                stressed_streak = sad_streak
+
             if sad_streak < self.ALERT_THRESHOLD and stressed_streak < self.ALERT_THRESHOLD:
                 return False
 
-            emotion = "sad" if sad_streak >= stressed_streak else "stressed"
             streak = max(sad_streak, stressed_streak)
-            message = f"Be co dau hieu {emotion} {streak} ngay lien tiep. Phu huynh nen quan sat them."
+            message = f"Bé có vẻ buồn {streak} ngày liên tiếp 💙"
             if notifier is not None and hasattr(notifier, "push_event"):
                 notifier.push_event("emotion_alert", message, family_id=str(family_id))
             self._save_status(family_id, "active", message)
             return True
-        except Exception:
-            logger.exception("[EmotionAlert] check_and_alert failed")
+        except Exception as exc:
+            logger.debug("[EmotionAlert] check error: %s", exc)
             return False
 
     def _save_status(self, family_id, status: str, message: str) -> None:

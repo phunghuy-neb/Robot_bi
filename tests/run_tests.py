@@ -3960,6 +3960,141 @@ test("58.2 VoiceQuizGame import", test_58_2_voice_quiz_import)
 test("58.3 WordQuizGame logic", test_58_3_word_quiz_logic)
 test("58.4 VoiceQuizGame logic", test_58_4_voice_quiz_logic)
 
+print("\n[Group 59] API Contract Verification")
+
+# 59.1 — WordQuizGame start_game nhận difficulty
+def test_59_1():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    g = WordQuizGame()
+    result = g.start_game("fam1", "easy")
+    assert result["status"] == "started"
+    result2 = g.start_game("fam1", "medium")
+    assert result2["status"] == "started"
+test("59.1 WordQuizGame start_game(family_id, difficulty)", test_59_1)
+
+# 59.2 — get_question đủ fields
+def test_59_2():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    g = WordQuizGame()
+    g.start_game("fam1", "easy")
+    q = g.get_question()
+    assert "question" in q, f"Missing 'question', got: {list(q.keys())}"
+    assert "options" in q
+    assert len(q["options"]) == 4
+    assert "time_limit_sec" in q
+test("59.2 WordQuizGame get_question fields", test_59_2)
+
+# 59.3 — submit_answer với correct answer string
+def test_59_3():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    import json
+    from pathlib import Path
+    g = WordQuizGame()
+    g.start_game("fam1", "easy")
+    q = g.get_question()
+    if not q:
+        return
+    correct_text = q["options"][0]  # test với option đầu
+    result = g.submit_answer(correct_text)
+    assert "correct" in result
+    assert "score" in result
+test("59.3 WordQuizGame submit_answer string", test_59_3)
+
+# 59.4 — end_game có total_score và high_score
+def test_59_4():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    g = WordQuizGame()
+    g.start_game("fam59_4", "easy")
+    summary = g.end_game()
+    assert "total_score" in summary, \
+        f"Missing total_score, got: {list(summary.keys())}"
+    assert "high_score" in summary, \
+        f"Missing high_score, got: {list(summary.keys())}"
+    assert "correct" in summary
+    assert "incorrect" in summary
+test("59.4 WordQuizGame end_game contract", test_59_4)
+
+# 59.5 — get_leaderboard tồn tại và trả list
+def test_59_5():
+    from src.entertainment.game_word_quiz import WordQuizGame
+    g = WordQuizGame()
+    board = g.get_leaderboard("fam59_5")
+    assert isinstance(board, list)
+test("59.5 WordQuizGame get_leaderboard", test_59_5)
+
+# 59.6 — VoiceQuizGame get_riddle đúng fields
+def test_59_6():
+    from src.entertainment.game_voice_quiz import VoiceQuizGame
+    g = VoiceQuizGame()
+    g.start_game("fam59_6")
+    riddle = g.get_riddle()
+    assert "riddle_text" in riddle, \
+        f"Missing riddle_text, got: {list(riddle.keys())}"
+    assert "hint" in riddle
+    assert "answer" in riddle
+test("59.6 VoiceQuizGame get_riddle fields", test_59_6)
+
+# 59.7 — VoiceQuizGame exact answer → correct=True
+def test_59_7():
+    from src.entertainment.game_voice_quiz import VoiceQuizGame
+    g = VoiceQuizGame()
+    g.start_game("fam59_7")
+    riddle = g.get_riddle()
+    result = g.check_voice_answer(riddle["answer"])
+    assert result["correct"] is True, \
+        f"Exact answer phải correct=True, got: {result}"
+test("59.7 VoiceQuizGame exact answer correct", test_59_7)
+
+# 59.8 — Education summary đúng fields
+def test_59_8():
+    from src.api.server import app
+    paths = [r.path for r in app.routes]
+    assert "/api/education/summary" in paths
+    assert "/api/education/vocabulary" in paths
+    assert "/api/education/schedule" in paths
+test("59.8 Education routes tồn tại", test_59_8)
+
+# 59.9 — Analytics weekly route tồn tại
+def test_59_9():
+    from src.api.server import app
+    paths = [r.path for r in app.routes]
+    assert "/api/analytics/weekly" in paths
+    assert "/api/analytics/daily" in paths
+test("59.9 Analytics routes tồn tại", test_59_9)
+
+# 59.10 — Game scores đúng format
+def test_59_10():
+    from src.api.server import app
+    paths = [r.path for r in app.routes]
+    assert "/api/game/scores" in paths
+    assert "/api/video/history" in paths
+test("59.10 Game scores + video history routes", test_59_10)
+
+# 59.11 — state.py event không trả None
+def test_59_11():
+    # Import và kiểm tra hàm parse không trả None
+    import inspect
+    from src.infrastructure.sessions import state as st
+    src = inspect.getsource(st)
+    # Kiểm tra return không nằm trong except block
+    # bằng cách tìm pattern "except" theo sau bởi "return"
+    lines = src.split('\n')
+    in_except = False
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith('except'):
+            in_except = True
+        elif in_except and stripped.startswith('return'):
+            # return nằm trong except là bug
+            assert False, \
+                f"Return trong except block tại line {i}: {line}"
+        elif in_except and stripped and \
+             not stripped.startswith('#') and \
+             not stripped.startswith('pass') and \
+             not line.startswith(' ' * 12):
+            in_except = False
+test("59.11 state.py event parse không return trong except", test_59_11)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

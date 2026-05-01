@@ -374,7 +374,7 @@ class RAGManager:
                 documents=documents,
                 metadatas=metadatas,
             )
-            logger.info("Đã lưu %d fact(s): %s", len(facts), facts)
+            logger.debug("Đã lưu %d fact(s)", len(facts))
             return True
         except Exception as e:
             logger.error("Lỗi khi lưu fact vào ChromaDB: %s", e)
@@ -429,7 +429,11 @@ class RAGManager:
                 f"[Thông tin Bi đã biết về bé — hãy dùng tự nhiên nếu liên quan]\n"
                 f"{facts_text}"
             )
-            logger.info("Retrieve %d fact(s) cho query: '%s'", len(relevant_facts), query[:60])
+            logger.debug(
+                "Retrieve %d fact(s) cho query_len=%d",
+                len(relevant_facts),
+                len(query),
+            )
             return context
 
         except Exception as e:
@@ -563,7 +567,11 @@ class RAGManager:
                     "bi_response": "",
                 }],
             )
-            logger.info("Đã thêm manual memory từ %s: '%s'", source, fact[:60])
+            logger.debug(
+                "Đã thêm manual memory từ %s fact_len=%d",
+                source,
+                len(fact),
+            )
             return True
         except Exception as e:
             logger.error("Lỗi add_manual_memory: %s", e)

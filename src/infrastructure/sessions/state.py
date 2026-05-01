@@ -90,10 +90,10 @@ def _event_row_to_dict(row) -> dict:
         parsed_metadata = json.loads(metadata) if metadata else {}
     except Exception:
         parsed_metadata = {}
-        return {
-            "id": row["event_id"],
-            "family_id": row["family_id"],
-            "timestamp": row["timestamp"],
+    return {
+        "id": row["event_id"],
+        "family_id": row["family_id"],
+        "timestamp": row["timestamp"],
         "type": row["type"],
         "message": row["message"],
         "clip_path": row["clip_path"],
