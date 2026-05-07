@@ -87,6 +87,19 @@ class MotorController:
         """Lenh tu ve dock sac."""
         return self._send("go_home")
 
+    def spin(self, speed: int = 50, duration_ms: int = 2000) -> bool:
+        """Quay tron tai cho."""
+        return self._send("spin", speed=max(0, min(100, int(speed))), duration_ms=max(0, int(duration_ms)))
+
+    def drive(self, left: int = 0, right: int = 0) -> bool:
+        """Continuous drive: left/right PWM doc lap, -100 den 100.
+        Am = lui, duong = tien. Khong co duration — chay den lenh tiep theo.
+        ESP32 watchdog tu dung sau 500ms neu khong nhan lenh moi.
+        """
+        left  = max(-100, min(100, int(left)))
+        right = max(-100, min(100, int(right)))
+        return self._send("drive", left=left, right=right)
+
     def get_status(self) -> dict:
         """Returns `{connected, mode, last_command}`."""
         try:
@@ -98,3 +111,7 @@ class MotorController:
     def is_simulation(self) -> bool:
         """Tra ve True neu dang chay simulation mode."""
         return self.mode == "simulation"
+
+
+# Shared singleton — imported by streaming_router
+_shared_motor = MotorController()

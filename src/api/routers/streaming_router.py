@@ -8,6 +8,7 @@ streaming_router.py — WebSocket + Mom Direct Talk endpoints cho Robot Bi API.
   WS   /api/mom/audio     — Browser mẹ → loa robot
 """
 import asyncio
+import json
 import logging
 import os
 from typing import Optional
@@ -82,8 +83,38 @@ async def ws_endpoint(websocket: WebSocket):
         except Exception:
             pass
     try:
+        from src.motion.motor_controller import _shared_motor as _ws_motor
         while True:
-            await websocket.receive_text()
+            raw = await websocket.receive_text()
+            try:
+                msg = json.loads(raw)
+                if msg.get("type") == "motor":
+                    cmd = msg.get("cmd", "")
+                    speed = int(msg.get("speed", 50))
+                    duration_ms = int(msg.get("duration_ms", 800))
+                    degrees = int(msg.get("degrees", 45))
+                    if cmd == "drive":
+                        vx    = float(msg.get("vx",    0))
+                        omega = float(msg.get("omega", 0))
+                        vx    = max(-100.0, min(100.0, vx))
+                        omega = max(-100.0, min(100.0, omega))
+                        left  = int(max(-100, min(100, vx - omega)))
+                        right = int(max(-100, min(100, vx + omega)))
+                        _ws_motor.drive(left, right)
+                    elif cmd == "forward":
+                        _ws_motor.forward(speed, duration_ms)
+                    elif cmd == "backward":
+                        _ws_motor.backward(speed, duration_ms)
+                    elif cmd == "left":
+                        _ws_motor.turn_left(degrees)
+                    elif cmd == "right":
+                        _ws_motor.turn_right(degrees)
+                    elif cmd == "spin":
+                        _ws_motor.spin(speed, duration_ms)
+                    elif cmd == "stop":
+                        _ws_motor.stop()
+            except (json.JSONDecodeError, ValueError):
+                pass  # Non-motor messages (keepalive pings etc) — ignore silently
     except WebSocketDisconnect:
         _state._ws_manager.disconnect(websocket)
 

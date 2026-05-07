@@ -5,12 +5,11 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.infrastructure.auth.auth import get_current_user
-from src.motion.motor_controller import MotorController
+from src.motion.motor_controller import _shared_motor as _MOTOR
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-_MOTOR = MotorController()
 
 
 @router.post("/api/motor/forward")
@@ -51,6 +50,26 @@ async def motor_stop(_current_user: dict = Depends(get_current_user)):
 async def motor_home(_current_user: dict = Depends(get_current_user)):
     """Go home to charging dock."""
     return {"ok": _MOTOR.go_home()}
+
+
+@router.post("/api/motor/drive")
+async def motor_drive(payload: dict | None = None, _current_user: dict = Depends(get_current_user)):
+    """Continuous velocity control. payload: {vx: -100..100, omega: -100..100}"""
+    payload = payload or {}
+    vx    = float(payload.get("vx",    0))
+    omega = float(payload.get("omega", 0))
+    vx    = max(-100.0, min(100.0, vx))
+    omega = max(-100.0, min(100.0, omega))
+    left  = int(max(-100, min(100, vx - omega)))
+    right = int(max(-100, min(100, vx + omega)))
+    return {"ok": _MOTOR.drive(left, right)}
+
+
+@router.post("/api/motor/spin")
+async def motor_spin(payload: dict | None = None, _current_user: dict = Depends(get_current_user)):
+    """Spin in place."""
+    payload = payload or {}
+    return {"ok": _MOTOR.spin(payload.get("speed", 50), payload.get("duration_ms", 2000))}
 
 
 @router.get("/api/motor/status")

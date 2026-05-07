@@ -10,6 +10,7 @@
 - Review Round 5 security fixes: DONE 2026-04-30, **338/338 PASS**.
 - Phase B Tasks B1-B8: FULLY COMPLETE 2026-04-30.
 - Backend Deep Review fixes: DONE 2026-05-01, **374/374 PASS**.
+- Robot Display flashcard recursion fix: DONE 2026-05-02, **374/374 PASS**.
 - `src_brain/` đã XÓA — không còn tồn tại. Dùng `src/` thay thế.
 - `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
 - `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
@@ -161,3 +162,10 @@
 - Them Group 59 vao `tests/run_tests.py` voi 11 API contract tests.
 - Final regression: **374/374 PASS**.
 - Changelog: `changelog/2026-05-01-backend-deep-review-fixes.md`.
+
+## SESSION 2026-05-02 — Robot Display Flashcard Recursion Fix
+
+- Fix infinite recursion trong `frontend/robot_display/index.html` bang cach capture base `showFlashcard()` vao `_origShowFlashcard` truoc khi override.
+- Enhancement dung function expression assignment `showFlashcard = function(data) { ... }`, khong dung function declaration bi hoist.
+- Final regression: **374/374 PASS**.
+- Changelog: `changelog/2026-05-02-robot-display-flashcard-recursion.md`.

@@ -4,7 +4,7 @@ WARNING: Edit PROJECT.md then run: python sync.py
 WARNING: Any manual changes will be overwritten
 # PROJECT.md — Hướng dẫn Dự án Robot Bi (Single Source of Truth)
 
-> Cập nhật: 2026-04-30 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
+> Cập nhật: 2026-05-02 | Dự án Robot Bi — Gia sư AI cho trẻ em 5-12 tuổi  
 > Đây là file **NGUỒN DUY NHẤT**. CLAUDE.md và AGENTS.md là bản sao tự động.
 
 ## QUY TẮC BẮT BUỘC CHO CẢ CLAUDE CODE CLI VÀ CODEX CLI
@@ -273,3 +273,10 @@ python src/main.py                # Chạy trực tiếp
 - Them Group 59 vao `tests/run_tests.py` voi 11 API contract tests.
 - Final regression target: 374/374 PASS.
 - Changelog: `changelog/2026-05-01-backend-deep-review-fixes.md`.
+
+## Session 2026-05-02 — Robot Display Flashcard Recursion Fix
+
+- Fix infinite recursion trong `frontend/robot_display/index.html`: `_origShowFlashcard` capture base renderer truoc khi override.
+- Doi enhancement tu function declaration sang function expression assignment `showFlashcard = function(data) { ... }` de tranh hoisting tao circular reference.
+- Verify full regression: 374/374 PASS.
+- Changelog: `changelog/2026-05-02-robot-display-flashcard-recursion.md`.
