@@ -1,5 +1,5 @@
 """
-MotorController - Dieu khien motor robot qua ESP32/Serial.
+MotorController - Dieu khien motor robot qua ESP32/Serial hoac WiFi WebSocket.
 
 PLACEHOLDER: implement serial protocol day du khi co hardware. Hien tai mac
 dinh simulation mode va log command.
@@ -9,38 +9,55 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
+
+import serial  # giữ nguyên import
 
 logger = logging.getLogger(__name__)
+
+try:
+    import websocket
+    WS_AVAILABLE = True
+except ImportError:
+    WS_AVAILABLE = False
 
 
 class MotorController:
     """Motor controller voi simulation fallback."""
 
     def __init__(self, port: str | None = None, baud: int = 115200):
-        """Khoi tao controller va thu ket noi serial neu co MOTOR_PORT."""
-        self.port = port or os.getenv("MOTOR_PORT", None)
+        """Khoi tao controller va thu ket noi serial hoac WiFi WebSocket."""
+        self.port = port or os.getenv("MOTOR_PORT")
         self.baud = baud
+        self.ws_url = os.getenv("MOTOR_WS_URL")  # vi du: ws://192.168.1.x:81
+        self._serial = None
+        self._ws = None
+        self._lock = threading.Lock()
         self.connected = False
         self.mode = "simulation"
         self.last_command: dict | None = None
-        self._serial = None
-        self._try_connect()
 
-    def _try_connect(self):
+        if self.ws_url and WS_AVAILABLE:
+            self._try_connect_ws()
+        elif self.port:
+            self._try_connect_serial()
+        else:
+            logger.info("[MotorController] No port or WS URL — simulation mode")
+
+    def _try_connect_ws(self):
+        try:
+            self._ws = websocket.WebSocket()
+            self._ws.connect(self.ws_url, timeout=3)
+            self.connected = True
+            self.mode = "wifi"
+            logger.info(f"[MotorController] WiFi WebSocket connected: {self.ws_url}")
+        except Exception as e:
+            logger.warning(f"[MotorController] WiFi connect failed: {e} — simulation mode")
+            self.mode = "simulation"
+
+    def _try_connect_serial(self):
         """Thu ket noi serial. Neu khong co thi simulation mode."""
         try:
-            if not self.port:
-                logger.info("[MotorController] SIMULATION: no MOTOR_PORT configured")
-                self.connected = False
-                self.mode = "simulation"
-                return
-            try:
-                import serial  # type: ignore
-            except Exception:
-                logger.info("[MotorController] SIMULATION: pyserial unavailable")
-                self.connected = False
-                self.mode = "simulation"
-                return
             self._serial = serial.Serial(self.port, self.baud, timeout=1)
             self.connected = bool(self._serial and self._serial.is_open)
             self.mode = "serial" if self.connected else "simulation"
@@ -50,18 +67,29 @@ class MotorController:
             self.mode = "simulation"
 
     def _send(self, command: str, **params) -> bool:
-        """Gui command toi serial hoac log simulation."""
-        try:
-            self.last_command = {"command": command, **params}
-            if self.connected and self._serial:
-                payload = f"{command}:{params}\n".encode("utf-8")
-                self._serial.write(payload)
+        """Gui command toi WiFi/serial hoac log simulation."""
+        self.last_command = {"command": command, **params}
+        payload_str = f"{command}:{params}\n"
+        with self._lock:
+            if self.mode == "wifi" and self._ws:
+                try:
+                    self._ws.send(payload_str.strip())
+                    return True
+                except Exception as e:
+                    logger.error(f"[MotorController] WiFi send failed: {e}")
+                    self.connected = False
+                    self.mode = "simulation"
+                    return False
+            elif self.mode == "serial" and self._serial:
+                try:
+                    self._serial.write(payload_str.encode("utf-8"))
+                    return True
+                except Exception as e:
+                    logger.error(f"[MotorController] Serial send failed: {e}")
+                    return False
             else:
-                logger.info("[MotorController] SIMULATION: %s %s", command, params)
-            return True
-        except Exception:
-            logger.exception("[MotorController] send command failed")
-            return False
+                logger.info(f"[MotorController] SIMULATION: {payload_str.strip()}")
+                return True
 
     def forward(self, speed: int = 50, duration_ms: int = 1000) -> bool:
         """Di tien voi speed va duration."""

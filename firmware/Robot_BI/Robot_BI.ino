@@ -7,6 +7,9 @@
 //   ENA = GPIO 25 (PWM), ENB = GPIO 13 (PWM)
 // ═══════════════════════════════════════════════
 
+#include <WiFi.h>
+#include <WebSocketsServer.h>
+
 #define IN1 26
 #define IN2 27
 #define IN3 14
@@ -17,8 +20,38 @@
 #define PWM_FREQ  1000
 #define PWM_RES   8
 
+// ── WiFi config ──────────────────────────────
+const char* WIFI_SSID     = "Tang 4";      // ← đổi thành SSID thật
+const char* WIFI_PASSWORD = "nha16ngo120"; // ← đổi thành password thật
+const int   WS_PORT       = 81;
+
+WebSocketsServer wsServer(WS_PORT);
+
 unsigned long lastCmdTime = 0;
 const unsigned long WATCHDOG_MS = 500;
+
+void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+  if (type != WStype_TEXT) return;
+
+  String line = String((char*)payload);
+  line.trim();
+  if (line.length() == 0) return;
+
+  Serial.print("WS RECV: "); Serial.println(line);
+
+  // Reset watchdog
+  lastCmdTime = millis();
+
+  if      (line.startsWith("drive"))      cmdDrive(line);
+  else if (line.startsWith("forward"))    cmdForward(line);
+  else if (line.startsWith("backward"))   cmdBackward(line);
+  else if (line.startsWith("turn_left"))  cmdLeft(line);
+  else if (line.startsWith("turn_right")) cmdRight(line);
+  else if (line.startsWith("spin"))       cmdSpin(line);
+  else if (line.startsWith("stop"))       { motorStop(); lastCmdTime = 0; wsServer.sendTXT(num, "OK:stop"); }
+  else if (line.startsWith("go_home"))    { motorStop(); lastCmdTime = 0; wsServer.sendTXT(num, "OK:go_home"); }
+  else                                    { wsServer.sendTXT(num, "ERR:unknown"); }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -31,6 +64,23 @@ void setup() {
 
   motorStop();
   Serial.println("Bi Motor Ready");
+
+  // Connect WiFi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("WiFi connected — IP: ");
+  Serial.println(WiFi.localIP());
+
+  // Start WebSocket server
+  wsServer.begin();
+  wsServer.onEvent(onWsEvent);
+  Serial.print("WebSocket server started on port ");
+  Serial.println(WS_PORT);
 }
 
 // ── Motor primitives ──────────────────────────
@@ -160,6 +210,8 @@ void cmdDrive(String raw) {
 
 // ── Main loop ─────────────────────────────────
 void loop() {
+  wsServer.loop();
+
   // ── Watchdog: tự dừng nếu mất lệnh quá 500ms ──
   if (lastCmdTime > 0 && millis() - lastCmdTime > WATCHDOG_MS) {
     motorStop();
