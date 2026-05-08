@@ -9,6 +9,9 @@ import asyncio
 import re
 import warnings
 
+from dotenv import load_dotenv
+load_dotenv()
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
 warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources.*")

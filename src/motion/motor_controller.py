@@ -75,10 +75,22 @@ class MotorController:
                 try:
                     self._ws.send(payload_str.strip())
                     return True
-                except Exception as e:
-                    logger.error(f"[MotorController] WiFi send failed: {e}")
-                    self.connected = False
+                except Exception:
+                    logger.warning("[MotorController] WiFi send failed — reconnecting...")
+                    try:
+                        self._ws.close()
+                    except Exception:
+                        pass
+                    self._ws = None
                     self.mode = "simulation"
+                    self._try_connect_ws()
+                    if self.mode == "wifi" and self._ws:
+                        try:
+                            self._ws.send(payload_str.strip())
+                            return True
+                        except Exception as e2:
+                            logger.error(f"[MotorController] Retry failed: {e2}")
+                            return False
                     return False
             elif self.mode == "serial" and self._serial:
                 try:
@@ -128,6 +140,20 @@ class MotorController:
         right = max(-100, min(100, int(right)))
         return self._send("drive", left=left, right=right)
 
+    def _send_raw(self, raw_str: str) -> bool:
+        """Gửi raw string xuống ESP32 không qua format params."""
+        with self._lock:
+            if self.mode == "wifi" and self._ws:
+                try:
+                    self._ws.send(raw_str.strip())
+                    return True
+                except Exception as e:
+                    logger.error(f"[MotorController] _send_raw failed: {e}")
+                    return False
+            else:
+                logger.info(f"[MotorController] SIMULATION _send_raw: {raw_str}")
+                return True
+
     def get_status(self) -> dict:
         """Returns `{connected, mode, last_command}`."""
         try:
@@ -141,5 +167,11 @@ class MotorController:
         return self.mode == "simulation"
 
 
-# Shared singleton — imported by streaming_router
-_shared_motor = MotorController()
+_shared_motor: "MotorController | None" = None
+
+
+def get_shared_motor() -> "MotorController":
+    global _shared_motor
+    if _shared_motor is None:
+        _shared_motor = MotorController()
+    return _shared_motor

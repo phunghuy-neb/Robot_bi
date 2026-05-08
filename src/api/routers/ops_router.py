@@ -29,20 +29,28 @@ router = APIRouter()
 
 
 def _build_ascii_qr(data: str, border: int = 1, invert: bool = False) -> str:
-    """Render QR code bang ky tu ASCII thuan va ANSI color."""
+    """Render compact square QR: 2 module rows per terminal line via half-block Unicode, no ANSI."""
     import qrcode
-    if os.name == "nt":
-        os.system("")
-    qr = qrcode.QRCode(border=border)
+    qr = qrcode.QRCode(version=None, border=border)
     qr.add_data(data)
     qr.make(fit=True)
     matrix = qr.get_matrix()
-    dark = "\033[40m  \033[0m"
-    light = "\033[47m  \033[0m"
-    return "\n".join(
-        "".join(dark if cell else light for cell in row)
-        for row in matrix
-    )
+    lines = []
+    for y in range(0, len(matrix), 2):
+        row_top = matrix[y]
+        row_bot = matrix[y + 1] if y + 1 < len(matrix) else [False] * len(row_top)
+        line = ""
+        for t, b in zip(row_top, row_bot):
+            if t and b:
+                line += "█"
+            elif t:
+                line += "▀"
+            elif b:
+                line += "▄"
+            else:
+                line += " "
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:

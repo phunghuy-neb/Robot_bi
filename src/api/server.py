@@ -45,6 +45,7 @@ from src.api.routers.emotion_router import router as emotion_router
 from src.api.routers.game_router import router as game_router
 from src.api.routers.music_router import router as music_router
 from src.api.routers.motor_router import router as motor_router
+from src.api.routers.wifi_router import router as wifi_router
 from src.api.routers.ops_router import router as ops_router
 from src.api.routers.ops_router import _build_ascii_qr, _start_cloudflare_tunnel
 from src.api.routers.persona_router import router as persona_router
@@ -94,6 +95,7 @@ app.include_router(emotion_router)
 app.include_router(game_router)
 app.include_router(music_router)
 app.include_router(motor_router)
+app.include_router(wifi_router)
 app.include_router(ops_router)
 app.include_router(persona_router)
 app.include_router(story_router)
@@ -140,20 +142,31 @@ def is_mom_talking() -> bool:
 # ── QR helper (build via ops_router._build_ascii_qr) ─────────────────────────
 
 def _print_qr_code(ip: str, port: int = 8000, scheme: str = "http") -> None:
-    """In QR code ra terminal để phụ huynh quét."""
-    url = f"{scheme}://{ip}:{port}"
+    """In QR code ra terminal de phu huynh quet.
+    Neu NGROK_URL duoc cau hinh → in QR ngrok. Fallback → QR LAN IP.
+    """
+    ngrok_url = os.getenv("NGROK_URL", "").strip()
+    if ngrok_url:
+        display_url = ngrok_url
+        label = "Truy cap tu ngoai mang (ngrok):"
+        note = None
+    else:
+        display_url = f"{scheme}://{ip}:{port}"
+        label = "Quet QR tren dien thoai cung mang WiFi:"
+        note = "(Lan dau bam 'Advanced' -> 'Proceed' vi self-signed cert)" if scheme == "https" else None
+
     try:
-        qr_text = _build_ascii_qr(url)
+        qr_text = _build_ascii_qr(display_url)
         print(f"\n{'='*50}")
-        print(f"  Parent App: {url}")
-        if scheme == "https":
-            print(f"  (Lan dau bam 'Advanced' -> 'Proceed' vi self-signed cert)")
-        print(f"  Quet QR tren dien thoai cung mang WiFi:")
+        print(f"  Parent App: {display_url}")
+        if note:
+            print(f"  {note}")
+        print(f"  {label}")
         print(qr_text)
         print('='*50)
     except ImportError:
         print(f"\n{'='*50}")
-        print(f"  Parent App: {url}")
+        print(f"  Parent App: {display_url}")
         print(f"  (Cai qrcode de hien QR: pip install qrcode)")
         print('='*50)
 

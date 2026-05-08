@@ -2259,6 +2259,77 @@
           </div>
         </div>
 
+        <!-- Cài đặt WiFi robot -->
+        <div class="group-header">📶 Mạng</div>
+        <div class="card" id="wifiCard" style="margin-bottom:12px;">
+          <div class="card-title">📶 Quản lý WiFi Robot</div>
+
+          <!-- Trạng thái WiFi hiện tại -->
+          <div id="wifiCurrentStatus" style="background:#f0f9ff;border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px;">
+            <span id="wifiStatusText">⏳ Đang kiểm tra...</span>
+          </div>
+
+          <!-- Tabs: Đã lưu / Quét / Thêm thủ công -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button onclick="wifiTab('saved')" id="wifiTabSaved"
+                    style="flex:1;padding:8px;border-radius:8px;border:2px solid #4a90d9;
+                           background:#4a90d9;color:white;font-size:12px;cursor:pointer;">
+              💾 Đã lưu
+            </button>
+            <button onclick="wifiTab('scan')" id="wifiTabScan"
+                    style="flex:1;padding:8px;border-radius:8px;border:2px solid #e5e7eb;
+                           background:white;color:#374151;font-size:12px;cursor:pointer;">
+              🔍 Quét
+            </button>
+            <button onclick="wifiTab('manual')" id="wifiTabManual"
+                    style="flex:1;padding:8px;border-radius:8px;border:2px solid #e5e7eb;
+                           background:white;color:#374151;font-size:12px;cursor:pointer;">
+              ✏️ Thủ công
+            </button>
+          </div>
+
+          <!-- Tab: Đã lưu -->
+          <div id="wifiPanelSaved">
+            <button onclick="loadWifiList()"
+                    style="width:100%;padding:8px;background:#f3f4f6;border:none;
+                           border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:8px;">
+              🔄 Tải danh sách
+            </button>
+            <div id="wifiSavedList" style="display:flex;flex-direction:column;gap:8px;">
+              <p style="text-align:center;color:#9ca3af;font-size:13px;">Bấm "Tải danh sách" để xem</p>
+            </div>
+          </div>
+
+          <!-- Tab: Quét -->
+          <div id="wifiPanelScan" style="display:none;">
+            <button onclick="startWifiScan()"
+                    style="width:100%;padding:8px;background:#4a90d9;color:white;border:none;
+                           border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:8px;">
+              📡 Bắt đầu quét
+            </button>
+            <div id="wifiScanList" style="display:flex;flex-direction:column;gap:6px;">
+              <p style="text-align:center;color:#9ca3af;font-size:13px;">Bấm quét để tìm WiFi lân cận</p>
+            </div>
+          </div>
+
+          <!-- Tab: Thủ công -->
+          <div id="wifiPanelManual" style="display:none;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <input type="text" id="wifiSsid" placeholder="Tên WiFi (SSID)"
+                     style="padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;">
+              <input type="password" id="wifiPassword" placeholder="Mật khẩu (để trống nếu không có)"
+                     style="padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;">
+              <button onclick="addRobotWifi()"
+                      style="background:#4a90d9;color:white;border:none;border-radius:8px;
+                             padding:12px;font-size:14px;cursor:pointer;">
+                📡 Thêm WiFi này
+              </button>
+            </div>
+          </div>
+
+          <div id="wifiActionStatus" style="font-size:12px;color:#6b7280;text-align:center;margin-top:8px;"></div>
+        </div>
+
         <!-- Cài đặt Robot -->
         <div class="group-header">⚙️ Cài đặt Robot</div>
         <div class="menu-card">
@@ -2577,7 +2648,15 @@
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
       ws = new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(_token)}`);
       ws.onopen = () => { wsDelay = 1000; setStatus(true); };
-      ws.onmessage = e => { try { onRealtimeEvent(JSON.parse(e.data)); } catch (_) { } };
+      ws.onmessage = e => {
+        const data = e.data;
+        if (typeof data === 'string' &&
+            (data.startsWith('wifi_') || data.startsWith('OK:wifi') || data.startsWith('ERR:wifi'))) {
+          handleWifiWsMessage(data);
+          return;
+        }
+        try { onRealtimeEvent(JSON.parse(data)); } catch (_) { }
+      };
       ws.onclose = () => { setStatus(false); if (_wsLoggedOut) return; _wsReconnectTimer = setTimeout(connectWS, Math.min(wsDelay, 12000)); wsDelay = Math.min(wsDelay * 1.5, 12000); };
       ws.onerror = () => ws.close();
     }
@@ -3184,7 +3263,7 @@
     // ══════════════════════════════════
     // MORE — Entertainment & Settings
     // ══════════════════════════════════
-    function loadMore() { } // Lazy loaded on tap
+    function loadMore() { loadWifiStatus(); }
 
     let _musicPlaying = false, _currentPlaylist = 'kids_vn';
     const DEMO_SONGS = {
@@ -3322,8 +3401,32 @@
       } else if (type === 'advanced') {
         content.innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:12px;">⚙️</div><div style="color:var(--muted);">Điều khiển nâng cao có thể được truy cập qua tab Giám sát.</div><button class="outline-button" onclick="closeModal('moreModal');switchTab('monitor');" style="margin-top:14px;">Đến Giám sát ›</button></div>`;
       } else if (type === 'connectivity') {
-        content.innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:12px;">📡</div><div id="connectivityResult" style="color:var(--muted);">Đang kiểm tra...</div></div>`;
-        apiFetch('/api/status').then(data => { document.getElementById('connectivityResult').textContent = data ? '✅ Kết nối robot bình thường!' : '❌ Không kết nối được robot. Kiểm tra lại mạng.'; });
+        content.innerHTML = `<div style="padding:20px;">
+          <div style="text-align:center;font-size:48px;margin-bottom:12px;">📡</div>
+          <div id="connectivityResult" style="color:var(--muted);text-align:center;margin-bottom:16px;">Đang kiểm tra...</div>
+          <div id="motorStatusBlock" style="display:none;background:#f9fafb;border-radius:8px;padding:12px;font-size:13px;">
+            <div id="motorStatusLine" style="margin-bottom:6px;"></div>
+            <div id="motorLastCmd" style="color:#6b7280;"></div>
+          </div>
+        </div>`;
+        Promise.all([apiFetch('/api/status'), apiFetch('/api/motor/status')]).then(([sys, motor]) => {
+          document.getElementById('connectivityResult').textContent = sys ? '✅ Kết nối robot bình thường!' : '❌ Không kết nối được robot. Kiểm tra lại mạng.';
+          if (motor) {
+            const block = document.getElementById('motorStatusBlock');
+            block.style.display = 'block';
+            const statusEl = document.getElementById('motorStatusLine');
+            if (!motor.connected) {
+              statusEl.innerHTML = '🔴 ESP32 chưa kết nối — Kiểm tra nguồn điện';
+            } else if (motor.mode === 'simulation') {
+              statusEl.innerHTML = '🟡 Simulation mode — ESP32 chưa kết nối WiFi';
+            } else {
+              statusEl.innerHTML = `🟢 Đã kết nối ESP32 (${motor.mode})`;
+            }
+            const cmd = motor.last_command;
+            const cmdText = cmd ? (typeof cmd === 'object' ? JSON.stringify(cmd) : cmd) : 'Chưa có lệnh';
+            document.getElementById('motorLastCmd').textContent = `Lệnh cuối: ${cmdText}`;
+          }
+        });
       } else if (type === 'dock') {
         content.innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:12px;">🔋</div><div style="color:var(--muted);margin-bottom:16px;">Quản lý dock sạc và trạng thái pin của Robot Bi.</div><button class="primary-button" onclick="toast('🏠 Chức năng tự về dock sạc sẽ được kết nối sau.')">🏠 Đưa về dock sạc</button></div>`;
       }
@@ -3425,12 +3528,6 @@
     // ══════════════════════════════════
     // JOYSTICK
     // ══════════════════════════════════
-    let _joystickActive = false;
-    let _joystickAnimFrame = null;
-    let _joystickVx = 0, _joystickVy = 0;
-    let _lastMotorCmd = null;
-    let _motorInterval = null;
-
     function initJoystick() {
       const canvas = document.getElementById('joystickCanvas');
       if (!canvas) return;
@@ -3438,6 +3535,7 @@
       const W = 180, H = 180, cx = W / 2, cy = H / 2;
       const outerR = 80, innerR = 32;
       let stickX = cx, stickY = cy, dragging = false;
+      let vx = 0, vy = 0, sendTimer = null;
 
       function draw() {
         ctx.clearRect(0, 0, W, H);
@@ -3470,11 +3568,27 @@
         return { x: (src.clientX - rect.left) * (W / rect.width), y: (src.clientY - rect.top) * (H / rect.height) };
       }
 
+      function startSend() {
+        if (sendTimer) return;
+        sendTimer = setInterval(() => {
+          if (vx !== 0 || vy !== 0) sendJoystickCmd(vx, vy);
+        }, 80);
+      }
+
+      function stopSend() {
+        clearInterval(sendTimer);
+        sendTimer = null;
+        vx = 0; vy = 0;
+        sendJoystickCmd(0, 0);
+        stickX = cx; stickY = cy;
+        draw();
+      }
+
       function onStart(e) {
-        e.preventDefault(); dragging = true; _joystickActive = true;
+        e.preventDefault(); dragging = true;
         canvas.style.cursor = 'grabbing';
         onMove(e);
-        startMotorLoop();
+        startSend();
       }
 
       function onMove(e) {
@@ -3486,18 +3600,15 @@
         const angle = Math.atan2(dy, dx);
         stickX = cx + Math.cos(angle) * clamped;
         stickY = cy + Math.sin(angle) * clamped;
-        _joystickVx = (stickX - cx) / (outerR - innerR);
-        _joystickVy = (stickY - cy) / (outerR - innerR);
+        vx = (stickX - cx) / (outerR - innerR);
+        vy = (stickY - cy) / (outerR - innerR);
         draw();
       }
 
       function onEnd(e) {
-        dragging = false; _joystickActive = false;
-        stickX = cx; stickY = cy; _joystickVx = 0; _joystickVy = 0;
+        dragging = false;
         canvas.style.cursor = 'grab';
-        stopMotorLoop();
-        sendJoystickCmd(0, 0); // stop
-        draw();
+        stopSend();
       }
 
       canvas.addEventListener('mousedown', onStart);
@@ -3512,27 +3623,12 @@
       draw();
     }
 
-    function startMotorLoop() {
-      if (_motorInterval) return;
-      _motorInterval = setInterval(() => {
-        if (_joystickActive) sendJoystickCmd(_joystickVx, _joystickVy);
-      }, 100); // send every 100ms while dragging
-    }
-
-    function stopMotorLoop() {
-      if (_motorInterval) { clearInterval(_motorInterval); _motorInterval = null; }
-    }
-
     function sendJoystickCmd(vx, vy) {
       if (!robotControlUnlocked) return;
       const speedMap = { low: 0.4, medium: 0.7, high: 1.0 };
       const scale = speedMap[_motorSpeed] || 0.7;
       const left = Math.round((-vy + vx) * scale * 100);
       const right = Math.round((-vy - vx) * scale * 100);
-      // Debounce: skip if same command
-      const cmdStr = `${left},${right}`;
-      if (cmdStr === _lastMotorCmd) return;
-      _lastMotorCmd = cmdStr;
       apiFetch('/api/motor/joystick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3547,6 +3643,199 @@
       const presets = { forward: [0, -1], backward: [0, 1], left: [-1, 0], right: [1, 0] };
       const [vx, vy] = presets[cmd] || [0, 0];
       sendJoystickCmd(vx, vy);
+    }
+
+    // ══════════════════════════════════════════════
+    //  WiFi Management
+    // ══════════════════════════════════════════════
+
+    function wifiTab(tab) {
+      ['saved', 'scan', 'manual'].forEach(t => {
+        const panel = document.getElementById('wifiPanel' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn   = document.getElementById('wifiTab'  + t.charAt(0).toUpperCase() + t.slice(1));
+        if (panel) panel.style.display = t === tab ? 'block' : 'none';
+        if (btn) {
+          btn.style.background   = t === tab ? '#4a90d9' : 'white';
+          btn.style.color        = t === tab ? 'white'   : '#374151';
+          btn.style.borderColor  = t === tab ? '#4a90d9' : '#e5e7eb';
+        }
+      });
+    }
+
+    async function loadWifiStatus() {
+      const el = document.getElementById('wifiStatusText');
+      if (!el) return;
+      try {
+        const r = await apiFetch('/api/wifi/status');
+        if (r?.connected) {
+          el.innerHTML = `🟢 Đang kết nối: <strong>${r.ssid || 'Unknown'}</strong> | IP: ${r.ip || ''} | 📶 ${r.rssi || ''}dBm`;
+        } else {
+          el.innerHTML = '🔴 Robot chưa kết nối WiFi';
+        }
+      } catch { el.innerHTML = '⚠️ Không lấy được trạng thái'; }
+    }
+
+    async function loadWifiList() {
+      const listEl = document.getElementById('wifiSavedList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">⏳ Đang tải...</p>';
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'wifi', cmd: 'wifi_list' }));
+        setTimeout(() => {
+          if (listEl.innerHTML.includes('Đang tải')) {
+            listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">⚠️ Timeout — thử lại</p>';
+          }
+        }, 5000);
+      } else {
+        await apiFetch('/api/wifi/list');
+        listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">Dữ liệu sẽ về qua WebSocket</p>';
+      }
+    }
+
+    function renderSavedWifi(list) {
+      const listEl = document.getElementById('wifiSavedList');
+      if (!listEl) return;
+      if (!list || list.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">Chưa có WiFi nào được lưu</p>';
+        return;
+      }
+      listEl.innerHTML = list.map(w => `
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:10px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
+          <div style="font-size:13px;font-weight:600;">📶 ${w.ssid}</div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="connectSavedWifi('${w.ssid.replace(/'/g, "\\'")}')"
+                    style="padding:4px 10px;background:#4a90d9;color:white;border:none;
+                           border-radius:6px;font-size:11px;cursor:pointer;">Kết nối</button>
+            <button onclick="deleteWifi('${w.ssid.replace(/'/g, "\\'")}')"
+                    style="padding:4px 10px;background:#ef4444;color:white;border:none;
+                           border-radius:6px;font-size:11px;cursor:pointer;">Xóa</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function startWifiScan() {
+      const listEl = document.getElementById('wifiScanList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">⏳ Đang quét... (~3-5 giây)</p>';
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'wifi', cmd: 'wifi_scan' }));
+      } else {
+        await apiFetch('/api/wifi/scan', { method: 'POST' });
+      }
+      setTimeout(() => {
+        if (listEl.innerHTML.includes('Đang quét')) {
+          listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">⚠️ Timeout — thử lại</p>';
+        }
+      }, 10000);
+    }
+
+    function renderScanResult(networks) {
+      const listEl = document.getElementById('wifiScanList');
+      if (!listEl) return;
+      if (!networks || networks.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center;color:#9ca3af;font-size:13px;">Không tìm thấy WiFi nào</p>';
+        return;
+      }
+      networks.sort((a, b) => b.rssi - a.rssi);
+      listEl.innerHTML = networks.map(n => {
+        const strength = n.rssi > -50 ? '📶📶📶' : n.rssi > -70 ? '📶📶' : '📶';
+        const lock = n.secure ? '🔒' : '🔓';
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;
+                      padding:10px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
+            <div>
+              <div style="font-size:13px;font-weight:600;">${lock} ${n.ssid}</div>
+              <div style="font-size:11px;color:#9ca3af;">${strength} ${n.rssi}dBm</div>
+            </div>
+            <button onclick="promptAddWifi('${n.ssid.replace(/'/g, "\\'")}', ${n.secure})"
+                    style="padding:4px 10px;background:#4a90d9;color:white;border:none;
+                           border-radius:6px;font-size:11px;cursor:pointer;">Thêm</button>
+          </div>`;
+      }).join('');
+    }
+
+    function promptAddWifi(ssid, secure) {
+      wifiTab('manual');
+      const ssidEl = document.getElementById('wifiSsid');
+      if (ssidEl) ssidEl.value = ssid;
+      const passEl = document.getElementById('wifiPassword');
+      if (passEl) { passEl.value = ''; if (secure) passEl.focus(); }
+      if (!secure) addRobotWifiDirect(ssid, '');
+    }
+
+    async function addRobotWifi() {
+      const ssid = document.getElementById('wifiSsid')?.value?.trim();
+      const password = document.getElementById('wifiPassword')?.value?.trim() || '';
+      await addRobotWifiDirect(ssid, password);
+    }
+
+    async function addRobotWifiDirect(ssid, password) {
+      const statusEl = document.getElementById('wifiActionStatus');
+      if (!ssid) {
+        if (statusEl) statusEl.textContent = '❌ Vui lòng nhập tên WiFi';
+        return;
+      }
+      if (statusEl) statusEl.textContent = '⏳ Đang gửi...';
+      const result = await apiFetch('/api/wifi/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ssid, password })
+      });
+      if (result?.ok) {
+        if (statusEl) statusEl.textContent = '✅ Đã thêm! Robot sẽ khởi động lại và kết nối WiFi mới.';
+        const s = document.getElementById('wifiSsid'); if (s) s.value = '';
+        const p = document.getElementById('wifiPassword'); if (p) p.value = '';
+      } else {
+        if (statusEl) statusEl.textContent = `❌ Lỗi: ${result?.error || 'Không gửi được'}`;
+      }
+    }
+
+    async function connectSavedWifi(ssid) {
+      const statusEl = document.getElementById('wifiActionStatus');
+      if (statusEl) statusEl.textContent = `⏳ Đang kết nối ${ssid}...`;
+      const r = await apiFetch('/api/wifi/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ssid })
+      });
+      if (statusEl) statusEl.textContent = r?.ok
+        ? `✅ Robot đang kết nối ${ssid} và khởi động lại...`
+        : '❌ Lỗi kết nối';
+    }
+
+    async function deleteWifi(ssid) {
+      const statusEl = document.getElementById('wifiActionStatus');
+      if (statusEl) statusEl.textContent = `⏳ Đang xóa ${ssid}...`;
+      const r = await apiFetch('/api/wifi/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ssid })
+      });
+      if (r?.ok) {
+        if (statusEl) statusEl.textContent = `✅ Đã xóa ${ssid}`;
+        loadWifiList();
+      } else {
+        if (statusEl) statusEl.textContent = '❌ Lỗi xóa';
+      }
+    }
+
+    function handleWifiWsMessage(data) {
+      if (data.startsWith('wifi_list:')) {
+        try { renderSavedWifi(JSON.parse(data.substring(10))); } catch {}
+      } else if (data.startsWith('wifi_scan:')) {
+        try { renderScanResult(JSON.parse(data.substring(10))); } catch {}
+      } else if (data.startsWith('wifi_status:')) {
+        try {
+          const status = JSON.parse(data.substring(12));
+          const el = document.getElementById('wifiStatusText');
+          if (el && status.connected) {
+            el.innerHTML = `🟢 Đang kết nối: <strong>${status.ssid}</strong> | IP: ${status.ip} | 📶 ${status.rssi}dBm`;
+          } else if (el) {
+            el.innerHTML = '🔴 Robot chưa kết nối WiFi';
+          }
+        } catch {}
+      }
     }
 
     // Legacy stubs (keep old function names working if called anywhere)

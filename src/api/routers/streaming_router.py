@@ -17,6 +17,7 @@ from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
 
 from src.infrastructure.auth.auth import get_current_user
 import src.infrastructure.sessions.state as _state
+from src.motion.motor_controller import get_shared_motor
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,6 @@ async def ws_endpoint(websocket: WebSocket):
         except Exception:
             pass
     try:
-        from src.motion.motor_controller import _shared_motor as _ws_motor
         while True:
             raw = await websocket.receive_text()
             try:
@@ -100,19 +100,23 @@ async def ws_endpoint(websocket: WebSocket):
                         omega = max(-100.0, min(100.0, omega))
                         left  = int(max(-100, min(100, vx - omega)))
                         right = int(max(-100, min(100, vx + omega)))
-                        _ws_motor.drive(left, right)
+                        get_shared_motor().drive(left, right)
                     elif cmd == "forward":
-                        _ws_motor.forward(speed, duration_ms)
+                        get_shared_motor().forward(speed, duration_ms)
                     elif cmd == "backward":
-                        _ws_motor.backward(speed, duration_ms)
+                        get_shared_motor().backward(speed, duration_ms)
                     elif cmd == "left":
-                        _ws_motor.turn_left(degrees)
+                        get_shared_motor().turn_left(degrees)
                     elif cmd == "right":
-                        _ws_motor.turn_right(degrees)
+                        get_shared_motor().turn_right(degrees)
                     elif cmd == "spin":
-                        _ws_motor.spin(speed, duration_ms)
+                        get_shared_motor().spin(speed, duration_ms)
                     elif cmd == "stop":
-                        _ws_motor.stop()
+                        get_shared_motor().stop()
+                elif msg.get("type") == "wifi":
+                    cmd = msg.get("cmd", "")
+                    if cmd:
+                        get_shared_motor()._send_raw(cmd)
             except (json.JSONDecodeError, ValueError):
                 pass  # Non-motor messages (keepalive pings etc) — ignore silently
     except WebSocketDisconnect:

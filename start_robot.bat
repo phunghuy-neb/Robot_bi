@@ -19,6 +19,11 @@ if not exist "ssl\cert.pem" (
     python generate_ssl.py
 )
 
+:: Khoi dong ngrok tunnel
+echo [Ngrok] Khoi dong tunnel...
+start "" "D:\Robot_bi\ngrok.exe" http https://localhost:8443 --domain=bobbed-phoenix-wrongful.ngrok-free.dev
+
+
 :loop
 echo [%time%] Khoi dong Robot Bi...
 python src/main.py
