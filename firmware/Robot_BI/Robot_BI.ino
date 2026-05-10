@@ -12,6 +12,7 @@
 #include <WiFiManager.h>
 #include <Preferences.h>
 #include <WebSocketsServer.h>
+#include <HTTPClient.h>
 
 #define IN1 26
 #define IN2 27
@@ -26,12 +27,37 @@
 
 const int WS_PORT = 81;
 
+// TODO: load SERVER_REGISTER_URL from Preferences so it can be updated OTA without reflashing.
+// Current hardcoded IP 192.168.40.107 — change if PC IP changes.
+const char* SERVER_REGISTER_URL = "https://192.168.40.107:8443/api/motor/register";
+
 WiFiMulti    wifiMulti;
 Preferences  preferences;
 WebSocketsServer wsServer(WS_PORT);
 
 unsigned long lastCmdTime = 0;
 const unsigned long WATCHDOG_MS = 2000;
+
+// ── Server registration ───────────────────────
+bool registerToServer() {
+    WiFiClientSecure client;
+    client.setInsecure();
+    client.setTimeout(15);          // 15s stream timeout for TLS handshake
+    HTTPClient http;
+    http.begin(client, SERVER_REGISTER_URL);
+    http.setTimeout(15000);         // 15000ms read timeout
+    http.addHeader("Content-Type", "application/json");
+    String ip = WiFi.localIP().toString();
+    String body = "{\"ip\":\"" + ip + "\",\"port\":81}";
+    int code = http.POST(body);
+    http.end();
+    if (code == 200 || code == 201) {
+        Serial.printf("Registered — IP: %s, HTTP: %d\n", ip.c_str(), code);
+        return true;
+    }
+    Serial.printf("Register failed: HTTP %d\n", code);
+    return false;
+}
 
 // ── Motor primitives ──────────────────────────
 void setMotorA(bool fwd, int pwm) {
@@ -286,42 +312,6 @@ void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
       wsServer.sendTXT(num, "ERR:add_wifi_parse");
     }
   }
-  else if (line.startsWith("wifi_list")) {
-    String json = getSavedWifiJson();
-    wsServer.sendTXT(num, "wifi_list:" + json);
-  }
-  else if (line.startsWith("wifi_scan")) {
-    wsServer.sendTXT(num, "wifi_scanning:true");
-    String json = scanWifiJson();
-    wsServer.sendTXT(num, "wifi_scan:" + json);
-  }
-  else if (line.startsWith("wifi_delete")) {
-    int idx = line.indexOf("'ssid': '");
-    if (idx != -1) {
-      String ssid = line.substring(idx + 9, line.indexOf("'", idx + 9));
-      bool ok = deleteWifi(ssid);
-      wsServer.sendTXT(num, ok ? "OK:wifi_delete" : "ERR:wifi_delete_notfound");
-    } else {
-      wsServer.sendTXT(num, "ERR:wifi_delete_parse");
-    }
-  }
-  else if (line.startsWith("wifi_connect")) {
-    int idx = line.indexOf("'ssid': '");
-    if (idx != -1) {
-      wsServer.sendTXT(num, "OK:wifi_connecting");
-      delay(200);
-      ESP.restart();
-    } else {
-      wsServer.sendTXT(num, "ERR:wifi_connect_parse");
-    }
-  }
-  else if (line.startsWith("wifi_status")) {
-    String status = "{\"ssid\":\"" + WiFi.SSID() +
-                    "\",\"ip\":\"" + WiFi.localIP().toString() +
-                    "\",\"rssi\":" + String(WiFi.RSSI()) +
-                    ",\"connected\":" + String(WiFi.status() == WL_CONNECTED ? "true" : "false") + "}";
-    wsServer.sendTXT(num, "wifi_status:" + status);
-  }
   else { wsServer.sendTXT(num, "ERR:unknown"); }
 }
 
@@ -377,6 +367,18 @@ void setup() {
 // ── Main loop ─────────────────────────────────
 void loop() {
   wsServer.loop();
+
+  // Register khi boot (retry 15s), sau đó keepalive mỗi 60s
+  static unsigned long lastRegister = 0;
+  static bool registeredOnce = false;
+  unsigned long interval = registeredOnce ? 60000 : 15000;
+  if (millis() - lastRegister > interval) {
+    lastRegister = millis();
+    if (WiFi.status() == WL_CONNECTED) {
+      bool ok = registerToServer();
+      if (ok) registeredOnce = true;
+    }
+  }
 
   // Watchdog: tự dừng nếu mất lệnh quá WATCHDOG_MS
   if (lastCmdTime > 0 && millis() - lastCmdTime > WATCHDOG_MS) {

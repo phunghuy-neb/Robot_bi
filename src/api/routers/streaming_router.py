@@ -115,8 +115,7 @@ async def ws_endpoint(websocket: WebSocket):
                         get_shared_motor().stop()
                 elif msg.get("type") == "wifi":
                     cmd = msg.get("cmd", "")
-                    if cmd:
-                        get_shared_motor()._send_raw(cmd)
+                    get_shared_motor()._send_raw(cmd)
             except (json.JSONDecodeError, ValueError):
                 pass  # Non-motor messages (keepalive pings etc) — ignore silently
     except WebSocketDisconnect:

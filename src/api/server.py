@@ -48,6 +48,7 @@ from src.api.routers.motor_router import router as motor_router
 from src.api.routers.wifi_router import router as wifi_router
 from src.api.routers.ops_router import router as ops_router
 from src.api.routers.ops_router import _build_ascii_qr, _start_cloudflare_tunnel
+from src.motion.motor_controller import get_shared_motor
 from src.api.routers.persona_router import router as persona_router
 from src.api.routers.story_router import router as story_router
 from src.api.routers.video_call_router import router as video_call_router
@@ -108,6 +109,11 @@ async def _on_startup():
     setup_logging()
     _state._api_loop = asyncio.get_event_loop()
     logger.info("[API] FastAPI server started. Event loop captured.")
+    # Eager-init MotorController trong thread pool — không block event loop
+    import concurrent.futures
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, get_shared_motor)
+    logger.info("[API] MotorController initialized.")
 
 
 # ── Public API — gọi từ main_loop.py ─────────────────────────────────────────

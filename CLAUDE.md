@@ -140,6 +140,21 @@ Multi-family isolation và homework system hoàn thành 2026-04-28; còn motor c
 - `events`: event_id, family_id, type, data, created_at (migrate từ event_queue.json)
 - `tasks`: task_id, family_id, name, remind_time, completed_today, stars, created_at, last_reminded, import_key (schema khớp task_manager.py)
 
+## Dev Skill — Tự động áp dụng mỗi session
+
+Mọi session phát triển Robot Bi phải follow `.claude/skills/robot-bi-dev/SKILL.md`.
+
+Skill này là quy trình chuẩn duy nhất cho:
+- Session Start (đọc PROJECT.md + handoff.md + chạy baseline test)
+- Implement feature mới (TDD loop)
+- Debug bug (diagnosis loop)
+- Security review
+- UI / Frontend (robot display + parent app)
+- Git safety
+- Session End (update docs + sync)
+
+**Không cần gọi skill thủ công. CLAUDE.md được sync tự động từ file này.**
+
 ## Lệnh hay dùng
 
 ```bash

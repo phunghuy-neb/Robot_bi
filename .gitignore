@@ -43,6 +43,11 @@ Thumbs.db
 # Folder .claude - BẮT BUỘC PHẢI PUSH
 !.claude/
 !.claude/handoff.md
+!.claude/skills/
+!.claude/skills/robot-bi-dev/
+!.claude/skills/robot-bi-dev/SKILL.md
+!.claude/hooks/
+!.claude/hooks/block-dangerous-git.sh
 # Runtime directory (DB, chroma, logs, caches)
 runtime/
 !runtime/.gitkeep

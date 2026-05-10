@@ -32,7 +32,7 @@ class MotorController:
         self.ws_url = os.getenv("MOTOR_WS_URL")  # vi du: ws://192.168.1.x:81
         self._serial = None
         self._ws = None
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self.connected = False
         self.mode = "simulation"
         self.last_command: dict | None = None
@@ -43,17 +43,39 @@ class MotorController:
             self._try_connect_serial()
         else:
             logger.info("[MotorController] No port or WS URL — simulation mode")
+        self._start_reconnect_thread()
 
     def _try_connect_ws(self):
-        try:
-            self._ws = websocket.WebSocket()
-            self._ws.connect(self.ws_url, timeout=3)
-            self.connected = True
-            self.mode = "wifi"
-            logger.info(f"[MotorController] WiFi WebSocket connected: {self.ws_url}")
-        except Exception as e:
-            logger.warning(f"[MotorController] WiFi connect failed: {e} — simulation mode")
+        import time
+        with self._lock:
+            for attempt in range(3):
+                try:
+                    self._ws = websocket.WebSocket()
+                    self._ws.connect(self.ws_url, timeout=5)
+                    self.connected = True
+                    self.mode = "wifi"
+                    logger.info(f"[MotorController] WiFi WebSocket connected: {self.ws_url}")
+                    return
+                except Exception as e:
+                    logger.warning(f"[MotorController] WiFi connect attempt {attempt+1}/3 failed: {e}")
+                    self._ws = None
+                    if attempt < 2:
+                        time.sleep(2)
+            self.connected = False
             self.mode = "simulation"
+            logger.warning("[MotorController] WiFi connect failed after 3 attempts — simulation mode")
+
+    def _start_reconnect_thread(self):
+        """Background thread tự động reconnect khi ở simulation mode."""
+        import time, threading
+        def reconnect_loop():
+            while True:
+                time.sleep(10)
+                if self.mode == "simulation" and self.ws_url:
+                    logger.info("[MotorController] Background reconnect attempt...")
+                    self._try_connect_ws()
+        t = threading.Thread(target=reconnect_loop, daemon=True)
+        t.start()
 
     def _try_connect_serial(self):
         """Thu ket noi serial. Neu khong co thi simulation mode."""
