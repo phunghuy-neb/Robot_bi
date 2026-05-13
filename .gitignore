@@ -57,3 +57,9 @@ event_queue.json
 tasks.json
 robot_bi.db
 data/
+
+# Frontend build artifacts
+node_modules/
+dist/
+frontend/parent_app/node_modules/
+frontend/parent_app/dist/

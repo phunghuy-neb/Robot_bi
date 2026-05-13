@@ -29,7 +29,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 |---|---|
 | Main app | `src/main.py` |
 | API server module | `src/api/server.py` |
-| Parent App | `frontend/parent_app/index.html` |
+| Parent App | `frontend/parent_app/` (React+Vite SPA — Vite shell at `index.html`, source in `src/`, build in `dist/`) |
 | Robot Display | `frontend/robot_display/index.html` |
 | Firmware | `firmware/Robot_BI/Robot_BI.ino` |
 | Test command | `python tests/run_tests.py` |
@@ -80,10 +80,36 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 | Folder | Files |
 |---|---|
-| `frontend/parent_app/` | `index.html`, `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`. |
+| `frontend/parent_app/` | React + Vite SPA. Source in `src/`; build output in `dist/`; `package.json`, `vite.config.js`, `index.html` (Vite mount shell), `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`. |
 | `frontend/robot_display/` | `index.html`, `face.html`, `flashcard.html`, `.codex`. |
 
-`frontend/parent_app/index.html` contains the legacy static browser app that calls the backend REST/WebSocket APIs. A migration to React + Vite is in progress under spec `specs/001-parent-app-redesign/`; this section will be updated after implementation is complete.
+### Parent App — React + Vite SPA (spec 001-parent-app-redesign, implemented 2026-05-13)
+
+`frontend/parent_app/` contains a React 18 + Vite 5 SPA serving as the parent-facing management interface.
+
+**Navigation**: 5-tab sidebar (Trang chủ, Giám sát, Học tập, Nhật ký, Thêm) on desktop ≥768px; mobile bottom navigation bar (5 tabs) on smaller screens. Sidebar bottom order (locked): RobotStatusCard → UserCard → Cài đặt → Đăng xuất.
+
+**Design system**: "Công nghệ ấm áp" — Be Vietnam Pro font, 16px body, 48px tap targets, WCAG AA contrast, card radius 22px, primary #2563eb.
+
+**Settings overlay**: full-screen panel with Hồ sơ trẻ, Thông báo, Giờ hoạt động, Nội dung & An toàn, Kết nối thiết bị, Chế độ kỹ thuật (admin only).
+
+**Tier 1 APIs active (real backend)**: auth (`/api/auth/login`, `/logout`, `/refresh`, `/me`), WebSocket robot status (`/ws?token=`), camera MJPEG (`/api/camera`), conversations (`/api/conversations`, `/{id}`), events (`/api/events`), weekly analytics (`/api/analytics/weekly`), emotion today (`/api/emotion/today`), music (`/api/music/*`), quiz games (`/api/game/*`), education vocabulary/summary/schedule (`/api/education/*`), stories (`/api/stories`), tasks (`/api/tasks/*`), motor joystick/stop (`/api/motor/*`), puppet (`/api/puppet`), persona (`/api/persona`), admin families (`/api/admin/families`), mom-talk start/stop/WS (`/api/mom/*`).
+
+**Tier 2 UI placeholders (backend not yet implemented)**: export PDF/CSV reports, monthly emotion chart (mock data), room/location tracking (coming-soon), radio channels (mock data), video lessons (mock data), new interactive games (coming-soon), QR device connection (coming-soon), system logs viewer (no-backend badge), push notification settings (coming-soon), sleep schedule (coming-soon), daily time limits (coming-soon), age filter (coming-soon), child profile persistence (mock data), parent↔Bi chat history (coming-soon). All marked with appropriate badges: "Dữ liệu mẫu", "Sắp hỗ trợ", or "Chưa kết nối backend".
+
+**Source structure**:
+```
+src/
+  main.jsx           — React entry point
+  App.jsx            — Auth gate + tab routing + layout + WebSocket
+  styles.css         — Design tokens, base styles, responsive layout
+  services/api.js    — All API/WebSocket/auth behavior (Tier 1 real + Tier 2 mock)
+  data/mockData.js   — Vietnamese mock data for Tier 2 features
+  components/        — Sidebar, BottomNav, RobotStatusCard, UserCard,
+                       SettingsOverlay, FeatureBadge, SectionState, Toast
+  pages/             — LoginPage, HomePage, MonitorPage, LearningPage,
+                       JournalPage, MorePage
+```
 
 `frontend/robot_display/index.html` contains the child-facing display UI with face modes and flashcard/reward/pronunciation display functions. `face.html` and `flashcard.html` are placeholder redirect-style pages.
 
