@@ -17,6 +17,7 @@ control_router.py — Control endpoints cho Robot Bi API.
   DELETE /api/tasks/{id}     — Xóa nhiệm vụ
 """
 import logging
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -24,6 +25,13 @@ from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
 from src.api.routers.conversation_router import _require_family
+from src.infrastructure.database.db import (
+    create_parent_event_note,
+    delete_parent_event_note,
+    event_exists_for_family,
+    list_parent_event_notes,
+    update_parent_event_note,
+)
 import src.infrastructure.sessions.state as _state
 
 router = APIRouter()
@@ -53,7 +61,39 @@ class TaskCreate(BaseModel):
     )
 
 
-# ── REST: Status ──────────────────────────────────────────────────────────
+# Request helpers
+
+class ParentEventNoteIn(BaseModel):
+    note: str = Field(..., min_length=1, max_length=2000)
+
+
+def _parse_event_types(types: Optional[str]) -> list[str] | None:
+    if not types:
+        return None
+    parsed = [value.strip() for value in types.split(",") if value.strip()]
+    if len(parsed) > 20:
+        raise HTTPException(status_code=422, detail="types supports at most 20 values")
+    return parsed or None
+
+
+def _validate_event_date(value: Optional[str], field_name: str) -> Optional[str]:
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"{field_name} must use YYYY-MM-DD")
+    return value
+
+
+def _clean_parent_note(note: str) -> str:
+    cleaned = (note or "").strip()
+    if not cleaned:
+        raise HTTPException(status_code=422, detail="note must not be empty")
+    return cleaned
+
+
+# REST: Status
 
 @router.get("/api/status")
 async def get_status():
@@ -75,26 +115,71 @@ async def get_status():
 @router.get("/api/events")
 async def get_events(
     type: Optional[str] = None,
+    types: Optional[str] = Query(default=None, max_length=500),
     unread_only: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    has_clip: Optional[bool] = None,
+    has_note: Optional[bool] = None,
+    q: Optional[str] = Query(default=None, min_length=1, max_length=200),
+    offset: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=200),
+    sort: str = Query(default="desc", max_length=4),
     _current_user: dict = Depends(get_current_user),
 ):
     family_id = _require_family(_current_user)
-    if not _state._notifier:
-        return {"events": [], "total": 0}
+    event_types = _parse_event_types(types)
+    start = _validate_event_date(start_date, "start_date")
+    end = _validate_event_date(end_date, "end_date")
+    if start and end and start > end:
+        raise HTTPException(status_code=422, detail="start_date must be before or equal to end_date")
+    sort_value = (sort or "desc").lower()
+    if sort_value not in {"asc", "desc"}:
+        raise HTTPException(status_code=422, detail="sort must be asc or desc")
+
     events = _state._fetch_events_from_db(
         event_type=type,
+        event_types=event_types,
         unread_only=unread_only,
         limit=limit,
-        newest_first=True,
+        offset=offset,
+        newest_first=(sort_value == "desc"),
         family_id=family_id,
+        start_date=start,
+        end_date=end,
+        has_clip=has_clip,
+        has_note=has_note,
+        q=q,
+        include_note_count=True,
     )
     total = _state._count_events_from_db(
         event_type=type,
+        event_types=event_types,
         unread_only=unread_only,
         family_id=family_id,
+        start_date=start,
+        end_date=end,
+        has_clip=has_clip,
+        has_note=has_note,
+        q=q,
     )
-    return {"events": events, "total": total}
+    return {
+        "events": events,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "filters": {
+            "type": type,
+            "types": event_types,
+            "unread_only": unread_only,
+            "start_date": start,
+            "end_date": end,
+            "has_clip": has_clip,
+            "has_note": has_note,
+            "q": q,
+            "sort": sort_value,
+        },
+    }
 
 
 @router.post("/api/events/read_all")
@@ -105,7 +190,73 @@ async def mark_read(_current_user: dict = Depends(get_current_user)):
     return {"status": "ok"}
 
 
-# ── REST: Chat Log ────────────────────────────────────────────────────────
+# REST: Event Notes
+
+@router.get("/api/events/{event_id}/notes")
+async def get_event_notes(
+    event_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    if not event_exists_for_family(family_id, event_id):
+        raise HTTPException(status_code=404, detail="Event not found")
+    return {"notes": list_parent_event_notes(family_id, event_id)}
+
+
+@router.post("/api/events/{event_id}/notes")
+async def add_event_note(
+    event_id: str,
+    payload: ParentEventNoteIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    if not event_exists_for_family(family_id, event_id):
+        raise HTTPException(status_code=404, detail="Event not found")
+    note = create_parent_event_note(
+        family_id=family_id,
+        event_id=event_id,
+        user_id=str(_current_user.get("user_id") or ""),
+        note=_clean_parent_note(payload.note),
+    )
+    return note
+
+
+@router.put("/api/events/{event_id}/notes/{note_id}")
+async def edit_event_note(
+    event_id: str,
+    note_id: str,
+    payload: ParentEventNoteIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    if not event_exists_for_family(family_id, event_id):
+        raise HTTPException(status_code=404, detail="Event not found")
+    note = update_parent_event_note(
+        family_id=family_id,
+        event_id=event_id,
+        note_id=note_id,
+        note=_clean_parent_note(payload.note),
+    )
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note
+
+
+@router.delete("/api/events/{event_id}/notes/{note_id}")
+async def remove_event_note(
+    event_id: str,
+    note_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    if not event_exists_for_family(family_id, event_id):
+        raise HTTPException(status_code=404, detail="Event not found")
+    if not delete_parent_event_note(family_id, event_id, note_id):
+        raise HTTPException(status_code=404, detail="Note not found")
+    return {"status": "ok"}
+
+
+# REST: Chat Log
 
 @router.get("/api/chats")
 async def get_chats(

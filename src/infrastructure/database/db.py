@@ -246,12 +246,41 @@ def init_db() -> None:
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_events_import_key ON events(import_key)",
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_import_key ON tasks(import_key)",
                 "CREATE INDEX IF NOT EXISTS idx_events_family_db ON events(family_id, db_id)",
+                "CREATE INDEX IF NOT EXISTS idx_events_family_timestamp ON events(family_id, timestamp)",
+                "CREATE INDEX IF NOT EXISTS idx_events_family_type_timestamp ON events(family_id, type, timestamp)",
                 "CREATE INDEX IF NOT EXISTS idx_tasks_family_db ON tasks(family_id, db_id)",
             ):
                 try:
                     conn.execute(index_sql)
                 except Exception as e:
                     logger.warning("[DB] Bo qua import_key unique index: %s", e)
+
+            # Parent notes attached to family-scoped events.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_event_notes (
+                    note_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    event_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    note TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_event_notes_family_event
+                ON parent_event_notes(family_id, event_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_event_notes_family_updated
+                ON parent_event_notes(family_id, updated_at)
+                """,
+            ):
+                conn.execute(index_sql)
 
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
@@ -839,12 +868,134 @@ def create_family_record(family_id: str, display_name: str | None = None) -> dic
             INSERT OR IGNORE INTO families (family_id, display_name, created_at)
             VALUES (?, ?, ?)
             """,
-            (fid, label, _utc_now_iso()),
+                (fid, label, _utc_now_iso()),
         )
         conn.commit()
         if cur.rowcount == 0:
             return None
     return {"family_id": fid, "display_name": label}
+
+
+def event_exists_for_family(family_id: str, event_id: str) -> bool:
+    """Return True when an event belongs to the requested family."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT 1
+            FROM events
+            WHERE family_id = ? AND event_id = ?
+            LIMIT 1
+            """,
+            (fid, str(event_id)),
+        ).fetchone()
+    return row is not None
+
+
+def _note_row_to_dict(row) -> dict:
+    return {
+        "note_id": row["note_id"],
+        "event_id": row["event_id"],
+        "family_id": row["family_id"],
+        "user_id": row["user_id"],
+        "note": row["note"],
+        "created_at": row["created_at"],
+        "updated_at": row["updated_at"],
+    }
+
+
+def list_parent_event_notes(family_id: str, event_id: str) -> list[dict]:
+    """List parent notes attached to one event, scoped by family_id."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT note_id, family_id, event_id, user_id, note, created_at, updated_at
+            FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ?
+            ORDER BY created_at ASC, note_id ASC
+            """,
+            (fid, str(event_id)),
+        ).fetchall()
+    return [_note_row_to_dict(row) for row in rows]
+
+
+def create_parent_event_note(
+    family_id: str,
+    event_id: str,
+    user_id: str,
+    note: str,
+) -> dict:
+    """Create a parent note for an existing family-scoped event."""
+    fid = _normalize_family_id(family_id)
+    now = _utc_now_iso()
+    note_id = uuid4().hex
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO parent_event_notes
+                (note_id, family_id, event_id, user_id, note, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (note_id, fid, str(event_id), str(user_id), str(note), now, now),
+        )
+        conn.commit()
+    return {
+        "note_id": note_id,
+        "event_id": str(event_id),
+        "family_id": fid,
+        "user_id": str(user_id),
+        "note": str(note),
+        "created_at": now,
+        "updated_at": now,
+    }
+
+
+def update_parent_event_note(
+    family_id: str,
+    event_id: str,
+    note_id: str,
+    note: str,
+) -> dict | None:
+    """Update a parent note only within the event's family scope."""
+    fid = _normalize_family_id(family_id)
+    now = _utc_now_iso()
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            UPDATE parent_event_notes
+            SET note = ?, updated_at = ?
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (str(note), now, fid, str(event_id), str(note_id)),
+        )
+        conn.commit()
+        if cur.rowcount <= 0:
+            return None
+        row = conn.execute(
+            """
+            SELECT note_id, family_id, event_id, user_id, note, created_at, updated_at
+            FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (fid, str(event_id), str(note_id)),
+        ).fetchone()
+    return _note_row_to_dict(row) if row else None
+
+
+def delete_parent_event_note(family_id: str, event_id: str, note_id: str) -> bool:
+    """Delete a parent note only within the event's family scope."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            DELETE FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (fid, str(event_id), str(note_id)),
+        )
+        conn.commit()
+    return cur.rowcount > 0
 
 
 def delete_family_record(family_id: str) -> bool:
@@ -884,6 +1035,7 @@ def delete_family_record(family_id: str) -> bool:
         # Steps 3-5: tables with FK → families (ON DELETE CASCADE would handle
         # these if FK enforcement is active, but explicit deletes are safer)
         conn.execute("DELETE FROM conversations WHERE family_id = ?", (fid,))
+        conn.execute("DELETE FROM parent_event_notes WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM events WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM tasks WHERE family_id = ?", (fid,))
 
@@ -903,6 +1055,7 @@ def delete_family_record(family_id: str) -> bool:
             "turns",
             "curriculum_schedules",
             "game_scores",
+            "parent_event_notes",
         })
         for table_name in (
             "learning_schedules",

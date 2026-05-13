@@ -1,8 +1,9 @@
 """Emotion summary API routes."""
 
 import logging
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.api.routers.conversation_router import _require_family
 from src.emotion.emotion_analyzer import EmotionAnalyzer
@@ -11,6 +12,17 @@ from src.infrastructure.auth.auth import get_current_user
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _validate_month(month: str | None) -> str:
+    """Validate YYYY-MM and return the selected UTC month."""
+    if not month:
+        return datetime.now(timezone.utc).strftime("%Y-%m")
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        raise HTTPException(status_code=422, detail="month must use YYYY-MM")
+    return month
 
 
 def get_weekly_summary(family_id: str) -> list[dict]:
@@ -62,3 +74,24 @@ async def get_emotion_summary(_current_user: dict = Depends(get_current_user)):
     except Exception:
         logger.exception("[EmotionRouter] summary failed")
         raise HTTPException(status_code=500, detail="Khong the lay emotion summary")
+
+
+@router.get("/api/emotion/monthly")
+@router.get("/api/emotions/monthly")
+async def get_emotion_monthly(
+    month: str | None = Query(default=None, max_length=7),
+    child_id: str | None = Query(default=None, max_length=80),
+    _current_user: dict = Depends(get_current_user),
+):
+    """Return monthly emotion counts for the current family."""
+    try:
+        family_id = _require_family(_current_user)
+        month_value = _validate_month(month)
+        if child_id:
+            raise HTTPException(status_code=400, detail="child_id filtering requires child profiles")
+        return EmotionAnalyzer(family_id).get_monthly_summary(family_id, month=month_value)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("[EmotionRouter] monthly failed")
+        raise HTTPException(status_code=500, detail="Khong the lay emotion monthly summary")

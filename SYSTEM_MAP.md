@@ -61,10 +61,10 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `admin_router.py` | Admin family create/list/delete endpoints under `/api/admin/families`. |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
-| `control_router.py` | Robot status, events, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
+| `control_router.py` | Robot status, events with advanced filters, parent event notes, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
 | `conversation_router.py` | Conversation list/detail/delete and homework conversation routes. |
 | `education_router.py` | Flashcard session routes, learning summary, vocabulary, and learning schedule routes. |
-| `emotion_router.py` | Current-day and weekly emotion summary routes. |
+| `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
 | `game_router.py` | Word quiz, voice quiz, and game score routes. |
 | `motor_router.py` | Motor movement, joystick, dock/home, spin, and status routes. |
 | `music_router.py` | Music play/stop/pause/next/previous/shuffle/repeat/volume/status/playlist/lullaby routes. |
@@ -93,9 +93,9 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 **Settings overlay**: full-screen panel with Hồ sơ trẻ, Thông báo, Giờ hoạt động, Nội dung & An toàn, Kết nối thiết bị, Chế độ kỹ thuật (admin only).
 
-**Tier 1 APIs active (real backend)**: auth (`/api/auth/login`, `/logout`, `/refresh`, `/me`), WebSocket robot status (`/ws?token=`), camera MJPEG (`/api/camera`), conversations (`/api/conversations`, `/{id}`), events (`/api/events`), weekly analytics (`/api/analytics/weekly`), emotion today (`/api/emotion/today`), music (`/api/music/*`), quiz games (`/api/game/*`), education vocabulary/summary/schedule (`/api/education/*`), stories (`/api/stories`), tasks (`/api/tasks/*`), motor joystick/stop (`/api/motor/*`), puppet (`/api/puppet`), persona (`/api/persona`), admin families (`/api/admin/families`), mom-talk start/stop/WS (`/api/mom/*`).
+**Tier 1 APIs active (real backend)**: auth (`/api/auth/login`, `/logout`, `/refresh`, `/me`), WebSocket robot status (`/ws?token=`), camera MJPEG (`/api/camera`), conversations (`/api/conversations`, `/{id}`), events with filters (`/api/events`), parent event notes (`/api/events/{event_id}/notes`), weekly analytics (`/api/analytics/weekly`), emotion today/monthly (`/api/emotion/today`, `/api/emotion/monthly`, `/api/emotions/monthly`), music (`/api/music/*`), quiz games (`/api/game/*`), education vocabulary/summary/schedule (`/api/education/*`), stories (`/api/stories`), tasks (`/api/tasks/*`), motor joystick/stop (`/api/motor/*`), puppet (`/api/puppet`), persona (`/api/persona`), admin families (`/api/admin/families`), mom-talk start/stop/WS (`/api/mom/*`).
 
-**Tier 2 UI placeholders (backend not yet implemented)**: export PDF/CSV reports, monthly emotion chart (mock data), room/location tracking (coming-soon), radio channels (mock data), video lessons (mock data), new interactive games (coming-soon), QR device connection (coming-soon), system logs viewer (no-backend badge), push notification settings (coming-soon), sleep schedule (coming-soon), daily time limits (coming-soon), age filter (coming-soon), child profile persistence (mock data), parent↔Bi chat history (coming-soon). All marked with appropriate badges: "Dữ liệu mẫu", "Sắp hỗ trợ", or "Chưa kết nối backend".
+**Tier 2 UI placeholders still awaiting backend or frontend wiring**: export PDF/CSV reports, room/location tracking (coming-soon), radio channels (mock data), video lessons (mock data), new interactive games (coming-soon), QR device connection (coming-soon), system logs viewer (no-backend badge), push notification settings (coming-soon), sleep schedule (coming-soon), daily time limits (coming-soon), age filter (coming-soon), child profile persistence (mock data), parent-Bi chat history (coming-soon). Monthly emotion stats, parent event notes, and advanced event filters now have backend APIs but may still need frontend adapter wiring.
 
 **Source structure**:
 ```
@@ -141,6 +141,7 @@ Specific firmware behavior should be verified in the `.ino` file before changes.
 Current runtime artifact locations include:
 
 - `runtime/robot_bi.db`
+- SQLite runtime schema includes family-scoped `parent_event_notes` for parent annotations on events.
 - `runtime/chroma_db/`
 - `runtime/.hf_cache/`
 - `runtime/vision_data/`

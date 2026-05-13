@@ -16,6 +16,8 @@
 
 ## Last Completed Task
 
+- 2026-05-13: **Parent App backend integration Phase 1 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped parent notes on events, advanced `/api/events` filters, and monthly emotion statistics endpoints (`/api/emotion/monthly`, `/api/emotions/monthly`). Added migration-safe `parent_event_notes` SQLite schema and focused tests in `tests/run_tests.py`. Full `python tests/run_tests.py` ran with new Group 60 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 1 scope.
+
 - 2026-05-13: **Parent App React + Vite migration — IMPLEMENTED (spec 001-parent-app-redesign, T001–T072)**. Full React + Vite SPA built under `frontend/parent_app/src/`. Legacy `index.html` replaced with Vite mount shell. `npm run build` passes (191KB JS, 20KB CSS). All Tier 1 backend APIs preserved in `src/services/api.js`. Tier 2 features use mock data with badges. 5-tab navigation, sidebar, settings overlay, admin section, and all 5 pages implemented. SYSTEM_MAP.md updated.
 
 - 2026-05-13: **Parent App UI Redesign — spec artifacts updated for React + Vite target (spec 001-parent-app-redesign)**. All spec files updated. SYSTEM_MAP.md was reverted then correctly updated after implementation.
@@ -31,7 +33,8 @@
 
 ## Next Recommended Action
 
-- **Parent App React+Vite migration is complete**. Next steps: (1) Manual browser test — login with real credentials, verify WebSocket status, check each tab's API calls in Network tab. (2) If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`. (3) When backend features for Tier 2 are ready, implement them by replacing mock adapters in `frontend/parent_app/src/services/api.js` (search for `// TODO: backend integration`).
+- Wire the React Parent App mock adapters to the new Phase 1 backend APIs for event notes, event filters, and monthly emotion stats when frontend work resumes. Then continue spec 002 Phase 2 backend work: child profiles, age-based topic filter, daily interaction limit, sleep schedule settings, and push notification settings storage.
+- **Parent App React+Vite migration is complete**. Manual browser test remains recommended: login with real credentials, verify WebSocket status, and check each tab's API calls in Network tab. If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`.
 - For other code changes, read `PROJECT.md`, this handoff, and relevant source files.
 - For large feature/API/schema/cross-module work, use Spec Kit or write a clear plan first.
 
@@ -54,5 +57,11 @@ python tests/run_tests.py
 - `frontend/parent_app/src/components/` (new — Sidebar, BottomNav, RobotStatusCard, UserCard, SettingsOverlay, FeatureBadge, SectionState, Toast)
 - `frontend/parent_app/src/pages/` (new — LoginPage, HomePage, MonitorPage, LearningPage, JournalPage, MorePage)
 - `frontend/parent_app/dist/` (build output — not git-tracked)
+- `src/api/routers/control_router.py` (Phase 1 event filters and parent event note endpoints)
+- `src/api/routers/emotion_router.py` (monthly emotion endpoints)
+- `src/emotion/emotion_analyzer.py` (monthly aggregation)
+- `src/infrastructure/database/db.py` (`parent_event_notes` schema and helpers)
+- `src/infrastructure/sessions/state.py` (advanced event query filters)
+- `tests/run_tests.py` (Group 60 Phase 1 backend tests)
 - `SYSTEM_MAP.md` (Section 6 updated to describe React+Vite implementation)
 - `.claude/handoff.md`

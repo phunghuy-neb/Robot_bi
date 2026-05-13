@@ -4095,6 +4095,250 @@ def test_59_11():
             in_except = False
 test("59.11 state.py event parse không return trong except", test_59_11)
 
+# == GROUP 60: Parent App Backend Phase 1 ===================================
+print("\n[Group 60] Parent App Backend Phase 1")
+
+
+def _phase1_insert_event(family_id, message, event_type="system", clip_path=None, metadata=None):
+    from src.infrastructure.database.db import get_db_connection
+    from src.infrastructure.notifications.notifier import EventNotifier
+
+    notifier_local = EventNotifier()
+    notifier_local.push_event(
+        event_type,
+        message,
+        clip_path=clip_path,
+        metadata=metadata or {},
+        family_id=family_id,
+    )
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT event_id
+            FROM events
+            WHERE family_id = ? AND message = ?
+            ORDER BY db_id DESC
+            LIMIT 1
+            """,
+            (family_id, message),
+        ).fetchone()
+    assert row is not None, "test event phai duoc tao"
+    return row["event_id"]
+
+
+def test_60_1_parent_event_notes_schema():
+    from src.infrastructure.database.db import get_db_connection, init_db
+
+    init_db()
+    with get_db_connection() as conn:
+        table = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='parent_event_notes'"
+        ).fetchone()
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(parent_event_notes)").fetchall()}
+    assert table is not None, "parent_event_notes table phai ton tai"
+    assert {
+        "note_id",
+        "family_id",
+        "event_id",
+        "user_id",
+        "note",
+        "created_at",
+        "updated_at",
+    }.issubset(columns)
+
+
+def test_60_2_parent_event_notes_crud_and_family_scope():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam_a = f"phase1-notes-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase1-notes-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p1_notes_a", fam_a)
+    headers_b = _phase44_headers("p1_notes_b", fam_b)
+    event_a = _phase1_insert_event(fam_a, f"note event A {_uuid.uuid4().hex}")
+    event_b = _phase1_insert_event(fam_b, f"note event B {_uuid.uuid4().hex}")
+
+    client = TestClient(app)
+    created = client.post(
+        f"/api/events/{event_a}/notes",
+        json={"note": "  Parent follow-up note  "},
+        headers=headers_a,
+    )
+    assert created.status_code == 200
+    note = created.json()
+    assert note["event_id"] == event_a
+    assert note["family_id"] == fam_a
+    assert note["note"] == "Parent follow-up note"
+
+    listed = client.get(f"/api/events/{event_a}/notes", headers=headers_a)
+    assert listed.status_code == 200
+    assert len(listed.json()["notes"]) == 1
+
+    edited = client.put(
+        f"/api/events/{event_a}/notes/{note['note_id']}",
+        json={"note": "Updated parent note"},
+        headers=headers_a,
+    )
+    assert edited.status_code == 200
+    assert edited.json()["note"] == "Updated parent note"
+
+    blocked = client.post(
+        f"/api/events/{event_b}/notes",
+        json={"note": "wrong family"},
+        headers=headers_a,
+    )
+    assert blocked.status_code == 404
+    assert client.get(f"/api/events/{event_a}/notes", headers=headers_b).status_code == 404
+
+    empty = client.post(f"/api/events/{event_a}/notes", json={"note": "   "}, headers=headers_a)
+    assert empty.status_code == 422
+
+    deleted = client.delete(f"/api/events/{event_a}/notes/{note['note_id']}", headers=headers_a)
+    assert deleted.status_code == 200
+    assert client.get(f"/api/events/{event_a}/notes", headers=headers_a).json()["notes"] == []
+
+
+def test_60_3_events_advanced_filters_and_family_scope():
+    from datetime import datetime
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam_a = f"phase1-events-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase1-events-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p1_events_a", fam_a)
+    headers_b = _phase44_headers("p1_events_b", fam_b)
+    token = f"phase1filter{_uuid.uuid4().hex}"
+    event_clip = _phase1_insert_event(
+        fam_a,
+        f"{token} camera clip",
+        event_type="system",
+        clip_path="clip-a.mp4",
+        metadata={"room": "bedroom"},
+    )
+    event_cry = _phase1_insert_event(
+        fam_a,
+        f"{token} cry event",
+        event_type="cry",
+        metadata={"room": "living"},
+    )
+    _phase1_insert_event(fam_b, f"{token} other family event", event_type="system")
+
+    client = TestClient(app)
+    note_resp = client.post(
+        f"/api/events/{event_cry}/notes",
+        json={"note": "filter note"},
+        headers=headers_a,
+    )
+    assert note_resp.status_code == 200
+
+    all_resp = client.get(f"/api/events?q={token}&limit=20&sort=asc", headers=headers_a)
+    assert all_resp.status_code == 200
+    all_payload = all_resp.json()
+    ids = [event["id"] for event in all_payload["events"]]
+    assert event_clip in ids
+    assert event_cry in ids
+    assert all(event["family_id"] == fam_a for event in all_payload["events"])
+    assert "limit" in all_payload and "offset" in all_payload and "filters" in all_payload
+
+    cry_resp = client.get(f"/api/events?q={token}&types=cry&limit=20", headers=headers_a)
+    assert cry_resp.status_code == 200
+    assert [event["type"] for event in cry_resp.json()["events"]] == ["cry"]
+
+    clip_resp = client.get(f"/api/events?q={token}&has_clip=true&limit=20", headers=headers_a)
+    assert clip_resp.status_code == 200
+    assert [event["id"] for event in clip_resp.json()["events"]] == [event_clip]
+
+    note_filter_resp = client.get(f"/api/events?q={token}&has_note=true&limit=20", headers=headers_a)
+    assert note_filter_resp.status_code == 200
+    noted = note_filter_resp.json()["events"]
+    assert len(noted) == 1
+    assert noted[0]["id"] == event_cry
+    assert noted[0]["note_count"] >= 1
+
+    today = datetime.now().date().isoformat()
+    date_resp = client.get(
+        f"/api/events?q={token}&start_date={today}&end_date={today}&limit=20",
+        headers=headers_a,
+    )
+    assert date_resp.status_code == 200
+    assert date_resp.json()["total"] >= 2
+    assert client.get("/api/events?start_date=bad-date", headers=headers_a).status_code == 422
+
+    other_family = client.get(f"/api/events?q={token}&limit=20", headers=headers_b)
+    assert other_family.status_code == 200
+    assert all(event["family_id"] == fam_b for event in other_family.json()["events"])
+
+
+def test_60_4_monthly_emotion_statistics_and_alias():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.emotion.emotion_analyzer import EmotionAnalyzer
+    from src.emotion.emotion_journal import EmotionJournal
+    from src.infrastructure.database.db import get_db_connection
+
+    fam_a = f"phase1-emotion-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase1-emotion-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p1_emotion_a", fam_a)
+    headers_b = _phase44_headers("p1_emotion_b", fam_b)
+    month = "2026-05"
+    EmotionAnalyzer(fam_a)
+    EmotionJournal()
+    with get_db_connection() as conn:
+        conn.executemany(
+            """
+            INSERT INTO emotion_logs (family_id, timestamp, emotion, confidence, source)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            [
+                (fam_a, "2026-05-02T08:00:00", "happy", 0.9, "test"),
+                (fam_a, "2026-05-02T09:00:00", "excited", 0.8, "test"),
+                (fam_a, "2026-05-03T08:00:00", "sad", 0.7, "test"),
+                (fam_b, "2026-05-02T08:00:00", "stressed", 0.9, "test"),
+            ],
+        )
+        conn.execute(
+            """
+            INSERT INTO emotion_journal (family_id, timestamp, emotion, note)
+            VALUES (?, ?, ?, ?)
+            """,
+            (fam_a, "2026-05-04T08:00:00", "angry", "journal stress"),
+        )
+        conn.commit()
+
+    client = TestClient(app)
+    resp = client.get(f"/api/emotion/monthly?month={month}", headers=headers_a)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["family_id"] == fam_a
+    assert data["month"] == month
+    assert data["total_entries"] == 4
+    assert data["dominant"] == "happy"
+    assert data["counts"]["happy"] == 2
+    assert data["counts"]["sad"] == 1
+    assert data["counts"]["stressed"] == 1
+    assert len(data["days"]) == 31
+    assert len(data["weeks"]) >= 4
+
+    alias = client.get(f"/api/emotions/monthly?month={month}", headers=headers_a)
+    assert alias.status_code == 200
+    assert alias.json()["total_entries"] == 4
+
+    isolated = client.get(f"/api/emotion/monthly?month={month}", headers=headers_b)
+    assert isolated.status_code == 200
+    assert isolated.json()["total_entries"] == 1
+
+    assert client.get("/api/emotion/monthly?month=2026-13", headers=headers_a).status_code == 422
+    assert client.get(
+        f"/api/emotion/monthly?month={month}&child_id=child-1",
+        headers=headers_a,
+    ).status_code == 400
+
+
+test("60.1 parent_event_notes schema", test_60_1_parent_event_notes_schema)
+test("60.2 parent event notes CRUD + family scope", test_60_2_parent_event_notes_crud_and_family_scope)
+test("60.3 /api/events advanced filters + family scope", test_60_3_events_advanced_filters_and_family_scope)
+test("60.4 monthly emotion statistics + alias", test_60_4_monthly_emotion_statistics_and_alias)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
