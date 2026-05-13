@@ -77,6 +77,31 @@ export default function MorePage() {
       </div>
 
       <div className="page-body">
+        {/* Feature shortcut cards */}
+        <div className="more-grid">
+          <div className="more-card" style={{ background: 'linear-gradient(135deg, #FFE4E6 0%, #FECDD3 100%)' }}>
+            <span>📻</span>
+            <div>Radio</div>
+          </div>
+          <div className="more-card" style={{ background: 'var(--grad-mint)' }}>
+            <span>🎵</span>
+            <div>Âm nhạc</div>
+          </div>
+          <div className="more-card" style={{ background: 'var(--grad-purple-soft)' }}>
+            <span>📖</span>
+            <div>Truyện kể</div>
+          </div>
+          <div className="more-card" style={{ background: 'var(--grad-hot)', color: '#fff', position: 'relative' }}>
+            <span className="hot-badge">HOT</span>
+            <span>🎮</span>
+            <div>Trò chơi</div>
+          </div>
+          <div className="more-card" style={{ background: 'var(--grad-blue)' }}>
+            <span>🎬</span>
+            <div>Video học</div>
+          </div>
+        </div>
+
         {/* Music player (real API) */}
         <div className="music-player-card">
           <div className="music-track-label">🎵 Đang phát</div>

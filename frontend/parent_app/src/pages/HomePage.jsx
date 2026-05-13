@@ -89,7 +89,7 @@ export default function HomePage({ user, lastWsEvent }) {
     <div>
       {/* Hero header */}
       <div className="home-hero">
-        <div className="home-greeting">Xin chào, {user?.username || 'Phụ huynh'}! 👋</div>
+        <div className="home-greeting">Xin chào, Mẹ yêu! 💖</div>
         <div className="home-date">{today}</div>
       </div>
 
@@ -111,23 +111,26 @@ export default function HomePage({ user, lastWsEvent }) {
             📊 Tóm tắt hôm nay
           </div>
           <div className="today-grid">
-            <div className="metric-card">
-              <div className="metric-num">{todaySummary?.sessions ?? '—'}</div>
+            <div className="metric-card grad-blue">
+              <div className="metric-num">
+                {todaySummary?.sessions ?? '—'}
+                <span className="metric-online-dot" />
+              </div>
               <div className="metric-label">Lượt trò chuyện</div>
             </div>
-            <div className="metric-card">
+            <div className="metric-card grad-orange-pink">
               <div className="metric-num">{todaySummary?.learningMinutes ?? '—'}</div>
-              <div className="metric-label">Phút học tập</div>
+              <div className="metric-label">8 hoạt động</div>
             </div>
-            <div className="metric-card">
+            <div className="metric-card grad-mint">
               <div className="metric-num" style={{ fontSize: 22 }}>{todaySummary?.emotion ?? '😊'}</div>
-              <div className="metric-label">Cảm xúc</div>
+              <div className="metric-label">Vui vẻ</div>
             </div>
-            <div className="metric-card">
+            <div className="metric-card grad-purple-soft">
               <div className="metric-num">
                 {todaySummary ? `${todaySummary.tasksCompleted}/${todaySummary.totalTasks}` : '—'}
               </div>
-              <div className="metric-label">Nhiệm vụ xong</div>
+              <div className="metric-label">3/5 hoàn thành</div>
             </div>
           </div>
         </div>

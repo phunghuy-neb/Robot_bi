@@ -38,7 +38,7 @@ export async function login(username, password) {
   });
   if (!r.ok) {
     const err = await r.json().catch(() => ({}));
-    throw new Error(err.detail || 'Sai tÃªn Ä‘Äƒng nháº­p hoáº·c máº­t kháº©u.');
+    throw new Error(err.detail || 'Sai tên đăng nhập hoặc mật khẩu.');
   }
   const data = await r.json();
   _token = data.access_token;
@@ -117,7 +117,7 @@ export async function checkExistingSession() {
   }
 }
 
-// â”€â”€ apiFetch with 401 â†’ refresh â†’ retry â†’ logout â”€â”€
+// â”€â”€ apiFetch with 401 â†' refresh â†' retry â†' logout â”€â”€
 export async function apiFetch(path, opts = {}) {
   try {
     const h1 = { ...authHeader(), ...(opts.headers || {}) };
@@ -189,22 +189,22 @@ let _momScriptProcessor = null;
 let _momAudioCtx = null;
 
 export async function startMomMic() {
-  if (!_token) throw new Error('Vui lÃ²ng Ä‘Äƒng nháº­p trÆ°á»›c');
+  if (!_token) throw new Error('Vui lòng đăng nhập trước');
   if (!navigator.mediaDevices?.getUserMedia) {
-    throw new Error('TrÃ¬nh duyá»‡t khÃ´ng há»— trá»£ mic. DÃ¹ng Chrome/Firefox vÃ  truy cáº­p qua HTTPS.');
+    throw new Error('Trình duyệt không hỗ trợ mic. Dùng Chrome/Firefox và truy cập qua HTTPS.');
   }
   try {
     _momMediaStream = await navigator.mediaDevices.getUserMedia({
       audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
     });
     const sr = await apiFetch('/api/mom/start', { method: 'POST' });
-    if (!sr) throw new Error('KhÃ´ng thá»ƒ bÃ¡o server');
+    if (!sr) throw new Error('Không thể báo server');
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     _momAudioWs = new WebSocket(`${proto}//${location.host}/api/mom/audio?token=${encodeURIComponent(_token)}`);
     _momAudioWs.binaryType = 'arraybuffer';
     await new Promise((res, rej) => {
       _momAudioWs.onopen = res;
-      _momAudioWs.onerror = () => rej(new Error('WebSocket lá»—i'));
+      _momAudioWs.onerror = () => rej(new Error('WebSocket lỗi'));
       setTimeout(() => rej(new Error('Timeout')), 5000);
     });
     _momAudioCtx = new AudioContext({ sampleRate: 16000 });

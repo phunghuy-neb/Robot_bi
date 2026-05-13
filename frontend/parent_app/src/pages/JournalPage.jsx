@@ -79,15 +79,17 @@ export default function JournalPage() {
       <div className="page-body">
         {/* Filter bar */}
         <div className="filter-bar">
-          <select
-            className="filter-select"
-            value={filterType}
-            onChange={e => setFilterType(e.target.value)}
-          >
-            <option value="all">Tất cả</option>
-            <option value="chat">Trò chuyện</option>
-            <option value="homework">Bài tập</option>
-          </select>
+          <div className="pill-tabs">
+            {[['all', 'Tất cả'], ['chat', 'Trò chuyện'], ['homework', 'Bài tập']].map(([val, label]) => (
+              <button
+                key={val}
+                className={`pill-tab${filterType === val ? ' active' : ''}`}
+                onClick={() => setFilterType(val)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
           <input
             type="date"
@@ -175,20 +177,22 @@ export default function JournalPage() {
                 filteredThreads.length === 0 ? (
                   <SectionState state="empty" emptyText="Không có kết quả phù hợp với bộ lọc." emptyIcon="🔍" />
                 ) : (
-                  filteredThreads.map(c => (
-                    <div key={c.session_id} className="thread-item" onClick={() => openThread(c.session_id)}>
-                      <span className="thread-icon">
-                        {c.is_homework ? '📚' : '💬'}
-                      </span>
-                      <div className="thread-body">
-                        <div className="thread-title">{c.title || 'Hội thoại không tiêu đề'}</div>
-                        <div className="thread-meta">
-                          {fmtTime(c.started_at)} · {c.turn_count || 0} lượt
+                  <div className="thread-timeline">
+                    {filteredThreads.map(c => (
+                      <div key={c.session_id} className="thread-item" onClick={() => openThread(c.session_id)}>
+                        <span className="thread-icon">
+                          {c.is_homework ? '📚' : '💬'}
+                        </span>
+                        <div className="thread-body">
+                          <div className="thread-title">{c.title || 'Hội thoại không tiêu đề'}</div>
+                          <div className="thread-meta">
+                            {fmtTime(c.started_at)} · {c.turn_count || 0} lượt
+                          </div>
                         </div>
+                        <span className="thread-arrow">›</span>
                       </div>
-                      <span className="thread-arrow">›</span>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )
               )}
             </>

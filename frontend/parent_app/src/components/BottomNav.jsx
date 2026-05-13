@@ -1,5 +1,5 @@
 const TABS = [
-  { id: 'home', icon: '🏠', label: 'Nhà' },
+  { id: 'home', icon: '🏠', label: 'Trang chủ' },
   { id: 'monitor', icon: '📹', label: 'Giám sát' },
   { id: 'learning', icon: '📚', label: 'Học' },
   { id: 'journal', icon: '📔', label: 'Nhật ký' },

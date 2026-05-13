@@ -86,6 +86,49 @@ export default function LearningPage({ activeChild }) {
       </div>
 
       <div className="page-body">
+        {/* Quick action shortcuts */}
+        <div className="quick-actions-grid">
+          <button className="quick-action-btn" onClick={() => document.querySelector('.vocab-grid')?.scrollIntoView({ behavior: 'smooth' })}>
+            <span>📖</span>
+            <span>Từ vựng</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => startGame('flashcard')}>
+            <span>🃏</span>
+            <span>Flashcard</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => showToast('Video: Chuyển sang tab Thêm')}>
+            <span>🎬</span>
+            <span>Video</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => startGame('word-quiz')}>
+            <span>🎮</span>
+            <span>Trò chơi</span>
+          </button>
+        </div>
+
+        {/* Progress ring + featured lesson */}
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div className="progress-ring-wrap">
+            <svg className="progress-ring" viewBox="0 0 120 120" width="100" height="100">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary-soft)" strokeWidth="12" />
+              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary)" strokeWidth="12"
+                strokeDasharray="314" strokeDashoffset="78.5"
+                strokeLinecap="round"
+                style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
+              />
+            </svg>
+            <div className="progress-ring-label">75%</div>
+          </div>
+          <div className="lesson-card" style={{ flex: 1 }}>
+            <div className="lesson-thumb">🔤</div>
+            <div className="lesson-body">
+              <div className="lesson-title">Từ vựng chủ đề Gia đình</div>
+              <div className="lesson-meta">10 từ · 5–7 tuổi</div>
+            </div>
+            <button className="btn-start" onClick={() => startGame('vocabulary')}>Bắt đầu</button>
+          </div>
+        </div>
+
         {/* Vocabulary section */}
         <div className="card">
           <div className="card-header">
