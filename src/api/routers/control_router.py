@@ -17,8 +17,12 @@ control_router.py — Control endpoints cho Robot Bi API.
   DELETE /api/tasks/{id}     — Xóa nhiệm vụ
 """
 import logging
-from datetime import datetime
+import hashlib
+import json
+import re
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -28,7 +32,9 @@ from src.api.routers.conversation_router import _require_family
 from src.infrastructure.database.db import (
     create_parent_event_note,
     delete_parent_event_note,
+    ensure_family_exists,
     event_exists_for_family,
+    get_db_connection,
     list_parent_event_notes,
     update_parent_event_note,
 )
@@ -65,6 +71,328 @@ class TaskCreate(BaseModel):
 
 class ParentEventNoteIn(BaseModel):
     note: str = Field(..., min_length=1, max_length=2000)
+
+
+class ChildProfileIn(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    birth_date: Optional[str] = None
+    age: Optional[int] = None
+    grade: Optional[str] = Field(default=None, max_length=40)
+    avatar: Optional[str] = Field(default=None, max_length=80)
+    interests: list[str] = Field(default_factory=list)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class ChildProfilePatch(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=80)
+    birth_date: Optional[str] = None
+    age: Optional[int] = None
+    grade: Optional[str] = Field(default=None, max_length=40)
+    avatar: Optional[str] = Field(default=None, max_length=80)
+    interests: Optional[list[str]] = None
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class AgeFilterIn(BaseModel):
+    child_id: Optional[str] = Field(default=None, max_length=80)
+    enabled: bool = False
+    min_age: Optional[int] = 5
+    max_age: Optional[int] = 12
+    blocked_topics: list[str] = Field(default_factory=list)
+    allowed_topics: list[str] = Field(default_factory=list)
+    strict_mode: bool = True
+
+
+class TimeLimitIn(BaseModel):
+    child_id: Optional[str] = Field(default=None, max_length=80)
+    enabled: bool = False
+    daily_limit_minutes: int = 60
+    warning_minutes: int = 10
+    reset_time: str = "00:00"
+
+
+class SleepScheduleIn(BaseModel):
+    enabled: bool = False
+    start_time: str = "21:00"
+    end_time: str = "06:30"
+    days: list[str] = Field(default_factory=lambda: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
+    timezone: str = Field(default="Asia/Ho_Chi_Minh", max_length=80)
+
+
+class NotificationSettingsIn(BaseModel):
+    enabled: bool = True
+    event_types: dict = Field(default_factory=dict)
+    quiet_hours: dict = Field(default_factory=dict)
+    channels: dict = Field(default_factory=dict)
+    push_subscription: Optional[dict] = None
+
+
+_TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+_DAYS = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
+_EVENT_TYPES = {"motion", "stranger", "known_face", "cry", "chat", "system", "homework"}
+_CHANNELS = {"in_app", "web_push"}
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _json_array(value) -> list:
+    if not value:
+        return []
+    try:
+        parsed = json.loads(value) if isinstance(value, str) else value
+        return parsed if isinstance(parsed, list) else []
+    except Exception:
+        return []
+
+
+def _json_object(value) -> dict:
+    if not value:
+        return {}
+    try:
+        parsed = json.loads(value) if isinstance(value, str) else value
+        return parsed if isinstance(parsed, dict) else {}
+    except Exception:
+        return {}
+
+
+def _dump_json(value) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def _child_key(child_id: Optional[str]) -> str:
+    return (child_id or "").strip()
+
+
+def _public_child_id(child_id: str | None) -> str | None:
+    value = (child_id or "").strip()
+    return value or None
+
+
+def _validate_time(value: str, field_name: str) -> str:
+    if not _TIME_RE.match(value or ""):
+        raise HTTPException(status_code=422, detail=f"{field_name} must use HH:MM")
+    return value
+
+
+def _validate_iso_date(value: Optional[str], field_name: str) -> Optional[str]:
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"{field_name} must use YYYY-MM-DD")
+    return value
+
+
+def _age_from_birth_date(value: Optional[str]) -> Optional[int]:
+    if not value:
+        return None
+    try:
+        born = datetime.strptime(value, "%Y-%m-%d").date()
+        today = date.today()
+        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    except ValueError:
+        return None
+
+
+def _birth_date_from_age(age: int) -> str:
+    today = date.today()
+    try:
+        return today.replace(year=today.year - age).isoformat()
+    except ValueError:
+        return (today - timedelta(days=365 * age)).isoformat()
+
+
+def _validate_age(age: Optional[int]) -> Optional[int]:
+    if age is None:
+        return None
+    if int(age) < 5 or int(age) > 12:
+        raise HTTPException(status_code=422, detail="age must be between 5 and 12")
+    return int(age)
+
+
+def _validate_string_list(values: list[str] | None, field_name: str) -> list[str]:
+    result = []
+    for value in values or []:
+        item = str(value).strip()
+        if not item:
+            continue
+        if len(item) > 80:
+            raise HTTPException(status_code=422, detail=f"{field_name} entries must be <= 80 chars")
+        result.append(item)
+    if len(result) > 50:
+        raise HTTPException(status_code=422, detail=f"{field_name} supports at most 50 entries")
+    return result
+
+
+def _child_row_to_dict(row) -> dict:
+    birth_date = row["birth_date"]
+    return {
+        "child_id": row["child_id"],
+        "name": row["name"],
+        "birth_date": birth_date,
+        "age": _age_from_birth_date(birth_date),
+        "grade": row["grade"],
+        "avatar": row["avatar"],
+        "interests": _json_array(row["interests_json"]),
+        "notes": row["notes"] or "",
+        "is_active": bool(row["is_active"]),
+        "created_at": row["created_at"],
+        "updated_at": row["updated_at"],
+    }
+
+
+def _validate_child_for_family(family_id: str, child_id: Optional[str]) -> str:
+    key = _child_key(child_id)
+    if not key:
+        return ""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT child_id FROM child_profiles WHERE family_id = ? AND child_id = ?",
+            (family_id, key),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Child profile not found")
+    return key
+
+
+def _normalize_child_payload(data: dict, *, partial: bool = False) -> dict:
+    normalized = {}
+    if "name" in data:
+        name = (data.get("name") or "").strip()
+        if not name:
+            raise HTTPException(status_code=422, detail="name must not be empty")
+        normalized["name"] = name
+    elif not partial:
+        raise HTTPException(status_code=422, detail="name is required")
+
+    birth_date = data.get("birth_date")
+    age = data.get("age")
+    if birth_date:
+        birth_date = _validate_iso_date(str(birth_date), "birth_date")
+        computed_age = _age_from_birth_date(birth_date)
+        if computed_age is not None:
+            _validate_age(computed_age)
+        normalized["birth_date"] = birth_date
+    elif age is not None:
+        normalized["birth_date"] = _birth_date_from_age(_validate_age(age))
+    elif not partial:
+        raise HTTPException(status_code=422, detail="birth_date or age is required")
+
+    if "grade" in data:
+        normalized["grade"] = (data.get("grade") or "").strip()[:40] or None
+    if "avatar" in data:
+        normalized["avatar"] = (data.get("avatar") or "").strip()[:80] or None
+    if "interests" in data:
+        normalized["interests_json"] = _dump_json(_validate_string_list(data.get("interests"), "interests"))
+    elif not partial:
+        normalized["interests_json"] = "[]"
+    if "notes" in data:
+        normalized["notes"] = (data.get("notes") or "").strip()[:1000]
+    elif not partial:
+        normalized["notes"] = ""
+    return normalized
+
+
+def _default_age_filter(child_id: Optional[str] = None) -> dict:
+    return {
+        "child_id": child_id,
+        "enabled": False,
+        "min_age": 5,
+        "max_age": 12,
+        "blocked_topics": [],
+        "allowed_topics": [],
+        "strict_mode": True,
+        "updated_at": None,
+    }
+
+
+def _default_time_limits(child_id: Optional[str] = None) -> dict:
+    return {
+        "child_id": child_id,
+        "enabled": False,
+        "daily_limit_minutes": 60,
+        "warning_minutes": 10,
+        "reset_time": "00:00",
+        "updated_at": None,
+    }
+
+
+def _default_sleep_settings() -> dict:
+    return {
+        "enabled": False,
+        "start_time": "21:00",
+        "end_time": "06:30",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "timezone": "Asia/Ho_Chi_Minh",
+        "updated_at": None,
+    }
+
+
+def _default_notification_settings() -> dict:
+    return {
+        "enabled": True,
+        "event_types": {},
+        "quiet_hours": {},
+        "channels": {"in_app": True, "web_push": False},
+        "updated_at": None,
+    }
+
+
+def _age_filter_row_to_dict(row) -> dict:
+    if not row:
+        return _default_age_filter()
+    return {
+        "child_id": _public_child_id(row["child_id"]),
+        "enabled": bool(row["enabled"]),
+        "min_age": row["min_age"],
+        "max_age": row["max_age"],
+        "blocked_topics": _json_array(row["blocked_topics_json"]),
+        "allowed_topics": _json_array(row["allowed_topics_json"]),
+        "strict_mode": bool(row["strict_mode"]),
+        "updated_at": row["updated_at"],
+    }
+
+
+def _time_limits_row_to_dict(row) -> dict:
+    if not row:
+        return _default_time_limits()
+    return {
+        "child_id": _public_child_id(row["child_id"]),
+        "enabled": bool(row["enabled"]),
+        "daily_limit_minutes": int(row["daily_limit_minutes"]),
+        "warning_minutes": int(row["warning_minutes"]),
+        "reset_time": row["reset_time"],
+        "updated_at": row["updated_at"],
+    }
+
+
+def _usage_today(family_id: str, child_id: str, settings: dict | None = None) -> dict:
+    today = date.today().isoformat()
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT seconds_used, sessions_count, updated_at
+            FROM daily_interaction_usage
+            WHERE family_id = ? AND child_id = ? AND usage_date = ?
+            """,
+            (family_id, child_id, today),
+        ).fetchone()
+    seconds_used = int(row["seconds_used"] or 0) if row else 0
+    limit_minutes = int((settings or {}).get("daily_limit_minutes") or 60)
+    enabled = bool((settings or {}).get("enabled", False))
+    limit_seconds = limit_minutes * 60
+    return {
+        "date": today,
+        "child_id": _public_child_id(child_id),
+        "seconds_used": seconds_used,
+        "sessions_count": int(row["sessions_count"] or 0) if row else 0,
+        "remaining_seconds": max(0, limit_seconds - seconds_used),
+        "limit_reached": bool(enabled and seconds_used >= limit_seconds),
+        "updated_at": row["updated_at"] if row else None,
+    }
 
 
 def _parse_event_types(types: Optional[str]) -> list[str] | None:
@@ -111,6 +439,456 @@ async def get_status():
 
 
 # ── REST: Events ──────────────────────────────────────────────────────────
+
+# REST: Children and Parent App Settings
+
+@router.get("/api/children")
+async def list_children(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT child_id, name, birth_date, grade, avatar, interests_json,
+                   notes, is_active, created_at, updated_at
+            FROM child_profiles
+            WHERE family_id = ?
+            ORDER BY is_active DESC, created_at ASC
+            """,
+            (family_id,),
+        ).fetchall()
+    children = [_child_row_to_dict(row) for row in rows]
+    active = next((child["child_id"] for child in children if child["is_active"]), None)
+    return {"children": children, "active_child_id": active}
+
+
+@router.post("/api/children")
+async def create_child_profile(
+    payload: ChildProfileIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = ensure_family_exists(_require_family(_current_user))
+    values = _normalize_child_payload(payload.dict())
+    child_id = uuid4().hex
+    now = _now_iso()
+    with get_db_connection() as conn:
+        active_row = conn.execute(
+            "SELECT 1 FROM child_profiles WHERE family_id = ? AND is_active = 1 LIMIT 1",
+            (family_id,),
+        ).fetchone()
+        is_active = 0 if active_row else 1
+        conn.execute(
+            """
+            INSERT INTO child_profiles (
+                child_id, family_id, name, birth_date, grade, avatar,
+                interests_json, notes, is_active, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                child_id,
+                family_id,
+                values["name"],
+                values["birth_date"],
+                values.get("grade"),
+                values.get("avatar"),
+                values.get("interests_json", "[]"),
+                values.get("notes", ""),
+                is_active,
+                now,
+                now,
+            ),
+        )
+        conn.commit()
+        row = conn.execute(
+            """
+            SELECT child_id, name, birth_date, grade, avatar, interests_json,
+                   notes, is_active, created_at, updated_at
+            FROM child_profiles
+            WHERE family_id = ? AND child_id = ?
+            """,
+            (family_id, child_id),
+        ).fetchone()
+    return {"ok": True, "child": _child_row_to_dict(row)}
+
+
+@router.get("/api/children/{child_id}")
+async def get_child_profile(
+    child_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT child_id, name, birth_date, grade, avatar, interests_json,
+                   notes, is_active, created_at, updated_at
+            FROM child_profiles
+            WHERE family_id = ? AND child_id = ?
+            """,
+            (family_id, child_id),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Child profile not found")
+    return {"child": _child_row_to_dict(row)}
+
+
+@router.patch("/api/children/{child_id}")
+async def update_child_profile(
+    child_id: str,
+    payload: ChildProfilePatch,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    _validate_child_for_family(family_id, child_id)
+    values = _normalize_child_payload(payload.dict(exclude_unset=True), partial=True)
+    if values:
+        assignments = [f"{column} = ?" for column in values.keys()]
+        params = list(values.values())
+        assignments.append("updated_at = ?")
+        params.append(_now_iso())
+        params.extend([family_id, child_id])
+        with get_db_connection() as conn:
+            conn.execute(
+                f"""
+                UPDATE child_profiles
+                SET {', '.join(assignments)}
+                WHERE family_id = ? AND child_id = ?
+                """,
+                tuple(params),
+            )
+            conn.commit()
+    return await get_child_profile(child_id, _current_user)
+
+
+@router.delete("/api/children/{child_id}")
+async def delete_child_profile(
+    child_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    _validate_child_for_family(family_id, child_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT is_active FROM child_profiles WHERE family_id = ? AND child_id = ?",
+            (family_id, child_id),
+        ).fetchone()
+        was_active = bool(row and row["is_active"])
+        conn.execute("DELETE FROM child_profiles WHERE family_id = ? AND child_id = ?", (family_id, child_id))
+        if was_active:
+            next_row = conn.execute(
+                """
+                SELECT child_id FROM child_profiles
+                WHERE family_id = ?
+                ORDER BY created_at ASC
+                LIMIT 1
+                """,
+                (family_id,),
+            ).fetchone()
+            if next_row:
+                conn.execute(
+                    "UPDATE child_profiles SET is_active = 1, updated_at = ? WHERE family_id = ? AND child_id = ?",
+                    (_now_iso(), family_id, next_row["child_id"]),
+                )
+        conn.commit()
+    return {"ok": True}
+
+
+@router.put("/api/children/{child_id}/activate")
+async def activate_child_profile(
+    child_id: str,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    _validate_child_for_family(family_id, child_id)
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute("UPDATE child_profiles SET is_active = 0 WHERE family_id = ?", (family_id,))
+        conn.execute(
+            "UPDATE child_profiles SET is_active = 1, updated_at = ? WHERE family_id = ? AND child_id = ?",
+            (now, family_id, child_id),
+        )
+        conn.commit()
+    return await get_child_profile(child_id, _current_user)
+
+
+@router.get("/api/settings/age-filter")
+async def get_age_filter(
+    child_id: Optional[str] = None,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    key = _validate_child_for_family(family_id, child_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT child_id, enabled, min_age, max_age, blocked_topics_json,
+                   allowed_topics_json, strict_mode, updated_at
+            FROM child_content_settings
+            WHERE family_id = ? AND child_id = ?
+            """,
+            (family_id, key),
+        ).fetchone()
+    settings = _age_filter_row_to_dict(row) if row else _default_age_filter(_public_child_id(key))
+    return {"ok": True, "settings": settings}
+
+
+@router.post("/api/settings/age-filter")
+async def save_age_filter(
+    payload: AgeFilterIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    key = _validate_child_for_family(family_id, payload.child_id)
+    min_age = _validate_age(payload.min_age)
+    max_age = _validate_age(payload.max_age)
+    if min_age is not None and max_age is not None and min_age > max_age:
+        raise HTTPException(status_code=422, detail="min_age must be <= max_age")
+    blocked = _validate_string_list(payload.blocked_topics, "blocked_topics")
+    allowed = _validate_string_list(payload.allowed_topics, "allowed_topics")
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM child_content_settings WHERE family_id = ? AND child_id = ?", (family_id, key))
+        conn.execute(
+            """
+            INSERT INTO child_content_settings (
+                setting_id, family_id, child_id, enabled, min_age, max_age,
+                blocked_topics_json, allowed_topics_json, strict_mode, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                uuid4().hex,
+                family_id,
+                key,
+                1 if payload.enabled else 0,
+                min_age,
+                max_age,
+                _dump_json(blocked),
+                _dump_json(allowed),
+                1 if payload.strict_mode else 0,
+                now,
+            ),
+        )
+        conn.commit()
+    return await get_age_filter(_public_child_id(key), _current_user)
+
+
+@router.get("/api/settings/time-limits")
+async def get_time_limits(
+    child_id: Optional[str] = None,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    key = _validate_child_for_family(family_id, child_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT child_id, enabled, daily_limit_minutes, warning_minutes,
+                   reset_time, updated_at
+            FROM interaction_limit_settings
+            WHERE family_id = ? AND child_id = ?
+            """,
+            (family_id, key),
+        ).fetchone()
+    settings = _time_limits_row_to_dict(row) if row else _default_time_limits(_public_child_id(key))
+    return {"ok": True, "settings": settings, "usage_today": _usage_today(family_id, key, settings)}
+
+
+@router.post("/api/settings/time-limits")
+async def save_time_limits(
+    payload: TimeLimitIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    key = _validate_child_for_family(family_id, payload.child_id)
+    if payload.daily_limit_minutes < 1 or payload.daily_limit_minutes > 480:
+        raise HTTPException(status_code=422, detail="daily_limit_minutes must be 1-480")
+    if payload.warning_minutes < 0 or payload.warning_minutes > 120:
+        raise HTTPException(status_code=422, detail="warning_minutes must be 0-120")
+    if payload.warning_minutes > payload.daily_limit_minutes:
+        raise HTTPException(status_code=422, detail="warning_minutes must be <= daily_limit_minutes")
+    reset_time = _validate_time(payload.reset_time, "reset_time")
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM interaction_limit_settings WHERE family_id = ? AND child_id = ?", (family_id, key))
+        conn.execute(
+            """
+            INSERT INTO interaction_limit_settings (
+                setting_id, family_id, child_id, enabled, daily_limit_minutes,
+                warning_minutes, reset_time, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                uuid4().hex,
+                family_id,
+                key,
+                1 if payload.enabled else 0,
+                int(payload.daily_limit_minutes),
+                int(payload.warning_minutes),
+                reset_time,
+                now,
+            ),
+        )
+        conn.commit()
+    return await get_time_limits(_public_child_id(key), _current_user)
+
+
+@router.get("/api/usage/today")
+async def get_usage_today(
+    child_id: Optional[str] = None,
+    _current_user: dict = Depends(get_current_user),
+):
+    data = await get_time_limits(child_id, _current_user)
+    return {"usage_today": data["usage_today"], "settings": data["settings"]}
+
+
+@router.get("/api/settings/sleep")
+async def get_sleep_schedule(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT enabled, start_time, end_time, days_json, timezone, updated_at
+            FROM sleep_schedule_settings
+            WHERE family_id = ?
+            """,
+            (family_id,),
+        ).fetchone()
+    if row:
+        settings = {
+            "enabled": bool(row["enabled"]),
+            "start_time": row["start_time"],
+            "end_time": row["end_time"],
+            "days": _json_array(row["days_json"]),
+            "timezone": row["timezone"],
+            "updated_at": row["updated_at"],
+        }
+    else:
+        settings = _default_sleep_settings()
+    return {"ok": True, "settings": settings}
+
+
+@router.post("/api/settings/sleep")
+async def save_sleep_schedule(
+    payload: SleepScheduleIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    start_time = _validate_time(payload.start_time, "start_time")
+    end_time = _validate_time(payload.end_time, "end_time")
+    days = [str(day).strip().lower() for day in payload.days]
+    if not days or any(day not in _DAYS for day in days):
+        raise HTTPException(status_code=422, detail="days must contain mon..sun values")
+    tz = (payload.timezone or "").strip()
+    if not tz or len(tz) > 80:
+        raise HTTPException(status_code=422, detail="timezone is invalid")
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO sleep_schedule_settings (
+                family_id, enabled, start_time, end_time, days_json, timezone, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (family_id, 1 if payload.enabled else 0, start_time, end_time, _dump_json(days), tz, now),
+        )
+        conn.commit()
+    return await get_sleep_schedule(_current_user)
+
+
+@router.get("/api/settings/notifications")
+async def get_notification_settings(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT enabled, event_types_json, quiet_hours_json, channels_json, updated_at
+            FROM notification_settings
+            WHERE family_id = ?
+            """,
+            (family_id,),
+        ).fetchone()
+    if row:
+        settings = {
+            "enabled": bool(row["enabled"]),
+            "event_types": _json_object(row["event_types_json"]),
+            "quiet_hours": _json_object(row["quiet_hours_json"]),
+            "channels": _json_object(row["channels_json"]),
+            "updated_at": row["updated_at"],
+        }
+    else:
+        settings = _default_notification_settings()
+    return {"ok": True, "settings": settings}
+
+
+@router.post("/api/settings/notifications")
+async def save_notification_settings(
+    payload: NotificationSettingsIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    user_id = str(_current_user.get("user_id") or "")
+    event_types = {}
+    for key, enabled in (payload.event_types or {}).items():
+        if key not in _EVENT_TYPES:
+            raise HTTPException(status_code=422, detail=f"Unsupported event type: {key}")
+        event_types[key] = bool(enabled)
+    channels = {}
+    for key, enabled in (payload.channels or {"in_app": True, "web_push": False}).items():
+        if key not in _CHANNELS:
+            raise HTTPException(status_code=422, detail=f"Unsupported notification channel: {key}")
+        channels[key] = bool(enabled)
+    channels.setdefault("in_app", True)
+    channels.setdefault("web_push", False)
+
+    quiet_hours = dict(payload.quiet_hours or {})
+    if quiet_hours.get("enabled"):
+        quiet_hours["start_time"] = _validate_time(str(quiet_hours.get("start_time", "")), "quiet_hours.start_time")
+        quiet_hours["end_time"] = _validate_time(str(quiet_hours.get("end_time", "")), "quiet_hours.end_time")
+        quiet_hours["enabled"] = True
+    elif quiet_hours:
+        quiet_hours["enabled"] = False
+
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO notification_settings (
+                family_id, enabled, event_types_json, quiet_hours_json, channels_json, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                family_id,
+                1 if payload.enabled else 0,
+                _dump_json(event_types),
+                _dump_json(quiet_hours),
+                _dump_json(channels),
+                now,
+            ),
+        )
+        if payload.push_subscription:
+            endpoint = str(payload.push_subscription.get("endpoint", "")).strip()
+            if not endpoint or len(endpoint) > 2048:
+                raise HTTPException(status_code=422, detail="push_subscription.endpoint is invalid")
+            endpoint_hash = hashlib.sha256(endpoint.encode("utf-8")).hexdigest()
+            conn.execute(
+                """
+                INSERT INTO push_subscriptions (
+                    subscription_id, family_id, user_id, endpoint_hash,
+                    subscription_json, created_at, updated_at, revoked_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+                """,
+                (
+                    uuid4().hex,
+                    family_id,
+                    user_id,
+                    endpoint_hash,
+                    _dump_json(payload.push_subscription),
+                    now,
+                    now,
+                ),
+            )
+        conn.commit()
+    return await get_notification_settings(_current_user)
+
 
 @router.get("/api/events")
 async def get_events(

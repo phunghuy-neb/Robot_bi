@@ -282,6 +282,138 @@ def init_db() -> None:
             ):
                 conn.execute(index_sql)
 
+            # Parent App child profiles and settings storage.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS child_profiles (
+                    child_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    name TEXT NOT NULL,
+                    birth_date TEXT,
+                    grade TEXT,
+                    avatar TEXT,
+                    interests_json TEXT NOT NULL DEFAULT '[]',
+                    notes TEXT,
+                    is_active INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS child_content_settings (
+                    setting_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    min_age INTEGER,
+                    max_age INTEGER,
+                    blocked_topics_json TEXT NOT NULL DEFAULT '[]',
+                    allowed_topics_json TEXT NOT NULL DEFAULT '[]',
+                    strict_mode INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS interaction_limit_settings (
+                    setting_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    daily_limit_minutes INTEGER NOT NULL DEFAULT 60,
+                    warning_minutes INTEGER NOT NULL DEFAULT 10,
+                    reset_time TEXT NOT NULL DEFAULT '00:00',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS daily_interaction_usage (
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    usage_date TEXT NOT NULL,
+                    seconds_used INTEGER NOT NULL DEFAULT 0,
+                    sessions_count INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (family_id, child_id, usage_date)
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS sleep_schedule_settings (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    start_time TEXT NOT NULL DEFAULT '21:00',
+                    end_time TEXT NOT NULL DEFAULT '06:30',
+                    days_json TEXT NOT NULL DEFAULT '["mon","tue","wed","thu","fri","sat","sun"]',
+                    timezone TEXT NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS notification_settings (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    event_types_json TEXT NOT NULL DEFAULT '{}',
+                    quiet_hours_json TEXT NOT NULL DEFAULT '{}',
+                    channels_json TEXT NOT NULL DEFAULT '{}',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS push_subscriptions (
+                    subscription_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    endpoint_hash TEXT NOT NULL,
+                    subscription_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    revoked_at TEXT
+                )
+                '''
+            )
+            for index_sql in (
+                "CREATE INDEX IF NOT EXISTS idx_child_profiles_family ON child_profiles(family_id)",
+                """
+                CREATE INDEX IF NOT EXISTS idx_child_profiles_family_active
+                ON child_profiles(family_id, is_active)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_child_content_settings_family_child
+                ON child_content_settings(family_id, child_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_interaction_limit_settings_family_child
+                ON interaction_limit_settings(family_id, child_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_push_subscriptions_family_user
+                ON push_subscriptions(family_id, user_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint_hash
+                ON push_subscriptions(endpoint_hash)
+                """,
+            ):
+                conn.execute(index_sql)
+
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
                 '''
@@ -1056,6 +1188,19 @@ def delete_family_record(family_id: str) -> bool:
             "curriculum_schedules",
             "game_scores",
             "parent_event_notes",
+            "child_profiles",
+            "child_content_settings",
+            "interaction_limit_settings",
+            "daily_interaction_usage",
+            "sleep_schedule_settings",
+            "notification_settings",
+            "push_subscriptions",
+            "report_exports",
+            "content_items",
+            "device_pairing_codes",
+            "robot_location_metadata",
+            "parent_chat_sessions",
+            "parent_chat_messages",
         })
         for table_name in (
             "learning_schedules",
@@ -1066,6 +1211,19 @@ def delete_family_record(family_id: str) -> bool:
             "education_sessions",
             "curriculum_schedules",
             "game_scores",
+            "child_content_settings",
+            "interaction_limit_settings",
+            "daily_interaction_usage",
+            "sleep_schedule_settings",
+            "notification_settings",
+            "push_subscriptions",
+            "report_exports",
+            "content_items",
+            "device_pairing_codes",
+            "robot_location_metadata",
+            "parent_chat_messages",
+            "parent_chat_sessions",
+            "child_profiles",
         ):
             if table_name not in ALLOWED_CLEANUP_TABLES:
                 logger.error("[DB] Rejected invalid table name: %s", table_name)

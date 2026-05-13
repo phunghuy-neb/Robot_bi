@@ -4339,6 +4339,235 @@ test("60.2 parent event notes CRUD + family scope", test_60_2_parent_event_notes
 test("60.3 /api/events advanced filters + family scope", test_60_3_events_advanced_filters_and_family_scope)
 test("60.4 monthly emotion statistics + alias", test_60_4_monthly_emotion_statistics_and_alias)
 
+# == GROUP 61: Parent App Backend Phase 2 ===================================
+print("\n[Group 61] Parent App Backend Phase 2")
+
+
+def _phase2_create_child(client, headers, name="Minh", age=8):
+    resp = client.post(
+        "/api/children",
+        json={
+            "name": name,
+            "age": age,
+            "grade": "2",
+            "avatar": "robot",
+            "interests": ["math", "animals"],
+            "notes": "phase2 test",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 200, resp.text
+    return resp.json()["child"]
+
+
+def test_61_1_phase2_schema_tables_exist():
+    from src.infrastructure.database.db import get_db_connection, init_db
+
+    init_db()
+    expected = {
+        "child_profiles",
+        "child_content_settings",
+        "interaction_limit_settings",
+        "daily_interaction_usage",
+        "sleep_schedule_settings",
+        "notification_settings",
+        "push_subscriptions",
+    }
+    with get_db_connection() as conn:
+        tables = {
+            row["name"]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        }
+    assert expected.issubset(tables), f"Missing phase2 tables: {expected - tables}"
+
+
+def test_61_2_child_profiles_crud_active_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam_a = f"phase2-child-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase2-child-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p2_child_a", fam_a)
+    headers_b = _phase44_headers("p2_child_b", fam_b)
+    client = TestClient(app)
+
+    no_auth = client.get("/api/children")
+    assert no_auth.status_code == 401
+
+    first = _phase2_create_child(client, headers_a, "Minh", 8)
+    second = _phase2_create_child(client, headers_a, "An", 7)
+    assert first["is_active"] is True
+    assert second["is_active"] is False
+
+    listed = client.get("/api/children", headers=headers_a)
+    assert listed.status_code == 200
+    assert listed.json()["active_child_id"] == first["child_id"]
+    assert len(listed.json()["children"]) == 2
+
+    activated = client.put(f"/api/children/{second['child_id']}/activate", headers=headers_a)
+    assert activated.status_code == 200
+    listed_after = client.get("/api/children", headers=headers_a).json()
+    assert listed_after["active_child_id"] == second["child_id"]
+    assert sum(1 for child in listed_after["children"] if child["is_active"]) == 1
+
+    patched = client.patch(
+        f"/api/children/{first['child_id']}",
+        json={"name": "Minh updated", "interests": ["science"]},
+        headers=headers_a,
+    )
+    assert patched.status_code == 200
+    assert patched.json()["child"]["name"] == "Minh updated"
+    assert patched.json()["child"]["interests"] == ["science"]
+
+    assert client.get(f"/api/children/{first['child_id']}", headers=headers_b).status_code == 404
+    assert client.post("/api/children", json={"name": "Too young", "age": 4}, headers=headers_a).status_code == 422
+
+    deleted = client.delete(f"/api/children/{second['child_id']}", headers=headers_a)
+    assert deleted.status_code == 200
+    assert client.get("/api/children", headers=headers_a).json()["active_child_id"] == first["child_id"]
+
+
+def test_61_3_age_filter_and_time_limits():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam_a = f"phase2-settings-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase2-settings-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p2_set_a", fam_a)
+    headers_b = _phase44_headers("p2_set_b", fam_b)
+    client = TestClient(app)
+    child = _phase2_create_child(client, headers_a, "Lan", 9)
+
+    age_resp = client.post(
+        "/api/settings/age-filter",
+        json={
+            "child_id": child["child_id"],
+            "enabled": True,
+            "min_age": 7,
+            "max_age": 10,
+            "blocked_topics": ["scary"],
+            "allowed_topics": ["math"],
+            "strict_mode": True,
+        },
+        headers=headers_a,
+    )
+    assert age_resp.status_code == 200
+    settings = age_resp.json()["settings"]
+    assert settings["child_id"] == child["child_id"]
+    assert settings["blocked_topics"] == ["scary"]
+
+    loaded = client.get(f"/api/settings/age-filter?child_id={child['child_id']}", headers=headers_a)
+    assert loaded.status_code == 200
+    assert loaded.json()["settings"]["allowed_topics"] == ["math"]
+    assert client.get(f"/api/settings/age-filter?child_id={child['child_id']}", headers=headers_b).status_code == 404
+    assert client.post(
+        "/api/settings/age-filter",
+        json={"enabled": True, "min_age": 11, "max_age": 6},
+        headers=headers_a,
+    ).status_code == 422
+
+    limit_resp = client.post(
+        "/api/settings/time-limits",
+        json={
+            "child_id": child["child_id"],
+            "enabled": True,
+            "daily_limit_minutes": 45,
+            "warning_minutes": 5,
+            "reset_time": "00:30",
+        },
+        headers=headers_a,
+    )
+    assert limit_resp.status_code == 200
+    assert limit_resp.json()["settings"]["daily_limit_minutes"] == 45
+    assert limit_resp.json()["usage_today"]["seconds_used"] == 0
+    assert limit_resp.json()["usage_today"]["remaining_seconds"] == 2700
+
+    usage = client.get(f"/api/usage/today?child_id={child['child_id']}", headers=headers_a)
+    assert usage.status_code == 200
+    assert usage.json()["usage_today"]["limit_reached"] is False
+    assert client.post(
+        "/api/settings/time-limits",
+        json={"daily_limit_minutes": 10, "warning_minutes": 20, "reset_time": "00:00"},
+        headers=headers_a,
+    ).status_code == 422
+
+
+def test_61_4_sleep_and_notification_settings():
+    import hashlib
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+
+    fam_a = f"phase2-notify-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase2-notify-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p2_notify_a", fam_a)
+    headers_b = _phase44_headers("p2_notify_b", fam_b)
+    client = TestClient(app)
+
+    sleep = client.post(
+        "/api/settings/sleep",
+        json={
+            "enabled": True,
+            "start_time": "21:00",
+            "end_time": "06:30",
+            "days": ["mon", "tue", "wed"],
+            "timezone": "Asia/Ho_Chi_Minh",
+        },
+        headers=headers_a,
+    )
+    assert sleep.status_code == 200
+    assert sleep.json()["settings"]["days"] == ["mon", "tue", "wed"]
+    assert client.get("/api/settings/sleep", headers=headers_b).json()["settings"]["enabled"] is False
+    assert client.post(
+        "/api/settings/sleep",
+        json={"enabled": True, "start_time": "25:00", "end_time": "06:30", "days": ["mon"]},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/settings/sleep",
+        json={"enabled": True, "start_time": "21:00", "end_time": "06:30", "days": ["bad"]},
+        headers=headers_a,
+    ).status_code == 422
+
+    endpoint = f"https://push.example/{_uuid.uuid4().hex}"
+    notify = client.post(
+        "/api/settings/notifications",
+        json={
+            "enabled": True,
+            "event_types": {"cry": True, "homework": True, "system": False},
+            "quiet_hours": {"enabled": True, "start_time": "21:00", "end_time": "07:00"},
+            "channels": {"in_app": True, "web_push": False},
+            "push_subscription": {"endpoint": endpoint, "keys": {"p256dh": "key", "auth": "auth"}},
+        },
+        headers=headers_a,
+    )
+    assert notify.status_code == 200
+    assert notify.json()["settings"]["event_types"]["cry"] is True
+    assert notify.json()["settings"]["channels"]["web_push"] is False
+    assert "push_subscription" not in notify.json()["settings"]
+
+    endpoint_hash = hashlib.sha256(endpoint.encode("utf-8")).hexdigest()
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT endpoint_hash FROM push_subscriptions WHERE family_id = ?",
+            (fam_a,),
+        ).fetchone()
+    assert row is not None
+    assert row["endpoint_hash"] == endpoint_hash
+
+    assert client.get("/api/settings/notifications", headers=headers_b).json()["settings"]["event_types"] == {}
+    assert client.post(
+        "/api/settings/notifications",
+        json={"event_types": {"unknown": True}},
+        headers=headers_a,
+    ).status_code == 422
+
+
+test("61.1 Phase 2 schema tables", test_61_1_phase2_schema_tables_exist)
+test("61.2 child profiles CRUD active isolation", test_61_2_child_profiles_crud_active_and_isolation)
+test("61.3 age filter and time limits", test_61_3_age_filter_and_time_limits)
+test("61.4 sleep and notification settings", test_61_4_sleep_and_notification_settings)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
