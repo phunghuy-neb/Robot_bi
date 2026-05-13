@@ -627,6 +627,48 @@ def init_db() -> None:
                     ),
                 )
 
+            # Parent App Phase 4: QR pairing metadata and robot location metadata.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS device_pairing_codes (
+                    pairing_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    purpose TEXT NOT NULL,
+                    code_hash TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    used_at TEXT,
+                    created_at TEXT NOT NULL,
+                    created_by_user_id TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS robot_location_metadata (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    room_name TEXT,
+                    location_label TEXT,
+                    source TEXT NOT NULL DEFAULT 'parent',
+                    confidence REAL NOT NULL DEFAULT 1.0,
+                    updated_at TEXT NOT NULL,
+                    updated_by_user_id TEXT
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_device_pairing_family_expires
+                ON device_pairing_codes(family_id, expires_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_robot_location_source
+                ON robot_location_metadata(source)
+                """,
+            ):
+                conn.execute(index_sql)
+
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
                 '''

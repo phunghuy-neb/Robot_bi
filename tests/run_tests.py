@@ -4821,6 +4821,171 @@ test("62.2 report export CSV/PDF + family scope", test_62_2_report_export_csv_pd
 test("62.3 content metadata filters + family scope", test_62_3_content_metadata_filters_and_family_scope)
 test("62.4 parent chat history + isolation", test_62_4_parent_chat_history_and_isolation)
 
+# == GROUP 63: Parent App Backend Phase 4 ===================================
+print("\n[Group 63] Parent App Backend Phase 4")
+
+
+def test_63_1_phase4_schema_tables_exist():
+    from src.infrastructure.database.db import get_db_connection, init_db
+
+    init_db()
+    expected = {"device_pairing_codes", "robot_location_metadata"}
+    with get_db_connection() as conn:
+        tables = {
+            row["name"]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        }
+    assert expected.issubset(tables), f"Missing phase4 tables: {expected - tables}"
+
+
+def test_63_2_device_connection_qr_hash_ttl_and_family_scope():
+    import hashlib
+    from urllib.parse import parse_qs, urlparse
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+
+    fam_a = f"phase4-qr-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase4-qr-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p4_qr_a", fam_a)
+    _phase44_headers("p4_qr_b", fam_b)
+    client = TestClient(app)
+
+    resp = client.get("/api/device/connection-qr?purpose=parent_app&ttl_seconds=120", headers=headers_a)
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["qr"]["ttl_seconds"] == 120
+    assert data["network"]["local_url"].startswith("http://")
+    assert ".env" not in resp.text
+    parsed = urlparse(data["qr"]["payload_url"])
+    params = parse_qs(parsed.query)
+    pairing_id = data["qr"]["pairing_id"]
+    raw_code = params["code"][0]
+    assert params["pairing_id"][0] == pairing_id
+    assert len(raw_code) >= 16
+
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT family_id, purpose, code_hash
+            FROM device_pairing_codes
+            WHERE pairing_id = ?
+            """,
+            (pairing_id,),
+        ).fetchone()
+        other_count = conn.execute(
+            "SELECT COUNT(*) AS count FROM device_pairing_codes WHERE family_id = ?",
+            (fam_b,),
+        ).fetchone()["count"]
+    assert row is not None
+    assert row["family_id"] == fam_a
+    assert row["purpose"] == "parent_app"
+    assert row["code_hash"] == hashlib.sha256(raw_code.encode("utf-8")).hexdigest()
+    assert row["code_hash"] != raw_code
+    assert other_count == 0
+
+    assert client.get("/api/device/connection-qr?ttl_seconds=59", headers=headers_a).status_code == 422
+    assert client.get("/api/device/connection-qr?ttl_seconds=3601", headers=headers_a).status_code == 422
+    assert client.get("/api/device/connection-qr?purpose=bad", headers=headers_a).status_code == 422
+
+
+def test_63_3_robot_location_save_load_validation_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam_a = f"phase4-location-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase4-location-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p4_location_a", fam_a)
+    headers_b = _phase44_headers("p4_location_b", fam_b)
+    client = TestClient(app)
+
+    default_b = client.get("/api/robot/location", headers=headers_b)
+    assert default_b.status_code == 200
+    assert default_b.json()["location"]["source"] == "system"
+    assert default_b.json()["location"]["updated_at"] is None
+
+    saved = client.post(
+        "/api/robot/location",
+        json={
+            "room_name": "Living room",
+            "location_label": "Near bookshelf",
+            "source": "parent",
+            "confidence": 0.95,
+        },
+        headers=headers_a,
+    )
+    assert saved.status_code == 200, saved.text
+    location = saved.json()["location"]
+    assert location["family_id"] == fam_a
+    assert location["room_name"] == "Living room"
+    assert location["confidence"] == 0.95
+
+    loaded = client.get("/api/robot/location", headers=headers_a)
+    assert loaded.status_code == 200
+    assert loaded.json()["location"]["location_label"] == "Near bookshelf"
+    assert client.get("/api/robot/location", headers=headers_b).json()["location"]["room_name"] is None
+
+    assert client.post(
+        "/api/robot/location",
+        json={"source": "unknown", "confidence": 1.0},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/robot/location",
+        json={"source": "parent", "confidence": 1.5},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/robot/location",
+        json={"room_name": "x" * 121, "source": "parent", "confidence": 1.0},
+        headers=headers_a,
+    ).status_code == 422
+
+
+def test_63_4_admin_logs_guard_bounds_and_redaction():
+    from fastapi.testclient import TestClient
+    from src.api.routers.admin_router import _sanitize_log_message
+    from src.api.server import app
+
+    user_headers = _phase44_headers("p4_logs_user", f"phase4-logs-user-{_uuid.uuid4().hex[:6]}")
+    admin_headers = _phase44_headers(
+        "p4_logs_admin",
+        f"phase4-logs-admin-{_uuid.uuid4().hex[:6]}",
+        is_admin=True,
+    )
+    client = TestClient(app)
+
+    assert client.get("/api/admin/logs", headers=user_headers).status_code == 403
+    resp = client.get("/api/admin/logs?limit=2", headers=admin_headers)
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["limit"] == 2
+    assert len(data["logs"]) <= 2
+    assert data["total"] >= len(data["logs"])
+    assert all("message" in row and "source" in row for row in data["logs"])
+
+    info = client.get("/api/admin/logs?level=INFO", headers=admin_headers)
+    assert info.status_code == 200
+    assert all(row["level"] == "INFO" for row in info.json()["logs"])
+    assert client.get("/api/admin/logs?level=INVALID", headers=admin_headers).status_code == 422
+    assert client.get("/api/admin/logs?limit=0", headers=admin_headers).status_code == 422
+    assert client.get("/api/admin/logs?limit=501", headers=admin_headers).status_code == 422
+    assert client.get("/api/admin/logs?since=not-a-date", headers=admin_headers).status_code == 422
+
+    sanitized = _sanitize_log_message(
+        "Bearer abc.def.ghi token=secret JWT_SECRET_KEY=secret content=child said private thing"
+    )
+    assert "secret" not in sanitized.lower()
+    assert "abc.def.ghi" not in sanitized
+    assert "child said private thing" not in sanitized
+    assert "[REDACTED]" in sanitized
+
+
+test("63.1 Phase 4 schema tables", test_63_1_phase4_schema_tables_exist)
+test("63.2 QR device connection metadata", test_63_2_device_connection_qr_hash_ttl_and_family_scope)
+test("63.3 robot location metadata", test_63_3_robot_location_save_load_validation_and_isolation)
+test("63.4 admin logs guard bounds redaction", test_63_4_admin_logs_guard_bounds_and_redaction)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

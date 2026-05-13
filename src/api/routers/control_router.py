@@ -20,13 +20,15 @@ import logging
 import csv
 import hashlib
 import json
+import os
 import re
+import secrets
 from datetime import date, datetime, timedelta, timezone
 from io import StringIO
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
@@ -137,11 +139,20 @@ class ReportExportIn(BaseModel):
     child_id: Optional[str] = Field(default=None, max_length=80)
 
 
+class RobotLocationIn(BaseModel):
+    room_name: Optional[str] = Field(default=None, max_length=120)
+    location_label: Optional[str] = Field(default=None, max_length=200)
+    source: str = Field(default="parent", max_length=20)
+    confidence: float = 1.0
+
+
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 _DAYS = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
 _EVENT_TYPES = {"motion", "stranger", "known_face", "cry", "chat", "system", "homework"}
 _CHANNELS = {"in_app", "web_push"}
 _REPORT_SECTIONS = {"events", "conversations", "emotions", "education", "tasks"}
+_PAIRING_PURPOSES = {"parent_app", "robot_display", "esp32"}
+_LOCATION_SOURCES = {"parent", "robot", "system"}
 
 
 def _now_iso() -> str:
@@ -603,6 +614,26 @@ def _render_report_pdf(rows: list[dict], start_date: str, end_date: str) -> byte
         f"trailer << /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_at}\n%%EOF\n".encode("ascii")
     )
     return bytes(pdf)
+
+
+def _location_row_to_dict(family_id: str, row) -> dict:
+    if not row:
+        return {
+            "family_id": family_id,
+            "room_name": None,
+            "location_label": None,
+            "source": "system",
+            "confidence": 0.0,
+            "updated_at": None,
+        }
+    return {
+        "family_id": family_id,
+        "room_name": row["room_name"],
+        "location_label": row["location_label"],
+        "source": row["source"],
+        "confidence": float(row["confidence"]),
+        "updated_at": row["updated_at"],
+    }
 
 
 # REST: Status
@@ -1130,6 +1161,114 @@ async def export_parent_report(
         media_type="application/pdf",
         headers=headers,
     )
+
+
+@router.get("/api/device/connection-qr")
+async def get_device_connection_qr(
+    request: Request,
+    purpose: str = Query(default="parent_app", max_length=40),
+    ttl_seconds: int = Query(default=300, ge=60, le=3600),
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = ensure_family_exists(_require_family(_current_user))
+    purpose_value = (purpose or "").strip()
+    if purpose_value not in _PAIRING_PURPOSES:
+        raise HTTPException(status_code=422, detail="purpose must be parent_app, robot_display, or esp32")
+
+    pairing_id = uuid4().hex
+    raw_code = secrets.token_urlsafe(18)
+    code_hash = hashlib.sha256(raw_code.encode("utf-8")).hexdigest()
+    now_dt = datetime.now(timezone.utc)
+    expires_dt = now_dt + timedelta(seconds=int(ttl_seconds))
+    base_url = str(request.base_url).rstrip("/")
+    payload_url = f"{base_url}/connect?pairing_id={pairing_id}&code={raw_code}&purpose={purpose_value}"
+    tunnel_url = os.getenv("CLOUDFLARE_TUNNEL_URL", "").strip() or None
+
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO device_pairing_codes (
+                pairing_id, family_id, purpose, code_hash, expires_at, used_at,
+                created_at, created_by_user_id
+            ) VALUES (?, ?, ?, ?, ?, NULL, ?, ?)
+            """,
+            (
+                pairing_id,
+                family_id,
+                purpose_value,
+                code_hash,
+                expires_dt.isoformat(),
+                now_dt.isoformat(),
+                str(_current_user.get("user_id") or ""),
+            ),
+        )
+        conn.commit()
+
+    return {
+        "qr": {
+            "pairing_id": pairing_id,
+            "payload_url": payload_url,
+            "expires_at": expires_dt.isoformat(),
+            "ttl_seconds": int(ttl_seconds),
+        },
+        "network": {
+            "local_url": base_url,
+            "tunnel_url": tunnel_url,
+            "https_enabled": request.url.scheme == "https",
+        },
+    }
+
+
+@router.get("/api/robot/location")
+async def get_robot_location(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT room_name, location_label, source, confidence, updated_at
+            FROM robot_location_metadata
+            WHERE family_id = ?
+            """,
+            (family_id,),
+        ).fetchone()
+    return {"ok": True, "location": _location_row_to_dict(family_id, row)}
+
+
+@router.post("/api/robot/location")
+async def save_robot_location(
+    payload: RobotLocationIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = ensure_family_exists(_require_family(_current_user))
+    source = (payload.source or "").strip().lower()
+    if source not in _LOCATION_SOURCES:
+        raise HTTPException(status_code=422, detail="source must be parent, robot, or system")
+    confidence = float(payload.confidence)
+    if confidence < 0.0 or confidence > 1.0:
+        raise HTTPException(status_code=422, detail="confidence must be between 0.0 and 1.0")
+    room_name = (payload.room_name or "").strip() or None
+    location_label = (payload.location_label or "").strip() or None
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO robot_location_metadata (
+                family_id, room_name, location_label, source, confidence,
+                updated_at, updated_by_user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                family_id,
+                room_name,
+                location_label,
+                source,
+                confidence,
+                now,
+                str(_current_user.get("user_id") or ""),
+            ),
+        )
+        conn.commit()
+    return await get_robot_location(_current_user)
 
 
 @router.get("/api/events")

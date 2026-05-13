@@ -16,6 +16,8 @@
 
 ## Last Completed Task
 
+- 2026-05-13: **Parent App backend integration Phase 4 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped QR device connection metadata (`/api/device/connection-qr`), robot room/location metadata (`/api/robot/location`), and admin-only sanitized system logs (`/api/admin/logs`). Added migration-safe SQLite tables for pairing metadata and robot location metadata; admin logs intentionally return controlled sanitized operational entries rather than parsing raw log files. Full `python tests/run_tests.py` ran with new Group 63 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 4 scope.
+
 - 2026-05-13: **Parent App backend integration Phase 3 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped CSV/PDF report export (`/api/reports/export`), radio/video/game metadata APIs (`/api/entertainment/radio`, `/api/entertainment/videos`, `/api/games/interactive`), and separate parent-to-Bi chat history endpoints (`/api/conversations/parent*`). Added migration-safe SQLite tables for report export audit metadata, content metadata, and parent chat sessions/messages. Full `python tests/run_tests.py` ran with new Group 62 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 3 scope.
 
 - 2026-05-13: **Parent App backend integration Phase 2 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped child profile CRUD/activation, age-based content settings, daily interaction limit storage with usage lookup, sleep schedule settings, and push notification settings storage. Added migration-safe SQLite tables and focused tests in `tests/run_tests.py`. Full `python tests/run_tests.py` ran with new Group 61 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 2 scope.
@@ -37,7 +39,7 @@
 
 ## Next Recommended Action
 
-- Wire the React Parent App mock adapters to the new Phase 1, Phase 2, and Phase 3 backend APIs when frontend work resumes. Continue spec 002 Phase 4 backend work: QR device connection metadata, robot room/location metadata, and admin system logs API.
+- Wire the React Parent App mock adapters to the completed spec 002 backend APIs when frontend work resumes. Backend phases 1-4 are implemented and covered by Groups 60-63 in `tests/run_tests.py`.
 - **Parent App React+Vite migration is complete**. Manual browser test remains recommended: login with real credentials, verify WebSocket status, and check each tab's API calls in Network tab. If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`.
 - For other code changes, read `PROJECT.md`, this handoff, and relevant source files.
 - For large feature/API/schema/cross-module work, use Spec Kit or write a clear plan first.
@@ -64,6 +66,8 @@ python tests/run_tests.py
 - `src/api/routers/control_router.py` (Phase 1 event filters and parent event note endpoints)
 - `src/api/routers/control_router.py` (Phase 2 child profiles and parent settings endpoints)
 - `src/api/routers/control_router.py` (Phase 3 report export endpoint)
+- `src/api/routers/control_router.py` (Phase 4 device QR and robot location endpoints)
+- `src/api/routers/admin_router.py` (Phase 4 sanitized admin logs endpoint)
 - `src/api/routers/conversation_router.py` (Phase 3 parent-to-Bi chat history endpoints)
 - `src/api/routers/game_router.py` (Phase 3 radio/video/game metadata endpoints)
 - `src/api/routers/emotion_router.py` (monthly emotion endpoints)
@@ -71,7 +75,8 @@ python tests/run_tests.py
 - `src/infrastructure/database/db.py` (`parent_event_notes` schema and helpers)
 - `src/infrastructure/database/db.py` (Phase 2 child/settings/usage/notification schema)
 - `src/infrastructure/database/db.py` (Phase 3 report/content/parent-chat schema)
+- `src/infrastructure/database/db.py` (Phase 4 device pairing and robot location schema)
 - `src/infrastructure/sessions/state.py` (advanced event query filters)
-- `tests/run_tests.py` (Group 60 Phase 1, Group 61 Phase 2, and Group 62 Phase 3 backend tests)
+- `tests/run_tests.py` (Groups 60-63 backend tests for spec 002 phases 1-4)
 - `SYSTEM_MAP.md` (Section 6 updated to describe React+Vite implementation)
 - `.claude/handoff.md`

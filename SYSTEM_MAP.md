@@ -58,10 +58,10 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 | Router file | Current responsibility |
 |---|---|
-| `admin_router.py` | Admin family create/list/delete endpoints under `/api/admin/families`. |
+| `admin_router.py` | Admin family create/list/delete endpoints under `/api/admin/families` and sanitized admin system logs under `/api/admin/logs`. |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
-| `control_router.py` | Robot status, report export, events with advanced filters, parent event notes, child profiles, parent settings, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
+| `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
 | `conversation_router.py` | Conversation list/detail/delete, homework conversation routes, and parent-to-Bi chat history routes. |
 | `education_router.py` | Flashcard session routes, learning summary, vocabulary, and learning schedule routes. |
 | `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
@@ -93,9 +93,9 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 **Settings overlay**: full-screen panel with Hồ sơ trẻ, Thông báo, Giờ hoạt động, Nội dung & An toàn, Kết nối thiết bị, Chế độ kỹ thuật (admin only).
 
-**Tier 1 APIs active (real backend)**: auth (`/api/auth/login`, `/logout`, `/refresh`, `/me`), WebSocket robot status (`/ws?token=`), camera MJPEG (`/api/camera`), conversations (`/api/conversations`, `/{id}`), parent chat (`/api/conversations/parent`), events with filters (`/api/events`), parent event notes (`/api/events/{event_id}/notes`), reports (`/api/reports/export`), weekly analytics (`/api/analytics/weekly`), emotion today/monthly (`/api/emotion/today`, `/api/emotion/monthly`, `/api/emotions/monthly`), child profiles (`/api/children`), parent settings (`/api/settings/age-filter`, `/api/settings/time-limits`, `/api/settings/sleep`, `/api/settings/notifications`), daily usage (`/api/usage/today`), music (`/api/music/*`), quiz games (`/api/game/*`), content metadata (`/api/entertainment/radio`, `/api/entertainment/videos`, `/api/games/interactive`), education vocabulary/summary/schedule (`/api/education/*`), stories (`/api/stories`), tasks (`/api/tasks/*`), motor joystick/stop (`/api/motor/*`), puppet (`/api/puppet`), persona (`/api/persona`), admin families (`/api/admin/families`), mom-talk start/stop/WS (`/api/mom/*`).
+**Tier 1 APIs active (real backend)**: auth (`/api/auth/login`, `/logout`, `/refresh`, `/me`), WebSocket robot status (`/ws?token=`), camera MJPEG (`/api/camera`), conversations (`/api/conversations`, `/{id}`), parent chat (`/api/conversations/parent`), events with filters (`/api/events`), parent event notes (`/api/events/{event_id}/notes`), reports (`/api/reports/export`), weekly analytics (`/api/analytics/weekly`), emotion today/monthly (`/api/emotion/today`, `/api/emotion/monthly`, `/api/emotions/monthly`), child profiles (`/api/children`), parent settings (`/api/settings/age-filter`, `/api/settings/time-limits`, `/api/settings/sleep`, `/api/settings/notifications`), daily usage (`/api/usage/today`), device connection QR metadata (`/api/device/connection-qr`), robot location (`/api/robot/location`), music (`/api/music/*`), quiz games (`/api/game/*`), content metadata (`/api/entertainment/radio`, `/api/entertainment/videos`, `/api/games/interactive`), education vocabulary/summary/schedule (`/api/education/*`), stories (`/api/stories`), tasks (`/api/tasks/*`), motor joystick/stop (`/api/motor/*`), puppet (`/api/puppet`), persona (`/api/persona`), admin families (`/api/admin/families`), admin logs (`/api/admin/logs`), mom-talk start/stop/WS (`/api/mom/*`).
 
-**Tier 2 UI placeholders still awaiting backend or frontend wiring**: room/location tracking (coming-soon), QR device connection (coming-soon), system logs viewer (no-backend badge). Monthly emotion stats, parent event notes, advanced event filters, child profiles, age filter, daily time limits, sleep schedule, push notification settings, report export, content metadata, and parent-Bi chat history now have backend APIs but may still need frontend adapter wiring.
+**Tier 2 UI placeholders still awaiting frontend wiring**: all spec 002 backend APIs now exist for monthly emotion stats, parent event notes, advanced event filters, child profiles, age filter, daily time limits, sleep schedule, push notification settings, report export, content metadata, parent-Bi chat history, room/location tracking, QR device connection, and admin system logs.
 
 **Source structure**:
 ```
@@ -144,6 +144,7 @@ Current runtime artifact locations include:
 - SQLite runtime schema includes family-scoped `parent_event_notes` for parent annotations on events.
 - SQLite runtime schema includes Parent App settings tables for child profiles, age/content filters, daily interaction limits and usage, sleep schedules, notification settings, and push subscriptions.
 - SQLite runtime schema includes Parent App Phase 3 tables for report export audit metadata, radio/video/game content metadata, and parent-to-Bi chat history.
+- SQLite runtime schema includes Parent App Phase 4 tables for device pairing metadata and robot location metadata. Admin logs are a sanitized API response and do not read raw log files.
 - `runtime/chroma_db/`
 - `runtime/.hf_cache/`
 - `runtime/vision_data/`
