@@ -83,12 +83,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `frontend/parent_app/` | `index.html`, `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`. |
 | `frontend/robot_display/` | `index.html`, `face.html`, `flashcard.html`, `.codex`. |
 
-`frontend/parent_app/index.html` is a redesigned static single-page browser app (spec 001-parent-app-redesign). UI capabilities after redesign:
-- **Navigation**: 5-tab sidebar (Trang chủ, Giám sát, Học tập, Nhật ký, Thêm) + mobile bottom nav. Sidebar bottom order: Robot status card → User card → Cài đặt → Đăng xuất.
-- **Design system**: Be Vietnam Pro font, 16px base size, 48px tap targets, WCAG AA contrast, "Công nghệ ấm áp" color palette (#2563eb primary, #7c3aed accent, #f3f7ff bg).
-- **Settings overlay**: Full-screen overlay panel (z-index 500) with 6 sections: Hồ sơ trẻ, Thông báo, Giờ hoạt động, Nội dung & An toàn, Kết nối thiết bị, Chế độ kỹ thuật (admin only).
-- **Tier 1 APIs (preserved and active)**: `/api/status`, `/api/events`, `/api/tasks/*`, `/api/education/*`, `/api/emotion/today`, `/api/analytics/weekly`, `/api/conversations/*`, `/api/memories/*`, `/api/motor/*`, `/api/music/*`, `/api/game/*`, `/api/wifi/status`, `/api/camera`, `/api/puppet`, `/api/mom/*`, `/api/admin/families`, `/api/persona`, WebSocket `/ws`.
-- **Tier 2 features (UI placeholder/mock only — backend not yet implemented)**: Export PDF/CSV, parent notes on events, audio playback, advanced filters, monthly emotion chart, room location, Radio channels, Video lessons, Interactive games, QR device pairing, push notification settings, sleep schedule, time limits, age filter, child profile management, parent chat history. All marked with "Sắp hỗ trợ", "Dữ liệu mẫu", or "Chưa kết nối backend" badges.
+`frontend/parent_app/index.html` contains the legacy static browser app that calls the backend REST/WebSocket APIs. A migration to React + Vite is in progress under spec `specs/001-parent-app-redesign/`; this section will be updated after implementation is complete.
 
 `frontend/robot_display/index.html` contains the child-facing display UI with face modes and flashcard/reward/pronunciation display functions. `face.html` and `flashcard.html` are placeholder redirect-style pages.
 
