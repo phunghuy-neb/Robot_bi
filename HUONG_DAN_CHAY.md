@@ -1,95 +1,90 @@
 # Huong Dan Chay Robot Bi
 
-## Yeu cau truoc khi chay
-1. Dien API key vao file `.env`:
-   - `GROQ_API_KEY` — lay tai console.groq.com (free tier: 14.400 req/ngay)
-   - `GEMINI_API_KEY` — lay tai aistudio.google.com (free tier: 1.000 req/ngay)
-2. Co ket noi internet (Groq + Gemini API + edge-tts can internet)
+## Yeu Cau Truoc Khi Chay
 
-## Cach chay
+1. Tao va dien `.env` tren may local. Khong commit `.env`.
+2. Can cac bien chinh: `GROQ_API_KEY`, `GEMINI_API_KEY`, `JWT_SECRET_KEY`, `AUTH_PIN`, `ADMIN_PASSWORD`.
+3. Can internet cho Groq, Gemini, edge-tts, va tunnel neu dung.
 
-### Chay thu cong (test)
-```
-python -m src_brain.main_loop
-```
+## Lenh Chinh
 
-### Chay tu dong restart khi crash (khuyen nghi)
-```
-start_robot.bat
-```
-
-## Truy cap Parent App
-1. Chay robot
-2. Quet QR code hien trong terminal
-3. Hoac mo: `https://[IP-may-tinh]:8443`
-
-## Dang nhap
-1. Dung `ADMIN_USERNAME` va `ADMIN_PASSWORD` trong file `.env`.
-2. Neu can tao tai khoan lan dau, dat `REGISTRATION_ENABLED=true`, dang ky tai khoan admin, sau do dat lai `REGISTRATION_ENABLED=false` va restart robot.
-
-## Tao tai khoan lan dau
-1. Mo `.env`, dat `REGISTRATION_ENABLED=true`
-2. Khoi dong robot
-3. Mo app, dang ky tai khoan admin
-4. Tat lai: `REGISTRATION_ENABLED=false`, restart robot
-
-## Cai app len dien thoai (PWA)
-1. Mo Chrome tren Android
-2. Vao dia chi Parent App
-3. Menu -> "Add to Home screen"
-4. App hien trong man hinh home nhu app that
-
-## Cau truc thu muc chinh
-```
-Robot_Bi_Project/
-  .env                         <- API keys (KHONG commit)
-  config.json                  <- Cau hinh robot
-  src_brain/
-    main_loop.py               <- Entry point chinh
-    ai_core/core_ai.py         <- LLM (Groq Llama 70B / Gemini Flash-Lite)
-    senses/ear_stt.py          <- STT (Whisper large-v2 CUDA)
-    senses/mouth_tts.py        <- TTS (edge-tts + pyttsx3 fallback)
-    memory_rag/                <- ChromaDB RAG
-    network/api_server.py      <- Parent App API
-  start_robot.bat              <- Auto-restart script
-  requirements.txt             <- Dependencies
-```
-
-## Debug
 ```bash
-# Test tung module
-python src_brain/senses/ear_stt.py
-python src_brain/senses/mouth_tts.py
-python src_brain/ai_core/core_ai.py
-
-# Do RAM va latency
-python stress_test.py
+python sync.py
+python tests/run_tests.py
+python src/main.py
 ```
 
-## Cai dat URL co dinh (Cloudflare Named Tunnel)
+`start_robot.bat` co the dung de khoi dong robot theo launcher Windows.
 
-Mac dinh robot dung quick tunnel — URL thay doi moi lan restart, phai quet QR lai.
-De co URL co dinh:
+## Entry Points Hien Tai
 
-1. Truy cap https://one.dash.cloudflare.com → Zero Trust → Networks → Tunnels
-2. Tao tunnel moi, dat ten (vi du: robot-bi)
-3. Chon "Windows" → copy token (bat dau bang `eyJ...`)
-4. Them Public Hostname: `subdomain.yourdomain.com` → `localhost:8443` (HTTPS)
-5. Dan vao file `.env`:
-   ```
-   CLOUDFLARE_TUNNEL_TOKEN=eyJhGci...
-   CLOUDFLARE_TUNNEL_URL=https://subdomain.yourdomain.com
-   ```
-6. Restart robot → URL khong con thay doi sau moi restart
+- Main app: `src/main.py`
+- API server: `src/api/server.py`
+- Parent App: `frontend/parent_app/`
+- Robot Display: `frontend/robot_display/`
+- Firmware: `firmware/Robot_BI/Robot_BI.ino`
+- DB runtime: `runtime/robot_bi.db`
 
-## Bat WebRTC tren Ubuntu
+## Truy Cap Parent App
+
+1. Chay robot bang `python src/main.py` hoac `start_robot.bat`.
+2. Quet QR code hien trong terminal neu co.
+3. Hoac mo `https://[IP-may-tinh]:8443`.
+
+## Dang Nhap
+
+1. Dung tai khoan admin duoc seed tu `.env` hoac tai khoan da dang ky.
+2. Neu can tao tai khoan lan dau, dat `REGISTRATION_ENABLED=true`, dang ky tai khoan, sau do dat lai `REGISTRATION_ENABLED=false` va restart robot.
+
+## Cai Parent App Len Dien Thoai
+
+1. Mo Chrome tren Android.
+2. Vao dia chi Parent App.
+3. Chon menu va "Add to Home screen".
+
+## Debug Co Ban
+
+```bash
+python tests/run_tests.py
+python stress_test.py
+python verify_db_clean.py
+```
+
+Khi debug module rieng, dung path hien tai trong `src/`, khong dung `src_brain/`.
+
+## Cloudflare Named Tunnel
+
+Mac dinh quick tunnel co the doi URL sau moi lan restart. De co URL co dinh:
+
+1. Tao named tunnel trong Cloudflare Zero Trust.
+2. Cau hinh Public Hostname tro ve `localhost:8443`.
+3. Them vao `.env`:
+
+```env
+CLOUDFLARE_TUNNEL_TOKEN=...
+CLOUDFLARE_TUNNEL_URL=https://subdomain.example.com
+```
+
+4. Restart robot.
+
+## WebRTC Tren Ubuntu
+
 ```bash
 pip install -r requirements-ubuntu.txt
 ```
-Kiem tra khi khoi dong: `_AIORTC_AVAILABLE` se = `True` neu aiortc da cai dung.
 
-## Khi co phan cung robot
-1. Train openWakeWord model "bi_oi" tu 30+ audio samples
-2. Dat model vao src_brain/senses/models/bi_oi.onnx
-3. Set WAKEWORD_ENABLED = True trong ear_stt.py
-4. Implement ESP32 motor control (Sprint 4)
+Lenh cai dat dependency can duoc user cho phep truoc khi chay.
+
+## Firmware Robot
+
+Firmware hien tai nam tai:
+
+```text
+firmware/Robot_BI/Robot_BI.ino
+```
+
+ESP32 firmware dang xu ly motor pins, WiFi setup/persistence, WebSocket motor commands, server registration, va watchdog stop behavior. Kiem tra file `.ino` truoc khi sua firmware.
+
+## Deprecated
+
+`src_brain/` la path cu. Khong chay command, import, hoac tao file moi trong `src_brain/`.

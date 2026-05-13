@@ -10,15 +10,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Robot Bi">
   <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #2563eb;
       --primary-600: #1d4ed8;
+      --primary-dark: #1d4ed8;
       --primary-soft: #dbeafe;
+      --accent: #7c3aed;
+      --accent-soft: #ede9fe;
+      --info: #0ea5e9;
       --bg: #f3f7ff;
       --card: #ffffff;
       --text: #0f172a;
-      --muted: #64748b;
+      --text-secondary: #475569;
+      --muted: #94a3b8;
       --border: #e5eefb;
       --success: #22c55e;
       --danger: #ef4444;
@@ -29,6 +35,11 @@
       --shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
       --nav-h: 68px;
       --side-w: 240px;
+      --font-body: 16px;
+      --font-btn: 18px;
+      --font-section: 20px;
+      --font-heading: 24px;
+      --tap-min: 48px;
     }
 
     * {
@@ -39,10 +50,10 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-size: 14px;
+      font-size: var(--font-body);
       min-height: 100dvh
     }
 
@@ -152,17 +163,18 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 13px 20px;
+      padding: 14px 20px;
       cursor: pointer;
       border: none;
       background: none;
       width: 100%;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--muted);
       transition: background .15s, color .15s;
       border-right: 3px solid transparent;
-      text-align: left
+      text-align: left;
+      min-height: 52px
     }
 
     .side-nav-item .nav-icon {
@@ -196,6 +208,83 @@
       color: var(--muted);
       margin-bottom: 10px
     }
+
+    /* ── Robot Status Card (sidebar) ── */
+    .robot-status-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+    .robot-status-card.online { border-color: #86efac; background: #f0fdf4 }
+    .robot-status-card.offline { border-color: #fca5a5; background: #fef2f2 }
+    .robot-status-card.connecting { border-color: #fcd34d; background: #fffbeb }
+    .robot-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #94a3b8
+    }
+    .robot-status-card.online .robot-status-dot { background: #22c55e }
+    .robot-status-card.offline .robot-status-dot { background: #ef4444 }
+    .robot-status-card.connecting .robot-status-dot { background: #f59e0b }
+    .robot-status-label { font-size: 14px; font-weight: 700; line-height: 1.3 }
+    .robot-status-sub { font-size: 12px; color: var(--muted) }
+
+    /* ── Sidebar User Card ── */
+    .sidebar-user-card {
+      background: var(--primary-soft);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 10px;
+      cursor: pointer;
+      transition: background .15s
+    }
+    .sidebar-user-card:hover { background: #bfdbfe }
+    .sidebar-user-avatar {
+      font-size: 28px;
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+    .sidebar-user-name { font-size: 14px; font-weight: 700; color: var(--text) }
+    .sidebar-user-role { font-size: 12px; color: var(--muted) }
+    .sidebar-child-profile { font-size: 11px; color: var(--primary); font-weight: 600 }
+
+    /* ── Sidebar Action Buttons ── */
+    .side-nav-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: #f1f5f9;
+      color: var(--text);
+      font-size: var(--font-body);
+      font-weight: 600;
+      cursor: pointer;
+      min-height: var(--tap-min);
+      margin-bottom: 6px;
+      transition: background .15s;
+      text-align: left
+    }
+    .side-nav-action-btn:hover { background: var(--primary-soft); color: var(--primary) }
+    .side-nav-action-btn.danger:hover { background: #fef2f2; color: var(--danger) }
 
     /* ── App Shell ── */
     .app-shell {
@@ -250,7 +339,7 @@
       font-size: 11px;
       font-weight: 600;
       transition: color .2s;
-      min-height: 44px
+      min-height: 56px
     }
 
     .bottom-nav-item .nav-icon {
@@ -308,7 +397,7 @@
     }
 
     .page-header h1 {
-      font-size: 22px;
+      font-size: var(--font-heading);
       font-weight: 800;
       color: var(--primary)
     }
@@ -316,10 +405,22 @@
     /* ── Home header ── */
     .home-header {
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      padding: 28px 20px 20px;
+      padding: 32px 24px 24px;
       color: white;
       position: relative;
       overflow: hidden
+    }
+    .home-greeting { font-size: 14px; opacity: .85; margin-bottom: 4px }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255,255,255,.15);
+      margin-top: 8px
     }
 
     .home-header::after {
@@ -452,14 +553,14 @@
     }
 
     .metric-num {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 800;
       color: var(--primary);
       line-height: 1.1
     }
 
     .metric-label {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--muted);
       margin-top: 3px
     }
@@ -471,12 +572,63 @@
     }
 
     .section-title {
-      font-size: 12px;
+      font-size: var(--font-section);
       font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .6px;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
       margin: 14px 0 8px
+    }
+
+    /* ── Feature Badges ── */
+    .feature-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1.5px solid;
+      vertical-align: middle;
+      margin-left: 6px
+    }
+    .feature-badge.coming-soon {
+      background: #f1f5f9;
+      color: #94a3b8;
+      border-color: #e2e8f0
+    }
+    .feature-badge.mock-data {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: #fcd34d
+    }
+    .feature-badge.no-backend {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fca5a5
+    }
+
+    /* ── State Classes ── */
+    .empty-state, .loading-state, .error-state {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--muted);
+      font-size: 15px
+    }
+    .empty-state .empty-icon, .loading-state .loading-spinner {
+      font-size: 36px;
+      margin-bottom: 10px;
+      display: block
+    }
+    .error-state .retry-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 12px;
+      min-height: var(--tap-min);
+      cursor: pointer
     }
 
     .alert-safe {
@@ -549,13 +701,14 @@
     }
 
     .btn-sm {
-      padding: 7px 14px;
-      font-size: 13px;
+      padding: 9px 14px;
+      font-size: 14px;
       font-weight: 700;
       border-radius: 10px;
       border: none;
       cursor: pointer;
-      white-space: nowrap
+      white-space: nowrap;
+      min-height: 40px
     }
 
     .btn-sm.blue {
@@ -595,14 +748,15 @@
 
     .filter-chip {
       flex-shrink: 0;
-      padding: 6px 14px;
+      padding: 9px 14px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       background: white;
       color: var(--muted);
       cursor: pointer;
-      border: 1.5px solid #e5e7eb
+      border: 1.5px solid #e5e7eb;
+      min-height: 40px
     }
 
     .filter-chip.active {
@@ -645,7 +799,7 @@
     }
 
     .list-row-sub {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--muted);
       margin-top: 2px
     }
@@ -924,7 +1078,7 @@
     }
 
     .task-time {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--primary);
       background: var(--primary-soft);
       padding: 2px 7px;
@@ -1014,7 +1168,7 @@
     }
 
     .evt-time {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--muted);
       margin-top: 2px
     }
@@ -1524,7 +1678,7 @@
     }
 
     .more-menu-sub {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--muted);
       margin-top: 2px
     }
@@ -2588,6 +2742,77 @@
       gap: 10px;
       margin-bottom: 12px
     }
+
+    /* ── Settings Overlay ── */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: var(--bg);
+      overflow-y: auto;
+      display: none;
+      flex-direction: column
+    }
+    .settings-overlay.active { display: flex }
+    @media (min-width: 769px) {
+      .settings-overlay { left: var(--side-w) }
+    }
+    .settings-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1
+    }
+    .settings-header h2 { font-size: var(--font-heading); font-weight: 800 }
+    .settings-back-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 6px;
+      color: var(--primary);
+      min-height: var(--tap-min);
+      min-width: var(--tap-min);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+    .settings-content { flex: 1; padding: 20px }
+    .settings-section {
+      background: var(--card);
+      border: 1px solid rgba(148,163,184,.1);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow)
+    }
+    .settings-section-title {
+      font-size: var(--font-section);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+    .admin-only { display: none }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border)
+    }
+    .settings-row:last-child { border-bottom: none }
+    .settings-row-label { font-size: 16px; font-weight: 600 }
+    .settings-row-sub { font-size: 13px; color: var(--muted) }
+    .toggle-disabled { opacity: .4; cursor: not-allowed }
   </style>
 </head>
 
@@ -2608,8 +2833,82 @@
     </div>
   </div>
 
+  <!-- ═══ SETTINGS OVERLAY ═══ -->
+  <div class="settings-overlay" id="settingsOverlay" role="dialog" aria-label="Cài đặt">
+    <div class="settings-header">
+      <button class="settings-back-btn" onclick="closeSettings()" aria-label="Đóng cài đặt">‹</button>
+      <h2>Cài đặt</h2>
+    </div>
+    <div class="settings-content">
+      <!-- Section 1: Hồ sơ trẻ -->
+      <div class="settings-section">
+        <div class="settings-section-title">👦 Hồ sơ trẻ <span class="feature-badge mock-data">Dữ liệu mẫu</span></div>
+        <div id="childProfileList"></div>
+        <button onclick="showComingSoonToast('Quản lý hồ sơ trẻ')" style="margin-top:12px;width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;font-size:16px;font-weight:700;color:var(--primary);cursor:pointer;min-height:var(--tap-min);">+ Thêm hồ sơ trẻ</button>
+      </div>
+      <!-- Section 2: Thông báo -->
+      <div class="settings-section">
+        <div class="settings-section-title">🔔 Thông báo &amp; Nhắc nhở <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Push notification</div><div class="settings-row-sub">Nhận thông báo khi có sự kiện quan trọng</div></div>
+          <button class="toggle-disabled" onclick="showComingSoonToast('Thông báo push')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:20px;background:white;font-size:14px;cursor:not-allowed;">Bật</button>
+        </div>
+      </div>
+      <!-- Section 3: Giờ hoạt động -->
+      <div class="settings-section">
+        <div class="settings-section-title">⏰ Giờ hoạt động robot <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Giờ bật</div></div>
+          <input type="time" value="07:00" disabled class="toggle-disabled" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Giờ tắt</div></div>
+          <input type="time" value="21:00" disabled class="toggle-disabled" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;">
+        </div>
+        <button onclick="showComingSoonToast('Chế độ ngủ tự động')" style="margin-top:12px;width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;min-height:var(--tap-min);opacity:.6;" disabled>Lưu lịch</button>
+      </div>
+      <!-- Section 4: Nội dung & An toàn -->
+      <div class="settings-section">
+        <div class="settings-section-title">🛡️ Nội dung &amp; An toàn <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Giới hạn thời gian</div><div class="settings-row-sub" id="timeLimitLabel">0 phút/ngày</div></div>
+          <input type="range" min="0" max="120" value="60" disabled class="toggle-disabled" style="width:120px;">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Bộ lọc theo tuổi</div></div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="showComingSoonToast('Bộ lọc tuổi')" disabled style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:13px;opacity:.6;cursor:not-allowed;">5-7</button>
+            <button onclick="showComingSoonToast('Bộ lọc tuổi')" disabled style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--primary-soft);color:var(--primary);font-size:13px;opacity:.6;cursor:not-allowed;font-weight:700;">8-10</button>
+            <button onclick="showComingSoonToast('Bộ lọc tuổi')" disabled style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:13px;opacity:.6;cursor:not-allowed;">11-12</button>
+          </div>
+        </div>
+      </div>
+      <!-- Section 5: Kết nối thiết bị -->
+      <div class="settings-section">
+        <div class="settings-section-title">📱 Kết nối thiết bị <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+        <div style="text-align:center;padding:20px 0;">
+          <div style="width:120px;height:120px;border:3px dashed var(--border);border-radius:16px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:40px;">📷</div>
+          <div style="font-size:15px;color:var(--muted);">QR code kết nối thiết bị — Sắp hỗ trợ</div>
+        </div>
+      </div>
+      <!-- Section 6: Chế độ kỹ thuật (admin only) -->
+      <div class="settings-section admin-only" id="adminSection">
+        <div class="settings-section-title">⚙️ Chế độ kỹ thuật <span class="feature-badge no-backend">Chưa kết nối backend</span></div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Chỉ dành cho admin và người dùng kỹ thuật.</div>
+        <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div class="settings-row-label">📋 Nhật ký hệ thống</div>
+          <div id="sysLogViewer" style="width:100%;background:#0f172a;color:#4ade80;padding:12px;border-radius:8px;font-family:monospace;font-size:12px;max-height:160px;overflow-y:auto;"></div>
+        </div>
+        <div class="settings-row" id="adminFamiliesRow" style="flex-direction:column;align-items:flex-start;gap:8px;">
+          <div class="settings-row-label">👨‍👩‍👧 Quản lý gia đình</div>
+          <div id="adminFamiliesList"><div style="font-size:13px;color:var(--muted);">Đang tải...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ SIDE NAV ═══ -->
-  <nav class="side-nav" id="sideNav">
+  <nav class="side-nav" id="sideNav" aria-label="Điều hướng chính">
     <div class="side-nav-logo"><span>🤖</span><strong>Robot Bi</strong></div>
     <button class="side-nav-item active" onclick="switchTab('home')" id="snav-home"><span
         class="nav-icon">🏠</span>Trang chủ</button>
@@ -2622,25 +2921,41 @@
     <button class="side-nav-item" onclick="switchTab('more')" id="snav-more"><span
         class="nav-icon">•••</span>Thêm</button>
     <div class="side-nav-bottom">
-      <div class="side-nav-status">
-        <span id="snavDot" style="font-size:10px;color:#4ade80;">●</span>
-        <span id="snavStatusTxt">Đang kết nối...</span>
+      <div class="robot-status-card connecting" id="robotStatusCard">
+        <div class="robot-status-dot" id="robotStatusDot"></div>
+        <div>
+          <div class="robot-status-label" id="robotStatusLabel">Đang kết nối...</div>
+          <div class="robot-status-sub" id="robotStatusSub">Robot Bi</div>
+        </div>
+        <!-- Preserve legacy IDs for setStatus() compatibility -->
+        <span id="snavDot" style="display:none;"></span>
+        <span id="snavStatusTxt" style="display:none;"></span>
       </div>
-      <button onclick="doLogout()"
-        style="width:100%;padding:9px;border:1.5px solid #fee2e2;border-radius:10px;background:none;color:var(--danger);font-size:13px;font-weight:700;cursor:pointer;">🚪
-        Đăng xuất</button>
+      <div class="sidebar-user-card" id="sidebarUserCard" onclick="openChildProfileSwitcher()">
+        <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarUserName">Phụ huynh</div>
+          <div class="sidebar-user-role" id="sidebarUserRole">Phụ huynh</div>
+          <div class="sidebar-child-profile" id="sidebarChildProfile" style="display:none;"></div>
+        </div>
+      </div>
+      <button class="side-nav-action-btn" onclick="openSettings()"><span>⚙️</span> Cài đặt</button>
+      <button class="side-nav-action-btn danger" onclick="doLogout()"><span>🚪</span> Đăng xuất</button>
     </div>
   </nav>
 
   <!-- ═══ APP SHELL ═══ -->
-  <div class="app-shell">
+  <div class="app-shell" role="main" aria-label="Nội dung chính">
 
     <!-- ══════════ PAGE: HOME ══════════ -->
     <div class="page active" id="page-home">
       <div class="home-header">
         <div class="home-header-top">
           <span style="font-size:36px;">🤖</span>
-          <h1>Robot Bi</h1>
+          <div style="flex:1;">
+            <div class="home-greeting" id="homeGreeting">Xin chào, Phụ huynh 👋</div>
+            <h1>Robot Bi</h1>
+          </div>
           <button class="logout-btn" onclick="doLogout()">Thoát</button>
         </div>
         <div class="status-card">
@@ -2649,6 +2964,7 @@
           <div class="status-divider"></div>
           <div class="status-card-item">⭐ <span id="homeStars">0</span></div>
         </div>
+        <div class="status-badge" id="homeBadge">⏳ Đang kết nối...</div>
       </div>
       <div class="page-content" style="padding-top:14px;">
         <div class="quick-action-grid">
@@ -2695,13 +3011,26 @@
             <div class="metric-sub" id="homeEmotionSub">—</div>
           </div>
         </div>
+        <div class="card" id="weeklyReportCard" style="margin-top:12px;">
+          <div class="card-header">
+            <div class="card-title">📊 Báo cáo tuần</div>
+            <span class="card-link" onclick="switchTab('monitor')">Chi tiết ›</span>
+          </div>
+          <div id="weeklyReportContent"><div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div></div>
+        </div>
+        <div class="card" id="roomLocationCard" style="margin-top:12px;">
+          <div class="card-header">
+            <div class="card-title">📍 Vị trí robot <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+          </div>
+          <div class="empty-state">🏠 Tính năng định vị phòng đang được phát triển</div>
+        </div>
         <div class="card" style="margin-top:12px;">
           <div class="card-header">
             <div class="card-title">🕐 Sự kiện gần đây</div><span class="card-link" onclick="switchTab('journal')">Xem
               tất cả ›</span>
           </div>
           <div id="homeEvents">
-            <div class="loading">...</div>
+            <div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>
           </div>
         </div>
       </div>
@@ -2780,8 +3109,14 @@
               tất cả ›</span>
           </div>
           <div id="monitorEvents">
-            <div class="loading">...</div>
+            <div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>
           </div>
+        </div>
+        <div class="card" id="monitorWeeklyCard" style="margin-top:12px;">
+          <div class="card-header">
+            <div class="card-title">📊 Phân tích tuần này</div>
+          </div>
+          <div id="monitorWeeklyContent"><div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div></div>
         </div>
       </div>
     </div>
@@ -2870,8 +3205,32 @@
               tất cả ›</span>
           </div>
           <div id="learningHomework">
-            <div class="loading">Đang tải...</div>
+            <div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>
           </div>
+        </div>
+        <div class="card" id="practiceSection">
+          <div class="card-header">
+            <div class="card-title">🎯 Luyện tập</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <button class="game-card" onclick="startGame('word-quiz')" style="display:flex;flex-direction:column;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;gap:8px;">
+              <span style="font-size:28px;">📝</span>
+              <div style="font-size:14px;font-weight:700;">Đố chữ</div>
+              <div style="font-size:12px;color:var(--muted);">Đánh vần từ vựng</div>
+            </button>
+            <button class="game-card" onclick="startGame('voice-quiz')" style="display:flex;flex-direction:column;align-items:center;padding:16px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;gap:8px;">
+              <span style="font-size:28px;">🎤</span>
+              <div style="font-size:14px;font-weight:700;">Đố giọng nói</div>
+              <div style="font-size:12px;color:var(--muted);">Trả lời bằng giọng</div>
+            </button>
+          </div>
+        </div>
+        <div class="card" id="parentChatSection">
+          <div class="card-header">
+            <div class="card-title">💬 Chat với Bi <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+          </div>
+          <div class="empty-state"><span class="empty-icon">💬</span>Lịch sử trò chuyện riêng của phụ huynh với Bi — Sắp hỗ trợ</div>
+          <button disabled title="Sắp hỗ trợ" style="width:100%;padding:12px;margin-top:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;font-size:16px;color:var(--muted);cursor:not-allowed;opacity:.6;">Bắt đầu chat</button>
         </div>
       </div>
     </div>
@@ -2880,6 +3239,7 @@
     <div class="page" id="page-journal">
       <div class="page-header">
         <h1>Nhật ký</h1>
+        <button id="exportReportBtn" onclick="showComingSoonToast('Xuất báo cáo')" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;min-height:var(--tap-min);">📄 Xuất PDF/CSV</button>
       </div>
       <div class="page-content">
         <div class="filter-bar" id="journalFilter">
@@ -2888,6 +3248,18 @@
           <button class="filter-chip" onclick="journalFilterSet('events',this)">🔔 Sự kiện</button>
           <button class="filter-chip" onclick="journalFilterSet('memory',this)">🧠 Trí nhớ</button>
           <button class="filter-chip" onclick="journalFilterSet('report',this)">📊 Báo cáo</button>
+        </div>
+        <div class="journal-filter-bar" id="journalFilterBar" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+          <select id="journalFilterType" onchange="filterJournalItems()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;background:white;">
+            <option value="all">Tất cả loại</option>
+            <option value="chat">Trò chuyện</option>
+            <option value="event">Sự kiện</option>
+            <option value="homework">Bài tập</option>
+          </select>
+          <input type="date" id="journalFilterDate" onchange="filterJournalItems()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;">
+          <button id="advancedFilterBtn" onclick="toggleAdvancedFilterPanel()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:white;cursor:pointer;">
+            🔍 Lọc nâng cao <span class="feature-badge coming-soon">Sắp hỗ trợ</span>
+          </button>
         </div>
         <div id="journalChatSection">
           <div class="card">
@@ -2949,6 +3321,12 @@
             </div>
           </div>
         </div>
+        <div id="emotionMonthlySection" class="card">
+          <div class="card-header">
+            <div class="card-title">📈 Cảm xúc theo tháng <span class="feature-badge mock-data">Dữ liệu mẫu</span></div>
+          </div>
+          <div id="emotionMonthlyChart"></div>
+        </div>
       </div>
     </div>
 
@@ -2996,6 +3374,21 @@
               </div>
               <div class="more-menu-arrow">›</div>
             </div>
+          </div>
+          <!-- Radio - Mock Data -->
+          <div class="more-group-title">📻 Radio <span class="feature-badge mock-data">Dữ liệu mẫu</span></div>
+          <div class="more-menu-card" id="radioSection">
+            <div id="radioChannelList"></div>
+          </div>
+          <!-- Video học - Mock Data -->
+          <div class="more-group-title">🎬 Video học <span class="feature-badge mock-data">Dữ liệu mẫu</span></div>
+          <div id="videoLearningSection" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"></div>
+          <!-- Trò chơi tương tác - Coming Soon -->
+          <div class="more-group-title">🕹️ Trò chơi tương tác <span class="feature-badge coming-soon">Sắp hỗ trợ</span></div>
+          <div id="interactiveGamesSection" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+            <button onclick="showComingSoonToast('Ghép hình')" style="padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;text-align:center;font-size:13px;"><div style="font-size:24px;margin-bottom:4px;">🧩</div>Ghép hình</button>
+            <button onclick="showComingSoonToast('Đố vui')" style="padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;text-align:center;font-size:13px;"><div style="font-size:24px;margin-bottom:4px;">❓</div>Đố vui</button>
+            <button onclick="showComingSoonToast('Kể chuyện tương tác')" style="padding:14px 8px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;text-align:center;font-size:13px;"><div style="font-size:24px;margin-bottom:4px;">📖</div>Kể chuyện</button>
           </div>
           <!-- Mạng & Kết nối -->
           <div class="more-group-title">Mạng &amp; Kết nối</div>
@@ -3473,6 +3866,8 @@
     let _token = localStorage.getItem('bi_token') || '';
     let _refreshToken = localStorage.getItem('bi_refresh') || '';
     let _refreshPromise = null;
+    let _isAdmin = false;
+    let _username = '';
     function authHeader() { return _token ? { 'Authorization': 'Bearer ' + _token } : {}; }
 
     async function doLogin() {
@@ -3485,8 +3880,10 @@
         if (!r.ok) throw new Error('wrong');
         const data = await r.json();
         _token = data.access_token; _refreshToken = data.refresh_token;
+        _isAdmin = data.is_admin || false; _username = data.username || u;
         localStorage.setItem('bi_token', _token); localStorage.setItem('bi_refresh', _refreshToken);
         document.getElementById('loginOverlay').style.display = 'none';
+        updateSidebarUserCard(_username, _isAdmin, null);
         _wsLoggedOut = false; connectWS(); loadHome();
       } catch (_) { err.textContent = 'Sai tên đăng nhập hoặc mật khẩu.'; err.style.display = 'block'; document.getElementById('loginPassword').value = ''; }
     }
@@ -3540,7 +3937,40 @@
       const s = document.getElementById('snavDot'); if (s) s.style.color = dc;
       const lbl = online ? 'Đang online' : 'Mất kết nối';
       ['homeStatusTxt', 'monitorStatusTxt', 'snavStatusTxt'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = lbl; });
+      const badge = document.getElementById('homeBadge');
+      if (badge) { badge.textContent = online ? '🟢 Đang hoạt động' : '🔴 Mất kết nối'; badge.style.background = online ? 'rgba(34,197,94,.25)' : 'rgba(239,68,68,.25)'; }
+      updateRobotStatusCard(online ? 'online' : 'offline');
     }
+    function updateRobotStatusCard(state, sub) {
+      const card = document.getElementById('robotStatusCard'); if (!card) return;
+      card.className = 'robot-status-card ' + (state || 'connecting');
+      const lbl = document.getElementById('robotStatusLabel');
+      const labels = { online: '🤖 Đang hoạt động', offline: '📴 Mất kết nối', connecting: '⏳ Đang kết nối...' };
+      if (lbl) lbl.textContent = labels[state] || labels.connecting;
+      if (sub) { const subEl = document.getElementById('robotStatusSub'); if (subEl) subEl.textContent = sub; }
+    }
+    function updateSidebarUserCard(username, isAdmin, childName) {
+      const nameEl = document.getElementById('sidebarUserName'); if (nameEl) nameEl.textContent = username || 'Phụ huynh';
+      const roleEl = document.getElementById('sidebarUserRole'); if (roleEl) roleEl.textContent = isAdmin ? 'Admin' : 'Phụ huynh';
+      const avatarEl = document.getElementById('sidebarUserAvatar'); if (avatarEl) avatarEl.textContent = isAdmin ? '👑' : '👤';
+      const childEl = document.getElementById('sidebarChildProfile');
+      if (childEl) { if (childName) { childEl.textContent = '👦 ' + childName; childEl.style.display = ''; } else { childEl.style.display = 'none'; } }
+      const greet = document.getElementById('homeGreeting'); if (greet) greet.textContent = 'Xin chào, ' + (username || 'Phụ huynh') + ' 👋';
+    }
+    function openChildProfileSwitcher() { showComingSoonToast('Quản lý hồ sơ trẻ'); }
+    function isAdmin() { return _isAdmin; }
+    function openSettings() {
+      const overlay = document.getElementById('settingsOverlay');
+      if (!overlay) { switchTab('more'); return; }
+      overlay.classList.add('active');
+      if (_isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block'); loadAdminSection(); }
+      renderChildProfiles();
+    }
+    function closeSettings() { document.getElementById('settingsOverlay')?.classList.remove('active'); }
+    function mockChildProfiles() { return [{ id: 'mock-1', name: 'Bé Minh', age: 8, avatar: '👦' }, { id: 'mock-2', name: 'Bé Lan', age: 6, avatar: '👧' }]; }
+    function renderChildProfiles() { const el = document.getElementById('childProfileList'); if (!el) return; el.replaceChildren(...mockChildProfiles().map(p => { const card = makeEl('div', ''); card.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;'; const av = makeEl('div', '', p.avatar); av.style.cssText = 'font-size:28px;width:44px;height:44px;background:var(--primary-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;'; card.appendChild(av); const info = makeEl('div', ''); info.style.flex = '1'; info.appendChild(makeEl('div', '', p.name)).style.cssText = 'font-size:16px;font-weight:700;'; info.appendChild(makeEl('div', '', p.age + ' tuổi')).style.cssText = 'font-size:13px;color:var(--muted);'; card.appendChild(info); const btn = makeEl('button', '', 'Chỉnh sửa'); btn.disabled = true; btn.style.cssText = 'opacity:.5;cursor:not-allowed;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:14px;'; card.appendChild(btn); return card; })); }
+    async function loadAdminSection() { const logs = mockSystemLogs(); const logEl = document.getElementById('sysLogViewer'); if (logEl) logEl.innerHTML = logs.map(l => `<div style="margin-bottom:4px;"><span style="color:${l.level==='ERROR'?'#f87171':l.level==='WARN'?'#fbbf24':'#94a3b8'};">[${l.level}]</span> ${escapeHTML(l.message)}</div>`).join(''); const families = await apiFetch('/api/admin/families').catch(() => null); const fEl = document.getElementById('adminFamiliesList'); if (fEl) { if (families?.families?.length) { fEl.innerHTML = families.families.map(f => `<div style="padding:6px 0;font-size:14px;border-bottom:1px solid var(--border);">${escapeHTML(f.display_name)}</div>`).join(''); } else { fEl.innerHTML = '<div style="font-size:13px;color:var(--muted);">Không có dữ liệu hoặc không đủ quyền</div>'; } } }
+    function mockSystemLogs() { return [{ level: 'INFO', message: '2026-05-13 10:00 — Robot Bi started' }, { level: 'INFO', message: '2026-05-13 10:01 — WebSocket connected' }, { level: 'WARN', message: '2026-05-13 10:05 — Camera stream timeout' }, { level: 'INFO', message: '2026-05-13 10:30 — Session started: Hội thoại buổi sáng' }, { level: 'ERROR', message: '2026-05-13 11:00 — TTS fallback triggered' }]; }
     function onRealtimeEvent(evt) {
       if (evt.type === 'notification') { showNotificationBanner(evt.event_type, evt.message); return; }
       if (evt.type === 'battery_low') { showNotificationBanner('battery_low', evt.message || '🔋 Pin robot sắp hết!'); return; }
@@ -3600,11 +4030,27 @@
       document.getElementById('homeEmotion').textContent = EI[emo] || '😐'; document.getElementById('homeEmotionSub').textContent = EL[emo] || 'Bình thường';
       const evtEl = document.getElementById('homeEvents');
       if (events?.events?.length) { evtEl.replaceChildren(...events.events.slice(0, 4).map(e => { const row = makeEl('div', 'evt-item'); row.appendChild(makeEl('div', 'evt-icon', evtIcon(e.type))); const body = makeEl('div', 'evt-body'); body.appendChild(makeEl('div', 'evt-msg', e.message || '')); body.appendChild(makeEl('div', 'evt-time', fmtTime(e.timestamp))); row.appendChild(body); return row; })); }
-      else { evtEl.innerHTML = '<div class="empty">Chưa có sự kiện nào</div>'; }
+      else { evtEl.innerHTML = '<div class="empty-state"><span class="empty-icon">🤖</span>Bi đang chờ bé ra chơi!</div>'; }
+      loadWeeklyReport();
+    }
+    async function loadWeeklyReport() {
+      const el = document.getElementById('weeklyReportContent'); if (!el) return;
+      el.innerHTML = '<div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>';
+      const d = await apiFetch('/api/analytics/weekly');
+      if (!d) { el.innerHTML = '<div class="error-state">⚠️ Không tải được báo cáo<br><button class="retry-btn" onclick="loadWeeklyReport()">Thử lại</button></div>'; return; }
+      const sessions = d.total_sessions ?? d.sessions ?? 0;
+      const mins = d.total_minutes ?? d.minutes ?? 0;
+      const hw = d.homework_count ?? 0;
+      el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">
+        <div><div style="font-size:20px;font-weight:800;color:var(--primary);">${sessions}</div><div style="font-size:12px;color:var(--muted);">Phiên</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--accent);">${mins}</div><div style="font-size:12px;color:var(--muted);">Phút</div></div>
+        <div><div style="font-size:20px;font-weight:800;color:var(--success);">${hw}</div><div style="font-size:12px;color:var(--muted);">Bài tập</div></div>
+      </div>`;
     }
 
     // ══ MONITOR ══
-    async function loadMonitor() { await loadMonitorEvents(); }
+    async function loadMonitor() { await Promise.all([loadMonitorEvents(), loadMonitorWeeklyReport()]); }
+    async function loadMonitorWeeklyReport() { const el = document.getElementById('monitorWeeklyContent'); if (!el) return; el.innerHTML = '<div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>'; const d = await apiFetch('/api/analytics/weekly'); if (!d) { el.innerHTML = '<div class="error-state">⚠️ Không tải được<br><button class="retry-btn" onclick="loadMonitorWeeklyReport()">Thử lại</button></div>'; return; } const s = d.total_sessions ?? d.sessions ?? 0; const m = d.total_minutes ?? d.minutes ?? 0; const hw = d.homework_count ?? 0; const emo = d.emotion_summary || {}; const happyPct = emo.happy || 0; const neutralPct = emo.neutral || 0; const sadPct = emo.sad || 0; el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-bottom:12px;"><div><div style="font-size:22px;font-weight:800;color:var(--primary);">${s}</div><div style="font-size:12px;color:var(--muted);">Phiên</div></div><div><div style="font-size:22px;font-weight:800;color:var(--accent);">${m}</div><div style="font-size:12px;color:var(--muted);">Phút</div></div><div><div style="font-size:22px;font-weight:800;color:var(--success);">${hw}</div><div style="font-size:12px;color:var(--muted);">Bài tập</div></div></div><div style="font-size:13px;font-weight:600;margin-bottom:6px;">Cảm xúc tuần này</div><div style="display:flex;height:16px;border-radius:8px;overflow:hidden;"><div style="width:${happyPct}%;background:#4ade80;"></div><div style="width:${neutralPct}%;background:#94a3b8;"></div><div style="width:${sadPct}%;background:#f87171;"></div></div><div style="display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:4px;"><span>😊 ${happyPct}%</span><span>😐 ${neutralPct}%</span><span>😢 ${sadPct}%</span></div>`; }
     async function loadMonitorEvents() {
       const data = await apiFetch('/api/events?limit=20'); const el = document.getElementById('monitorEvents');
       if (!data) { el.innerHTML = '<div class="empty">Lỗi tải dữ liệu</div>'; return; }
@@ -3627,7 +4073,7 @@
     async function startWebRTC() {
       try { const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }); _webrtcPc = pc; pc.addTransceiver('video', { direction: 'recvonly' }); pc.ontrack = (evt) => { const v = document.getElementById('cameraFeed'); v.srcObject = evt.streams[0]; v.style.display = 'block'; }; pc.onconnectionstatechange = () => { const s = pc.connectionState; if (s === 'failed' || s === 'closed' || s === 'disconnected') { setTimeout(() => { if (_webrtcPc !== pc || !_camOn) return; const feed = document.getElementById('cameraFeed'); if (feed) { feed.style.display = 'none'; feed.srcObject = null; } _webrtcPc = null; _camOn = false; startMJPEG(); }, 0); } }; const offer = await pc.createOffer(); await pc.setLocalDescription(offer); await Promise.race([new Promise(r => { if (pc.iceGatheringState === 'complete') { r(); return; } pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; },), new Promise(r => setTimeout(r, 5000))]); const answer = await apiFetch('/api/webrtc/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type }) }); if (!answer) { pc.close(); _webrtcPc = null; return false; } await pc.setRemoteDescription(new RTCSessionDescription(answer)); return true; } catch (_) { if (_webrtcPc) { _webrtcPc.close(); _webrtcPc = null; } return false; }
     }
-    function startMJPEG() { const img = document.getElementById('cameraFeedMjpeg'); img.src = `/api/camera?auth=${encodeURIComponent(_token)}`; img.style.display = 'block'; }
+    function startMJPEG() { const img = document.getElementById('cameraFeedMjpeg'); img.src = `/api/camera?auth=${encodeURIComponent(_token)}`; img.style.display = 'block'; img.onerror = () => { img.style.display = 'none'; const ph = document.getElementById('cameraPlaceholder'); if (ph) { ph.innerHTML = '<div class="camera-placeholder-msg">📷 Camera không khả dụng</div>'; ph.style.display = 'flex'; } }; }
     function stopCamera() { if (_webrtcPc) { _webrtcPc.close(); _webrtcPc = null; fetch('/api/webrtc/close', { method: 'POST', headers: authHeader() }).catch(() => { }); const v = document.getElementById('cameraFeed'); v.srcObject = null; v.style.display = 'none'; } const img = document.getElementById('cameraFeedMjpeg'); img.src = ''; img.style.display = 'none'; _camOn = false; document.getElementById('cameraPlaceholder').style.display = 'block'; document.getElementById('liveBadge').classList.remove('show'); const btn = document.getElementById('camBtn'); btn.textContent = '📷 Bật camera'; btn.classList.remove('danger'); stopAudioMonitor(); }
 
     // Mom Mic
@@ -3690,15 +4136,19 @@
     // ══ JOURNAL ══
     let _journalFilter = 'all';
     function journalFilterSet(f, btn) { _journalFilter = f; document.querySelectorAll('#journalFilter .filter-chip').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const s = { chat: 'journalChatSection', events: 'journalEventsSection', memory: 'journalMemorySection', report: 'journalReportSection' }; if (f === 'all') { Object.values(s).forEach(id => document.getElementById(id).style.display = 'block'); } else { Object.entries(s).forEach(([k, id]) => document.getElementById(id).style.display = k === f ? 'block' : 'none'); } }
-    async function loadJournal() { await Promise.all([loadThreads(), loadJournalEvents(), loadJournalMemories(), loadJournalReport()]); }
-    async function loadJournalEvents() { const d = await apiFetch('/api/events?limit=20'); const el = document.getElementById('journalEventList'); if (!d?.events?.length) { el.innerHTML = '<div class="empty">Chưa có sự kiện</div>'; return; } const f = d.events.filter(e => e.type !== 'chat' && e.type !== 'system'); if (!f.length) { el.innerHTML = '<div class="empty">Chưa có sự kiện</div>'; return; } el.replaceChildren(...f.slice(0, 10).map(e => { const row = makeEl('div', 'list-row'); const icon = makeEl('div', 'list-row-icon', evtIcon(e.type)); icon.style.background = '#f0f6ff'; row.appendChild(icon); const body = makeEl('div', 'list-row-body'); const msg = makeEl('div', 'list-row-title', e.message || ''); if (!e.read) msg.appendChild(makeEl('span', 'new-badge', 'MỚI')); body.appendChild(msg); body.appendChild(makeEl('div', 'list-row-sub', fmtTime(e.timestamp))); row.appendChild(body); row.appendChild(makeEl('div', 'list-row-time', fmtShortTime(e.timestamp))); return row; })); }
+    async function loadJournal() { await Promise.all([loadThreads(), loadJournalEvents(), loadJournalMemories(), loadJournalReport()]); renderEmotionMonthlyChart(); }
+    function filterJournalItems() { /* client-side filter placeholder — sections already loaded */ const t = document.getElementById('journalFilterType')?.value || 'all'; const d = document.getElementById('journalFilterDate')?.value || ''; toast(t === 'all' && !d ? '📋 Hiển thị tất cả' : `🔍 Lọc: ${t}${d ? ' · ' + d : ''}`); }
+    function toggleAdvancedFilterPanel() { showComingSoonToast('Bộ lọc nâng cao'); }
+    function mockMonthlyEmotionData() { return { month: 'Tháng 5/2026', data: [{ week: 'Tuần 1', happy: 60, neutral: 30, sad: 10 }, { week: 'Tuần 2', happy: 70, neutral: 20, sad: 10 }, { week: 'Tuần 3', happy: 50, neutral: 35, sad: 15 }, { week: 'Tuần 4', happy: 75, neutral: 20, sad: 5 }] }; }
+    function renderEmotionMonthlyChart() { const el = document.getElementById('emotionMonthlyChart'); if (!el) return; const d = mockMonthlyEmotionData(); el.innerHTML = d.data.map(w => `<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">${w.week}</div><div style="display:flex;gap:2px;height:16px;border-radius:8px;overflow:hidden;"><div style="width:${w.happy}%;background:#4ade80;" title="Vui ${w.happy}%"></div><div style="width:${w.neutral}%;background:#94a3b8;" title="Bình thường ${w.neutral}%"></div><div style="width:${w.sad}%;background:#f87171;" title="Buồn ${w.sad}%"></div></div><div style="display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:3px;"><span>😊 ${w.happy}%</span><span>😐 ${w.neutral}%</span><span>😢 ${w.sad}%</span></div></div>`).join(''); }
+    async function loadJournalEvents() { const el = document.getElementById('journalEventList'); el.innerHTML = '<div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải...</div>'; const d = await apiFetch('/api/events?limit=20'); if (!d) { el.innerHTML = '<div class="error-state">⚠️ Lỗi tải sự kiện<br><button class="retry-btn" onclick="loadJournalEvents()">Thử lại</button></div>'; return; } if (!d?.events?.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">📋</span>Chưa có sự kiện nào</div>'; return; } const f = d.events.filter(e => e.type !== 'chat' && e.type !== 'system'); if (!f.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">📋</span>Chưa có sự kiện nào</div>'; return; } el.replaceChildren(...f.slice(0, 10).map(e => { const row = makeEl('div', 'list-row'); const icon = makeEl('div', 'list-row-icon', evtIcon(e.type)); icon.style.background = '#f0f6ff'; row.appendChild(icon); const body = makeEl('div', 'list-row-body'); const msg = makeEl('div', 'list-row-title', e.message || ''); if (!e.read) msg.appendChild(makeEl('span', 'new-badge', 'MỚI')); body.appendChild(msg); body.appendChild(makeEl('div', 'list-row-sub', fmtTime(e.timestamp))); const noteBtn = makeEl('button', '', '📝 Ghi chú'); noteBtn.style.cssText = 'font-size:12px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;margin-top:4px;'; noteBtn.onclick = () => { showComingSoonToast('Ghi chú phụ huynh'); }; body.appendChild(noteBtn); row.appendChild(body); row.appendChild(makeEl('div', 'list-row-time', fmtShortTime(e.timestamp))); return row; })); }
     async function loadJournalMemories() { const d = await apiFetch('/api/memories'); const el = document.getElementById('journalMemList'); if (!d?.memories?.length) { el.innerHTML = '<div class="empty">Chưa có trí nhớ</div>'; return; } el.replaceChildren(...d.memories.slice(0, 5).map(m => { const item = makeEl('div', 'mem-item'); item.id = `jm-${m.id}`; const icon = makeEl('div', 'mem-icon', m.source === 'parent' ? '👨‍👩‍👧' : '💬'); icon.style.background = '#f0f6ff'; item.appendChild(icon); const body = makeEl('div', 'mem-body'); body.appendChild(makeEl('div', 'mem-text', m.fact || '')); body.appendChild(makeEl('div', 'mem-meta', fmtTime(m.timestamp))); item.appendChild(body); const del = makeEl('button', 'btn-del', '🗑'); del.addEventListener('click', () => delMem(m.id, 'jm-')); item.appendChild(del); return item; })); }
     async function loadJournalReport() { const d = await apiFetch('/api/analytics/weekly'); const EL = { happy: 'vui vẻ', neutral: 'bình thường', sad: 'buồn', stressed: 'căng thẳng' }; document.getElementById('rptHours').textContent = d ? `${d.hours ?? 0}` : '—'; document.getElementById('rptWords').textContent = d ? `${d.words ?? 0}` : '—'; document.getElementById('rptStories').textContent = d ? `${d.stories ?? 0}` : '—'; document.getElementById('rptEmotion').textContent = d ? (EL[d.avg_emotion] || '😊') : '—'; const now = new Date(), mon = new Date(now); mon.setDate(now.getDate() - now.getDay() + 1); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); document.getElementById('rptDateRange').textContent = `${mon.getDate()}/${mon.getMonth() + 1} – ${sun.getDate()}/${sun.getMonth() + 1}`; }
     function loadMoreChats() { loadThreads(); }
     async function markAllRead() { await apiFetch('/api/events/read_all', { method: 'POST' }); loadJournalEvents(); toast('✓ Đã đánh dấu tất cả đã đọc'); }
     async function addMemory() { const txt = document.getElementById('memInput').value.trim(); if (!txt) { toast('Nhập nội dung!'); return; } const r = await apiFetch('/api/memories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: txt }) }); if (r?.status === 'ok') { document.getElementById('memInput').value = ''; toast('✅ Đã thêm!'); loadJournalMemories(); } else toast('❌ Thêm thất bại'); }
     async function delMem(id, prefix = 'jm-') { if (!confirm('Xóa trí nhớ này?')) return; const r = await apiFetch(`/api/memories/${id}`, { method: 'DELETE' }); if (r) { document.getElementById(`${prefix}${id}`)?.remove(); toast('🗑 Đã xóa'); } else toast('❌ Xóa thất bại'); }
-    async function loadThreads() { const el = document.getElementById('journalChatList'); if (!el) return; el.innerHTML = '<div class="loading">Đang tải hội thoại...</div>'; const d = await apiFetch('/api/conversations?limit=20'); const list = d?.conversations || []; if (!list.length) { el.innerHTML = '<div class="empty">Chưa có hội thoại nào</div>'; return; } el.replaceChildren(...list.map(c => { const row = makeEl('div', 'list-row'); row.style.cursor = 'pointer'; const icon = makeEl('div', 'list-row-icon', '💬'); icon.style.background = '#f0f6ff'; row.appendChild(icon); const body = makeEl('div', 'list-row-body'); body.appendChild(makeEl('div', 'list-row-title', c.title || 'Hội thoại không tiêu đề')); body.appendChild(makeEl('div', 'list-row-sub', `${fmtTime(c.started_at)} · ${c.turn_count || 0} lượt`)); row.appendChild(body); const arr = makeEl('div', 'list-row-time', '›'); arr.style.fontSize = '18px'; row.appendChild(arr); row.addEventListener('click', () => showThreadDetail(c.session_id)); return row; })); }
+    async function loadThreads() { const el = document.getElementById('journalChatList'); if (!el) return; el.innerHTML = '<div class="loading-state"><span class="loading-spinner">⏳</span>Đang tải hội thoại...</div>'; const d = await apiFetch('/api/conversations?limit=20'); const list = d?.conversations || []; if (!list.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">💬</span>Chưa có hội thoại nào</div>'; return; } el.replaceChildren(...list.map(c => { const row = makeEl('div', 'list-row'); row.style.cursor = 'pointer'; const icon = makeEl('div', 'list-row-icon', '💬'); icon.style.background = '#f0f6ff'; row.appendChild(icon); const body = makeEl('div', 'list-row-body'); body.appendChild(makeEl('div', 'list-row-title', c.title || 'Hội thoại không tiêu đề')); body.appendChild(makeEl('div', 'list-row-sub', `${fmtTime(c.started_at)} · ${c.turn_count || 0} lượt`)); const audioBtn = makeEl('button', 'audio-play-btn', '▶ Phát lại'); audioBtn.disabled = true; audioBtn.title = 'Sắp hỗ trợ'; audioBtn.style.cssText = 'opacity:.4;cursor:not-allowed;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:white;margin-top:4px;'; body.appendChild(audioBtn); row.appendChild(body); const arr = makeEl('div', 'list-row-time', '›'); arr.style.fontSize = '18px'; row.appendChild(arr); row.addEventListener('click', () => showThreadDetail(c.session_id)); return row; })); }
     async function showThreadDetail(session_id) { const el = document.getElementById('journalChatList'); if (!el) return; el.innerHTML = '<div class="loading">Đang tải...</div>'; const d = await apiFetch(`/api/conversations/${session_id}`); if (!d?.turns) { el.innerHTML = '<button style="margin-bottom:10px;background:none;border:none;color:var(--primary);font-size:14px;cursor:pointer;padding:0;" onclick="loadThreads()">← Quay lại</button><div class="empty">Không tải được hội thoại</div>'; return; } const back = makeEl('button', '', '← Quay lại'); back.style.cssText = 'margin-bottom:12px;display:block;background:none;border:none;color:var(--primary);font-size:14px;cursor:pointer;padding:0;'; back.addEventListener('click', loadThreads); const title = makeEl('div', 'card-title', d.session?.title || 'Hội thoại'); title.style.marginBottom = '12px'; const turns = d.turns.map(t => { const card = makeEl('div', 'chat-entry'); const row = makeEl('div', ''); row.appendChild(makeEl('div', 'chat-who', t.role === 'user' ? '👦 Bé' : '🤖 Bi')); row.appendChild(makeEl('div', `bubble ${t.role === 'user' ? 'user' : 'bi'}`, t.content || '')); card.appendChild(row); return card; }); el.replaceChildren(back, title, ...turns); }
 
     // ══ MORE ══
@@ -3707,7 +4157,12 @@
       document.getElementById('moreMobile').style.display = isDesktop ? 'none' : 'block';
       document.getElementById('moreDesktop').style.display = isDesktop ? 'block' : 'none';
       if (isDesktop) { loadWifiDesktopStatus(); } else { loadWifiStatus(); }
+      renderRadioChannels(); renderVideoLessons();
     }
+    function mockRadioChannels() { return [{ id: 1, name: 'Thiếu nhi VN', genre: 'Nhạc thiếu nhi', icon: '🎵' }, { id: 2, name: 'Kể chuyện', genre: 'Truyện ngắn', icon: '📖' }, { id: 3, name: 'Nhạc Cổ tích', genre: 'Dân gian', icon: '🏰' }, { id: 4, name: 'Học tiếng Anh', genre: 'Giáo dục', icon: '🇬🇧' }]; }
+    function renderRadioChannels() { const el = document.getElementById('radioChannelList'); if (!el) return; el.replaceChildren(...mockRadioChannels().map(c => { const item = makeEl('div', 'more-menu-item'); item.onclick = () => showComingSoonToast('Radio ' + c.name); const icon = makeEl('div', 'more-menu-icon', c.icon); icon.style.background = '#fef3c7'; item.appendChild(icon); const body = makeEl('div', 'more-menu-body'); body.appendChild(makeEl('div', 'more-menu-title', c.name)); body.appendChild(makeEl('div', 'more-menu-sub', c.genre)); item.appendChild(body); item.appendChild(makeEl('div', 'more-menu-arrow', '›')); return item; })); }
+    function mockVideoLessons() { return [{ id: 1, title: 'Toán vui', subject: 'Toán học', duration: '5 phút', thumbnail: '🔢' }, { id: 2, title: 'Tiếng Anh cho bé', subject: 'Ngoại ngữ', duration: '8 phút', thumbnail: '🇬🇧' }, { id: 3, title: 'Khoa học thú vị', subject: 'Khoa học', duration: '6 phút', thumbnail: '🔬' }]; }
+    function renderVideoLessons() { const el = document.getElementById('videoLearningSection'); if (!el) return; el.replaceChildren(...mockVideoLessons().map(v => { const card = makeEl('div', ''); card.style.cssText = 'border:1.5px solid var(--border);border-radius:var(--radius-md);padding:12px;background:white;cursor:pointer;text-align:center;'; card.onclick = () => showComingSoonToast('Video học'); card.appendChild(makeEl('div', '', v.thumbnail)); card.querySelector('div').style.cssText = 'font-size:32px;margin-bottom:6px;'; const title = makeEl('div', '', v.title); title.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:2px;'; const meta = makeEl('div', '', v.subject + ' · ' + v.duration); meta.style.cssText = 'font-size:11px;color:var(--muted);'; card.appendChild(title); card.appendChild(meta); return card; })); }
 
     // ══ ENTERTAINMENT ══
     let _musicPlaying = false, _currentPlaylist = 'kids_vn';
@@ -3906,6 +4361,34 @@
     window.addEventListener('beforeunload', () => { try { sendMotorStopNow('unload'); } catch (_) { } try { stopCamera(); stopAudioMonitor(); } catch (_) { } if (momMicActive) try { stopMomMic(); } catch (_) { } });
     // Responsive: re-render More on resize
     window.addEventListener('resize', () => { if (activeTab === 'more') loadMore(); });
+
+    // === MOCK DATA FUNCTIONS ===
+    function mockRoomLocation() { return { room: null, lastSeen: null }; } // TODO: /api/robot/location
+    function mockInteractiveGames() { return [{ id: 1, name: 'Ghép hình', icon: '🧩', description: 'Ghép hình theo chủ đề', ageMin: 4, ageMax: 8 }, { id: 2, name: 'Đố vui', icon: '❓', description: 'Câu đố vui cho bé', ageMin: 5, ageMax: 12 }, { id: 3, name: 'Kể chuyện tương tác', icon: '📖', description: 'Cùng Bi kể chuyện', ageMin: 4, ageMax: 10 }]; }
+
+    // === API ADAPTERS ===
+    async function apiGetChildProfiles() { return mockChildProfiles(); } // TODO: GET /api/child/profiles
+    async function apiExportReport(fmt) { showComingSoonToast('Xuất báo cáo ' + fmt); } // TODO: GET /api/reports/export?format=
+    async function apiAddParentNote(eventId, note) { showComingSoonToast('Ghi chú phụ huynh'); return null; } // TODO: POST /api/events/{id}/notes
+    async function apiGetMonthlyEmotions(month) { return mockMonthlyEmotionData(); } // TODO: GET /api/emotions/monthly?month=
+    async function apiGetRoomLocation() { return mockRoomLocation(); } // TODO: GET /api/robot/location
+    async function apiGetRadioChannels() { return mockRadioChannels(); } // TODO: GET /api/radio/channels
+    async function apiGetVideoLessons() { return mockVideoLessons(); } // TODO: GET /api/education/videos
+    async function apiGetDeviceQR() { showComingSoonToast('QR kết nối thiết bị'); return null; } // TODO: GET /api/device/qr
+    async function apiGetSystemLogs() { return mockSystemLogs(); } // TODO: GET /api/system/logs
+    async function apiSavePushSettings(settings) { showComingSoonToast('Cài đặt thông báo'); return null; } // TODO: POST /api/settings/notifications
+    async function apiSaveSleepSchedule(schedule) { showComingSoonToast('Chế độ ngủ tự động'); return null; } // TODO: POST /api/settings/sleep
+    async function apiSaveTimeLimits(limits) { showComingSoonToast('Giới hạn thời gian'); return null; } // TODO: POST /api/settings/time-limits
+    async function apiSaveAgeFilter(filter) { showComingSoonToast('Bộ lọc tuổi'); return null; } // TODO: POST /api/settings/age-filter
+    async function apiGetParentChatHistory() { showComingSoonToast('Chat với Bi'); return null; } // TODO: GET /api/conversations/parent
+    async function apiGetInteractiveGames() { return mockInteractiveGames(); } // TODO: GET /api/games/interactive
+
+    // ── Feature Badge Helpers ──
+    function renderFeatureBadge(type) {
+      const labels = { 'coming-soon': 'Sắp hỗ trợ', 'mock-data': 'Dữ liệu mẫu', 'no-backend': 'Chưa kết nối backend' };
+      return `<span class="feature-badge ${type}">${labels[type] || type}</span>`;
+    }
+    function showComingSoonToast(name) { toast(name + ': Tính năng đang được phát triển'); }
 
     // Legacy stubs
     function loadStatus() { loadHome(); } function loadChats() { if (activeTab === 'journal') loadThreads(); } function loadEvents() { if (activeTab === 'monitor') loadMonitorEvents(); else if (activeTab === 'journal') loadJournalEvents(); } function loadMemories() { if (activeTab === 'journal') loadJournalMemories(); } function loadTasks() { if (activeTab === 'learning') loadLearningTasks(); } function loadSettings() { } function loadPersona() { } function loadEmotion() { } function loadEducation() { loadLearning(); } function loadEntertainment() { } function loadVideo() { } function loadAnalytics() { loadJournalReport(); } function loadHomework() { loadLearningHomework(); } function updateStarsDisplay(n) { document.getElementById('homeStars').textContent = n; document.getElementById('learningStars').textContent = n; }
