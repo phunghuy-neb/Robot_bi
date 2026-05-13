@@ -414,6 +414,219 @@ def init_db() -> None:
             ):
                 conn.execute(index_sql)
 
+            # Parent App Phase 3: report audit metadata, content catalog, and parent chat.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS report_exports (
+                    export_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    format TEXT NOT NULL,
+                    start_date TEXT NOT NULL,
+                    end_date TEXT NOT NULL,
+                    sections_json TEXT NOT NULL,
+                    row_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    status TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS content_items (
+                    content_id TEXT PRIMARY KEY,
+                    family_id TEXT,
+                    type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    source_url TEXT,
+                    thumbnail_url TEXT,
+                    age_min INTEGER,
+                    age_max INTEGER,
+                    language TEXT NOT NULL DEFAULT 'vi',
+                    tags_json TEXT NOT NULL DEFAULT '[]',
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_chat_sessions (
+                    session_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    title TEXT,
+                    started_at TEXT NOT NULL,
+                    ended_at TEXT,
+                    message_count INTEGER NOT NULL DEFAULT 0
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_chat_messages (
+                    message_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL
+                        REFERENCES parent_chat_sessions(session_id) ON DELETE CASCADE,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    role TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_report_exports_family_created
+                ON report_exports(family_id, created_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_type_enabled
+                ON content_items(type, enabled, sort_order)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_family_type
+                ON content_items(family_id, type)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_age
+                ON content_items(age_min, age_max)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_sessions_family_started
+                ON parent_chat_sessions(family_id, started_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_messages_session_time
+                ON parent_chat_messages(session_id, timestamp)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_messages_family_time
+                ON parent_chat_messages(family_id, timestamp)
+                """,
+            ):
+                conn.execute(index_sql)
+
+            content_seeded_at = _utc_now_iso()
+            default_content_items = (
+                (
+                    "radio-bi-story",
+                    "radio",
+                    "Radio ke chuyen",
+                    "Audio stories and calm listening for children.",
+                    "https://example.invalid/radio/stories",
+                    None,
+                    5,
+                    12,
+                    "vi",
+                    ["stories", "listening"],
+                    1,
+                    10,
+                ),
+                (
+                    "radio-bi-learning",
+                    "radio",
+                    "Radio hoc tap",
+                    "Short education-focused radio segments.",
+                    "https://example.invalid/radio/learning",
+                    None,
+                    6,
+                    12,
+                    "vi",
+                    ["education", "science"],
+                    1,
+                    20,
+                ),
+                (
+                    "video-bi-english-animals",
+                    "video",
+                    "English animals",
+                    "Simple English animal vocabulary lesson.",
+                    "https://example.invalid/videos/english-animals",
+                    None,
+                    5,
+                    9,
+                    "vi",
+                    ["english", "animals"],
+                    1,
+                    10,
+                ),
+                (
+                    "video-bi-math-shapes",
+                    "video",
+                    "Hinh hoc vui",
+                    "Shape recognition and early geometry lesson.",
+                    "https://example.invalid/videos/math-shapes",
+                    None,
+                    6,
+                    12,
+                    "vi",
+                    ["math", "geometry"],
+                    1,
+                    20,
+                ),
+                (
+                    "game-bi-word-quiz",
+                    "game",
+                    "Word quiz",
+                    "Interactive vocabulary quiz backed by Robot Bi.",
+                    "/api/game/word-quiz/start",
+                    None,
+                    5,
+                    12,
+                    "vi",
+                    ["vocabulary", "quiz"],
+                    1,
+                    10,
+                ),
+                (
+                    "game-bi-voice-quiz",
+                    "game",
+                    "Voice quiz",
+                    "Voice-based riddle game backed by Robot Bi.",
+                    "/api/game/voice-quiz/start",
+                    None,
+                    7,
+                    12,
+                    "vi",
+                    ["voice", "quiz"],
+                    1,
+                    20,
+                ),
+            )
+            for item in default_content_items:
+                conn.execute(
+                    """
+                    INSERT OR IGNORE INTO content_items (
+                        content_id, family_id, type, title, description, source_url,
+                        thumbnail_url, age_min, age_max, language, tags_json, enabled,
+                        sort_order, created_at, updated_at
+                    ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        item[0],
+                        item[1],
+                        item[2],
+                        item[3],
+                        item[4],
+                        item[5],
+                        item[6],
+                        item[7],
+                        item[8],
+                        json.dumps(item[9], ensure_ascii=False),
+                        item[10],
+                        item[11],
+                        content_seeded_at,
+                        content_seeded_at,
+                    ),
+                )
+
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
                 '''

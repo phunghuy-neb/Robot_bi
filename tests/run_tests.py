@@ -4568,6 +4568,259 @@ test("61.2 child profiles CRUD active isolation", test_61_2_child_profiles_crud_
 test("61.3 age filter and time limits", test_61_3_age_filter_and_time_limits)
 test("61.4 sleep and notification settings", test_61_4_sleep_and_notification_settings)
 
+# == GROUP 62: Parent App Backend Phase 3 ===================================
+print("\n[Group 62] Parent App Backend Phase 3")
+
+
+def test_62_1_phase3_schema_tables_and_content_seed():
+    from src.infrastructure.database.db import get_db_connection, init_db
+
+    init_db()
+    expected = {"report_exports", "content_items", "parent_chat_sessions", "parent_chat_messages"}
+    with get_db_connection() as conn:
+        tables = {
+            row["name"]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        }
+        content_count = conn.execute(
+            "SELECT COUNT(*) AS count FROM content_items WHERE family_id IS NULL"
+        ).fetchone()["count"]
+    assert expected.issubset(tables), f"Missing phase3 tables: {expected - tables}"
+    assert content_count >= 6
+
+
+def test_62_2_report_export_csv_pdf_and_family_scope():
+    from datetime import date
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+
+    fam_a = f"phase3-report-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase3-report-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p3_report_a", fam_a)
+    _phase44_headers("p3_report_b", fam_b)
+    token_a = f"report-token-a-{_uuid.uuid4().hex}"
+    token_b = f"report-token-b-{_uuid.uuid4().hex}"
+    _phase1_insert_event(fam_a, token_a, event_type="system")
+    _phase1_insert_event(fam_b, token_b, event_type="system")
+    today = date.today().isoformat()
+    client = TestClient(app)
+
+    csv_resp = client.post(
+        "/api/reports/export",
+        json={"format": "csv", "start_date": today, "end_date": today, "sections": ["events"]},
+        headers=headers_a,
+    )
+    assert csv_resp.status_code == 200, csv_resp.text
+    assert csv_resp.headers["content-type"].startswith("text/csv")
+    assert "robot-bi-report" in csv_resp.headers.get("content-disposition", "")
+    csv_body = csv_resp.content.decode("utf-8")
+    assert token_a in csv_body
+    assert token_b not in csv_body
+
+    pdf_resp = client.post(
+        "/api/reports/export",
+        json={"format": "pdf", "start_date": today, "end_date": today, "sections": ["events"]},
+        headers=headers_a,
+    )
+    assert pdf_resp.status_code == 200
+    assert pdf_resp.headers["content-type"] == "application/pdf"
+    assert pdf_resp.content.startswith(b"%PDF")
+    assert len(pdf_resp.content) > 200
+
+    assert client.post(
+        "/api/reports/export",
+        json={"format": "xlsx", "start_date": today, "end_date": today},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/reports/export",
+        json={"format": "csv", "start_date": "2026-05-31", "end_date": "2026-05-01"},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/reports/export",
+        json={"format": "csv", "start_date": "bad", "end_date": today},
+        headers=headers_a,
+    ).status_code == 422
+
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            "SELECT format, status FROM report_exports WHERE family_id = ?",
+            (fam_a,),
+        ).fetchall()
+    assert len(rows) >= 2
+    assert {row["format"] for row in rows}.issuperset({"csv", "pdf"})
+    assert all(row["status"] == "completed" for row in rows)
+
+
+def test_62_3_content_metadata_filters_and_family_scope():
+    import datetime as _dt
+    import json
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+
+    fam_a = f"phase3-content-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase3-content-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p3_content_a", fam_a)
+    headers_b = _phase44_headers("p3_content_b", fam_b)
+    now = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO content_items (
+                content_id, family_id, type, title, description, source_url,
+                thumbnail_url, age_min, age_max, language, tags_json, enabled,
+                sort_order, created_at, updated_at
+            ) VALUES (?, ?, 'radio', ?, ?, ?, NULL, 10, 12, 'vi', ?, 1, 5, ?, ?)
+            """,
+            (
+                f"family-radio-{fam_a}",
+                fam_a,
+                "Family A radio",
+                "Family only",
+                "https://example.invalid/family-a",
+                json.dumps(["family"]),
+                now,
+                now,
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO content_items (
+                content_id, family_id, type, title, description, source_url,
+                thumbnail_url, age_min, age_max, language, tags_json, enabled,
+                sort_order, created_at, updated_at
+            ) VALUES (?, ?, 'radio', ?, ?, ?, NULL, 10, 12, 'vi', ?, 1, 5, ?, ?)
+            """,
+            (
+                f"family-radio-{fam_b}",
+                fam_b,
+                "Family B radio",
+                "Family only",
+                "https://example.invalid/family-b",
+                json.dumps(["family"]),
+                now,
+                now,
+            ),
+        )
+        conn.execute(
+            """
+            INSERT INTO content_items (
+                content_id, family_id, type, title, description, source_url,
+                thumbnail_url, age_min, age_max, language, tags_json, enabled,
+                sort_order, created_at, updated_at
+            ) VALUES (?, ?, 'radio', ?, ?, ?, NULL, 5, 12, 'vi', ?, 0, 1, ?, ?)
+            """,
+            (
+                f"disabled-radio-{fam_a}",
+                fam_a,
+                "Disabled radio",
+                "Hidden by default",
+                "https://example.invalid/disabled",
+                json.dumps(["hidden"]),
+                now,
+                now,
+            ),
+        )
+        conn.commit()
+
+    client = TestClient(app)
+    radio_a = client.get("/api/entertainment/radio?min_age=10&max_age=10", headers=headers_a)
+    assert radio_a.status_code == 200
+    ids_a = {item["content_id"] for item in radio_a.json()["items"]}
+    assert f"family-radio-{fam_a}" in ids_a
+    assert f"family-radio-{fam_b}" not in ids_a
+    assert f"disabled-radio-{fam_a}" not in ids_a
+    assert radio_a.json()["channels"] == radio_a.json()["items"]
+
+    disabled_visible = client.get("/api/entertainment/radio?enabled_only=false", headers=headers_a)
+    assert disabled_visible.status_code == 200
+    assert f"disabled-radio-{fam_a}" in {item["content_id"] for item in disabled_visible.json()["items"]}
+
+    videos = client.get("/api/entertainment/videos?min_age=10&max_age=12", headers=headers_a)
+    assert videos.status_code == 200
+    assert videos.json()["videos"] == videos.json()["items"]
+    assert "video-bi-english-animals" not in {item["content_id"] for item in videos.json()["items"]}
+
+    games = client.get("/api/games/interactive?language=vi", headers=headers_a)
+    assert games.status_code == 200
+    assert games.json()["games"] == games.json()["items"]
+    assert any(item["type"] == "game" for item in games.json()["items"])
+
+    unchanged = client.post("/api/game/word-quiz/start", json={"difficulty": "easy"}, headers=headers_a)
+    assert unchanged.status_code == 200
+    assert unchanged.json()["status"] == "started"
+
+
+def test_62_4_parent_chat_history_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import add_turn, create_session
+
+    fam_a = f"phase3-chat-a-{_uuid.uuid4().hex[:6]}"
+    fam_b = f"phase3-chat-b-{_uuid.uuid4().hex[:6]}"
+    headers_a = _phase44_headers("p3_chat_a", fam_a)
+    headers_b = _phase44_headers("p3_chat_b", fam_b)
+    child_session = create_session(fam_a)
+    add_turn(child_session, "user", "child conversation", family_id=fam_a)
+    client = TestClient(app)
+
+    empty = client.get("/api/conversations/parent", headers=headers_a)
+    assert empty.status_code == 200
+    assert empty.json()["total"] == 0
+
+    created = client.post(
+        "/api/conversations/parent/messages",
+        json={"role": "parent", "content": "Hello Bi"},
+        headers=headers_a,
+    )
+    assert created.status_code == 200, created.text
+    session_id = created.json()["session"]["session_id"]
+    assert created.json()["session"]["message_count"] == 1
+    assert created.json()["messages"][0]["role"] == "parent"
+
+    replied = client.post(
+        "/api/conversations/parent/messages",
+        json={"session_id": session_id, "role": "bi", "content": "Hello parent"},
+        headers=headers_a,
+    )
+    assert replied.status_code == 200
+    assert replied.json()["session"]["message_count"] == 2
+
+    detail = client.get(f"/api/conversations/parent/{session_id}", headers=headers_a)
+    assert detail.status_code == 200
+    assert [msg["role"] for msg in detail.json()["messages"]] == ["parent", "bi"]
+
+    listed = client.get("/api/conversations/parent", headers=headers_a)
+    assert listed.status_code == 200
+    assert listed.json()["total"] == 1
+    assert listed.json()["sessions"][0]["session_id"] == session_id
+
+    assert client.get(f"/api/conversations/parent/{session_id}", headers=headers_b).status_code == 404
+    assert client.get(f"/api/conversations/{session_id}", headers=headers_a).status_code == 404
+    child_list = client.get("/api/conversations", headers=headers_a)
+    assert child_list.status_code == 200
+    assert session_id not in [row["session_id"] for row in child_list.json()["conversations"]]
+
+    assert client.post(
+        "/api/conversations/parent/messages",
+        json={"session_id": session_id, "role": "child", "content": "bad"},
+        headers=headers_a,
+    ).status_code == 422
+    assert client.post(
+        "/api/conversations/parent/messages",
+        json={"session_id": session_id, "role": "parent", "content": "   "},
+        headers=headers_a,
+    ).status_code == 422
+
+
+test("62.1 Phase 3 schema tables and content seed", test_62_1_phase3_schema_tables_and_content_seed)
+test("62.2 report export CSV/PDF + family scope", test_62_2_report_export_csv_pdf_and_family_scope)
+test("62.3 content metadata filters + family scope", test_62_3_content_metadata_filters_and_family_scope)
+test("62.4 parent chat history + isolation", test_62_4_parent_chat_history_and_isolation)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

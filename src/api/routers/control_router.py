@@ -17,14 +17,16 @@ control_router.py — Control endpoints cho Robot Bi API.
   DELETE /api/tasks/{id}     — Xóa nhiệm vụ
 """
 import logging
+import csv
 import hashlib
 import json
 import re
 from datetime import date, datetime, timedelta, timezone
+from io import StringIO
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
@@ -127,10 +129,19 @@ class NotificationSettingsIn(BaseModel):
     push_subscription: Optional[dict] = None
 
 
+class ReportExportIn(BaseModel):
+    format: str = Field(..., max_length=12)
+    start_date: str
+    end_date: str
+    sections: list[str] = Field(default_factory=lambda: ["events", "conversations", "emotions", "education", "tasks"])
+    child_id: Optional[str] = Field(default=None, max_length=80)
+
+
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 _DAYS = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
 _EVENT_TYPES = {"motion", "stranger", "known_face", "cry", "chat", "system", "homework"}
 _CHANNELS = {"in_app", "web_push"}
+_REPORT_SECTIONS = {"events", "conversations", "emotions", "education", "tasks"}
 
 
 def _now_iso() -> str:
@@ -419,6 +430,179 @@ def _clean_parent_note(note: str) -> str:
     if not cleaned:
         raise HTTPException(status_code=422, detail="note must not be empty")
     return cleaned
+
+
+def _validate_report_sections(sections: list[str] | None) -> list[str]:
+    cleaned = []
+    for section in sections or []:
+        value = str(section).strip().lower()
+        if not value:
+            continue
+        if value not in _REPORT_SECTIONS:
+            raise HTTPException(status_code=422, detail=f"Unsupported report section: {value}")
+        if value not in cleaned:
+            cleaned.append(value)
+    return cleaned or ["events", "conversations", "emotions", "education", "tasks"]
+
+
+def _report_rows(family_id: str, start_date: str, end_date: str, sections: list[str]) -> list[dict]:
+    rows: list[dict] = []
+    with get_db_connection() as conn:
+        if "events" in sections:
+            for row in conn.execute(
+                """
+                SELECT timestamp AS happened_at, type, message, metadata_json
+                FROM events
+                WHERE family_id = ?
+                  AND date(timestamp) BETWEEN ? AND ?
+                ORDER BY timestamp ASC
+                """,
+                (family_id, start_date, end_date),
+            ).fetchall():
+                metadata = _json_object(row["metadata_json"])
+                rows.append(
+                    {
+                        "section": "events",
+                        "timestamp": row["happened_at"],
+                        "title": row["type"] or "event",
+                        "detail": str(row["message"] or metadata.get("summary") or "")[:500],
+                    }
+                )
+
+        if "conversations" in sections:
+            for row in conn.execute(
+                """
+                SELECT started_at, title, turn_count
+                FROM conversations
+                WHERE family_id = ?
+                  AND date(started_at) BETWEEN ? AND ?
+                ORDER BY started_at ASC
+                """,
+                (family_id, start_date, end_date),
+            ).fetchall():
+                rows.append(
+                    {
+                        "section": "conversations",
+                        "timestamp": row["started_at"],
+                        "title": row["title"] or "Conversation",
+                        "detail": f"{int(row['turn_count'] or 0)} turns",
+                    }
+                )
+
+        if "emotions" in sections:
+            try:
+                emotion_rows = conn.execute(
+                    """
+                    SELECT timestamp, emotion
+                    FROM emotion_logs
+                    WHERE family_id = ?
+                      AND date(timestamp) BETWEEN ? AND ?
+                    ORDER BY timestamp ASC
+                    """,
+                    (family_id, start_date, end_date),
+                ).fetchall()
+            except Exception:
+                emotion_rows = []
+            for row in emotion_rows:
+                rows.append(
+                    {
+                        "section": "emotions",
+                        "timestamp": row["timestamp"],
+                        "title": row["emotion"] or "emotion",
+                        "detail": "",
+                    }
+                )
+
+        if "education" in sections:
+            for row in conn.execute(
+                """
+                SELECT day_of_week, subject, time
+                FROM learning_schedules
+                WHERE family_id = ?
+                ORDER BY day_of_week ASC
+                """,
+                (family_id,),
+            ).fetchall():
+                rows.append(
+                    {
+                        "section": "education",
+                        "timestamp": row["day_of_week"],
+                        "title": row["subject"] or "Learning schedule",
+                        "detail": row["time"] or "",
+                    }
+                )
+
+        if "tasks" in sections:
+            for row in conn.execute(
+                """
+                SELECT created_at, name, completed_today, stars
+                FROM tasks
+                WHERE family_id = ?
+                  AND date(created_at) BETWEEN ? AND ?
+                ORDER BY created_at ASC
+                """,
+                (family_id, start_date, end_date),
+            ).fetchall():
+                status = "completed" if row["completed_today"] else "open"
+                rows.append(
+                    {
+                        "section": "tasks",
+                        "timestamp": row["created_at"],
+                        "title": row["name"],
+                        "detail": f"{status}; stars={int(row['stars'] or 0)}",
+                    }
+                )
+    return rows
+
+
+def _render_report_csv(rows: list[dict]) -> str:
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=["section", "timestamp", "title", "detail"])
+    writer.writeheader()
+    for row in rows:
+        writer.writerow(row)
+    return output.getvalue()
+
+
+def _pdf_escape(value: str) -> str:
+    return str(value).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _render_report_pdf(rows: list[dict], start_date: str, end_date: str) -> bytes:
+    lines = [f"Robot Bi report {start_date} to {end_date}", f"Rows: {len(rows)}"]
+    for row in rows[:36]:
+        title = str(row.get("title") or "")[:80]
+        lines.append(f"{row.get('section')} | {row.get('timestamp')} | {title}")
+    text_ops = ["BT", "/F1 10 Tf", "72 760 Td", "14 TL"]
+    for line in lines:
+        text_ops.append(f"({_pdf_escape(line)}) Tj")
+        text_ops.append("T*")
+    text_ops.append("ET")
+    stream = "\n".join(text_ops).encode("latin-1", "replace")
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+        b"/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"\nendstream",
+    ]
+    pdf = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for index, obj in enumerate(objects, start=1):
+        offsets.append(len(pdf))
+        pdf.extend(f"{index} 0 obj\n".encode("ascii"))
+        pdf.extend(obj)
+        pdf.extend(b"\nendobj\n")
+    xref_at = len(pdf)
+    pdf.extend(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
+    pdf.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    pdf.extend(
+        f"trailer << /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_at}\n%%EOF\n".encode("ascii")
+    )
+    return bytes(pdf)
 
 
 # REST: Status
@@ -888,6 +1072,64 @@ async def save_notification_settings(
             )
         conn.commit()
     return await get_notification_settings(_current_user)
+
+
+@router.post("/api/reports/export")
+async def export_parent_report(
+    payload: ReportExportIn,
+    _current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(_current_user)
+    report_format = (payload.format or "").strip().lower()
+    if report_format not in {"csv", "pdf"}:
+        raise HTTPException(status_code=422, detail="format must be csv or pdf")
+    start = _validate_iso_date(payload.start_date, "start_date")
+    end = _validate_iso_date(payload.end_date, "end_date")
+    if not start or not end:
+        raise HTTPException(status_code=422, detail="start_date and end_date are required")
+    if start and end and start > end:
+        raise HTTPException(status_code=422, detail="start_date must be <= end_date")
+    if payload.child_id:
+        _validate_child_for_family(family_id, payload.child_id)
+    sections = _validate_report_sections(payload.sections)
+    rows = _report_rows(family_id, start, end, sections)
+    now = _now_iso()
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO report_exports (
+                export_id, family_id, user_id, format, start_date, end_date,
+                sections_json, row_count, created_at, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                uuid4().hex,
+                family_id,
+                str(_current_user.get("user_id") or ""),
+                report_format,
+                start,
+                end,
+                _dump_json(sections),
+                len(rows),
+                now,
+                "completed",
+            ),
+        )
+        conn.commit()
+
+    filename = f"robot-bi-report-{start}-{end}.{report_format}"
+    headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+    if report_format == "csv":
+        return Response(
+            content=_render_report_csv(rows),
+            media_type="text/csv; charset=utf-8",
+            headers=headers,
+        )
+    return Response(
+        content=_render_report_pdf(rows, start, end),
+        media_type="application/pdf",
+        headers=headers,
+    )
 
 
 @router.get("/api/events")
