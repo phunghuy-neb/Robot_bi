@@ -57,15 +57,15 @@ export default function HomePage({ user, lastWsEvent }) {
   }
 
   async function loadTodaySummary() {
-    const [statusData, taskData, emotionData] = await Promise.all([
-      apiFetch('/api/status'),
+    const [dailyData, taskData, emotionData] = await Promise.all([
+      apiFetch('/api/analytics/daily'),
       apiFetch('/api/tasks'),
       apiFetch('/api/emotion/today'),
     ]);
     setTodaySummary({
-      sessions: statusData?.sessions_today ?? 0,
-      learningMinutes: statusData?.learning_minutes ?? 0,
-      emotion: emotionData?.today?.dominant_emotion || emotionData?.dominant_emotion || '😊',
+      sessions: dailyData?.conversations ?? 0,
+      learningMinutes: dailyData?.learning_minutes ?? 0,
+      emotion: emotionData?.dominant || emotionData?.dominant_emotion || '😊',
       tasksCompleted: taskData ? taskData.filter(t => t.completed_today).length : 0,
       totalTasks: taskData?.length ?? 0,
     });
@@ -146,11 +146,11 @@ export default function HomePage({ user, lastWsEvent }) {
           {weeklyState === 'data' && weekly && (
             <div className="weekly-stat-row">
               <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.total_sessions ?? weekly.sessions ?? 0}</div>
+                <div className="weekly-stat-num">{weekly.total_sessions ?? weekly.sessions ?? weekly.conversations ?? 0}</div>
                 <div className="weekly-stat-label">Lượt hội thoại</div>
               </div>
               <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.total_minutes ?? weekly.minutes ?? 0}</div>
+                <div className="weekly-stat-num">{weekly.total_minutes ?? weekly.minutes ?? weekly.hours ?? 0}</div>
                 <div className="weekly-stat-label">Phút học</div>
               </div>
               <div className="weekly-stat">
@@ -158,7 +158,7 @@ export default function HomePage({ user, lastWsEvent }) {
                 <div className="weekly-stat-label">Bài tập</div>
               </div>
               <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.task_completion ?? 0}%</div>
+                <div className="weekly-stat-num">{weekly.task_completion ?? weekly.tasks_completed ?? 0}</div>
                 <div className="weekly-stat-label">Hoàn thành</div>
               </div>
             </div>

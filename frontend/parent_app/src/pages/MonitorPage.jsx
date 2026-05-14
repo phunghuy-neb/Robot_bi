@@ -16,6 +16,13 @@ export default function MonitorPage() {
     loadEvents();
   }, []);
 
+  // Listen for external camera-stop signal (tab switch, logout, beforeunload)
+  useEffect(() => {
+    function handleCameraStop() { setCamOn(false); }
+    window.addEventListener('bi:stopcamera', handleCameraStop);
+    return () => window.removeEventListener('bi:stopcamera', handleCameraStop);
+  }, []);
+
   async function loadWeekly() {
     setWeeklyState('loading');
     const data = await apiFetch('/api/analytics/weekly');
@@ -160,7 +167,7 @@ export default function MonitorPage() {
           {weeklyState === 'data' && weekly && (
             <div className="weekly-stat-row">
               <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.total_sessions ?? 0}</div>
+                <div className="weekly-stat-num">{weekly.total_sessions ?? weekly.conversations ?? 0}</div>
                 <div className="weekly-stat-label">Hội thoại</div>
               </div>
               <div className="weekly-stat">
@@ -172,7 +179,7 @@ export default function MonitorPage() {
                 <div className="weekly-stat-label">Bài tập</div>
               </div>
               <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.task_completion ?? 0}%</div>
+                <div className="weekly-stat-num">{weekly.task_completion ?? weekly.tasks_completed ?? 0}</div>
                 <div className="weekly-stat-label">Hoàn thành</div>
               </div>
             </div>

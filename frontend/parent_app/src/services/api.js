@@ -327,8 +327,12 @@ export async function getParentChatHistory() {
   return null;
 }
 
-// Camera stop signal â€” called on tab switch and logout
-export function stopCamera() { /* cleanup signal; MonitorPage responds via React unmount */ }
+// Camera stop signal â€” dispatches event so MonitorPage can set camOn=false
+export function stopCamera() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bi:stopcamera'));
+  }
+}
 
 // Audio monitor cleanup alias
 export function stopAudioMonitor() { stopMomMic(); }
