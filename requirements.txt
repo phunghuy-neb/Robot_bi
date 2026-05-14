@@ -41,4 +41,4 @@ python-jose[cryptography]==3.3.0
 # aiortc==1.9.0
 
 # pywebpush
-# pyserial
+pyserial==3.5

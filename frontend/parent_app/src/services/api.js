@@ -52,7 +52,7 @@ export async function login(username, password) {
 export async function logout() {
   try {
     if (_token && _refreshToken) {
-      await fetch('/api/auth/logout', {
+      await fetch('/auth/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
         body: JSON.stringify({ refresh_token: _refreshToken }),
@@ -71,7 +71,7 @@ export async function refreshToken() {
   _refreshPromise = (async () => {
     try {
       if (!_refreshToken) return false;
-      const rr = await fetch('/api/auth/refresh', {
+      const rr = await fetch('/auth/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: _refreshToken }),

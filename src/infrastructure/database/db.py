@@ -1532,7 +1532,7 @@ def get_user_by_id(user_id: str) -> dict | None:
     """Trả về dict {user_id, username, family_name, created_at} hoặc None."""
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, username, family_name, created_at FROM users WHERE user_id=?",
+            "SELECT user_id, username, family_name, created_at, is_admin FROM users WHERE user_id=?",
             (user_id,),
         ).fetchone()
     return dict(row) if row else None

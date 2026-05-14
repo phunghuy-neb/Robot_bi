@@ -139,7 +139,8 @@ def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
     t = threading.Thread(target=_run, daemon=True, name="cloudflared-tunnel")
     t.start()
 
-_STATIC_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIST_DIR = _PARENT_APP_DIR / "dist"
 
 try:
     import cv2
@@ -185,12 +186,14 @@ async def health():
 
 @router.get("/", response_class=HTMLResponse)
 async def dashboard():
-    index = _STATIC_DIR / "index.html"
+    index = _PARENT_APP_DIST_DIR / "index.html"
     if index.exists():
         return FileResponse(str(index))
     return HTMLResponse(
         "<h1>Robot Bi</h1>"
-        "<p>Dashboard chưa có. Đặt file vào <code>frontend/parent_app/index.html</code></p>"
+        "<p>Parent App build chua co. Chay <code>npm.cmd run build</code> "
+        "trong <code>frontend/parent_app</code>, hoac dung Vite dev server.</p>",
+        status_code=503,
     )
 
 

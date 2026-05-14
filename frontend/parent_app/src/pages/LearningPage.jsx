@@ -37,7 +37,7 @@ export default function LearningPage({ activeChild }) {
 
   async function loadStories() {
     setStoriesState('loading');
-    const data = await apiFetch('/api/stories');
+    const data = await apiFetch('/api/story/list');
     const list = data?.stories || data || [];
     if (Array.isArray(list) && list.length > 0) { setStories(list); setStoriesState('data'); }
     else if (data) setStoriesState('empty');
@@ -55,12 +55,15 @@ export default function LearningPage({ activeChild }) {
   }
 
   async function startGame(type) {
-    const r = await apiFetch(`/api/game/${type}/start`, {
+    const path = type === 'flashcard'
+      ? '/api/education/flashcard/start'
+      : `/api/game/${type}/start`;
+    const r = await apiFetch(path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{}',
     });
-    if (r?.status === 'started') showToast('🎮 Trò chơi bắt đầu!');
+    if (r) showToast('🎮 Trò chơi bắt đầu!');
     else showToast('⚠️ Chức năng này sẽ được kết nối sau.');
   }
 

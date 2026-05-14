@@ -54,10 +54,15 @@ export default function MonitorPage() {
   }
 
   async function sendMotor(vx, vy) {
+    const speed = 70;
+    const forward = -vy * speed;
+    const turn = vx * speed;
+    const left = Math.round(forward + turn);
+    const right = Math.round(forward - turn);
     await apiFetch('/api/motor/joystick', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vx, vy, left: 0, right: 0 }),
+      body: JSON.stringify({ left, right }),
     });
   }
 

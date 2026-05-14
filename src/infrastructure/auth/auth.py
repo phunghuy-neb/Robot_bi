@@ -102,7 +102,7 @@ def get_user_by_username(username: str) -> dict | None:
     """Lay user theo username. Tra None neu khong tim thay."""
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, username, password_hash, family_name, created_at, is_active "
+            "SELECT user_id, username, password_hash, family_name, created_at, is_active, is_admin "
             "FROM users WHERE username = ?",
             (username,),
         ).fetchone()
@@ -126,6 +126,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
         "user_id": user["user_id"],
         "username": user["username"],
         "family_name": user["family_name"],
+        "is_admin": bool(user.get("is_admin")),
     }
 
 
