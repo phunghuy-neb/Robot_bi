@@ -16,7 +16,9 @@
 
 ## Last Completed Task
 
-- 2026-05-14: **Goal 3 — runtime hardening (390/390 PASS)**. `stopCamera()` now dispatches `bi:stopcamera` CustomEvent; `MonitorPage` listens and sets `camOn=false`. Motor forward/backward/spin capped at 5 000 ms in `motor_router.py`. Dashboard field mapping corrected: `loadTodaySummary` switched from `/api/status` to `/api/analytics/daily`; emotion reads `emotionData.dominant`; weekly stats now fall back to `conversations/hours/tasks_completed`. All 13 mock adapters confirmed BLOCKED (schema mismatch between mock field names and backend column names — needs adapter work before wiring).
+- 2026-05-14: **Goal 4 — wire Parent App mock adapters to backend APIs (390/390 PASS)**. `frontend/parent_app/src/services/api.js` rewritten with transform functions for 6 adapters: `getChildProfiles` (GET /api/children, child_id→id, age already computed by backend), `getRadioChannels` / `getVideoLessons` / `getInteractiveGames` (content_items schema, content_id→id, fallback to mock when backend has no seeded data), `getMonthlyEmotions` (GET /api/emotions/monthly, weekly count→percentage transform), `getSystemLogs` (GET /api/admin/logs, component→source). All six use mock fallback when backend returns empty or 403. BLOCKED adapters (`getRoomLocation`, `getParentChatHistory`) return null — no component renders their data. Save-button stubs in SettingsOverlay unchanged (show toast, no api.js call). Encoding artifacts cleaned. 390/390 PASS, `npm run build` passes (196KB JS, 25KB CSS).
+
+- 2026-05-14: **Goal 3 — runtime hardening (390/390 PASS)**. `stopCamera()` now dispatches `bi:stopcamera` CustomEvent; `MonitorPage` listens and sets `camOn=false`. Motor forward/backward/spin capped at 5 000 ms in `motor_router.py`. Dashboard field mapping corrected: `loadTodaySummary` switched from `/api/status` to `/api/analytics/daily`; emotion reads `emotionData.dominant`; weekly stats now fall back to `conversations/hours/tasks_completed`.
 
 - 2026-05-14: **Goal 2 — remaining test failures fixed (390/390 PASS)**. Updated 8 outdated test functions to check React source files instead of legacy `index.html` (React+Vite migration moved code). Added `stopCamera` / `stopAudioMonitor` exports to `api.js`; wired them in `handleTabChange` and `handleLogout` in `App.jsx`; added `beforeunload` cleanup handler; added `notif-banner` class to `Toast.jsx`; added music volume control with `level` field to `MorePage.jsx`; created `docs/kehoach.md` with outdated banner; fixed test 47.4 to use `sys.executable` instead of `python3` on Windows. All Goal 1 fixes preserved.
 
@@ -43,8 +45,10 @@
 
 ## Next Recommended Action
 
-- Wire the React Parent App mock adapters to the completed spec 002 backend APIs when frontend work resumes. Backend phases 1-4 are implemented and covered by Groups 60-63 in `tests/run_tests.py`.
-- **Parent App React+Vite migration is complete**. Manual browser test remains recommended: login with real credentials, verify WebSocket status, and check each tab's API calls in Network tab. If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`.
+- **Manual browser test recommended**: login with real credentials, verify WebSocket status, open Settings overlay (child profiles), open More tab (radio/video/games), open Journal tab (emotion chart), open Admin panel (system logs). Check Network tab that calls hit real backend, not mock.
+- Seed content data in SQLite (`content_items` table) if radio/video/game sections show mock data — backend returns empty array when no rows exist, triggering mock fallback.
+- Remaining BLOCKED items: `getRoomLocation` (no component renders it), `getParentChatHistory` (LearningPage shows coming-soon), SettingsOverlay save buttons (show toast, backend endpoints exist but buttons don't call them yet).
+- If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`.
 - For other code changes, read `PROJECT.md`, this handoff, and relevant source files.
 - For large feature/API/schema/cross-module work, use Spec Kit or write a clear plan first.
 
