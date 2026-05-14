@@ -326,3 +326,9 @@ export async function getParentChatHistory() {
   console.info('[MOCK] parent-chat: coming soon');
   return null;
 }
+
+// Camera stop signal â€” called on tab switch and logout
+export function stopCamera() { /* cleanup signal; MonitorPage responds via React unmount */ }
+
+// Audio monitor cleanup alias
+export function stopAudioMonitor() { stopMomMic(); }

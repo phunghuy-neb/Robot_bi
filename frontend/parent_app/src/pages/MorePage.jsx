@@ -59,6 +59,14 @@ export default function MorePage() {
     showToast(`🎵 ${cmd}`);
   }
 
+  function setVolume(v) {
+    apiFetch('/api/music/volume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ level: parseInt(v) }),
+    }).catch(() => {});
+  }
+
   function playTrack(song, type) {
     setCurrentTrack(song);
     setMusicPlaying(true);
@@ -114,6 +122,10 @@ export default function MorePage() {
             </button>
             <button className="music-btn" onClick={() => musicCmd('next')} title="Bài tiếp">⏭</button>
             <button className="music-btn" onClick={() => musicCmd('shuffle')} title="Ngẫu nhiên">🔀</button>
+          </div>
+          <div className="music-volume-row">
+            <span title="Âm lượng">🔊</span>
+            <input type="range" min="0" max="100" defaultValue="50" onChange={e => setVolume(e.target.value)} title="Âm lượng" style={{ flex: 1 }} />
           </div>
         </div>
 

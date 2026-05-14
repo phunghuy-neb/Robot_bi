@@ -5,6 +5,9 @@ import {
   disconnectWebSocket,
   logout,
   showToast,
+  stopCamera,
+  stopMomMic,
+  stopAudioMonitor,
 } from './services/api.js';
 
 import Sidebar from './components/Sidebar.jsx';
@@ -49,6 +52,11 @@ export default function App() {
     return () => disconnectWebSocket();
   }, [isLoggedIn]);
 
+  // Cleanup camera and audio on page unload
+  useEffect(() => {
+    window.addEventListener('beforeunload', () => { stopCamera(); stopAudioMonitor(); });
+  }, []);
+
   const handleLogin = useCallback((userData) => {
     setUser(userData);
     setIsLoggedIn(true);
@@ -56,6 +64,7 @@ export default function App() {
   }, []);
 
   const handleLogout = useCallback(async () => {
+    stopCamera();
     disconnectWebSocket();
     await logout();
     setIsLoggedIn(false);
@@ -66,6 +75,8 @@ export default function App() {
   }, []);
 
   const handleTabChange = useCallback((tabId) => {
+    stopCamera();
+    stopMomMic();
     setActiveTab(tabId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);

@@ -19,7 +19,7 @@ export default function Toast() {
   if (!message) return null;
 
   return (
-    <div className="toast-container">
+    <div className="toast-container notif-banner">
       <div className="toast">{message}</div>
     </div>
   );
