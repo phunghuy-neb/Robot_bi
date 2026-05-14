@@ -1,6 +1,6 @@
-﻿// Robot Bi Parent App â€” API Service Layer
+// Robot Bi Parent App — API Service Layer
 // Tier 1: Real backend (preserved behavior from legacy index.html)
-// Tier 2: Mock adapters â€” marked TODO for future backend integration
+// Tier 2: Wired to backend with mock fallback when backend returns no data
 
 import {
   mockChildProfiles,
@@ -11,7 +11,7 @@ import {
   mockSystemLogs,
 } from '../data/mockData.js';
 
-// â”€â”€ Auth Storage â”€â”€
+// —— Auth Storage ——
 let _token = localStorage.getItem('bi_token') || '';
 let _refreshToken = localStorage.getItem('bi_refresh') || '';
 let _refreshPromise = null;
@@ -20,16 +20,16 @@ function authHeader() {
   return _token ? { Authorization: 'Bearer ' + _token } : {};
 }
 
-// â”€â”€ Toast â”€â”€
+// —— Toast ——
 export let toastFn = null;
 export function registerToast(fn) { toastFn = fn; }
 export function showToast(msg) { toastFn && toastFn(msg); }
 
-// â”€â”€ Utilities â”€â”€
+// —— Utilities ——
 export function getBaseUrl() { return window.location.origin; }
 export function getToken() { return _token; }
 
-// â”€â”€ Auth: login â”€â”€
+// —— Auth: login ——
 export async function login(username, password) {
   const r = await fetch('/auth/login/v2', {
     method: 'POST',
@@ -48,7 +48,7 @@ export async function login(username, password) {
   return { username: data.username || username, isAdmin: data.is_admin || false };
 }
 
-// â”€â”€ Auth: logout â”€â”€
+// —— Auth: logout ——
 export async function logout() {
   try {
     if (_token && _refreshToken) {
@@ -65,7 +65,7 @@ export async function logout() {
   localStorage.removeItem('bi_refresh');
 }
 
-// â”€â”€ Auth: refresh token â”€â”€
+// —— Auth: refresh token ——
 export async function refreshToken() {
   if (_refreshPromise) return _refreshPromise;
   _refreshPromise = (async () => {
@@ -92,7 +92,7 @@ export async function refreshToken() {
   return _refreshPromise;
 }
 
-// â”€â”€ Check existing session on app load â”€â”€
+// —— Check existing session on app load ——
 export async function checkExistingSession() {
   if (!_token) return null;
   try {
@@ -117,7 +117,7 @@ export async function checkExistingSession() {
   }
 }
 
-// â”€â”€ apiFetch with 401 â†' refresh â†' retry â†' logout â”€â”€
+// —— apiFetch with 401 → refresh → retry → logout ——
 export async function apiFetch(path, opts = {}) {
   try {
     const h1 = { ...authHeader(), ...(opts.headers || {}) };
@@ -140,7 +140,7 @@ export async function apiFetch(path, opts = {}) {
   }
 }
 
-// â”€â”€ WebSocket: robot status â”€â”€
+// —— WebSocket: robot status ——
 let _ws = null;
 let _wsDelay = 1000;
 let _wsLoggedOut = false;
@@ -181,7 +181,7 @@ export function disconnectWebSocket() {
   if (_ws) { _ws.close(); _ws = null; }
 }
 
-// â”€â”€ Mom-talk audio (protected behavior) â”€â”€
+// —— Mom-talk audio (protected behavior) ——
 let _momMicActive = false;
 let _momMediaStream = null;
 let _momAudioWs = null;
@@ -238,7 +238,7 @@ export function stopMomMic() {
 
 export function isMomMicActive() { return _momMicActive; }
 
-// â”€â”€ Conversations (Tier 1) â”€â”€
+// —— Conversations (Tier 1) ——
 export async function getConversations(limit = 20) {
   return apiFetch(`/api/conversations?limit=${limit}`);
 }
@@ -247,87 +247,140 @@ export async function getConversation(id) {
   return apiFetch(`/api/conversations/${id}`);
 }
 
-// â”€â”€ Tier 2: Mock adapters â”€â”€
+// —— Tier 2: Backend-wired adapters with mock fallback ——
 
 export async function getChildProfiles() {
-  // TODO: backend integration â€” GET /api/children
-  console.info('[MOCK] child-profiles: using mock data');
+  const data = await apiFetch('/api/children');
+  if (data?.children?.length) {
+    return data.children.map(c => ({
+      id: c.child_id,
+      name: c.name,
+      age: c.age ?? 0,
+      grade: c.grade || '',
+      avatar: c.avatar || '👤',
+      dailyLimit: 0,
+    }));
+  }
   return mockChildProfiles();
 }
 
 export async function exportReport(fmt) {
-  // TODO: backend integration â€” POST /api/reports/export
-  console.info('[MOCK] export-report: coming soon');
+  // TODO: backend integration — POST /api/reports/export
   return null;
 }
 
 export async function getMonthlyEmotions(month) {
-  // TODO: backend integration â€” GET /api/emotions/monthly
-  console.info('[MOCK] monthly-emotions: using mock data');
+  const query = month ? `?month=${encodeURIComponent(month)}` : '';
+  const data = await apiFetch(`/api/emotions/monthly${query}`);
+  const weeks = data?.weeks;
+  if (weeks?.length) {
+    return weeks.map((w, i) => {
+      const total = w.count || (w.happy + w.neutral + w.sad + w.stressed) || 1;
+      const pct = v => Math.round((v / total) * 100);
+      return {
+        week: `Tuần ${i + 1}`,
+        happy: pct(w.happy || 0),
+        neutral: pct(w.neutral || 0),
+        sad: pct(w.sad || 0),
+        stressed: pct(w.stressed || 0),
+      };
+    });
+  }
   return mockMonthlyEmotions(month);
 }
 
 export async function getRoomLocation() {
-  // TODO: backend integration â€” GET /api/robot/location
-  console.info('[MOCK] room-location: coming soon');
+  // BLOCKED: no component renders this data yet
   return null;
 }
 
 export async function getRadioChannels() {
-  // TODO: backend integration â€” GET /api/entertainment/radio
-  console.info('[MOCK] radio-channels: using mock data');
+  const data = await apiFetch('/api/entertainment/radio');
+  const items = data?.channels || data?.items || [];
+  if (items.length) {
+    return items.map(ch => ({
+      id: ch.content_id,
+      name: ch.title,
+      icon: '📻',
+      genre: ch.tags?.[0] || ch.description || '',
+      frequency: '',
+    }));
+  }
   return mockRadioChannels();
 }
 
 export async function getVideoLessons() {
-  // TODO: backend integration â€” GET /api/entertainment/videos
-  console.info('[MOCK] video-lessons: using mock data');
+  const data = await apiFetch('/api/entertainment/videos');
+  const items = data?.videos || data?.items || [];
+  if (items.length) {
+    return items.map(v => ({
+      id: v.content_id,
+      title: v.title,
+      thumbnail: v.thumbnail_url || '🎬',
+      subject: v.tags?.[0] || '',
+      duration: '',
+      age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
+    }));
+  }
   return mockVideoLessons();
 }
 
 export async function getInteractiveGames() {
-  // TODO: backend integration â€” GET /api/games/interactive
-  console.info('[MOCK] interactive-games: using mock data');
+  const data = await apiFetch('/api/games/interactive');
+  const items = data?.games || data?.items || [];
+  if (items.length) {
+    return items.map(g => ({
+      id: g.content_id,
+      name: g.title,
+      icon: '🎮',
+      description: g.description || '',
+      difficulty: 'Trung bình',
+      age: (g.age_min != null && g.age_max != null) ? `${g.age_min}-${g.age_max}` : '',
+    }));
+  }
   return mockInteractiveGames();
 }
 
 export async function getSystemLogs() {
-  // TODO: backend integration â€” GET /api/admin/logs
-  console.info('[MOCK] system-logs: using mock data');
+  const data = await apiFetch('/api/admin/logs');
+  if (data?.logs) {
+    return data.logs.map((entry, i) => ({
+      id: i + 1,
+      level: entry.level,
+      message: entry.message,
+      timestamp: entry.timestamp,
+      source: entry.component || entry.source || '',
+    }));
+  }
   return mockSystemLogs();
 }
 
 export async function savePushSettings(settings) {
-  // TODO: backend integration â€” POST /api/settings/notifications
-  console.info('[MOCK] push-settings: coming soon');
+  // TODO: backend integration — POST /api/settings/notifications
   return null;
 }
 
 export async function saveSleepSchedule(schedule) {
-  // TODO: backend integration â€” POST /api/settings/sleep
-  console.info('[MOCK] sleep-schedule: coming soon');
+  // TODO: backend integration — POST /api/settings/sleep
   return null;
 }
 
 export async function saveTimeLimits(limits) {
-  // TODO: backend integration â€” POST /api/settings/time-limits
-  console.info('[MOCK] time-limits: coming soon');
+  // TODO: backend integration — POST /api/settings/time-limits
   return null;
 }
 
 export async function saveAgeFilter(filter) {
-  // TODO: backend integration â€” POST /api/settings/age-filter
-  console.info('[MOCK] age-filter: coming soon');
+  // TODO: backend integration — POST /api/settings/age-filter
   return null;
 }
 
 export async function getParentChatHistory() {
-  // TODO: backend integration â€” GET /api/conversations/parent
-  console.info('[MOCK] parent-chat: coming soon');
+  // BLOCKED: no component renders this data yet
   return null;
 }
 
-// Camera stop signal â€” dispatches event so MonitorPage can set camOn=false
+// Camera stop signal — dispatches event so MonitorPage can set camOn=false
 export function stopCamera() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('bi:stopcamera'));
