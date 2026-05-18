@@ -328,6 +328,128 @@ class RobotBiApp:
 
         logger.info("[Shutdown] Hoan tat.")
 
+    def run_text_mode(self):
+        """
+        Text mode: bypass hoàn toàn STT và TTS.
+        Gõ câu vào terminal → Bi xử lý → reply hiện ra dạng text.
+        Dùng để test ban đêm không cần mic/loa.
+        Gõ 'quit' hoặc Ctrl+C để thoát.
+        """
+        import time as _time
+        print("\n" + "="*55)
+        print("  TEXT MODE — Robot Bi")
+        print("  Gõ câu hỏi → Enter để gửi | 'quit' để thoát")
+        print("="*55 + "\n")
+
+        while True:
+            try:
+                user_text = input("Bạn: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                self._shutdown()
+                print("\n[Tạm biệt!]")
+                break
+
+            if not user_text:
+                continue
+            if user_text.lower() in ("quit", "exit", "thoat", "thoát"):
+                self._shutdown()
+                print("[Tạm biệt!]")
+                break
+
+            # --- Pipeline giống hệt run(), chỉ bỏ STT và TTS ---
+            try:
+                user_text_goc = user_text
+                self._close_current_session()
+                self._current_session_id = create_session(FAMILY_ID)
+                add_turn(self._current_session_id, "user", user_text_goc)
+
+                # Session naming (background)
+                def _name(sid=self._current_session_id, ut=user_text_goc):
+                    from src.infrastructure.sessions.session_namer import _generate_session_title
+                    from src.infrastructure.database.db import update_session_title
+                    update_session_title(sid, _generate_session_title(ut))
+                threading.Thread(target=_name, daemon=True).start()
+
+                # RAG context
+                rag_context = self.rag.retrieve(user_text, family_id=FAMILY_ID)
+                if rag_context:
+                    user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
+
+                # Persona modifier
+                if self._persona:
+                    try:
+                        mod = self._persona.get_system_prompt_modifier()
+                        if mod:
+                            user_text = f"System Instruction: {mod}\n\n{user_text}"
+                    except Exception:
+                        pass
+
+                # Emotion analysis
+                if self._emotion:
+                    try:
+                        emotion, confidence = self._emotion.analyze_text(user_text_goc)
+                        self._emotion.record_emotion(emotion, confidence, family_id=FAMILY_ID)
+                    except Exception:
+                        pass
+
+                # Stream LLM → safety filter → in ra terminal
+                print("Bi: ", end="", flush=True)
+                buffer = ""
+                full_reply_parts = []
+                sanitized_reply_parts = []
+
+                for token in self.brain.stream_chat(user_text):
+                    buffer += token
+                    full_reply_parts.append(token)
+                    while True:
+                        match = re.search(r"[.?!\n]", buffer)
+                        if not match:
+                            break
+                        sentence = buffer[:match.end()].strip()
+                        buffer = buffer[match.end():]
+                        if sentence:
+                            is_safe, clean = self.safety.check(sentence)
+                            if clean.strip():
+                                sanitized_reply_parts.append(clean)
+                                print(clean, end=" ", flush=True)
+
+                if buffer.strip():
+                    is_safe, clean = self.safety.check(buffer.strip())
+                    if clean.strip():
+                        sanitized_reply_parts.append(clean)
+                        print(clean, end="", flush=True)
+
+                print("\n")  # xuống dòng sau reply
+
+                # Persist vào DB + RAG (giống run())
+                sanitized_reply = " ".join(sanitized_reply_parts).strip()
+                if sanitized_reply:
+                    add_turn(self._current_session_id, "assistant", sanitized_reply)
+                    self._mark_homework_if_needed(self._current_session_id, user_text_goc)
+                    threading.Thread(
+                        target=self.rag.extract_and_save,
+                        args=(user_text_goc, sanitized_reply),
+                        kwargs={"family_id": FAMILY_ID},
+                        daemon=False,  # non-daemon: Python chờ thread này trước khi exit → không mất memory
+                    ).start()
+                    threading.Thread(
+                        target=self.notifier.push_chat_log,
+                        args=(user_text_goc, sanitized_reply),
+                        kwargs={"family_id": FAMILY_ID},
+                        daemon=True,
+                    ).start()
+
+                self._close_current_session()
+
+            except KeyboardInterrupt:
+                self._shutdown()
+                print("\n[Tạm biệt!]")
+                break
+            except Exception as e:
+                logger.error("[TextMode] Lỗi: %s", e, exc_info=True)
+                print(f"[Lỗi: {e}]\n")
+                self._close_current_session()
+
     def run(self):
         import time as _time
         try:
@@ -475,7 +597,7 @@ class RobotBiApp:
                             target=self.rag.extract_and_save,
                             args=(user_text_goc, sanitized_reply),
                             kwargs={"family_id": FAMILY_ID},
-                            daemon=True,
+                            daemon=False,  # non-daemon: Python chờ thread này trước khi exit → không mất memory
                         ).start()
                         self._close_current_session()
                         # Log hội thoại cho Parent App (non-blocking)
@@ -501,5 +623,18 @@ class RobotBiApp:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--text-mode",
+        action="store_true",
+        help="Bypass STT/TTS — gõ input từ bàn phím, nhận reply dạng text. Dùng để test ban đêm.",
+    )
+    args = parser.parse_args()
+
     app = RobotBiApp()
-    app.run()
+
+    if args.text_mode:
+        app.run_text_mode()
+    else:
+        app.run()

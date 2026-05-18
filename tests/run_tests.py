@@ -180,7 +180,8 @@ rag = RAGManager(db_path=TEST_DB)
 
 
 def test_rag_save():
-    ok = rag.extract_and_save("ten minh la Huy", "Bi nho roi, ban ten Huy!")
+    # Dung tieng Viet co dau de regex fact extraction hoat dong dung
+    ok = rag.extract_and_save("tên mình là Huy", "Bi nhớ rồi, bạn tên Huy!")
     assert ok is True
 
 

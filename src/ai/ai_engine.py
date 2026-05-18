@@ -211,7 +211,7 @@ def _stream_sambanova(messages: list, system_prompt: str) -> Generator[str, None
     if not SAMBANOVA_API_KEY or SAMBANOVA_API_KEY.startswith("DIEN_"):
         raise RuntimeError("SAMBANOVA_API_KEY chưa được cấu hình trong .env")
     yield from _stream_openai_compat(
-        _SAMBANOVA_URL, SAMBANOVA_API_KEY, "llama3.3-70b", messages, system_prompt, "Sambanova"
+        _SAMBANOVA_URL, SAMBANOVA_API_KEY, "Meta-Llama-3.3-70B-Instruct", messages, system_prompt, "Sambanova"
     )
 
 
