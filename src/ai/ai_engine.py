@@ -30,7 +30,7 @@ try:
         _CONFIG = json.load(_f)
 except FileNotFoundError:
     _CONFIG = {
-        "groq_model": "llama-3.3-70b-versatile",
+        "groq_model": "llama3.3-70b-versatile",
         "gemini_model": "gemini-2.0-flash",
         "max_history_turns": 10,
         "groq_cooldown_seconds": 60,
@@ -203,7 +203,7 @@ def _stream_cerebras(messages: list, system_prompt: str) -> Generator[str, None,
     if not CEREBRAS_API_KEY or CEREBRAS_API_KEY.startswith("DIEN_"):
         raise RuntimeError("CEREBRAS_API_KEY chưa được cấu hình trong .env")
     yield from _stream_openai_compat(
-        _CEREBRAS_URL, CEREBRAS_API_KEY, "llama-3.3-70b", messages, system_prompt, "Cerebras"
+        _CEREBRAS_URL, CEREBRAS_API_KEY, "qwen-3-235b-a22b-instruct-2507", messages, system_prompt, "Cerebras"
     )
 
 
@@ -211,7 +211,7 @@ def _stream_sambanova(messages: list, system_prompt: str) -> Generator[str, None
     if not SAMBANOVA_API_KEY or SAMBANOVA_API_KEY.startswith("DIEN_"):
         raise RuntimeError("SAMBANOVA_API_KEY chưa được cấu hình trong .env")
     yield from _stream_openai_compat(
-        _SAMBANOVA_URL, SAMBANOVA_API_KEY, "llama-3.3-70b", messages, system_prompt, "Sambanova"
+        _SAMBANOVA_URL, SAMBANOVA_API_KEY, "llama3.3-70b", messages, system_prompt, "Sambanova"
     )
 
 
