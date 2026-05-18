@@ -18,7 +18,7 @@ Interface:
 import re
 
 # ── Câu từ chối chuẩn (SRS 2.3) ──────────────────────────────────────────────
-_REFUSAL_RESPONSE = "Bi chưa có dữ liệu về vấn đề này."
+_REFUSAL_RESPONSE = "Oi cai nay Bi khong the huong dan duoc dau nhe! Minh choi thu khac vui hon di!"
 
 # ── Blacklist từ tiêu cực (SRS ST-04) ────────────────────────────────────────
 # Danh sách các từ không phù hợp với robot gia sư trẻ em.

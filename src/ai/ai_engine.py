@@ -1,9 +1,11 @@
 """
 core_ai.py — Robot Bi AI Core
-Kiến trúc: Groq (primary) → Gemini Flash-Lite (fallback)
-- Groq Llama 3.3 70B: ~400 token/giây, 14.400 request/ngày free
-- Gemini 2.5 Flash-Lite: fallback khi Groq hết quota, 1.000 req/ngày free
-- Tự động xoay vòng, không cần can thiệp thủ công
+Fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare Workers AI
+- Groq Llama 3.3 70B: primary, ~400 token/s
+- Gemini 2.0 Flash: fallback
+- Cerebras Llama 3.3 70B: fallback
+- Sambanova Llama 3.3 70B: fallback
+- Cloudflare Workers AI: last resort (non-streaming)
 """
 
 import logging
@@ -29,7 +31,7 @@ try:
 except FileNotFoundError:
     _CONFIG = {
         "groq_model": "llama-3.3-70b-versatile",
-        "gemini_model": "gemini-2.5-flash-lite-preview-06-17",
+        "gemini_model": "gemini-2.0-flash",
         "max_history_turns": 10,
         "groq_cooldown_seconds": 60,
     }
@@ -37,6 +39,10 @@ except FileNotFoundError:
 # API Keys từ .env
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
+SAMBANOVA_API_KEY = os.getenv("SAMBANOVA_API_KEY", "")
+CLOUDFLARE_API_KEY = os.getenv("CLOUDFLARE_API_KEY", "")
+CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 
 # Endpoints
 _GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -44,6 +50,8 @@ _GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
     f"{_CONFIG['gemini_model']}:streamGenerateContent"
 )
+_CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
+_SAMBANOVA_URL = "https://api.sambanova.ai/v1/chat/completions"
 
 # Trạng thái quota nội bộ
 _groq_fail_streak = 0
@@ -81,30 +89,40 @@ def _get_system_prompt() -> str:
     return base + language_rule
 
 
-def _stream_groq(messages: list, system_prompt: str) -> Generator[str, None, None]:
-    """Gọi Groq API, stream từng token."""
-    if not GROQ_API_KEY or GROQ_API_KEY.startswith("DIEN_"):
-        raise ValueError("GROQ_API_KEY chưa được cấu hình trong .env")
+def _get_error_response() -> str:
+    """Lấy ERROR_RESPONSE từ prompts.py, fallback về chuỗi mặc định."""
+    try:
+        from src.ai.prompts import ERROR_RESPONSE
+        return ERROR_RESPONSE
+    except ImportError:
+        pass
+    try:
+        from src.ai import prompts
+        return prompts.ERROR_RESPONSE
+    except (ImportError, AttributeError):
+        return "Xin lỗi bé, Bi đang gặp sự cố kết nối. Bé thử lại sau một chút nhé!"
 
+
+def _stream_openai_compat(
+    url: str, api_key: str, model: str, messages: list, system_prompt: str, provider: str
+) -> Generator[str, None, None]:
+    """Gọi bất kỳ OpenAI-compatible streaming endpoint."""
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
     payload = {
-        "model": _CONFIG["groq_model"],
+        "model": model,
         "messages": [{"role": "system", "content": system_prompt}] + messages,
         "max_tokens": 512,
         "temperature": 0.7,
         "stream": True,
     }
-
-    resp = requests.post(
-        _GROQ_URL, headers=headers, json=payload, stream=True, timeout=15
-    )
+    resp = requests.post(url, headers=headers, json=payload, stream=True, timeout=20)
     if resp.status_code == 429:
-        raise RuntimeError("Groq quota exceeded (429)")
+        raise RuntimeError(f"{provider} quota exceeded (429)")
     if resp.status_code != 200:
-        raise RuntimeError(f"Groq HTTP {resp.status_code}: {resp.text[:200]}")
+        raise RuntimeError(f"{provider} HTTP {resp.status_code}: {resp.text[:200]}")
 
     for raw in resp.iter_lines():
         if not raw:
@@ -122,6 +140,14 @@ def _stream_groq(messages: list, system_prompt: str) -> Generator[str, None, Non
                 yield delta
         except (json.JSONDecodeError, KeyError, IndexError):
             continue
+
+
+def _stream_groq(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    if not GROQ_API_KEY or GROQ_API_KEY.startswith("DIEN_"):
+        raise ValueError("GROQ_API_KEY chưa được cấu hình trong .env")
+    yield from _stream_openai_compat(
+        _GROQ_URL, GROQ_API_KEY, _CONFIG["groq_model"], messages, system_prompt, "Groq"
+    )
 
 
 def _stream_gemini(messages: list, system_prompt: str) -> Generator[str, None, None]:
@@ -173,10 +199,61 @@ def _stream_gemini(messages: list, system_prompt: str) -> Generator[str, None, N
             continue
 
 
+def _stream_cerebras(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    if not CEREBRAS_API_KEY or CEREBRAS_API_KEY.startswith("DIEN_"):
+        raise RuntimeError("CEREBRAS_API_KEY chưa được cấu hình trong .env")
+    yield from _stream_openai_compat(
+        _CEREBRAS_URL, CEREBRAS_API_KEY, "llama-3.3-70b", messages, system_prompt, "Cerebras"
+    )
+
+
+def _stream_sambanova(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    if not SAMBANOVA_API_KEY or SAMBANOVA_API_KEY.startswith("DIEN_"):
+        raise RuntimeError("SAMBANOVA_API_KEY chưa được cấu hình trong .env")
+    yield from _stream_openai_compat(
+        _SAMBANOVA_URL, SAMBANOVA_API_KEY, "llama-3.3-70b", messages, system_prompt, "Sambanova"
+    )
+
+
+def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    """Gọi Cloudflare Workers AI (non-streaming, yield toàn bộ response)."""
+    if not CLOUDFLARE_API_KEY or CLOUDFLARE_ACCOUNT_ID:
+        pass  # will check below
+    if not CLOUDFLARE_API_KEY or CLOUDFLARE_API_KEY.startswith("DIEN_"):
+        raise RuntimeError("CLOUDFLARE_API_KEY chưa được cấu hình trong .env")
+    if not CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_ACCOUNT_ID.startswith("DIEN_"):
+        raise RuntimeError("CLOUDFLARE_ACCOUNT_ID chưa được cấu hình trong .env")
+
+    url = (
+        f"https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}"
+        "/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+    )
+    headers = {
+        "Authorization": f"Bearer {CLOUDFLARE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messages": [{"role": "system", "content": system_prompt}] + messages,
+        "max_tokens": 512,
+        "temperature": 0.7,
+    }
+    resp = requests.post(url, headers=headers, json=payload, timeout=30)
+    if resp.status_code == 429:
+        raise RuntimeError("Cloudflare quota exceeded (429)")
+    if resp.status_code != 200:
+        raise RuntimeError(f"Cloudflare HTTP {resp.status_code}: {resp.text[:200]}")
+
+    data = resp.json()
+    text = data.get("result", {}).get("response", "")
+    if not text:
+        raise RuntimeError("Cloudflare returned empty response")
+    yield text
+
+
 def stream_chat(messages: list) -> Generator[str, None, None]:
     """
     Public API — gọi hàm này từ main_loop.py.
-    Tự động: Groq → Gemini → thông báo lỗi.
+    Fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare → thông báo lỗi.
 
     Args:
         messages: list of {"role": "user"|"assistant", "content": str}
@@ -215,14 +292,38 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
 
     # --- Fallback Gemini ---
     try:
-        logger.debug("[Bi - Não] Gemini Flash-Lite...")
+        logger.debug("[Bi - Não] Gemini 2.0 Flash...")
         yield from _stream_gemini(messages, system_prompt)
         return
     except Exception as e:
-        logger.warning("[Bi - Não] Gemini lỗi (%s)", e)
+        logger.warning("[Bi - Não] Gemini lỗi (%s) — chuyển Cerebras", e)
 
-    # --- Cả 2 đều fail ---
-    yield "Xin lỗi bé, Bi đang gặp sự cố kết nối. Bé thử lại sau một chút nhé!"
+    # --- Fallback Cerebras ---
+    try:
+        logger.debug("[Bi - Não] Cerebras (Llama 70B)...")
+        yield from _stream_cerebras(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] Cerebras lỗi (%s) — chuyển Sambanova", e)
+
+    # --- Fallback Sambanova ---
+    try:
+        logger.debug("[Bi - Não] Sambanova (Llama 70B)...")
+        yield from _stream_sambanova(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] Sambanova lỗi (%s) — chuyển Cloudflare", e)
+
+    # --- Fallback Cloudflare Workers AI ---
+    try:
+        logger.debug("[Bi - Não] Cloudflare Workers AI...")
+        yield from _stream_cloudflare(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] Cloudflare lỗi (%s) — tất cả provider fail", e)
+
+    # --- Tất cả fail ---
+    yield _get_error_response()
 
 
 # ── Backward-compat class — giữ để không break main_loop.py ──────────────────
@@ -277,12 +378,15 @@ if __name__ == "__main__":
     import sys
 
     print("=" * 60)
-    print("  TEST core_ai.py — Groq + Gemini")
+    print("  TEST core_ai.py — Full Fallback Chain")
     print("=" * 60)
-    print(f"  Groq model : {_CONFIG['groq_model']}")
-    print(f"  Gemini model: {_CONFIG['gemini_model']}")
-    print(f"  GROQ_API_KEY: {'OK' if GROQ_API_KEY and not GROQ_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
-    print(f"  GEMINI_API_KEY: {'OK' if GEMINI_API_KEY and not GEMINI_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}\n")
+    print(f"  Groq model    : {_CONFIG['groq_model']}")
+    print(f"  Gemini model  : {_CONFIG['gemini_model']}")
+    print(f"  GROQ_API_KEY  : {'OK' if GROQ_API_KEY and not GROQ_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
+    print(f"  GEMINI_API_KEY: {'OK' if GEMINI_API_KEY and not GEMINI_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
+    print(f"  CEREBRAS_API_KEY : {'OK' if CEREBRAS_API_KEY and not CEREBRAS_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
+    print(f"  SAMBANOVA_API_KEY: {'OK' if SAMBANOVA_API_KEY and not SAMBANOVA_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
+    print(f"  CLOUDFLARE_API_KEY: {'OK' if CLOUDFLARE_API_KEY and not CLOUDFLARE_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}\n")
 
     bi = BiAI()
     test_questions = [
