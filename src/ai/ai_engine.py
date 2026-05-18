@@ -1,10 +1,10 @@
 """
 core_ai.py — Robot Bi AI Core
-Fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare Workers AI
-- Groq Llama 3.3 70B: primary, ~400 token/s
-- Gemini 2.0 Flash: fallback
-- Cerebras Llama 3.3 70B: fallback
+Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI
+- Cerebras Llama 3.3 70B: primary, ~450 token/s, ít bị rate-limit nhất
+- Groq Llama 3.3 70B: secondary, ~400 token/s, có cooldown riêng
 - Sambanova Llama 3.3 70B: fallback
+- Gemini 2.0 Flash: fallback, ổn định cao
 - Cloudflare Workers AI: last resort (non-streaming)
 """
 
@@ -253,7 +253,7 @@ def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, Non
 def stream_chat(messages: list) -> Generator[str, None, None]:
     """
     Public API — gọi hàm này từ main_loop.py.
-    Fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare → thông báo lỗi.
+    Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → thông báo lỗi.
 
     Args:
         messages: list of {"role": "user"|"assistant", "content": str}
@@ -267,10 +267,19 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
 
     system_prompt = _get_system_prompt()
     now = time.time()
+
+    # --- Cerebras (primary — nhanh ngang Groq, ít bị rate-limit hơn) ---
+    try:
+        logger.debug("[Bi - Não] Cerebras (Llama 70B)...")
+        yield from _stream_cerebras(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] Cerebras lỗi (%s) — chuyển Groq", e)
+
+    # --- Groq (secondary — có cooldown riêng để tránh spam khi hết quota) ---
     with _groq_lock:
         groq_cooldown_until = _groq_cooldown_until
 
-    # --- Thử Groq trước (nhanh nhất) ---
     if now > groq_cooldown_until:
         try:
             logger.debug("[Bi - Não] Groq (Llama 70B)...")
@@ -286,35 +295,27 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
                     _groq_cooldown_until = now + _GROQ_COOLDOWN
                     _groq_fail_streak = 0
                     cooldown_started = True
-            logger.warning("[Bi - Não] Groq lỗi (%s) — chuyển Gemini", e)
+            logger.warning("[Bi - Não] Groq lỗi (%s) — chuyển Sambanova", e)
             if cooldown_started:
                 logger.warning("[Bi - Não] Groq tạm dừng %ss", _GROQ_COOLDOWN)
 
-    # --- Fallback Gemini ---
-    try:
-        logger.debug("[Bi - Não] Gemini 2.0 Flash...")
-        yield from _stream_gemini(messages, system_prompt)
-        return
-    except Exception as e:
-        logger.warning("[Bi - Não] Gemini lỗi (%s) — chuyển Cerebras", e)
-
-    # --- Fallback Cerebras ---
-    try:
-        logger.debug("[Bi - Não] Cerebras (Llama 70B)...")
-        yield from _stream_cerebras(messages, system_prompt)
-        return
-    except Exception as e:
-        logger.warning("[Bi - Não] Cerebras lỗi (%s) — chuyển Sambanova", e)
-
-    # --- Fallback Sambanova ---
+    # --- Sambanova ---
     try:
         logger.debug("[Bi - Não] Sambanova (Llama 70B)...")
         yield from _stream_sambanova(messages, system_prompt)
         return
     except Exception as e:
-        logger.warning("[Bi - Não] Sambanova lỗi (%s) — chuyển Cloudflare", e)
+        logger.warning("[Bi - Não] Sambanova lỗi (%s) — chuyển Gemini", e)
 
-    # --- Fallback Cloudflare Workers AI ---
+    # --- Gemini ---
+    try:
+        logger.debug("[Bi - Não] Gemini 2.0 Flash...")
+        yield from _stream_gemini(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] Gemini lỗi (%s) — chuyển Cloudflare", e)
+
+    # --- Cloudflare Workers AI (last resort) ---
     try:
         logger.debug("[Bi - Não] Cloudflare Workers AI...")
         yield from _stream_cloudflare(messages, system_prompt)
