@@ -1,6 +1,6 @@
 # ARCHITECTURE.md — Kiến Trúc Hệ Thống Robot Bi
 
-> Phiên bản: 1.0 | Cập nhật: 2026-05-15
+> Phiên bản: 1.1 | Cập nhật: 2026-05-19
 > File này mô tả kiến trúc tổng thể, data flow, và các quyết định thiết kế quan trọng.
 > Đây là tài liệu descriptive — implementation details nằm trong `PROJECT.md` và `SYSTEM_MAP.md`.
 > Cập nhật khi có thay đổi về kiến trúc, không cập nhật cho bugfix thông thường.
@@ -9,11 +9,13 @@
 
 ## 1. Tổng Quan
 
-Robot Bi gồm 3 khối chính phối hợp với nhau:
+Robot Bi gồm 3 khối chính phối hợp với nhau.
+
+### Kiến Trúc Hiện Tại (Prototype)
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                          PC / Laptop                             │
+│                     Brain Server (PC / Laptop)                   │
 │                                                                  │
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐  │
 │  │  AI Engine  │  │  API Server  │  │     Storage            │  │
@@ -34,11 +36,36 @@ Robot Bi gồm 3 khối chính phối hợp với nhau:
 │  ESP32 #1 (Motor)   │          │  Browser (Parent App) │
 │  ESP32-S3 (Audio    │          │  Mobile / Desktop     │
 │    + Display)       │          │                       │
-│  ESP32-CAM          │          └───────────────────────┘
+│  USB Webcam (test)  │          └───────────────────────┘
 │  Màn hình TFT       │
 │  Mic + Loa          │
 └─────────────────────┘
 ```
+
+### Kiến Trúc Sản Xuất (Hướng Tương Lai)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     Brain Server (PC / Laptop)                   │
+│  AI, STT, TTS, LLM, Safety, API Server, Storage                  │
+└──────────────────────┬───────────────────────────────────────────┘
+                       │ WiFi (LAN)
+                       ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                Gateway (Orange Pi hoặc tương đương)              │
+│  Body Manager — WebRTC — OTA — Health — WiFi — Bridge            │
+└─────┬─────────────────┬────────────────────────────┬─────────────┘
+      │                 │                            │
+      ▼                 ▼                            ▼
+ESP32 Motor       ESP32-S3                      Camera IMX219
+(di chuyển,      (mặt/audio/                  → WebRTC về
+ safety)          cảm ứng)                      Brain Server
+```
+
+**Lưu ý quan trọng**:
+- USB webcam chỉ dùng cho prototype và test nhanh — không phải hướng sản phẩm
+- N100 mini PC là tùy chọn tương lai cho local-brain độc lập — không thuộc kế hoạch chính hiện tại
+- Não AI vẫn luôn ở Brain Server — Gateway chỉ làm I/O, điều phối, không làm AI
 
 ---
 
@@ -163,9 +190,27 @@ pyttsx3 (TTS fallback)
 
 ## 3. Khối Robot — Body
 
-### 3.1 ESP32 #1 — Motor Controller
+### 3.0 Gateway — Body Manager (Kiến Trúc Sản Xuất)
 
-**Vai trò**: Nhận lệnh di chuyển từ PC, điều khiển L298N.
+**Vai trò**: Đứng giữa Brain Server và các ESP32, quản lý toàn bộ thân robot.
+
+Gateway **không phải AI brain**. Gateway chỉ làm:
+
+| Chức năng | Mô tả |
+|---|---|
+| Body manager | Điều phối ESP32 Motor và ESP32-S3 |
+| WebRTC | Nhận camera stream, stream về Brain Server |
+| OTA (cập nhật từ xa) | Cập nhật firmware ESP32 không cần tháo thiết bị |
+| Health monitor | Theo dõi trạng thái các component trong robot |
+| WiFi reconnect | Tự kết nối lại khi mất mạng |
+| Bridge | Chuyển tiếp lệnh từ Brain Server xuống đúng ESP32 |
+| Phản xạ nhanh | Xử lý vài tình huống đơn giản không cần đợi Brain Server |
+
+**Hardware khuyến nghị**: Orange Pi hoặc tương đương — Linux board nhỏ gọn, chạy được WebRTC.
+
+### 3.1 ESP32 Motor — Di Chuyển và An Toàn
+
+**Vai trò**: Nhận lệnh di chuyển từ Brain Server (qua Gateway trong sản xuất), điều khiển L298N.
 
 ```
 PC WebSocket Server
@@ -240,27 +285,31 @@ Màn hình TFT hiển thị UI
 - Start/end video call UI
 - Show reward animation
 
-### 3.3 ESP32-CAM — Camera
+### 3.3 Camera
 
-**Vai trò**: Stream video từ thân robot về PC qua WiFi.
+**Prototype**: USB webcam gắn ngoài PC, đủ để test nhanh các tính năng vision.
+
+**Sản xuất**: Camera tích hợp trong thân robot, stream qua Gateway.
 
 ```
-Camera OV2640
+Prototype:
+USB Webcam → PC → OpenCV processing
+
+Sản xuất:
+Camera IMX219 (trong robot)
       │
       ▼
-ESP32-CAM
-      │ HTTP MJPEG stream (WiFi)
+Gateway (WebRTC)
+      │ WebRTC stream (WiFi)
       ▼
-PC — OpenCV processing
+Brain Server — OpenCV processing
  ├── Motion detection
  ├── Follow me tracking
  ├── Cry detection support
  └── Video call stream → Parent App
 ```
 
-**Stream endpoints**:
-- `http://<robot-ip>/stream` — MJPEG stream
-- PC relay qua `/api/camera` → Parent App
+**Lý do chọn IMX219**: Chất lượng tốt, phổ biến với Linux board, hỗ trợ WebRTC qua libcamera.
 
 ---
 
@@ -423,16 +472,19 @@ Admin endpoints (`/api/admin/families`) chỉ accessible với `is_admin = True`
 
 | Quyết định | Lý do |
 |---|---|
-| PC làm toàn bộ AI, ESP32 chỉ làm I/O | ESP32 không đủ sức chạy LLM/STT; tách biệt rõ vai trò |
-| 2 ESP32 riêng biệt cho motor và audio | Tránh interference, motor noise ảnh hưởng audio |
-| WebSocket cho PC ↔ ESP32 | Low latency, bidirectional, đơn giản hơn MQTT |
-| ESP32-CAM riêng cho camera | Không chiếm tài nguyên ESP32-S3 đang xử lý audio |
+| Brain Server làm toàn bộ AI, ESP32/Gateway chỉ làm I/O | ESP32 không đủ sức chạy LLM/STT; tách biệt rõ vai trò |
+| 2 ESP32 riêng biệt cho motor và audio | Tránh nhiễu, motor noise ảnh hưởng audio |
+| WebSocket cho Brain Server ↔ ESP32 | Độ trễ thấp, hai chiều, đơn giản hơn MQTT |
+| Gateway layer trong sản xuất | Giảm tải WebSocket trực tiếp, hỗ trợ OTA, WebRTC, health monitor |
+| Camera sản xuất qua Gateway WebRTC | Chất lượng stream tốt hơn MJPEG, hỗ trợ video call real-time |
+| USB webcam chỉ cho prototype | Đơn giản, test nhanh, không cần phần cứng robot |
 | SQLite thay vì PostgreSQL | Đơn giản, không cần server riêng, đủ cho scale hiện tại |
 | ChromaDB cho RAG | Local, không cần cloud, privacy-first |
-| Groq primary + Gemini fallback | Groq nhanh hơn, Gemini làm safety net khi Groq down |
+| Groq primary + Gemini fallback chain | Groq nhanh hơn, fallback chain đảm bảo không bao giờ mất AI |
 | edge-tts + pygame chunked | Time-to-first-audio < 2s, không cần đợi full audio |
-| Robot Display là web app | Dễ update UI không cần reflash ESP32; PC serve, ESP32-S3 render |
+| Robot Display là web app | Dễ update UI không cần reflash ESP32; Brain Server serve, ESP32-S3 render |
 | Cloudflare Tunnel | Remote access không cần port forwarding, secure |
+| N100 chỉ là tùy chọn tương lai | Cho phép local-brain độc lập không cần PC, nhưng không thuộc kế hoạch hiện tại |
 
 ---
 

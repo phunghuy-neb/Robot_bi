@@ -1,6 +1,6 @@
 # HARDWARE.md — Phần Cứng Robot Bi
 
-> Phiên bản: 1.0 | Cập nhật: 2026-05-15
+> Phiên bản: 1.1 | Cập nhật: 2026-05-19
 > File này mô tả linh kiện, kiến trúc phần cứng, và ghi chú lắp ráp.
 > Cập nhật khi mua linh kiện mới, thay thế component, hoặc thay đổi wiring.
 > Cho software implementation liên quan đến phần cứng, xem `PROJECT.md` và `SYSTEM_MAP.md`.
@@ -9,26 +9,53 @@
 
 ## 1. Tổng Quan Kiến Trúc
 
-Robot Bi gồm 2 khối tính toán phối hợp:
+### Kiến Trúc Prototype (Hiện Tại)
 
 ```
 ┌─────────────────────────────────┐         ┌──────────────────────────────┐
-│         PC / Laptop             │         │        Thân Robot            │
-│  - Brain: AI, API, STT, TTS     │◄──WiFi──►│  ESP32 #1 (Motor)           │
-│  - Parent App web server        │         │  ESP32 S3 #2 (Audio + WiFi) │
-│  - ChromaDB, SQLite             │         │  ESP32-CAM #3 (Camera)      │
-│  - GPU: RTX 2060 Super          │         │  Màn hình SPI               │
-│  - RAM: 16GB                    │         │  Loa MAX98357               │
-└─────────────────────────────────┘         │  Mic INMP441 x2             │
-                                            │  Motor + L298N              │
-                                            │  Pin 18650 x3               │
-                                            └──────────────────────────────┘
+│      Brain Server (PC/Laptop)   │         │        Thân Robot            │
+│  - Brain: AI, API, STT, TTS     │◄──WiFi──►│  ESP32 #1 (Motor + Safety)  │
+│  - Parent App web server        │         │  ESP32-S3 (Audio + Display) │
+│  - ChromaDB, SQLite             │         │  Màn hình SPI               │
+│  - GPU: RTX 2060 Super          │         │  Loa MAX98357               │
+│  - RAM: 16GB                    │         │  Mic INMP441 x2             │
+└─────────────────────────────────┘         │  Motor + L298N              │
+        ▲                                   │  Pin 18650 x3               │
+        │ USB / MJPEG                        └──────────────────────────────┘
+  USB Webcam (test)
+```
+
+### Kiến Trúc Sản Xuất (Hướng Tương Lai)
+
+```
+┌─────────────────────────────────┐
+│      Brain Server (PC/Laptop)   │
+│  - AI, STT, TTS, LLM, Safety   │
+│  - FastAPI, Storage             │
+└─────────────┬───────────────────┘
+              │ WiFi
+              ▼
+┌─────────────────────────────────┐
+│    Gateway (Orange Pi hoặc TĐ)  │
+│  - Body manager                 │
+│  - WebRTC camera stream         │
+│  - OTA firmware updates         │
+│  - Health monitor               │
+│  - WiFi reconnect               │
+│  - Bridge ESP32 Motor + ESP32-S3│
+└──────┬──────────────┬───────────┘
+       │              │
+       ▼              ▼
+ESP32 Motor      ESP32-S3           Camera IMX219
+(di chuyển,     (mặt/audio/        → Gateway WebRTC
+ safety)         cảm ứng)
 ```
 
 **Nguyên tắc phân vai**:
-- PC làm toàn bộ AI processing — STT, LLM, TTS, Safety Filter, Vision AI
-- ESP32 chỉ làm I/O — nhận lệnh từ PC, điều khiển phần cứng, gửi data về
-- Giao tiếp PC ↔ Robot qua WebSocket trên WiFi nội bộ
+- Brain Server làm toàn bộ AI processing — STT, LLM, TTS, Safety Filter, Vision AI
+- Gateway quản lý thân robot — không làm AI, chỉ làm I/O, điều phối, OTA
+- ESP32 chỉ làm phần cứng — nhận lệnh, điều khiển motor/audio/display
+- USB webcam chỉ dùng cho prototype — không phải hướng sản phẩm
 
 ---
 
@@ -136,24 +163,30 @@ LED/BL    →   3.3V hoặc GPIO (backlight control)
 
 ### 3.2 Camera — CHƯA CÓ
 
-**Yêu cầu**:
-- Gắn trên thân robot
-- Stream video về PC qua WiFi
-- PC xử lý AI (follow me, motion detection, video call)
-- Không cần xử lý AI trên camera
+**Prototype (test nhanh)**:
+- USB webcam gắn vào PC — không cần phần cứng robot
+- Đủ để test motion detection, follow me logic, video call flow
 
-**Recommendation**:
+**Sản xuất (hướng cuối cùng)**:
+- Camera tích hợp trong thân robot
+- Stream qua Gateway → WebRTC → Brain Server
+- Brain Server xử lý AI (OpenCV, motion detection, follow me, video call)
+
+**Recommendation sản xuất**:
 
 | Option | Model | Ghi chú |
 |---|---|---|
-| ⭐ Tốt nhất | ESP32-CAM (OV2640) | Module tích hợp sẵn, stream MJPEG qua WiFi, rẻ |
-| Nâng cấp | ESP32-S3-EYE | S3 chip mạnh hơn, có mic tích hợp, giá cao hơn |
+| ⭐ Tốt nhất | IMX219 | Chất lượng tốt, hỗ trợ libcamera, phổ biến với Orange Pi/RPi |
+| Thay thế | OV5647 | Rẻ hơn, chất lượng thấp hơn |
 
-**Lưu ý ESP32-CAM**:
-- Module này có ESP32 riêng — là ESP32 thứ 3 trong hệ thống
-- Stream MJPEG về PC qua HTTP, PC dùng OpenCV để xử lý
-- Cần nguồn 5V ổn định (dễ crash nếu nguồn yếu)
-- Nên dùng thêm module FTDI để nạp firmware lần đầu
+**Lưu ý**:
+- Camera kết nối với Gateway (không kết nối trực tiếp với Brain Server)
+- Gateway stream qua WebRTC — độ trễ thấp hơn MJPEG đáng kể
+- Không xử lý AI trên camera hoặc Gateway
+
+**Prototype (nếu cần camera trên robot trước khi có Gateway)**:
+- ESP32-CAM (OV2640) vẫn dùng được — stream MJPEG về Brain Server
+- Đây là giải pháp tạm thời, không phải hướng sản xuất
 
 ### 3.3 Linh Kiện Phụ — CHƯA CÓ
 
@@ -171,6 +204,16 @@ LED/BL    →   3.3V hoặc GPIO (backlight control)
 | Công tắc nguồn | 1 cái | Tắt mở robot |
 | Jack nguồn DC 5.5mm | 2-3 cái | Sạc pin |
 
+### 3.3B Gateway — Linh Kiện Mới Cho Sản Xuất
+
+| Component | Gợi ý | Vai trò |
+|---|---|---|
+| Gateway board | Orange Pi Zero 2W hoặc tương đương | Body manager, WebRTC, OTA, bridge |
+| Nguồn cho Gateway | 5V / 2A ổn định | Tách riêng với motor |
+| Kết nối Gateway ↔ ESP32 | UART hoặc WiFi | Tuỳ thiết kế firmware |
+
+**Lưu ý**: Gateway cần chạy Linux để hỗ trợ WebRTC và OTA firmware. Raspberry Pi cũng phù hợp nếu không cần tối ưu chi phí.
+
 ### 3.4 Khung Robot và Cơ Khí — TƯƠNG LAI
 
 | Item | Ghi chú |
@@ -178,8 +221,10 @@ LED/BL    →   3.3V hoặc GPIO (backlight control)
 | Khung in 3D | Thiết kế sau khi confirm tất cả component sizes |
 | Bánh xe phù hợp khung | Chọn sau khi có khung |
 | Pin tốt hơn | Li-ion pack hoặc LiPo phù hợp kích thước khung |
-| BMS (Battery Management System) | Bảo vệ pin, sạc an toàn |
-| Dock sạc | Tự về dock khi pin yếu — feature tương lai |
+| Hệ thống quản lý pin | Bảo vệ pin, sạc an toàn |
+| Dock sạc — "Nhà của Bi" | Tự về dock khi pin yếu; IR beacon hoặc cơ chế tương đương |
+| IR beacon cho auto-dock | Robot nhận diện vị trí dock để tự tìm về |
+| Cảm biến tránh vật cản | Cần trước khi làm follow me; có thể dùng ultrasonic hoặc IR |
 
 ---
 
@@ -242,15 +287,18 @@ PC (Brain)
 
 ## 6. Trạng Thái Hiện Tại
 
-| Hạng mục | Trạng thái |
-|---|---|
-| PC Brain + Software | ✅ Hoạt động |
-| ESP32 #1 Motor + L298N | ✅ Có firmware, đang test với kit xe |
-| ESP32-S3 Audio | 🔧 Có hardware, cần firmware |
-| Mic INMP441 x2 | ✅ Có, chưa tích hợp hoàn chỉnh |
-| Loa MAX98357 | ✅ Có, chưa tích hợp hoàn chỉnh |
-| Màn hình | ⬜ Chưa mua |
-| Camera | ⬜ Chưa mua |
-| Khung robot | 🔧 Tạm dùng kit xe, sẽ in 3D |
-| Pin | 🔧 18650 x3 tạm thời |
-| Linh kiện phụ | ⬜ Chưa đủ |
+| Hạng mục | Trạng thái | Ghi chú |
+|---|---|---|
+| Brain Server (PC) + Software | ✅ Hoạt động | Chạy toàn bộ AI stack |
+| ESP32 Motor + L298N | ✅ Có firmware, đang test | Kit xe tạm thời |
+| ESP32-S3 Audio | 🔧 Có hardware, cần firmware | I2S mic + loa chưa tích hợp hoàn chỉnh |
+| Mic INMP441 x2 | ✅ Có | Chưa tích hợp hoàn chỉnh |
+| Loa MAX98357 | ✅ Có | Chưa tích hợp hoàn chỉnh |
+| Màn hình TFT SPI | ⬜ Chưa mua | Gợi ý: ILI9488 3.5" |
+| Camera | ⬜ Chưa mua | Prototype: USB webcam; Sản xuất: IMX219 qua Gateway |
+| Gateway (body manager) | ⬜ Chưa có | Sản xuất: Orange Pi hoặc tương đương |
+| Dock sạc (nhà của Bi) | ⬜ Chưa có | Cần IR beacon cho auto-dock |
+| Cảm biến tránh vật cản | ⬜ Chưa mua | Cần trước follow me |
+| Khung robot | 🔧 Tạm dùng kit xe | Sẽ in 3D sau khi confirm kích thước |
+| Pin | 🔧 18650 x3 tạm thời | Nâng cấp sau khi có khung |
+| Linh kiện phụ (tụ, điện trở...) | ⬜ Chưa đủ | Xem danh sách mục 3.3 |
