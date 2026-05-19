@@ -35,6 +35,8 @@ tmp_*
 ssl/
 *.pem
 cloudflared.exe
+ngrok.exe
+*.exe
 
 # OS generated files
 .DS_Store

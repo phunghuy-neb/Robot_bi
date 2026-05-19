@@ -21,7 +21,6 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `.claude/handoff.md` | Latest current-state handoff for AI sessions. |
 | `CLAUDE.md` | Generated instructions for Claude Code. Do not edit manually. |
 | `AGENTS.md` | Generated instructions for Codex CLI. Do not edit manually. |
-| `.specify/memory/constitution.md` | Spec Kit governance for Robot Bi. It cannot override `PROJECT.md`. |
 
 ## 3. Current Entry Points
 
