@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.0 | Cập nhật: 2026-05-20
+> Phiên bản: 1.1 | Cập nhật: 2026-05-20
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -23,6 +23,9 @@
 | RAG memory (ChromaDB) | 🟢 | `src/memory/rag_manager.py` | threshold 0.62, 12 fact types, max 500/family |
 | Session naming tự động | 🟢 | `src/ai/session_namer.py` | Groq non-streaming, fallback text[:30] |
 | Safety filter 3 layers | 🟢 | `src/safety/safety_filter.py` | topic (5 patterns) + blacklist (11 words) + sentence cap |
+| PII filter | 🟢 | `src/safety/pii_filter.py` | 8 types: phone/email/CCCD/address/school/password/financial/fullname; gentle redirect; dual-pattern (có/không dấu) |
+| Emotion risk detector | 🟢 | `src/safety/emotion_risk_detector.py` | HIGH/MEDIUM/LOW; escalation HIGH→override; log_event flag; dual-pattern |
+| Manipulation guard | 🟢 | `src/safety/manipulation_guard.py` | LLM output + user input; blocks grooming signals + secret-keeping + parent replacement |
 | STT faster-whisper | 🟢 | `src/audio/input/ear_stt.py` | GPU large-v2, CPU medium; mic fallback to silent |
 | TTS edge-tts chunked | 🟢 | `src/audio/output/mouth_tts.py` | **Yêu cầu internet**; fallback pyttsx3 local |
 | Mom talk audio | 🟢 | `src/audio/output/mouth_tts.py` | `pygame.Channel(7)`, 16k→44.1k resample; **Protected Fix** |
@@ -131,8 +134,10 @@
 | Camera stream auth | 🟢 | JWT middleware | |
 | Face recognition | 🔴 | `src/vision/face_recognizer.py` | **Stub — 5 lines** |
 | Fall detection | 🔴 | `src/vision/fall_detector.py` | **Stub — 5 lines** |
-| PII detection | ⚪ | — | Không có code |
-| Grooming pattern detection | ⚪ | — | Không có code — gap nghiêm trọng cho child safety |
+| PII detection | 🟢 | `src/safety/pii_filter.py` | ✅ Done — Sprint 0.2 |
+| Grooming pattern detection | 🟢 | `src/safety/manipulation_guard.py` | ✅ Done — Sprint 0.2 |
+| Emotion risk escalation | 🟢 | `src/safety/emotion_risk_detector.py` | ✅ Done — Sprint 0.2 |
+| Vietnamese no-diacritic matching | 🟢 | `src/safety/vi_normalize.py` | ✅ Done — Sprint 0.2 |
 | Encrypted local storage | ⚪ | — | SQLite không mã hóa |
 | Audit log | ⚪ | — | Không có code |
 
@@ -165,11 +170,11 @@
 | Voice System | 7 | 1 | 0 | 3 |
 | Robot Control | 3 | 0 | 3 | 5 |
 | Learning | 3 | 4 | 0 | 3 |
-| Safety/Privacy | 7 | 0 | 2 | 4 |
+| Safety/Privacy | 11 | 0 | 2 | 2 |
 | Infrastructure | 6 | 1 | 0 | 4 |
-| **Tổng** | **47** | **16** | **5** | **25** |
+| **Tổng** | **51** | **16** | **5** | **21** |
 
-**Tổng cộng: 93 items — 50% Done, 17% Partial, 5% Stub, 27% Zero**
+**Tổng cộng: 93 items (+ 4 mục mới = 97) — 53% Done, 16% Partial, 5% Stub, 22% Zero**
 
 ---
 
@@ -181,6 +186,6 @@
 | edge-tts yêu cầu internet | 🟡 Product claim | Docs nói "local-first" nhưng TTS chính phụ thuộc cloud |
 | Follow me / dock / navigation: stubs | 🟡 Expectation | Được nhắc nhiều nhưng 0% code thật |
 | Wake word disabled by default | 🟡 Usability | "Bi ơi" không hoạt động trừ khi bật thủ công |
-| Grooming/PII detection: không có | 🔴 Child safety | Gap thật trong safety — cần ưu tiên trước scale |
+| ~~Grooming/PII detection: không có~~ | ✅ Đã giải quyết Sprint 0.2 | `pii_filter.py` + `manipulation_guard.py` + `emotion_risk_detector.py` |
 | Motor IP hardcoded | 🟡 Deployment | `192.168.40.107:8443` trong firmware, phải sửa mỗi lần deploy |
 | Parent App mock fallbacks | 🟡 Feature | Radio/videos/games/logs hiện dùng mock data |

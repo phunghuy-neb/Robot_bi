@@ -1,6 +1,6 @@
 # SRS Robot Bi — Đặc Tả Yêu Cầu Hệ Thống
 
-> Phiên bản: 2.2 | Cập nhật: 2026-05-19
+> Phiên bản: 2.3 | Cập nhật: 2026-05-20
 > Đây là tài liệu living document — cập nhật khi vision hoặc requirements thay đổi, không phải khi implementation thay đổi.
 > Tài liệu này mô tả **cái gì** và **tại sao**, không mô tả **cách làm**.
 > Cho implementation details, xem `PROJECT.md` và `SYSTEM_MAP.md`.
@@ -302,7 +302,7 @@ Robot Bi dùng kiến trúc AI kết hợp — không phải hoàn toàn offline
 | Thành phần | Chạy ở đâu | Lý do |
 |---|---|---|
 | Trí nhớ (RAG) | Local (ChromaDB) | Dữ liệu bé không rời khỏi nhà |
-| Safety filter | Local (regex + classifier) | Không phụ thuộc internet |
+| Safety filter (4 modules) | Local (regex + pattern match) | Không phụ thuộc internet; PII + emotion risk + manipulation guard + content filter |
 | Lưu trữ (SQLite) | Local | Toàn bộ history trên máy nhà |
 | STT (Whisper) | Local | Giọng bé xử lý tại chỗ |
 | TTS (edge-tts) | Local + cloud nhỏ | edge-tts cần internet; fallback pyttsx3 local |
@@ -330,6 +330,11 @@ Robot Bi dùng kiến trúc AI kết hợp — không phải hoàn toàn offline
 ### 9.3 Content safety
 - Safety filter bắt buộc chạy post-LLM, pre-TTS — không bỏ qua bất kỳ hoàn cảnh nào
 - Lọc nội dung không phù hợp với trẻ em
+- **PII filter** (Sprint 0.2): phát hiện thông tin cá nhân trong input bé — điện thoại, email, địa chỉ, trường học, CCCD, mật khẩu, tài chính — gentle redirect, không hard-block. Hỗ trợ input có dấu và không dấu.
+- **Emotion risk detection** (Sprint 0.2): phân loại HIGH/MEDIUM/LOW. HIGH (tự làm hại, bạo lực, grooming) → override LLM, escalate ngay. MEDIUM (buồn kéo dài, bắt nạt) → log + comfort. LOW → để LLM xử lý.
+- **Manipulation guard** (Sprint 0.2): chặn LLM output tạo dependency hoặc bảo giữ bí mật; chặn user input yêu cầu Bi giữ bí mật với bố mẹ, grooming signal, hoặc muốn Bi thay thế phụ huynh.
+- Tất cả safety checks hỗ trợ input có dấu và không dấu (phổ biến khi bé gõ điện thoại).
+- Bi KHÔNG là therapist, KHÔNG thay thế phụ huynh, KHÔNG là surveillance AI.
 
 ### 9.4 Multi-family isolation
 - Dữ liệu mỗi gia đình hoàn toàn tách biệt

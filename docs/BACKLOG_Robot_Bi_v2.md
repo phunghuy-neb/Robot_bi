@@ -1,6 +1,6 @@
 # BACKLOG Robot Bi — Danh Sách Tính Năng
 
-> Phiên bản: 2.2 | Cập nhật: 2026-05-20
+> Phiên bản: 2.3 | Cập nhật: 2026-05-20
 > Đây là living document — thêm ý tưởng mới bất cứ lúc nào, không có timeline cứng.
 > Status: ✅ Done | 🔧 In progress / partial | ⬜ Not started | 💡 Idea / exploring
 > Thứ tự trong mỗi nhóm không phản ánh priority — priority được quyết định theo từng session.
@@ -180,6 +180,10 @@
 | ✅ | Cry detection | YAMNet TFLite + fallback |
 | ✅ | Event notifications | WebSocket real-time |
 | ✅ | Motion detection cơ bản | `src/vision/` |
+| ✅ | **PII filter** (Sprint 0.2) | `src/safety/pii_filter.py` — 8 loại PII, gentle redirect, dual-pattern (có/không dấu) |
+| ✅ | **Emotion risk detector** (Sprint 0.2) | `src/safety/emotion_risk_detector.py` — HIGH/MEDIUM/LOW; HIGH override + escalate |
+| ✅ | **Manipulation guard** (Sprint 0.2) | `src/safety/manipulation_guard.py` — grooming, secret-keeping, parent replacement |
+| ✅ | **Vietnamese diacritic normalizer** (Sprint 0.2) | `src/safety/vi_normalize.py` — fuzzy match có/không dấu |
 | ⬜ | Báo động khóc → thông báo phụ huynh + Bi hỏi han | Kết hợp 2 action |
 | ⬜ | Phát hiện người lạ | Báo phụ huynh |
 | ⬜ | Camera clip lưu lại sự kiện | Review sau |
