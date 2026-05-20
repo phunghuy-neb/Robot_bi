@@ -16,6 +16,17 @@
 
 ## Last Completed Task
 
+- 2026-05-20: **Sprint 0.2 — Child Safety Foundation (4 new modules + main.py integration + 37 tests)**. 430/431 PASS (28.9 pre-existing, unrelated):
+  - `src/safety/vi_normalize.py` — strip Vietnamese diacritics for fuzzy matching (no external deps)
+  - `src/safety/pii_filter.py` — 8 PII types (phone/email/CCCD/address/school/password/financial/fullname), dual-pattern (có/không dấu), gentle redirect
+  - `src/safety/emotion_risk_detector.py` — HIGH/MEDIUM/LOW risk; HIGH overrides LLM + logs event; MEDIUM comforts + logs; LOW passes through
+  - `src/safety/manipulation_guard.py` — LLM output check (secret-keeping, dependency, parent replacement, guilt-trip) + user input check (grooming signals, secret requests, parent replacement)
+  - `src/main.py` — 6 targeted edits: imports, `__init__`, TEXT mode input checks, TEXT mode output check, VOICE mode input checks, VOICE mode output check
+  - `tests/run_tests.py` — Group 65 (37 tests): PII (10) + EmotionRisk (11) + ManipulationGuard (12) + imports/integration (4)
+  - Pipeline: user_text → PII check → EmotionRisk check → ManipulationGuard input → RAG → LLM stream → SafetyFilter + ManipulationGuard output → TTS
+  - Commits: `1ba66ec` (code), `12113d2` (docs)
+  - Docs updated: `STATUS_MAP.md` v1.1, `BACKLOG_Robot_Bi_v2.md` v2.3, `SRS_Robot_Bi_v2.md` v2.3
+
 - 2026-05-20: **Sprint 0.1 — Sync docs to code reality (docs-only, no code changed, no tests needed)**. 4 tasks:
   - Task 0.1.1: `PROJECT.md` updated — 5-provider LLM chain (Cerebras→Groq→Sambanova→Gemini→Cloudflare), RAG threshold 0.62, edge-tts internet requirement, wake word disabled by default, firmware stubs flagged, Parent App path corrected.
   - Task 0.1.2: Docs drift fixed — `ARCHITECTURE.md` LLM chain corrected, `SRS_Robot_Bi_v2.md` fallback section updated, `prompts.py` stale comment fixed.
@@ -55,11 +66,14 @@
 - Cloudflare quick tunnel URL may change after restart unless a named tunnel is configured.
 - YAMNet TFLite support depends on optional runtime dependencies.
 - Parent App: radio/videos/games/logs use mock fallbacks; 4 saveSettings() stubs return null.
+- Test 28.9: `docs/kehoach.md` missing — pre-existing, unrelated to Sprint 0.2.
 - See `docs/STATUS_MAP.md` for complete feature reality map.
 
 ## Next Recommended Action
 
-Sprint 0.1 is complete. Next up per MASTER_PLAN: **Sprint 0.2 — Code Cleanup** (remove dead stubs, fix hardcoded IP in firmware, clean TODOs) OR start **Sprint 1.1 — Living Conversation** (conversation state machine, topic tracking, context-aware responses).
+Sprint 0.2 is complete. Next up per MASTER_PLAN: **Sprint 0.3 — Code Cleanup** (remove dead stubs, fix hardcoded IP in firmware, clean TODOs) OR **Sprint 1.1 — Living Conversation** (conversation state machine, topic tracking, context-aware responses).
+
+Safety layer is now: safety_filter (post-LLM) + pii_filter (pre-LLM) + emotion_risk_detector (pre-LLM) + manipulation_guard (pre-LLM input + post-LLM output).
 
 For code changes: read `PROJECT.md`, this handoff, and relevant source files.
 For large feature/API/schema/cross-module work: use Spec Kit or write a clear plan first.
@@ -70,7 +84,20 @@ For large feature/API/schema/cross-module work: use Spec Kit or write a clear pl
 python tests/run_tests.py
 ```
 
-## Files Recently Touched
+## Files Recently Touched (Sprint 0.2)
+
+- `src/safety/vi_normalize.py` (new — Vietnamese diacritic normalizer)
+- `src/safety/pii_filter.py` (new — PII detection + gentle redirect)
+- `src/safety/emotion_risk_detector.py` (new — HIGH/MEDIUM/LOW risk + escalation)
+- `src/safety/manipulation_guard.py` (new — LLM output + user input manipulation check)
+- `src/main.py` (modified — integrated 3 safety modules into text + voice pipelines)
+- `tests/run_tests.py` (modified — Group 65, 37 new safety tests)
+- `docs/STATUS_MAP.md` (updated — Sprint 0.2 items marked Done, gap resolved)
+- `docs/BACKLOG_Robot_Bi_v2.md` (updated — section 9 Sprint 0.2 items)
+- `docs/SRS_Robot_Bi_v2.md` (updated — section 9.3 expanded with 5 safety rules)
+- `.claude/handoff.md`
+
+## Files Recently Touched (Sprint 0.1 and earlier)
 
 - `frontend/parent_app/index.html` (replaced legacy 4000-line HTML with Vite mount shell)
 - `frontend/parent_app/package.json` (new — React 18 + Vite 5)
