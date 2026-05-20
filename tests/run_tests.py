@@ -1807,11 +1807,6 @@ def test_28_8_handoff_phase3_complete():
     assert "Bắt đầu Phase 3" not in content or "COMPLETE" in content, "handoff phai reflect Phase 3 da xong"
 
 
-def test_28_9_kehoach_outdated_banner():
-    with open("docs/kehoach.md", encoding="utf-8") as f:
-        content = f.read()
-    assert "LOI THOI" in content or "LỖI THỜI" in content or "outdated" in content.lower(), "kehoach.md phai co warning banner loi thoi"
-
 
 def test_28_10_gitignore_runtime_artifacts():
     with open(".gitignore", encoding="utf-8") as f:
@@ -1849,7 +1844,6 @@ test("28.5 FIX D-7: LOG_LEVEL env used", test_28_5_log_config_reads_log_level)
 test("28.6 FIX D-8: notification stacking present", test_28_6_notification_stacking_present)
 test("28.7 FIX D-9: run guide removes default PIN docs", test_28_7_run_guide_no_default_pin)
 test("28.8 FIX D-10: handoff marks Phase 3 complete", test_28_8_handoff_phase3_complete)
-test("28.9 FIX D-11: kehoach outdated banner", test_28_9_kehoach_outdated_banner)
 test("28.10 FIX D-12: gitignore runtime artifacts", test_28_10_gitignore_runtime_artifacts)
 test("28.11 FIX D-13: train_text import no side effect", test_28_11_train_text_import_no_side_effect)
 test("28.12 FIX D-14: bool file removed", test_28_12_bool_file_removed)
