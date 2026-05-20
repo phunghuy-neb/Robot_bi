@@ -1,171 +1,162 @@
-# Handoff — Robot Bi
+# Handoff - Robot Bi
 
-> Snapshot ngắn theo mô hình Single Source of Truth.
-> Chi tiết lịch sử nằm trong `changelog/`.
+> Current-state handoff only. Historical details belong in `changelog/`.
 
-## TRẠNG THÁI HIỆN TẠI
+## Current State
 
-- Phase 1-4: FROZEN hoàn toàn.
-- Phase 5.1 Refactor thư mục: DONE 2026-04-29, **197/197 PASS**.
-- Review Round 5 security fixes: DONE 2026-04-30, **338/338 PASS**.
-- Phase B Tasks B1-B8: FULLY COMPLETE 2026-04-30.
-- Backend Deep Review fixes: DONE 2026-05-01, **374/374 PASS**.
-- Robot Display flashcard recursion fix: DONE 2026-05-02, **374/374 PASS**.
-- `src_brain/` đã XÓA — không còn tồn tại. Dùng `src/` thay thế.
-- `PROJECT.md` tiếp tục là nguồn sự thật duy nhất.
-- `CLAUDE.md` và `AGENTS.md` được sinh từ `python sync.py`.
-- Entry point chính: `src/main.py` (trước đây là `src_brain/main_loop.py`).
-- LLM chính vẫn đi qua `stream_chat(messages)` trong `src/ai/ai_engine.py`.
-- Backend AI vẫn là Groq primary, Gemini fallback.
-- STT vẫn là `faster-whisper`; GPU giữ `large-v2 + float16`, CPU fallback dùng `WHISPER_CPU_MODEL`.
-- DB: `runtime/robot_bi.db`; ChromaDB: `runtime/chroma_db/`; Static: `frontend/parent_app/`.
-- Tests: `python tests/run_tests.py` (trước đây là `python run_tests.py`).
+- `PROJECT.md` is the source of truth for rules, protected fixes, workflow, and AI context policy.
+- Current source root is `src/`; `src_brain/` is deprecated and must not be used.
+- Main entry point: `src/main.py`.
+- API server: `src/api/server.py`.
+- Parent App: `frontend/parent_app/`.
+- Robot Display: `frontend/robot_display/`.
+- Firmware: `firmware/Robot_BI/Robot_BI.ino`.
+- Runtime DB: `runtime/robot_bi.db`.
+- Generated agent docs: `CLAUDE.md` and `AGENTS.md`, regenerated with `python sync.py`.
 
-## VIỆC CẦN LÀM TIẾP
+## Last Completed Task
 
-- Phase 5.2: Giao diện màn hình robot (mắt biểu cảm, trạng thái, screensaver).
-- Sau Phase B: tiep tuc review/freeze theo roadmap hien tai.
-- Chuyen sang Ubuntu PC co GPU de verify runtime thuc te.
-- WebRTC frame source can Ubuntu + aiortc.
-- Wake-word model training can dataset rieng.
-- Phase 4 features con lai: motor control, AEC.
+- 2026-05-20: **Sprint 0.3 — Wake Word Foundation (6 new files + main.py integration + 24 tests)**. 454/455 PASS (28.9 pre-existing):
+  - `src/wakeword/config.py` — all config from env (backend/threshold/cooldown/model path)
+  - `src/wakeword/audio_listener.py` — background mic stream, stops on detection (EarSTT handoff)
+  - `src/wakeword/wakeword_service.py` — 4-state machine (IDLE/LISTENING/PROCESSING/COOLDOWN), 3 backends (openwakeword/whisper/placeholder), double-trigger protection, auto-cooldown + restart
+  - `src/wakeword/wakeword_router.py` — thin shim: wait_for_wakeword / on_stt_start / on_reply_done / on_error
+  - `src/main.py` — WakeWordService + WakeWordRouter wired; gate in run(), cooldown after reply, reset on error, stop on shutdown; no-op when disabled
+  - `docs/WAKEWORD_DATASET_GUIDE.md` — complete dataset spec (50–150 positive, 100–200 negative, recording guide, format, naming, training commands)
+  - Tech stack decision: openWakeWord (primary, lazy-load when model exists) → faster-whisper tiny (fallback) → placeholder (testing)
+  - No new hard dependencies
+  - Model NOT trained — ready to collect dataset per WAKEWORD_DATASET_GUIDE.md
+  - Commit: `c8fe264`
 
-## BUG ĐANG MỞ
+- 2026-05-20: **Sprint 0.2 — Child Safety Foundation (4 new modules + main.py integration + 37 tests)**. 430/431 PASS (28.9 pre-existing, unrelated):
+  - `src/safety/vi_normalize.py` — strip Vietnamese diacritics for fuzzy matching (no external deps)
+  - `src/safety/pii_filter.py` — 8 PII types (phone/email/CCCD/address/school/password/financial/fullname), dual-pattern (có/không dấu), gentle redirect
+  - `src/safety/emotion_risk_detector.py` — HIGH/MEDIUM/LOW risk; HIGH overrides LLM + logs event; MEDIUM comforts + logs; LOW passes through
+  - `src/safety/manipulation_guard.py` — LLM output check (secret-keeping, dependency, parent replacement, guilt-trip) + user input check (grooming signals, secret requests, parent replacement)
+  - `src/main.py` — 6 targeted edits: imports, `__init__`, TEXT mode input checks, TEXT mode output check, VOICE mode input checks, VOICE mode output check
+  - `tests/run_tests.py` — Group 65 (37 tests): PII (10) + EmotionRisk (11) + ManipulationGuard (12) + imports/integration (4)
+  - Pipeline: user_text → PII check → EmotionRisk check → ManipulationGuard input → RAG → LLM stream → SafetyFilter + ManipulationGuard output → TTS
+  - Commits: `1ba66ec` (code), `12113d2` (docs)
+  - Docs updated: `STATUS_MAP.md` v1.1, `BACKLOG_Robot_Bi_v2.md` v2.3, `SRS_Robot_Bi_v2.md` v2.3
 
-- Wake-word vẫn mới ở mức dev/test: đang proxy qua openWakeWord built-in `hey_jarvis`; model tùy biến `bi_oi` vẫn chưa được train.
-- Cloudflare URL vẫn thay đổi sau mỗi lần restart khi dùng tunnel miễn phí.
-- YAMNet TFLite có thể không tải được nếu thiếu TensorFlow.
-- Audio, mobile browser, và camera vẫn cần xác nhận thủ công trên thiết bị thật.
+- 2026-05-20: **Sprint 0.1 — Sync docs to code reality (docs-only, no code changed, no tests needed)**. 4 tasks:
+  - Task 0.1.1: `PROJECT.md` updated — 5-provider LLM chain (Cerebras→Groq→Sambanova→Gemini→Cloudflare), RAG threshold 0.62, edge-tts internet requirement, wake word disabled by default, firmware stubs flagged, Parent App path corrected.
+  - Task 0.1.2: Docs drift fixed — `ARCHITECTURE.md` LLM chain corrected, `SRS_Robot_Bi_v2.md` fallback section updated, `prompts.py` stale comment fixed.
+  - Task 0.1.3: `BACKLOG_Robot_Bi_v2.md` v2.2 — LLM row reflects 5-provider chain, RAG 0.50→0.62, edge-tts internet note, wake word status note.
+  - Task 0.1.4: `docs/STATUS_MAP.md` created — 93-item feature reality map (🟢/🟡/🔴/⚪) across 7 domains, critical gaps section.
+  - `CLAUDE.md` + `AGENTS.md` regenerated via `python sync.py`. Commit: `479d850`.
 
-## PROTECTED FIXES
+- 2026-05-18: **AI engine overhaul (390/390 PASS)**. Fixed Gemini model name (`gemini-2.0-flash` in `config.json`). Extended fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare Workers AI. New API keys needed in `.env`: `CEREBRAS_API_KEY`, `SAMBANOVA_API_KEY`, `CLOUDFLARE_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`. Fixed emotional tone in `MAIN_SYSTEM_PROMPT` (no "Oa!" on sad inputs, listen before advising, no character-name carryover). Split `REFUSAL_RESPONSE` (safety filter) from `ERROR_RESPONSE` (connection errors) in `prompts.py`; synced `safety_filter._REFUSAL_RESPONSE` to match.
 
-- Audio mom talk: resample 16k -> 44.1k, in-memory WAV, `pygame.Channel(7)`.
-- Mom pause logic: `is_mom_talking()` phải giữ nguyên.
-- Camera delay fix: thread riêng, queue bridge, `CAP_PROP_BUFFERSIZE=1`.
-- SafetyFilter: luôn post-LLM và pre-TTS.
-- RAG threshold 0.50 và deduplication không được regress.
-- Multi-family isolation: ChromaDB `where={"family_id": family_id}`, conversations/events/tasks family scope, admin family endpoints require `is_admin`.
-- Homework system: classifier khong goi LLM, mark conversations bang `is_homework`, va API homework phai family-scoped.
-- Groq primary `llama-3.3-70b-versatile` + Gemini fallback phải giữ nguyên.
-- JWT auth, refresh rotation, middleware guard, và rate limiting phải giữ nguyên.
-- Wake-word/session/conversation threads additions của Phase 2 hiện là protected; xem `PROJECT.md` để biết danh sách chuẩn.
+- 2026-05-14: **Goal 4 — wire Parent App mock adapters to backend APIs (390/390 PASS)**. `frontend/parent_app/src/services/api.js` rewritten with transform functions for 6 adapters: `getChildProfiles` (GET /api/children, child_id→id, age already computed by backend), `getRadioChannels` / `getVideoLessons` / `getInteractiveGames` (content_items schema, content_id→id, fallback to mock when backend has no seeded data), `getMonthlyEmotions` (GET /api/emotions/monthly, weekly count→percentage transform), `getSystemLogs` (GET /api/admin/logs, component→source). All six use mock fallback when backend returns empty or 403. BLOCKED adapters (`getRoomLocation`, `getParentChatHistory`) return null — no component renders their data. Save-button stubs in SettingsOverlay unchanged (show toast, no api.js call). Encoding artifacts cleaned. 390/390 PASS, `npm run build` passes (196KB JS, 25KB CSS).
 
-## SESSION GẦN NHẤT — Phase 2 complete
+- 2026-05-14: **Goal 3 — runtime hardening (390/390 PASS)**. `stopCamera()` now dispatches `bi:stopcamera` CustomEvent; `MonitorPage` listens and sets `camOn=false`. Motor forward/backward/spin capped at 5 000 ms in `motor_router.py`. Dashboard field mapping corrected: `loadTodaySummary` switched from `/api/status` to `/api/analytics/daily`; emotion reads `emotionData.dominant`; weekly stats now fall back to `conversations/hours/tasks_completed`.
 
-- Date: 2026-04-17
-- Phase 2 hoàn tất: wake-word dev/test path, session UUID tracking, auto session naming, conversation threads API, Parent App conversation UI, và Whisper CPU fallback tuning.
-- Final regression result: 89/89 PASS.
-- Chi tiết đầy đủ: `changelog/2026-04-17-phase2-core-experience.md`.
+- 2026-05-14: **Goal 2 — remaining test failures fixed (390/390 PASS)**. Updated 8 outdated test functions to check React source files instead of legacy `index.html` (React+Vite migration moved code). Added `stopCamera` / `stopAudioMonitor` exports to `api.js`; wired them in `handleTabChange` and `handleLogout` in `App.jsx`; added `beforeunload` cleanup handler; added `notif-banner` class to `Toast.jsx`; added music volume control with `level` field to `MorePage.jsx`; created `docs/kehoach.md` with outdated banner; fixed test 47.4 to use `sys.executable` instead of `python3` on Windows. All Goal 1 fixes preserved.
 
-## SESSION 2026-04-26 — Phase 3 Final Fix Sprint
+- 2026-05-13: **Parent App backend integration Phase 4 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped QR device connection metadata (`/api/device/connection-qr`), robot room/location metadata (`/api/robot/location`), and admin-only sanitized system logs (`/api/admin/logs`). Added migration-safe SQLite tables for pairing metadata and robot location metadata; admin logs intentionally return controlled sanitized operational entries rather than parsing raw log files. Full `python tests/run_tests.py` ran with new Group 63 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 4 scope.
 
-- Hoan thanh 23 fixes audit pass 3, khong them feature moi ngoai scope.
-- Them Group 24 vao `run_tests.py` voi 17 tests; final result 138/138 PASS.
-- Changelog: `changelog/2026-04-26-phase3-final-fix-sprint.md`.
+- 2026-05-13: **Parent App backend integration Phase 3 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped CSV/PDF report export (`/api/reports/export`), radio/video/game metadata APIs (`/api/entertainment/radio`, `/api/entertainment/videos`, `/api/games/interactive`), and separate parent-to-Bi chat history endpoints (`/api/conversations/parent*`). Added migration-safe SQLite tables for report export audit metadata, content metadata, and parent chat sessions/messages. Full `python tests/run_tests.py` ran with new Group 62 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 3 scope.
 
-## SESSION 2026-04-27 - Final Pre-Phase 4 Fix Sprint
+- 2026-05-13: **Parent App backend integration Phase 2 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped child profile CRUD/activation, age-based content settings, daily interaction limit storage with usage lookup, sleep schedule settings, and push notification settings storage. Added migration-safe SQLite tables and focused tests in `tests/run_tests.py`. Full `python tests/run_tests.py` ran with new Group 61 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 2 scope.
 
-- Hoan thanh 12/12 fixes truoc Phase 4: WebRTC cleanup, frontend stream cleanup, privacy logging, SQLite FK, RAG prune handling, MIC_DEVICE env, auth logout cleanup, docs/PWA verification.
-- Them Group 29 vao `run_tests.py` voi 12 tests.
-- Final result: 176/176 PASS.
-- Changelog: `changelog/2026-04-27-final-pre-phase4-fix-sprint.md`.
+- 2026-05-13: **Parent App backend integration Phase 1 implemented (spec 002-parent-app-backend-integration)**. Added family-scoped parent notes on events, advanced `/api/events` filters, and monthly emotion statistics endpoints (`/api/emotion/monthly`, `/api/emotions/monthly`). Added migration-safe `parent_event_notes` SQLite schema and focused tests in `tests/run_tests.py`. Full `python tests/run_tests.py` ran with new Group 60 passing; remaining failures are pre-existing frontend/docs/Windows helper checks outside this backend Phase 1 scope.
 
-## SESSION 2026-04-28 - Phase 4 Task 4.4 Multi-family Isolation
+- 2026-05-13: **Parent App React + Vite migration — IMPLEMENTED (spec 001-parent-app-redesign, T001–T072)**. Full React + Vite SPA built under `frontend/parent_app/src/`. Legacy `index.html` replaced with Vite mount shell. `npm run build` passes (191KB JS, 20KB CSS). All Tier 1 backend APIs preserved in `src/services/api.js`. Tier 2 features use mock data with badges. 5-tab navigation, sidebar, settings overlay, admin section, and all 5 pages implemented. SYSTEM_MAP.md updated.
 
-- Hoan thanh family registry/admin role, SQLite family scoping, RAG ChromaDB real family filters, notifier/TaskManager/API family isolation, va WebSocket family-scoped replay/broadcast.
-- Them `/api/admin/families` POST/GET/DELETE voi `is_admin` check va explicit cleanup.
-- Them Group 30 vao `run_tests.py` voi 6 tests.
-- Final result: 182/182 PASS.
-- Changelog: `changelog/2026-04-28-task-4-4-multifamily-isolation.md`.
+- 2026-05-13: **Parent App UI Redesign — spec artifacts updated for React + Vite target (spec 001-parent-app-redesign)**. All spec files updated. SYSTEM_MAP.md was reverted then correctly updated after implementation.
 
-## SESSION 2026-04-28 - Phase 4 Task 4.5 Homework System
+- 2026-05-13: AI context and instruction docs were normalized so PROJECT remains authoritative, SYSTEM_MAP is descriptive only, Spec Kit is conditional, and generated agent docs sync from PROJECT.
 
-- Hoan thanh local homework classifier, schema flags tren conversations, DB helpers, main loop mark sau persist `sanitized_reply`, API homework list/mark, va Parent App tab `Bai tap`.
-- Them Group 31 vao `run_tests.py` voi 8 tests.
-- Final result: 190/190 PASS.
-- Changelog: `changelog/2026-04-28-task-4-5-homework-system.md`.
+## Known Issues
 
-## SESSION 2026-04-29 — Phase 5.1 Refactor Thư Mục
+- Wake word **disabled by default** (`WAKEWORD_ENABLED=false`). Uses `faster-whisper tiny` fuzzy match when enabled — not a trained model.
+- `edge-tts` (primary TTS) **requires internet** — not fully offline.
+- ESP32-S3 (audio board) has **no firmware** — INMP441 + MAX98357 hardware is silent.
+- `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are **stubs** — no real logic.
+- Motor firmware has **hardcoded IP** `192.168.40.107:8443` — must change per deployment.
+- Cloudflare quick tunnel URL may change after restart unless a named tunnel is configured.
+- YAMNet TFLite support depends on optional runtime dependencies.
+- Parent App: radio/videos/games/logs use mock fallbacks; 4 saveSettings() stubs return null.
+- Test 28.9: `docs/kehoach.md` missing — pre-existing, unrelated to Sprint 0.2.
+- See `docs/STATUS_MAP.md` for complete feature reality map.
 
-- Di chuyen toan bo `src_brain/` → `src/` theo cau truc domain moi.
-- `src_brain/` da XOA. Khong con tham chieu den `src_brain` o bat ky dau.
-- Import paths: `src_brain.X` → `src.X` theo mapping trong migration script.
-- Paths moi: DB=`runtime/robot_bi.db`, ChromaDB=`runtime/chroma_db/`, Frontend=`frontend/parent_app/`.
-- Tests di chuyen tu `run_tests.py` → `tests/run_tests.py`.
-- Tao docs/ROADMAP.md, .github/workflows/test.yml, config/env/, resources/, infra/, frontend/robot_display/.
-- Final regression: **197/197 PASS**.
-- Changelog: `changelog/2026-04-29-phase5-1-refactor.md`.
+## Next Recommended Action
 
-## SESSION 2026-04-30 — Review Fixes Phase 6-10
+Sprint 0.3 is complete. Wake word foundation ready. **Next steps in order:**
+1. **Collect wake word dataset** per `docs/WAKEWORD_DATASET_GUIDE.md` (50+ positive, 100+ negative WAV files)
+2. **Train model**: `pip install openwakeword` + `python -m openwakeword.train ...` → `runtime/wakeword/bi_oi.tflite`
+3. **Enable**: set `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=openwakeword` in `.env`
+4. **Test**: `python tests/wakeword_test_harness.py` (future — test harness is in Group 66 for now)
 
-- Fix P0-P1 frontend/backend mismatch cho persona, emotion, music playlist, va emotion chart breakdown.
-- Them routes video call va game trong FastAPI, dang ky vao `src/api/server.py`.
-- Loai bo `datetime.utcnow()` trong `src/`.
-- Persist learning schedule vao SQLite bang bang `learning_schedules`.
-- Them Group 46 vao `tests/run_tests.py`.
-- Final regression: **309/309 PASS**.
-- Changelog: `changelog/2026-04-30-review-fixes-phase6-10.md`.
+OR: skip dataset collection for now and start **Sprint 1.1 — Living Conversation**.
 
-## SESSION 2026-04-30 — API Contract Review Fixes
+Safety layer (all active): safety_filter + pii_filter + emotion_risk_detector + manipulation_guard.
+Wake word (disabled by default): `WAKEWORD_ENABLED=false`. Foundation complete; model needed.
 
-- Root dashboard route da tro den `frontend/parent_app`.
-- Parent App music play gui `track_id/category`.
-- Parent App story tell gui `story_id/custom_request` va chap nhan response `{title, content}`.
-- Parent App game cards goi dung word/voice quiz routes; math quiz hien sap ra mat.
-- `verify_db_clean.py` dung import `src.infrastructure.database.db`.
-- Them Group 47 vao `tests/run_tests.py`.
-- Final regression: **315/315 PASS**.
-- Changelog: `changelog/2026-04-30-api-contract-review-fixes.md`.
+For code changes: read `PROJECT.md`, this handoff, and relevant source files.
+For large feature/API/schema/cross-module work: use Spec Kit or write a clear plan first.
 
-## SESSION 2026-04-30 — Review Round 3 Runtime Fixes
+## Current Test Command
 
-- Family delete cleanup xoa them `learning_schedules`, emotion tables, persona, education sessions, va curriculum schedules.
-- Parent App video call end gui dung `call_id`.
-- Parent App music volume gui `level`.
-- Parent App education schedule load tu API truoc render, localStorage la cache/fallback.
-- `stress_test.py` dung import `src.*` sau refactor.
-- Them Group 48 vao `tests/run_tests.py`.
-- Final regression: **321/321 PASS**.
-- Changelog: `changelog/2026-04-30-review-round3-runtime-fixes.md`.
+```bash
+python tests/run_tests.py
+```
 
-## SESSION 2026-04-30 — Review Round 4 Fixes
+## Files Recently Touched (Sprint 0.3)
 
-- DB upgrade migration copy one-time tu cac DB path cu sang `runtime/robot_bi.db` neu DB moi chua co data.
-- Video call `end_call()` enforce family isolation truoc khi ket thuc call.
-- Music transport routes `next/previous/shuffle/repeat` da dang ky va `MusicPlayer` co methods tuong ung; Parent App map `prev` sang `previous`.
-- Them Group 49 vao `tests/run_tests.py`.
-- Final regression: **329/329 PASS**.
-- Changelog: `changelog/2026-04-30-review-round4-fixes.md`.
+- `src/wakeword/__init__.py` (new)
+- `src/wakeword/config.py` (new — all env config)
+- `src/wakeword/audio_listener.py` (new — background mic capture)
+- `src/wakeword/wakeword_service.py` (new — state machine + backends)
+- `src/wakeword/wakeword_router.py` (new — main.py integration shim)
+- `src/wakeword/README.md` (new — training instructions)
+- `src/main.py` (modified — WakeWordService + WakeWordRouter integrated)
+- `tests/run_tests.py` (modified — Group 66, 24 tests)
+- `docs/WAKEWORD_DATASET_GUIDE.md` (new — full dataset recording guide)
+- `docs/STATUS_MAP.md` (updated v1.2)
+- `docs/BACKLOG_Robot_Bi_v2.md` (updated v2.4)
 
-## SESSION 2026-04-30 — Review Round 5 Security Fixes
+## Files Recently Touched (Sprint 0.2)
 
-- SQL cleanup table names trong `delete_family_record()` da co allowlist truoc khi interpolate vao SQL.
-- Gemini fallback khong con dua API key vao URL; key gui qua header `x-goog-api-key`.
-- `verify_password()` da duoc verify voi argon2-cffi: thu tu hien tai `verify(hash, password)` la dung, khong sua code.
-- PIN login dung `hmac.compare_digest()`; malformed JSON trong auth routes tra 422.
-- Groq fail/cooldown globals co `_groq_lock`; `main.py` dung `sanitized_reply`, dispatch RAG truoc khi close session, va hoist `pygame.time.Clock()`.
-- Analytics count handle NULL, SafetyFilter dung Unicode-aware boundary, homework conversation total dung COUNT query.
-- Them Group 50 vao `tests/run_tests.py`.
-- Final regression: **338/338 PASS**.
-- Changelog: `changelog/2026-04-30-review-round5-security-fixes.md`.
+- `src/safety/vi_normalize.py` (new — Vietnamese diacritic normalizer)
+- `src/safety/pii_filter.py` (new — PII detection + gentle redirect)
+- `src/safety/emotion_risk_detector.py` (new — HIGH/MEDIUM/LOW risk + escalation)
+- `src/safety/manipulation_guard.py` (new — LLM output + user input manipulation check)
+- `src/main.py` (modified — integrated 3 safety modules into text + voice pipelines)
+- `tests/run_tests.py` (modified — Group 65, 37 new safety tests)
+- `docs/STATUS_MAP.md` (updated — Sprint 0.2 items marked Done, gap resolved)
+- `docs/BACKLOG_Robot_Bi_v2.md` (updated — section 9 Sprint 0.2 items)
+- `docs/SRS_Robot_Bi_v2.md` (updated — section 9.3 expanded with 5 safety rules)
+- `.claude/handoff.md`
 
-## SESSION 2026-04-30 — Phase B Tasks B1-B8 Complete
+## Files Recently Touched (Sprint 0.1 and earlier)
 
-- Phase B da hoan thanh day du 8/8 tasks: B1, B2, B3, B4, B5, B6, B7, B8.
-- Trang thai du an da duoc cap nhat de danh dau Phase B la fully complete.
-- Changelog: `changelog/2026-04-30-phase-b-complete.md`.
-
-## SESSION 2026-05-01 — Backend Deep Review Fixes
-
-- Fix 13 group backend issues tu Deep Review: WordQuizGame contract/high score, VoiceQuiz schema/fuzzy match, state event parser, EmotionAlert analyzer compatibility, unified education schedule, education/analytics/game/video/emotion API contracts, PII-safe logging, va wake-word defaults.
-- Them bang `game_scores` vao SQLite va cleanup family-scoped cho bang moi.
-- Them Group 59 vao `tests/run_tests.py` voi 11 API contract tests.
-- Final regression: **374/374 PASS**.
-- Changelog: `changelog/2026-05-01-backend-deep-review-fixes.md`.
-
-## SESSION 2026-05-02 — Robot Display Flashcard Recursion Fix
-
-- Fix infinite recursion trong `frontend/robot_display/index.html` bang cach capture base `showFlashcard()` vao `_origShowFlashcard` truoc khi override.
-- Enhancement dung function expression assignment `showFlashcard = function(data) { ... }`, khong dung function declaration bi hoist.
-- Final regression: **374/374 PASS**.
-- Changelog: `changelog/2026-05-02-robot-display-flashcard-recursion.md`.
+- `frontend/parent_app/index.html` (replaced legacy 4000-line HTML with Vite mount shell)
+- `frontend/parent_app/package.json` (new — React 18 + Vite 5)
+- `frontend/parent_app/vite.config.js` (new)
+- `frontend/parent_app/src/main.jsx` (new — React entry)
+- `frontend/parent_app/src/App.jsx` (new — auth gate + routing + layout)
+- `frontend/parent_app/src/styles.css` (new — full design system)
+- `frontend/parent_app/src/services/api.js` (new — all Tier 1 + Tier 2 mock adapters)
+- `frontend/parent_app/src/data/mockData.js` (new — Vietnamese mock data)
+- `frontend/parent_app/src/components/` (new — Sidebar, BottomNav, RobotStatusCard, UserCard, SettingsOverlay, FeatureBadge, SectionState, Toast)
+- `frontend/parent_app/src/pages/` (new — LoginPage, HomePage, MonitorPage, LearningPage, JournalPage, MorePage)
+- `frontend/parent_app/dist/` (build output — not git-tracked)
+- `src/api/routers/control_router.py` (Phase 1 event filters and parent event note endpoints)
+- `src/api/routers/control_router.py` (Phase 2 child profiles and parent settings endpoints)
+- `src/api/routers/control_router.py` (Phase 3 report export endpoint)
+- `src/api/routers/control_router.py` (Phase 4 device QR and robot location endpoints)
+- `src/api/routers/admin_router.py` (Phase 4 sanitized admin logs endpoint)
+- `src/api/routers/conversation_router.py` (Phase 3 parent-to-Bi chat history endpoints)
+- `src/api/routers/game_router.py` (Phase 3 radio/video/game metadata endpoints)
+- `src/api/routers/emotion_router.py` (monthly emotion endpoints)
+- `src/emotion/emotion_analyzer.py` (monthly aggregation)
+- `src/infrastructure/database/db.py` (`parent_event_notes` schema and helpers)
+- `src/infrastructure/database/db.py` (Phase 2 child/settings/usage/notification schema)
+- `src/infrastructure/database/db.py` (Phase 3 report/content/parent-chat schema)
+- `src/infrastructure/database/db.py` (Phase 4 device pairing and robot location schema)
+- `src/infrastructure/sessions/state.py` (advanced event query filters)
+- `tests/run_tests.py` (Groups 60-63 backend tests for spec 002 phases 1-4)
+- `SYSTEM_MAP.md` (Section 6 updated to describe React+Vite implementation)
+- `.claude/handoff.md`

@@ -23,7 +23,7 @@ import warnings
 
 logger = logging.getLogger(__name__)
 
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pkg_resources.*")
 warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources.*")
 
@@ -31,19 +31,58 @@ import edge_tts
 import pygame
 
 
+_AUDIO_BACKEND_ERRORS = (pygame.error, OSError, RuntimeError)
+
+
 class MouthTTS:
     def __init__(self):
-        # Pre-init 44100Hz stereo — chuẩn cho edge-tts MP3
-        # Phải gọi trước pygame.init() / mixer.init() để có hiệu lực
-        pygame.mixer.pre_init(
-            frequency=44100,
-            size=-16,       # 16-bit signed
-            channels=2,     # Stereo — chuẩn cho MP3
-            buffer=2048,    # ~46ms buffer, tránh underrun
-        )
-        pygame.mixer.init()
         self.voice = "vi-VN-HoaiMyNeural"
         self.temp_file = "temp_bi_voice.mp3"
+        self.audio_disabled = False
+        self._audio_disabled = False
+        self.audio_init_error = None
+
+        # Pre-init 44100Hz stereo — chuẩn cho edge-tts MP3
+        # Phải gọi trước pygame.init() / mixer.init() để có hiệu lực
+        try:
+            pygame.mixer.pre_init(
+                frequency=44100,
+                size=-16,       # 16-bit signed
+                channels=2,     # Stereo - standard MP3 output
+                buffer=2048,    # ~46ms buffer
+            )
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+        except _AUDIO_BACKEND_ERRORS as exc:
+            self._disable_audio(exc, "init")
+
+    def _disable_audio(self, exc, context: str):
+        self.audio_disabled = True
+        self._audio_disabled = True
+        self.audio_init_error = exc
+        logger.warning(
+            "[Bi - Mieng] Audio backend unavailable during %s; playback disabled: %s",
+            context,
+            exc,
+        )
+
+    def _play_audio_file(self, audio_file: str):
+        if self._audio_disabled:
+            logger.warning("[Bi - Mieng] Audio backend unavailable; skipping playback.")
+            return
+
+        try:
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+            pygame.mixer.music.load(audio_file)
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+            pygame.mixer.music.unload()
+        except _AUDIO_BACKEND_ERRORS as exc:
+            self._disable_audio(exc, "playback")
+        except Exception as exc:
+            logger.error("[Bi - Mieng] Audio playback failed: %s", exc)
 
     async def _generate_audio(self, text, chunk_index=0):
         """
@@ -107,19 +146,21 @@ class MouthTTS:
     def speak(self, text):
         """Blocking TTS — dùng cho test độc lập."""
         logger.debug("[Bi - Miệng] Đang nói text_len=%d", len(text or ""))
+        if self._audio_disabled:
+            logger.warning("[Bi - Mieng] Audio backend unavailable; skipping TTS playback.")
+            return
+
         audio_file = asyncio.run(self._generate_audio(text, chunk_index=0))
         if audio_file is None:
             logger.warning("[Bi - Miệng] Không thể generate audio.")
             return
-        pygame.mixer.music.load(audio_file)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
-        pygame.mixer.music.unload()
         try:
-            os.remove(audio_file)
-        except FileNotFoundError:
-            pass
+            self._play_audio_file(audio_file)
+        finally:
+            try:
+                os.remove(audio_file)
+            except FileNotFoundError:
+                pass
 
 
 if __name__ == "__main__":

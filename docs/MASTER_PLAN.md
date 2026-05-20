@@ -1,0 +1,1960 @@
+# MASTER PLAN — Robot Bi
+
+> Phiên bản: **1.1** | Tạo: 2026-05-19 | Cập nhật: 2026-05-19 | Trạng thái: **LOCKED**
+> Đây là kế hoạch duy nhất, chính thức cho Robot Bi từ hôm nay đến khi usable ngoài đời thật.
+> Sau khi khóa, không tạo plan lớn mới. Chỉ chia nhỏ master plan này thành phase → sprint → task tuần → task ngày.
+> **v1.1 patches** (xem CHANGELOG mục 14.5): (1) tách Stage 3 → Stage 3A "Learning Usable" + Stage 3B "Learning Smart" (3B sau Stage 4); (2) thêm Stage 1.5 "Mini Body Expression" — body language qua ESP32 motor đã có, chi phí $0; (3) đổi Follow-me từ "drop khỏi v1" thành "Experimental v1.5 Feature" — sau khi v1 stable.
+> Direction chính giữ nguyên: **Software-first, hardware sau**.
+> Source-of-truth: PRODUCT_PRINCIPLES.md, PERSONA.md, SRS_Robot_Bi_v2.md, BACKLOG_Robot_Bi_v2.md, EMO_to_RobotBi_Strategy.md, ARCHITECTURE.md, HARDWARE.md + Reality Audit 2026-05-19.
+
+---
+
+## 1. EXECUTIVE SUMMARY
+
+### 1.1 Robot Bi Hiện Đang Ở Đâu
+
+Robot Bi đã có một **bộ não AI thật**:
+
+- Backend Python ~14,659 dòng code, conversation pipeline đầy đủ (wake → STT → RAG → LLM → safety → TTS), 17 FastAPI routers, JWT auth, multi-family isolation.
+- Memory RAG (ChromaDB, family-scoped, 12 fact types, 500 entries cap, 8 unit tests pass).
+- LLM 5-provider fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare.
+- Parent App React+Vite ~70% real (auth, WebSocket, camera stream, motor joystick, conversation history, mom-talk).
+- Test suite: 394 tests trong 64 groups.
+
+Nhưng Robot Bi chưa có **thân robot thật**:
+
+- Chỉ 1 firmware ESP32 cho motor (407 dòng).
+- Không có ESP32-S3 audio firmware, không có display firmware, không có Gateway, không có camera tích hợp.
+- Robot hiện tại = PC laptop + USB mic + USB webcam + 1 ESP32 điều khiển 2 bánh xe.
+
+Và 70% vision trong PERSONA/SRS/BACKLOG chưa có code:
+
+- Living State System (đời sống bên trong Bi) — 0% code
+- Micro Moments Engine (tự ngáp, tự nhìn quanh) — 0% code
+- Special Memories + Relationship Milestones — 0% code
+- Bi học theo bé behavioral — chỉ có RAG facts
+- Body Language qua motor patterns — 0% code
+- Learning Hub Duolingo-style — 0% UI
+- Auto-dock + Follow-me — pure simulation stubs
+
+### 1.2 Đích Đến
+
+Robot Bi usable ngoài đời thật khi:
+
+- Bé 5–12 tuổi dùng được trong 30 giây đầu, không cần hướng dẫn.
+- Bé cảm thấy "Bi là người bạn nhỏ của em" — không phải app.
+- Phụ huynh thấy "Bi thật sự giúp con tốt hơn".
+- Robot có hồn — luôn đang "làm gì đó", không phải chờ lệnh.
+- Có Learning Hub thật, Bi học theo bé thật, ký ức đặc biệt thật.
+- An toàn 100%, privacy 100%, healthy attachment 100%.
+- Hardware ổn định: di chuyển, lắc lư theo nhạc, về dock đơn giản (manual hoặc auto).
+
+### 1.3 Strategy Tổng Thể
+
+**Chọn Con Đường A: Software-First, Phần Cứng Sau**.
+
+Robot Bi v1 ship như một **AI companion chạy trên PC nhà**, sử dụng USB mic/webcam và 1 ESP32 motor optional. Phần cứng custom (ESP32-S3 audio, display, Gateway, IMX219, dock IR) là **Stage 5-6**, sau khi validate vision với user thật.
+
+Lý do chọn A (giải thích chi tiết ở mục 3):
+
+- 75% backend đã production-ready — không phải rebuild.
+- Risk thấp nhất, deliverable cụ thể trong 3–6 tháng.
+- Validate "Bi có hồn" và "Bi là bạn đồng hành" trước, không đốt $$ phần cứng khi chưa biết bé có thích không.
+- Hardware là risk lớn nhất cho solo founder — multi-board firmware + Gateway + WebRTC là multi-month work, rủi ro cao về timing và technical debt.
+
+### 1.4 Timeline Realistic
+
+| Stage | Tên | Thời gian | Tổng tích lũy |
+|---|---|---|---|
+| Stage 0 | Foundation Truth Reset | 4–6 tuần | 1.5 tháng |
+| Stage 1 | Bi Có Hồn (Living Engine) | 6–8 tuần | 3.5 tháng |
+| **Stage 1.5** | **Mini Body Expression (motor đã có, $0 hardware)** | **2–3 tuần** | **4 tháng** |
+| Stage 2 | Bi Nhớ Bé (Adaptive Relationship) | 6–8 tuần | 5.5 tháng |
+| **Stage 3A** | **Learning Usable (Toán+English, mức cơ bản)** | **6–8 tuần** | **7 tháng** |
+| Stage 4 | Parent App Polish + Field Test Beta | 4–6 tuần | 8.5 tháng |
+| **Stage 3B** | **Learning Smart (emotional+social+advanced, sau Field Test)** | **4–6 tuần** | **9.5 tháng** |
+| Stage 5 | Robot Vật Lý Phase 1 (Motor body full + dock manual) | 8–12 tuần | 12 tháng |
+| Stage 6 | Robot Vật Lý Phase 2 (Audio+Display+Camera+auto-dock) | 12–16 tuần | 15–17 tháng |
+
+**Tổng: 13–18 tháng** cho solo founder dùng Claude Code support.
+
+Nếu trễ tiến độ: drop Stage 5–6 khỏi v1, ship v1 dạng "Bi nhà của em" (PC app + Stage 1.5 body expression cơ bản), v2 mới có robot vật lý hoàn chỉnh.
+
+**Lưu ý execution order**: Stage 3B thực hiện SAU Stage 4 (sau field test có data thật) — số 3B chỉ là nhãn nội dung, không phải thứ tự chạy.
+
+### 1.5 Biggest Risk + Biggest Leverage
+
+**Biggest risk**: Vision inflation — docs mô tả nhiều hơn 5–10x code thực tế. Nếu tiếp tục thêm tính năng vào docs mà không build, gap sẽ ngày càng lớn, làm mất phương hướng.
+
+**Biggest leverage**: Backend pipeline đã đầy đủ. Phần lớn công sức 12 tháng tới là **wiring UI lên backend đã có** + xây 4 hệ thống mới (Living State, Special Memories, Adaptive behavioral, Learning Hub UI). Không cần rewrite kiến trúc, không cần thay stack.
+
+---
+
+## 2. CURRENT REALITY VS FINAL VISION
+
+| Vision yêu cầu | Code hiện tại | Gap | Priority |
+|---|---|---|---|
+| Trò chuyện tự nhiên với LLM | ✅ Working (5-provider fallback) | 0% | Maintain |
+| Memory RAG nhớ chuyện cũ | ✅ Working (ChromaDB, family-scoped) | 5% (chưa wire vào UI fully) | Low |
+| Adaptive relationship — Bi học theo bé | 🟡 Chỉ có RAG facts, không có behavioral adaptation | 70% | **Stage 2** |
+| Living State (Bi có cuộc sống bên trong) | 🔴 0% code | 100% | **Stage 1** |
+| Micro Moments (tự ngáp, lẩm bẩm, nhìn quanh) | 🔴 0% code | 100% | **Stage 1** |
+| Special Memories + Milestones | 🔴 0% code | 100% | **Stage 2** |
+| Emotional Safety (không guilt-trip bé) | 🟡 Có persona text, không có runtime check | 80% | **Stage 1** |
+| Proactive nhẹ (Bi chủ động hỏi thăm) | 🔴 0% code | 100% | **Stage 1** |
+| Safety filter | 🟡 Chỉ 5 regex + 11 blacklist | 60% | **Stage 0** |
+| PII filter trước LLM | 🔴 0% code | 100% | **Stage 0** |
+| Homework help | ✅ Có classifier + system prompt | 10% (chưa có UI dedicated) | Low |
+| Learning Hub web (Duolingo-style) | 🔴 0% UI, chỉ có flashcard backend basic | 90% | **Stage 3A** |
+| Multi-môn (Toán, Anh, Việt, KH, LS, Địa) | 🟡 Backend partial cho Toán+Anh | 80% | **Stage 3A (Toán+English), v1.1+ mở rộng** |
+| Adaptive learning (độ khó thay đổi) | 🔴 0% code | 100% | **Stage 3A (cơ bản 3 cấp), Stage 3B (smart engine)** |
+| Adventure Learning (mở cửa, cứu rồng) | 🔴 0% code | 100% | **Drop khỏi v1 (v1.5+)** |
+| Emotional learning + social skill | 🔴 0% code | 100% | **Stage 3B (sau field test)** |
+| Parent goals (mục tiêu phụ huynh đặt) | 🔴 0% code | 100% | **Stage 4** |
+| Progress tracking báo cáo | 🟡 Backend có, UI mock | 50% | **Stage 4** |
+| Parent App dashboard cơ bản | ✅ 5 tabs working | 30% (4 saveSettings stubs, exportReport stub) | **Stage 0** |
+| Custom dashboard tùy chỉnh | 🔴 0% code | 100% | **Stage 4** |
+| Joystick điều khiển | ✅ Working | 0% | Maintain |
+| Puppet mode (gõ → Bi nói) | ✅ Working | 0% | Maintain |
+| Conversation history | ✅ Working | 0% | Maintain |
+| Settings UI (4 saveSettings) | 🔴 Stubs trả null | 100% | **Stage 0** |
+| Movement cơ bản | ✅ Motor firmware + simulation | 30% (cần hardware test) | **Stage 1.5 (đơn giản $0) + Stage 5 (full)** |
+| Emotion movement (lắc lư khi vui) | 🔴 0% code | 100% | **Stage 1.5 (6 movement cơ bản) + Stage 5 (mở rộng)** |
+| Auto-dock | 🔴 Pure stub | 100% (cần IR beacon hardware) | **Stage 6** |
+| Follow-me | 🔴 Pure stub | 100% (cần CV tracking + obstacle + camera stable) | **Experimental v1.5 Feature** (sau khi v1 + Stage 6 stable, xem mục 14.4) |
+| Camera pipeline | 🟡 USB webcam + MJPEG works | 30% | Maintain |
+| WebRTC video call | 🔴 VideoCallManager có offer.sdp empty | 90% | **Stage 4 — basic only** |
+| Obstacle safety | 🔴 0% code | 100% | **Drop khỏi v1** |
+| OTA firmware update | 🔴 0% code | 100% | **Stage 6** |
+| Reconnect (WiFi tự phục hồi) | 🟡 ESP32 firmware có | 30% | Stage 5 |
+| Health monitoring | 🔴 0% code | 100% | **Stage 6** |
+| Gateway coordination | 🔴 0% code, 0% hardware | 100% | **Drop khỏi v1, vision v2** |
+| Child safety rules | 🟡 Trong system prompt | 50% | **Stage 0** |
+| Emotional safety check | 🔴 Không có runtime layer | 100% | **Stage 0–1** |
+| Privacy (data không rời nhà) | ✅ SQLite + ChromaDB local | 10% (LLM calls vẫn cloud) | Stage 0 |
+| Family isolation | ✅ Working trên DB + RAG | 0% | Maintain |
+| Moderation (filter output) | 🟡 Safety filter limited | 60% | **Stage 0** |
+
+---
+
+## 3. PRODUCT DIRECTION CHOSEN
+
+### 3.1 Quyết Định
+
+**Robot Bi v1 = AI Companion chạy trên PC nhà, dùng USB mic + USB webcam + ESP32 motor optional.**
+
+Phần mềm là tất cả những gì v1 cần để tạo cảm giác "Bi là người bạn nhỏ của em". Phần cứng custom (ESP32-S3 audio, display, Gateway, IMX219, dock IR) là **vision v1.5+**, làm sau khi:
+
+1. Đã có 10+ gia đình dùng v1 thật.
+2. Đã validate "Bi có hồn" qua software.
+3. Đã thấy có user thực sự muốn robot vật lý.
+
+### 3.2 Tại Sao Chọn Hướng Này
+
+**Lý do 1: Backend đã 75% ready, frontend đã 70% ready.**
+
+Không cần rewrite. Phần lớn 12 tháng tới là wire-up + xây 4 system mới + polish. Đây là leverage lớn nhất.
+
+**Lý do 2: Hardware là risk lớn nhất cho solo founder.**
+
+ESP32-S3 firmware (audio I2S + display SPI + WebSocket) là multi-month work. Gateway (Orange Pi với WebRTC + OTA + bridge) là 1 cái máy nhỏ với 5 trách nhiệm. Camera IMX219 + libcamera + WebRTC streaming là hardware integration hell. Solo founder không nên bắt đầu với 4 dự án phần cứng song song khi software có thể đi trước.
+
+**Lý do 3: "Bi có hồn" có thể đạt được software-only.**
+
+Living State, Micro Moments, Special Memories, Adaptive Behavioral — đều là phần mềm. EMO tạo illusion of life không phải vì hardware xịn — vì state engine + body language + ngôn ngữ thiết kế. Robot Bi có thể tạo illusion of life với face animator + voice + chuyển động motor đơn giản trên kit xe hiện tại.
+
+**Lý do 4: Validate trước khi $$ hardware.**
+
+5 con ESP32-S3 + màn hình + audio module + Gateway + camera + pin Li-ion + custom 3D frame = $200–400 mỗi robot prototype. Solo founder không nên đốt tiền trước khi biết bé có thích Bi không.
+
+**Lý do 5: Stage 5–6 đã sẵn sàng cho hardware nếu vision v1 thành công.**
+
+Master Plan đã có chỗ cho hardware buildout. Không drop vĩnh viễn, chỉ delay đúng thời điểm.
+
+### 3.3 Tại Sao Không Chọn Hướng Khác
+
+**Không chọn "Robot-First, Hardware ưu tiên"** (Con đường B):
+
+- Đốt 6+ tháng vào firmware ESP32-S3 + Gateway + camera trước khi user thấy được sản phẩm.
+- Software companion soul vẫn chưa có khi hardware xong → bé bật robot lên không có gì để chơi.
+- Risk lớn về cost, timing, technical debt phần cứng.
+- Hardware partner / nhà gia công chưa có — solo founder không đủ tay làm hết.
+
+**Không chọn "Vision Reset, Drop 50%"** (Con đường C):
+
+- Vision PERSONA + PRODUCT_PRINCIPLES đã rất chặt chẽ và có giá trị — drop là phí.
+- Living State, Special Memories, Bi học theo bé là điểm khác biệt cốt lõi so với chatbot/Alexa Kids.
+- Software có thể đạt được phần lớn vision này. Không cần thu hẹp tham vọng — chỉ cần delay hardware.
+
+---
+
+## 4. PRODUCT MATURITY STAGES
+
+### Stage 0 — Foundation Truth Reset
+
+**Mục tiêu**: Đảm bảo docs trùng code, tech debt critical được clear, safety upgrade trước khi build thêm tính năng.
+
+**Done definition**:
+- Docs (PROJECT.md, BACKLOG v2, ARCHITECTURE.md) cập nhật khớp 100% code thực tế.
+- 4 saveSettings + exportReport + parentChatHistory frontend stubs được wire hoặc xóa.
+- Safety filter có thêm PII detection layer + emotional safety check.
+- Wake word: quyết định enable thật hoặc admit "always listening" trong docs.
+- Test suite chạy pass 100%.
+
+**Acceptance criteria**:
+- Đọc bất kỳ doc nào → khớp code thực tế, không có claim sai.
+- Login → mọi setting save thật được.
+- Bi không reply câu khiến bé cảm thấy có lỗi với cảm xúc của Bi.
+- Bi không leak PII vào prompt gửi LLM.
+
+**Measurable outcome**:
+- 0 mock fallback function trong Parent App (hoặc 0 nếu có thì có TODO + roadmap).
+- Safety filter coverage tăng từ 5 patterns → 20+ patterns + PII regex.
+- 100% test pass.
+
+**Stop condition**: Khi mọi gap doc-vs-code đã đóng + safety upgrade hoàn thành, **move to Stage 1**.
+
+---
+
+### Stage 1 — Bi Có Hồn (Living Engine)
+
+**Mục tiêu**: Build hệ thống làm Bi có cuộc sống bên trong — không phải chatbot chờ lệnh.
+
+**Done definition**:
+- Living State Engine chạy trong main loop, có 7+ trạng thái: tò mò, buồn ngủ, vui, đang nghĩ, muốn chơi, đang nạp pin, đang nhớ bé.
+- Micro Moments Engine phát các hành động tự phát (ngáp, lẩm bẩm, hát nhỏ, nhìn quanh) với giới hạn tần suất rõ ràng.
+- Bi adaptive theo ngữ cảnh: hồn nhiên khi chơi, nhẹ nhàng khi dạy, ấm áp khi dỗ, hờn dỗi nhẹ khi bị bỏ mặc.
+- Bi giận dỗi mode hoạt động: di chuyển vòng quanh (nếu có motor) + mặt hầm hầm + câu nói hờn (KHÔNG guilt-trip).
+- Emotional Safety runtime check: phát hiện và block câu reply có nguy cơ tạo tội lỗi/phụ thuộc.
+
+**Acceptance criteria**:
+- Để Bi 30 phút không tương tác → Bi tự làm ít nhất 1 micro moment.
+- Bé hỏi Bi cùng câu ở 2 trạng thái khác nhau (vui vs buồn ngủ) → Bi reply khác nhau.
+- Bé bỏ Bi 1 giờ rồi quay lại → Bi hờn dỗi nhẹ (không drama), khi bé xin lỗi → vui lại ngay.
+- Tester thử nói "Bi đừng buồn nha" → Bi không nói câu kiểu "Bi đợi bé mãi" (test emotional safety).
+
+**Measurable outcome**:
+- Living State Engine: ≥ 7 states, transition rules có log.
+- Micro Moments: ≥ 8 hành vi (ngáp, hát, lẩm bẩm, nhìn quanh, tự nói, kể điều lạ, phản ứng thời gian, chuẩn bị bất ngờ).
+- 0 emotional safety violation trong 100 test conversation.
+
+**Stop condition**: Khi tester nói "Cảm giác Bi có hồn rồi" sau 3 ngày dùng thử, **move to Stage 1.5**.
+
+---
+
+### Stage 1.5 — Mini Body Expression (Motor Đã Có, $0 Hardware)
+
+**Mục tiêu**: Hồn của Bi xuống thân — body language cơ bản qua ESP32 motor đã có. Bi không còn chỉ là "app trong loa" — Bi cử động khi có cảm xúc ngay từ tháng thứ 4, không phải chờ Stage 5.
+
+**Why now**: Stage 1 đã có Living State + Micro Moments + Giận dỗi mode. Nhưng giận dỗi chỉ log "quay đi" mà chưa thực sự quay. Bi vẫn cảm giác như app. Stage 1.5 cho Bi cử động ngay — tận dụng motor đã có (kit xe + ESP32 + L298N), không tốn $$.
+
+**Chi phí hardware**: **$0** — không mua gì mới. Dùng chính xác phần cứng hiện có.
+
+**Done definition**:
+- `src/motion/movement_emotion.py` mới — wire Living State + Persona + Micro Moments với motor commands.
+- 6 emotion movement cơ bản: **vui** (lắc nhẹ), **tò mò** (quay trái phải), **buồn ngủ** (di chuyển chậm + dừng lâu), **giận dỗi** (quay mặt đi 90°), **phấn khích** (xoay nhẹ), **nghe nhạc** (lắc theo nhịp).
+- Sync 3 kênh: face + voice + motion (rule cứng từ EMO Strategy mục 8.2 — không bao giờ vui mặt + giọng buồn).
+- Failsafe: motor không khả dụng (simulation mode) → silent degrade, log warning, không crash.
+- Safety: stop hoàn toàn khi đang call hoặc khi bé đang ngủ.
+
+**Acceptance criteria**:
+- Bi vui (state ACTIVE_HAPPY) + bé tương tác → motor lắc nhẹ 1–2 giây.
+- Bi tò mò (idle 3 phút) → motor quay nhẹ trái phải.
+- Mở nhạc → Bi lắc theo nhịp (fixed pattern hoặc BPM đơn giản).
+- Bi giận dỗi (Sprint 1.3) → motor quay mặt đi rõ rệt 90°.
+- ESP32 motor không kết nối → Bi vẫn chạy bình thường, chỉ thiếu motion (graceful degrade).
+- Tester nói "Bi sống động hơn rõ rệt" sau 1 buổi quan sát.
+
+**Measurable outcome**:
+- 6 movement primitives khác biệt rõ ràng.
+- Sync delay < 500ms giữa face/voice/motion.
+- Motor command không block conversation loop.
+- 100% test pass cho 6 emotion → movement mapping.
+
+**Stop condition**: Khi tester cảm thấy "Bi sống động hơn rõ rệt" sau 1 buổi quan sát (không cần 3 ngày như Stage 1), **move to Stage 2**.
+
+---
+
+### Stage 2 — Bi Nhớ Bé (Adaptive Relationship)
+
+**Mục tiêu**: Bi học theo bé theo thời gian, có ký ức đặc biệt, có mốc tình bạn.
+
+**Done definition**:
+- Special Memories system lưu các mốc: ngày đầu gặp, lần đầu hoàn thành bài, sinh nhật bé, chiến thắng đáng nhớ.
+- Relationship Milestones tự động trigger: 7 ngày, 30 ngày, 100 ngày, 100 bài học — kèm câu nói/animation đặc biệt.
+- Adaptive Behavioral Layer trên RAG: học cách bé thích được khen, kiểu bài bé hay nản, thời điểm bé hay mệt.
+- Bi tự nhiên dùng ký ức trong hội thoại (không gượng, không spam, không guilt-trip).
+- Sinh nhật bé → Bi tự chúc + có bất ngờ nhỏ.
+
+**Acceptance criteria**:
+- Bé dùng Bi 7 ngày liên tục → Bi nhắc mốc 7 ngày (chỉ 1 lần, không lặp).
+- Bé có sinh nhật trong family profile → đúng ngày Bi tự chúc.
+- Bi reply câu khen khác nhau cho 2 bé có profile khen khác nhau ("thích khen cụ thể" vs "thích khen ngắn").
+- Tester hỏi Bi "Bé thích gì?" sau 14 ngày dùng → Bi nhớ ít nhất 3 sở thích cụ thể.
+
+**Measurable outcome**:
+- Special Memories: ≥ 7 loại mốc lưu được.
+- Milestone unlocks: ≥ 4 mốc có unique dialogue/animation.
+- Adaptive Behavioral: ≥ 5 dimension được track (sở thích, thói quen học, kiểu khen, kiểu bài nản, thời điểm mệt).
+
+**Stop condition**: Khi tester cảm thấy "Bi biết em" sau 2 tuần, **move to Stage 3**.
+
+---
+
+### Stage 3A — Learning Usable (Toán + English, Mức Cơ Bản)
+
+**Mục tiêu**: Learning Hub **usable thật** cho Toán + English, mức cơ bản. Không over-engineer. Bé dùng được, không tham vọng deep emotional/social learning ngay.
+
+**Why now**: Stage 1 + 1.5 + 2 đã hoàn thành companion. Cần usable Learning Hub trước Field Test (Stage 4) để có gì cho gia đình test thực.
+
+**Done definition**:
+- Trang Learning Hub trong Parent App (hoặc subdomain cho bé).
+- Bài học ngắn 5–10 phút cho Toán (5 module: cộng/trừ/nhân/chia/logic) và English (5 module: vocab cơ bản).
+- Câu hỏi trắc nghiệm + tự luận ngắn với hình ảnh.
+- **Adaptive difficulty CƠ BẢN**: 3 cấp độ khó, upgrade khi 5 câu đúng liên tiếp, downgrade khi 3 câu sai liên tiếp. Không IRT, không Bayesian — chỉ rule fixed.
+- Streak hằng ngày + 8 huy hiệu cơ bản + XP đơn giản.
+- Progress tracking cơ bản: số bài, độ chính xác, môn.
+- **Bi đồng hành cảm xúc MỨC NHẸ**: động viên khi đúng ("Giỏi quá!"), an ủi khi sai ("Không sao, thử lại"), đề nghị nghỉ khi sai 3 lần liên tiếp ("Bi thấy bé hơi mệt rồi, nghỉ chút nha"), reaction theo cấp độ khó. **KHÔNG** deep emotional learning ở đây.
+
+**Acceptance criteria**:
+- Bé 7 tuổi tự dùng Learning Hub được 15 phút mà không cần hướng dẫn.
+- Adaptive difficulty thay đổi sau 5 câu đúng / 3 câu sai.
+- Bi nói câu hợp lý khi đúng/sai — KHÔNG tham vọng deep cá nhân hóa, chỉ đủ tự nhiên.
+- Phụ huynh xem báo cáo Learning Hub đơn giản → hiểu được trong 30 giây.
+
+**Measurable outcome**:
+- 10 module (Toán 5 + English 5).
+- 3 cấp độ khó cho mỗi module.
+- 8 huy hiệu cơ bản.
+
+**Stop condition**: Khi 1 bé thật dùng Learning Hub liên tục 10–15 phút và xin dùng lại hôm sau, **move to Stage 4**.
+
+---
+
+### Stage 4 — Parent App Polish + Field Test Beta
+
+**Mục tiêu**: Polish Parent App cho 5–10 gia đình thử nghiệm thật. Field test để validate vision.
+
+**Done definition**:
+- Dashboard tùy chỉnh: phụ huynh bật/tắt thẻ, chọn môn, chọn chu kỳ báo cáo.
+- Parent goals: phụ huynh đặt mục tiêu (15 phút Toán/ngày, 10 từ Anh/ngày...) → Bi dùng để nhắc và báo cáo.
+- Email báo cáo tuần tự động.
+- WebRTC video call cơ bản hoạt động (offer.sdp thật, không placeholder).
+- PWA install + push notification.
+- Onboarding flow cho gia đình mới: đặt tên bé, chọn voice Bi, sinh nhật, sở thích.
+
+**Acceptance criteria**:
+- Gia đình mới setup Bi trong < 10 phút.
+- Phụ huynh nhận được báo cáo tuần đầu tiên, đọc hiểu được mà không hỏi gì.
+- Video call mẹ → Bi → bé chạy được trong < 5 giây connect.
+- Sau 2 tuần field test, ≥ 70% gia đình muốn tiếp tục dùng.
+
+**Measurable outcome**:
+- 5–10 gia đình thực tế dùng v1 trong 2 tuần.
+- ≥ 70% retention sau tuần 2.
+- < 5 critical bug được report mỗi tuần.
+
+**Stop condition**: Khi field test pass criteria và có signal "user thực sự muốn robot vật lý", **move to Stage 3B → Stage 5**. Nếu user OK với software-only, **làm Stage 3B rồi freeze hardware roadmap và iterate software**.
+
+---
+
+### Stage 3B — Learning Smart (Sau Field Test, Dựa Trên Data Thật)
+
+**Mục tiêu**: Mở rộng Learning Hub với emotional/social learning + smart recommendation + advanced analytics + richer gamification. Làm SAU Stage 4 để có data thực từ field test.
+
+**Why after Stage 4**: Stage 4 field test cho data thực về cách bé dùng Learning Hub Stage 3A. Stage 3B build dựa trên data đó — không guess. Nếu Stage 3B làm trước field test, sẽ over-engineer dựa trên assumption.
+
+**Prerequisites**: Stage 3A + Stage 4 done. Có ≥ 2 tuần data thật từ 5–10 family.
+
+**Done definition**:
+- **Emotional learning module** (mức cơ bản, không deep): gọi tên cảm xúc, bình tĩnh khi buồn, biết ơn. 3 module.
+- **Social skill module** (mức cơ bản): chia sẻ, xin lỗi, biết nghe. 3 module.
+- **Smart recommendation**: AI gợi ý bài phù hợp dựa behavioral profile (Stage 2) + recent performance + sở thích.
+- **Advanced reports**: insight tuần/tháng, trends môn mạnh/yếu, gợi ý hành động cho phụ huynh.
+- **Better adaptive engine**: IRT đơn giản hoặc Bayesian update thay rule fixed của Stage 3A.
+- **Richer gamification**: chuỗi thử thách, theme tuần, special quest tại các mốc Stage 2.
+- **Deeper personalization**: lồng nhân vật yêu thích của bé (từ Special Memories Stage 2) vào bài học — "Bài Toán hôm nay có khủng long T-Rex vì Bi nhớ bé thích!".
+
+**Acceptance criteria**:
+- 3 module emotional + 3 module social hoạt động.
+- Smart recommendation suggest bài đúng cấp độ + có ngữ cảnh.
+- Phụ huynh thấy ≥ 2 insight mới mà Stage 3A chưa có.
+- Bé nhận ra "Bi gợi ý đúng cái em muốn học".
+- Adaptive engine cho ra learning curve mượt hơn Stage 3A đo lường được.
+
+**Measurable outcome**:
+- 6 module mới (3 emotional + 3 social) cho phép v1 đa môn nhẹ.
+- Smart recommendation accuracy ≥ 70% (user accept gợi ý).
+- 4+ insight loại mới trong report.
+
+**Stop condition**: Khi field test family thấy Learning Hub "thông minh hơn rõ rệt" so với Stage 3A, **move to Stage 5**.
+
+---
+
+### Stage 5 — Robot Vật Lý Phase 1 (Motor Body Full + Dock Manual)
+
+**Mục tiêu**: Mở rộng body language đã có từ Stage 1.5, thêm hardware mới (ultrasonic, pin tốt hơn, khung 3D), dock manual hoạt động.
+
+**Why now**: Stage 1.5 đã có 6 emotion movement cơ bản với phần cứng hiện có. Stage 5 mở rộng thư viện movement + thêm safety (obstacle) + khung robot tử tế + dock đơn giản.
+
+**Done definition**:
+- **Mở rộng thư viện chuyển động** từ 6 (Stage 1.5) lên 10+ patterns: tiến lại gần khi an ủi bé buồn, lùi nhẹ khi bé giật mình, di chuyển vòng quanh khi giận dỗi nặng hơn, xoay đôi khi phấn khích cao.
+- **Music sync nâng cấp**: BPM detection thay vì fixed pattern (Stage 1.5 đã có pattern, Stage 5 sync theo nhịp thật).
+- **Dock manual**: phụ huynh bấm nút "về chỗ" trong Parent App → Bi đi về vị trí cố định (không cần IR, chỉ pre-programmed sequence).
+- **Khung 3D in đơn giản** cho Bi (không phải kit xe nữa).
+- **Cảm biến tránh vật cản** ultrasonic HC-SR04 để Bi không đâm tường.
+- **Pin tốt hơn**: 18650 holder + buck converter ổn định 2+ giờ.
+
+**Acceptance criteria**:
+- Bé thấy Bi lắc lư khi mở nhạc → nhận ra rõ ràng.
+- Bé buồn → Bi tiến lại gần (nếu có người tracking đơn giản, dùng motion detection).
+- Bi không đâm tường trong 10 phút di chuyển tự chủ.
+- Pin Bi đủ 2+ giờ hoạt động liên tục.
+
+**Measurable outcome**:
+- ≥ 8 chuyển động cảm xúc khác biệt rõ ràng.
+- Pin life ≥ 2 giờ.
+- 0 va chạm trong 10 phút test.
+
+**Stop condition**: Khi thân robot ổn định + bé thấy "Bi sống động hơn" → **move to Stage 6**.
+
+---
+
+### Stage 6 — Robot Vật Lý Phase 2 (Audio + Display + Camera Tích Hợp)
+
+**Mục tiêu**: Tích hợp ESP32-S3 audio + display TFT + camera vào thân robot, hoàn thiện form factor sản xuất.
+
+**Done definition**:
+- ESP32-S3 firmware: I2S mic INMP441 (stream lên PC qua WebSocket), I2S loa MAX98357 (nhận audio từ PC), SPI display TFT (render face từ web view).
+- Robot Display là web app chạy trên ESP32-S3 webview/browser, được serve từ Brain Server.
+- Camera IMX219 hoặc ESP32-CAM tích hợp trong thân robot (không cần Gateway gấp).
+- Auto-dock với IR beacon đơn giản hoặc QR code marker.
+- OTA firmware update qua WiFi (không cần tháo robot).
+
+**Acceptance criteria**:
+- Bé nói "Bi ơi" vào mic trên robot → Bi reply qua loa robot (không cần PC mic/speaker).
+- Mặt Bi hiển thị trên màn hình TFT trên thân robot, không cần PC.
+- Camera trên robot stream video về Parent App.
+- Robot tự về dock khi pin yếu (≥ 80% thành công trong 10 lần test).
+- OTA update không brick firmware trong 5 lần test.
+
+**Measurable outcome**:
+- Robot độc lập với PC mic/speaker.
+- Auto-dock success rate ≥ 80%.
+- OTA update reliability ≥ 95%.
+
+**Stop condition**: Khi robot vật lý form factor ổn định và 3 gia đình test trong 2 tuần không có critical issue → **Robot Bi v1 ready để gọi là "usable thật"**.
+
+---
+
+### Gateway / Production Architecture — DELAY KHỎI v1
+
+Gateway layer (Orange Pi với WebRTC + OTA + body manager + bridge) **không thuộc v1**. Lý do:
+
+- Trong Stage 5–6, Brain Server PC làm trực tiếp với ESP32 qua WebSocket — đủ cho 1 robot/nhà.
+- Gateway chỉ cần khi: nhiều robot/nhà, WebRTC quality cần boost, OTA muốn centralized, robot xa Brain Server.
+- Đây là **v2 concern**, không phải v1.
+
+---
+
+## 5. DEPENDENCY MAP
+
+```
+Stage 0: Foundation Truth Reset
+├── Doc reset → mọi Stage sau (không cần ăn lại docs sai)
+├── Safety upgrade → Stage 1 (Living State cần safe trigger)
+├── Frontend TODO cleanup → Stage 4 (Parent App polish)
+└── Wake word decision → Stage 1 (idle behavior phụ thuộc)
+
+Stage 1: Bi Có Hồn (Living Engine)
+├── Living State Engine
+│   ├── State machine (idle/active/sleepy/curious/...)
+│   ├── State transitions (rule-based, time-based, event-based)
+│   ├── SQLite state log
+│   └── WebSocket broadcast state changes
+├── Micro Moments Engine
+│   ├── Trigger scheduler (max 1/15 phút)
+│   ├── 8+ micro behaviors
+│   ├── Guardrails (không khi học, không khi ngủ)
+│   └── TTS playback ngắn không block conversation loop
+├── Adaptive Persona (context-aware tone)
+│   ├── Detect context (play/teach/comfort/idle)
+│   ├── Inject context-specific system prompt modifier
+│   └── Verify tone match qua test conversations
+├── Bi Giận Dỗi Mode
+│   ├── Detect "bị bỏ mặc" (no interaction X giờ + child detected)
+│   ├── Hờn dỗi sequence (face + voice + motion stub)
+│   ├── Reset khi bé tương tác lại
+│   └── Verify KHÔNG guilt-trip
+└── Emotional Safety Runtime Check
+    ├── Regex layer: bắt phrase guilt-trip ("Bi đợi bé mãi", "Bi cô đơn")
+    ├── Secondary classifier (optional, low-cost Gemini)
+    ├── Auto-rewrite hoặc fallback message
+    └── Log violation → Parent App alert nếu nghiêm trọng
+
+Stage 1.5: Mini Body Expression ($0 hardware)
+├── Wire layer movement_emotion.py
+│   ├── Map Living State → motor command
+│   ├── Map Micro Moments → motor command
+│   ├── Map Giận dỗi mode → quay mặt đi 90°
+│   └── Music sync (fixed pattern hoặc BPM đơn giản)
+├── 6 movement primitives
+│   ├── Vui (lắc nhẹ trái phải)
+│   ├── Tò mò (quay 30° trái-giữa-phải)
+│   ├── Buồn ngủ (di chuyển chậm + dừng lâu)
+│   ├── Giận dỗi (quay mặt 90° + đứng yên)
+│   ├── Phấn khích (xoay 360° nhẹ)
+│   └── Nghe nhạc (lắc theo nhịp)
+├── Sync 3 kênh (face + voice + motion)
+├── Failsafe (motor off → silent degrade)
+└── Safety guard (stop khi đang call/ngủ)
+
+Stage 2: Bi Nhớ Bé (Adaptive Relationship)
+├── Special Memories System
+│   ├── Schema mới trong SQLite: special_memories table
+│   ├── Trigger events (first_meeting, first_completion, birthday...)
+│   ├── Storage + retrieval API
+│   └── Inject vào LLM prompt khi context phù hợp
+├── Relationship Milestones
+│   ├── Counter: days_active, lessons_done, conversations
+│   ├── Milestone unlock logic (7/30/100 day, 100 lesson)
+│   ├── Unique dialogue/animation per milestone
+│   └── "Đã unlock" flag để không lặp
+├── Adaptive Behavioral Layer
+│   ├── Extend RAG với behavioral facts (praise_style, learning_rhythm...)
+│   ├── Behavioral inference từ conversation history
+│   ├── System prompt modifier theo behavioral profile
+│   └── Periodic re-evaluation (mỗi 7 ngày)
+└── Parent profile setup
+    ├── Onboarding wizard
+    ├── Birthday/preferences input
+    └── Sync to family memory
+
+Stage 3A: Learning Usable (Toán + English cơ bản)
+├── Backend
+│   ├── Content schema (modules, lessons, questions)
+│   ├── Adaptive difficulty CƠ BẢN (3 cấp, rule fixed)
+│   ├── Progress tracking per child
+│   ├── Streak + XP + 8 badge cơ bản
+│   └── Daily quest scheduler đơn giản
+├── Frontend (React+Vite)
+│   ├── Module list page
+│   ├── Lesson player page
+│   ├── Question UI (trắc nghiệm + tự luận ngắn)
+│   ├── Reward animation cơ bản
+│   ├── Streak + badge display
+│   └── Mobile-responsive
+├── Content (mức cơ bản)
+│   ├── Toán: 5 module (cộng, trừ, nhân, chia, logic)
+│   ├── English: 5 module (vocab, greeting, colors, animals, family)
+│   └── Image assets
+├── Bi đồng hành MỨC NHẸ
+│   ├── Voice-over từng câu (TTS streaming)
+│   ├── Reaction đúng/sai cơ bản
+│   ├── Detect 3 câu sai liên tiếp → đề nghị nghỉ
+│   └── KHÔNG deep emotional, KHÔNG advanced personalization
+└── Parent reporting cơ bản
+    ├── Daily summary
+    ├── Weekly trend
+    └── Strong/weak subject
+
+Stage 3B: Learning Smart (sau Stage 4 field test)
+├── Emotional Learning module (3 module mức cơ bản)
+│   ├── Gọi tên cảm xúc
+│   ├── Bình tĩnh khi buồn
+│   └── Biết ơn
+├── Social Skill module (3 module)
+│   ├── Chia sẻ
+│   ├── Xin lỗi
+│   └── Biết nghe
+├── Smart Recommendation
+│   ├── Dùng Stage 2 behavioral profile
+│   ├── Recent performance
+│   ├── Sở thích từ Special Memories
+│   └── Suggest bài đúng cấp độ + ngữ cảnh
+├── Advanced Analytics
+│   ├── Trends môn mạnh/yếu
+│   ├── Gợi ý hành động cho phụ huynh
+│   └── Insight pattern mới
+├── Adaptive Engine nâng cấp (IRT đơn giản)
+├── Richer Gamification (theme tuần, special quest)
+└── Deeper Personalization (nhân vật yêu thích trong bài)
+
+Stage 4: Parent App Polish + Field Test
+├── Custom Dashboard
+│   ├── Tile config UI
+│   ├── Show/hide per tile
+│   ├── Order drag-drop
+│   └── Save preferences in SQLite
+├── Parent Goals
+│   ├── Goal CRUD UI
+│   ├── Goal-aware Bi reminders
+│   ├── Progress vs goal display
+│   └── Goal adjustment suggestions
+├── Onboarding flow
+│   ├── First-launch wizard
+│   ├── Child profile + birthday + preferences
+│   ├── Voice picker (vi-VN-HoaiMyNeural, vi-VN-NamMinhNeural...)
+│   └── Demo conversation
+├── WebRTC video call
+│   ├── Proper SDP exchange
+│   ├── ICE candidates wire
+│   ├── Camera + mic permission UX
+│   └── End-call cleanup
+├── Email weekly report
+│   ├── Cron job in API server
+│   ├── HTML email template
+│   ├── SMTP integration (Gmail / Mailgun)
+│   └── Opt-in/opt-out
+├── PWA + push
+│   ├── Service worker
+│   ├── manifest.json polish
+│   ├── Push notification setup
+│   └── iOS PWA quirks
+└── Field test
+    ├── Recruit 5–10 gia đình
+    ├── Setup helper script (1-command install)
+    ├── Feedback channel (form/Discord/Zalo)
+    └── Weekly check-in
+
+Stage 5: Robot Vật Lý Phase 1 (mở rộng từ Stage 1.5)
+├── Motor body language library MỞ RỘNG
+│   ├── Kế thừa 6 movement Stage 1.5
+│   ├── Thêm 4+ pattern: tiến lại an ủi, lùi nhẹ, vòng quanh, xoay đôi
+│   ├── Music sync BPM detection (Stage 1.5 chỉ pattern fixed)
+│   └── Safety stop on call/sleep (đã có Stage 1.5)
+├── Manual dock
+│   ├── Dock command từ Parent App
+│   ├── Sequence: rotate to home angle → forward → stop
+│   └── Confirmation feedback
+├── Obstacle avoidance cơ bản
+│   ├── Ultrasonic HC-SR04 wiring
+│   ├── ESP32 firmware update để gửi distance về PC
+│   ├── PC logic: stop nếu distance < threshold
+│   └── Test trong 4 góc phòng khác nhau
+├── 3D frame cơ bản
+│   ├── Thiết kế Fusion360 / FreeCAD
+│   ├── In thử 1–2 lần
+│   ├── Mount motor + battery + ESP32
+│   └── Robot trông như robot, không phải kit xe
+└── Battery management
+    ├── Pin 18650 holder 2–3 pin
+    ├── Voltage monitor qua ESP32
+    ├── Low-battery warning về PC
+    └── Auto-trigger "đi về dock" sequence
+
+Stage 6: Robot Vật Lý Phase 2
+├── ESP32-S3 firmware multi-task
+│   ├── I2S mic capture → WebSocket → PC
+│   ├── PC TTS audio → WebSocket → I2S loa
+│   ├── Display webview hoặc native LVGL
+│   └── State sync với Brain Server
+├── Display integration
+│   ├── ILI9488 SPI hoặc tương đương
+│   ├── Web view (browser trong webview ESP32-S3)
+│   ├── face_animator.py gửi state → web view render
+│   └── Flashcard display
+├── Camera tích hợp
+│   ├── ESP32-CAM hoặc IMX219 module
+│   ├── MJPEG stream về PC (đủ cho v1)
+│   ├── Camera mount trong frame
+│   └── Privacy LED indicator
+├── Auto-dock
+│   ├── IR beacon trên dock
+│   ├── IR sensor trên robot
+│   ├── Homing algorithm
+│   └── Success rate ≥ 80% tested
+└── OTA firmware
+    ├── PC HTTP server serve .bin file
+    ├── ESP32 Arduino OTA hoặc ESP-IDF OTA
+    ├── Rollback nếu update fail
+    └── Update UI trong Parent App
+```
+
+### 5.1 Hard Blockers — Không Bypass Được
+
+- Stage 1 cần **wake word decision** từ Stage 0 (idle behavior phụ thuộc Bi có "luôn nghe" hay không).
+- Stage 1.5 cần **Living State + Persona + Giận dỗi mode từ Stage 1** (movement wire vào state machine).
+- Stage 2 cần **Living State** từ Stage 1 (Special Memories trigger từ state changes).
+- Stage 3A cần **Stage 2 done** (Learning Hub đơn giản dùng được Special Memories cho personalization nhẹ).
+- Stage 4 cần **Stage 1+1.5+2+3A done** (field test mới có gì để test — companion + body + memory + learning cơ bản).
+- Stage 3B cần **Stage 4 field test done** (data thật để build smart features đúng hướng).
+- Stage 5 cần **hardware đặt mua + delivered** (Stage 5 task 0 = buy parts) + Stage 1.5 đã wire motor.
+- Stage 6 cần **Stage 5 frame ổn định** (audio/display không gắn được khi frame chưa fix).
+
+### 5.2 Soft Dependencies — Có Thể Parallel
+
+- Stage 1.5 và Stage 2 có thể parallel nếu motor connected (Stage 1.5 wire) + Special Memories backend (Stage 2 schema) độc lập.
+- Stage 2 (Special Memories) và Stage 3A backend (Learning Hub content) có thể chạy song song nếu solo founder muốn đổi gió.
+- Stage 4 Onboarding flow có thể bắt đầu sớm từ giữa Stage 3A.
+- Stage 5 thiết kế 3D frame có thể bắt đầu trong Stage 4 (waiting for field test feedback).
+- Stage 3B có thể bắt đầu trong khi Stage 5 hardware đang chờ ship (parallel safe).
+
+---
+
+## 6. PHASE-BY-PHASE EXECUTION (Chi Tiết)
+
+> **Convention**: Mỗi Stage chia thành 2–3 Sprint. Mỗi Sprint 2 tuần. Mỗi Sprint có ≤ 10 task. Mỗi task ≤ 1 ngày solo founder làm được (có Claude Code support).
+
+---
+
+### STAGE 0 — FOUNDATION TRUTH RESET (4–6 tuần, 2–3 Sprint)
+
+#### Sprint 0.1 — Doc Reset + Safety Upgrade Foundation
+
+**Objective**: Mọi docs khớp code. Safety filter sẵn sàng nâng cấp.
+
+**Why now**: Mỗi quyết định trong Stage 1–6 dựa vào docs. Docs sai → quyết định sai. Phải fix trước.
+
+**Prerequisites**: Reality Audit Report đã có (đã làm).
+
+**Deliverables**:
+- `PROJECT.md` cập nhật: 5-provider chain, RAG threshold 0.62.
+- `BACKLOG_Robot_Bi_v2.md` cập nhật cùng.
+- `ARCHITECTURE.md` thêm note "Gateway = v2 vision, hiện tại Brain Server làm trực tiếp".
+- `STATUS_MAP.md` mới: đối chiếu từng feature trong BACKLOG với trạng thái code thực (🟢🟡🔴⚪).
+- `prompts.py` xóa comment "chưa import" (đã import rồi).
+
+**Tasks**:
+- Task 0.1.1: Update `PROJECT.md` "Current Stack" — thêm Cerebras, Sambanova, Cloudflare.
+- Task 0.1.2: Update `PROJECT.md` "Protected Fixes" — RAG threshold 0.62.
+- Task 0.1.3: Update `BACKLOG_Robot_Bi_v2.md` mục 2 — sửa "threshold 0.50" → "0.62".
+- Task 0.1.4: Tạo `docs/STATUS_MAP.md` — list mọi feature BACKLOG kèm trạng thái thực + file path.
+- Task 0.1.5: Update `ARCHITECTURE.md` mục 1 — thêm note rõ "Gateway = vision v2".
+- Task 0.1.6: Update `prompts.py` xóa comment cũ.
+- Task 0.1.7: Chạy `python sync.py` để regen CLAUDE.md / AGENTS.md.
+- Task 0.1.8: Commit + tag `doc-reset-v1`.
+
+**Likely files touched**: `PROJECT.md`, `BACKLOG_Robot_Bi_v2.md`, `ARCHITECTURE.md`, `prompts.py`, `STATUS_MAP.md` (new).
+
+**Tests**: Manual review. Không cần unit test cho doc.
+
+**Risks**: Bị temptation thêm vision mới khi đang edit docs → khóa cứng: chỉ sửa, không thêm.
+
+**Estimated effort**: 3–5 ngày.
+
+**Success definition**: 0 claim sai trong docs sau khi grep.
+
+**Stop condition**: Khi `STATUS_MAP.md` xong và sync.py chạy clean.
+
+---
+
+#### Sprint 0.2 — Safety Upgrade + Wake Word Decision
+
+**Objective**: Safety filter có PII layer + emotional safety. Wake word ổn định.
+
+**Why now**: Nếu Stage 1 build proactive behaviors mà safety chưa chặt → risk làm bé cảm thấy không thoải mái.
+
+**Prerequisites**: Sprint 0.1 done.
+
+**Deliverables**:
+- `safety_filter.py` thêm 3 layer mới: PII regex, emotional safety regex, length check (đã có).
+- PII filter chạy **trước** khi gửi prompt lên LLM (sanitize input).
+- Emotional safety filter chạy **sau** LLM output (block câu guilt-trip).
+- Wake word: enable thật với openWakeWord hoặc admit "always listening" trong docs + code.
+
+**Tasks**:
+- Task 0.2.1: Thêm `safety/pii_filter.py` — regex cho phone, email, address, school name, full name patterns.
+- Task 0.2.2: Wire PII filter vào main loop trước khi gọi `brain.stream_chat()`.
+- Task 0.2.3: Thêm danh sách `_GUILT_TRIP_PATTERNS` vào `safety_filter.py` (10+ patterns).
+- Task 0.2.4: Mở rộng `_BLACKLIST_WORDS` từ 11 → 50+ words (cộng từ chửi, từ phân biệt vùng miền).
+- Task 0.2.5: Thêm `_SENSITIVE_PATTERNS` cho drugs, grooming, hate speech.
+- Task 0.2.6: Unit test 20+ test cases mới trong `tests/run_tests.py` (Group 65 — Safety Upgrade).
+- Task 0.2.7: Quyết định wake word — chọn 1 trong 2:
+  - **Option A**: Train custom openWakeWord model "Bi ơi" (cần 30+ audio samples).
+  - **Option B**: Admit "always listening" trong PERSONA + SRS + PROJECT, xóa `WAKEWORD_ENABLED` env, đổi behavior thành continuous STT.
+- Task 0.2.8: Implement option chọn ở Task 0.2.7.
+- Task 0.2.9: Update PERSONA.md mục safety architecture với 3-layer safety thật.
+- Task 0.2.10: Commit + tag `safety-upgrade-v1`.
+
+**Likely files touched**: `safety_filter.py`, `pii_filter.py` (new), `main.py`, `ear_stt.py`, `wake_word.py`, `PERSONA.md`, `tests/run_tests.py`.
+
+**Tests**: 20+ new unit tests cho safety, 10+ integration test cho PII filter trên prompt thật.
+
+**Risks**: PII regex bắt nhầm (false positive cao). Mitigation: dùng test fixtures với 100+ benign Vietnamese sentences để verify false positive rate < 5%.
+
+**Estimated effort**: 5–8 ngày.
+
+**Success definition**: Test pass + thử 50 câu prompt với PII → tất cả được sanitize trước khi gửi LLM.
+
+**Stop condition**: Wake word resolved + safety tests pass.
+
+---
+
+#### Sprint 0.3 — Frontend TODO Cleanup + Onboarding Fix
+
+**Objective**: Parent App không còn stub function, mỗi setting save thật.
+
+**Why now**: Stage 4 sẽ field test với gia đình thật. Stage 4 không thể bắt đầu nếu Parent App còn 7 stubs trả null.
+
+**Prerequisites**: Sprint 0.2 done.
+
+**Deliverables**:
+- 4 `saveSettings*()` function wire thật vào `/api/settings` endpoint.
+- `exportReport()` wire vào endpoint mới `/api/reports/export` trả PDF/CSV.
+- `getParentChatHistory()` wire vào `/api/parent-chat/history`.
+- `getRoomLocation()` quyết định: implement hoặc xóa UI/API.
+
+**Tasks**:
+- Task 0.3.1: Thêm bảng `settings` trong SQLite: `family_id, key, value, updated_at`.
+- Task 0.3.2: Thêm `/api/settings GET` và `/api/settings PUT` trong `control_router.py`.
+- Task 0.3.3: Wire 4 saveSettings frontend functions vào API mới.
+- Task 0.3.4: Thêm `/api/reports/export` (trả CSV — đơn giản hơn PDF).
+- Task 0.3.5: Wire `exportReport()` frontend vào endpoint.
+- Task 0.3.6: Thêm bảng `parent_chats` trong SQLite + `/api/parent-chat/history` endpoint.
+- Task 0.3.7: Wire `getParentChatHistory()` vào API.
+- Task 0.3.8: Drop room location feature khỏi UI (không có hardware support — defer to v2).
+- Task 0.3.9: Test end-to-end: login → đổi setting → reload → setting persist.
+- Task 0.3.10: Commit + tag `frontend-cleanup-v1`.
+
+**Likely files touched**: `frontend/parent_app/src/data/api.js`, `frontend/parent_app/src/pages/SettingsOverlay.jsx`, `control_router.py`, `db.py`, `infrastructure/database/db.py`.
+
+**Tests**: 10 integration test cho settings endpoint (Group 66).
+
+**Risks**: SQLite schema migration phải backward compat — không xóa data của user existing. Mitigation: dùng `CREATE TABLE IF NOT EXISTS` + tránh `DROP COLUMN`.
+
+**Estimated effort**: 5–7 ngày.
+
+**Success definition**: 0 stub function trả null trong Parent App. Mọi setting persist sau reload.
+
+**Stop condition**: Khi `grep -r "return null" frontend/parent_app/src/` chỉ còn các trường hợp legitimate (defensive null).
+
+---
+
+### STAGE 1 — BI CÓ HỒN (LIVING ENGINE) (6–8 tuần, 3–4 Sprint)
+
+#### Sprint 1.1 — Living State Engine Core
+
+**Objective**: Bi có state machine chạy trong main loop, có 7 trạng thái cơ bản.
+
+**Why now**: Toàn bộ Stage 1 phụ thuộc state engine. Phải build trước Micro Moments.
+
+**Prerequisites**: Stage 0 done.
+
+**Deliverables**:
+- `src/state/living_state.py` mới — state machine class.
+- Schema mới `living_state` trong SQLite.
+- Main loop tích hợp state read/write.
+- State broadcast qua WebSocket (`state_change` event).
+- Test 15+ unit tests cho state transitions.
+
+**Tasks**:
+- Task 1.1.1: Thiết kế state diagram trên giấy: 7 state + transition rules + trigger conditions. Ghi vào `docs/LIVING_STATE_DESIGN.md`.
+- Task 1.1.2: Tạo file `src/state/__init__.py` và `src/state/living_state.py`.
+- Task 1.1.3: Define enum `BiState` với 7 values: `IDLE_CURIOUS`, `IDLE_SLEEPY`, `ACTIVE_HAPPY`, `THINKING`, `WANT_TO_PLAY`, `RESTING_AT_DOCK`, `MISSING_CHILD`.
+- Task 1.1.4: Class `LivingStateEngine` với methods: `get_current()`, `transition_to(state, reason)`, `tick()` (gọi mỗi 30s).
+- Task 1.1.5: Transition rules: time-based (đêm → sleepy), event-based (bé nói → active_happy), idle-based (3 phút không tương tác → curious).
+- Task 1.1.6: Schema SQL: `CREATE TABLE living_state (family_id, current_state, since, reason)`.
+- Task 1.1.7: Persist state qua reset — load on init, save on transition.
+- Task 1.1.8: Wire state engine vào `main.py` — gọi `tick()` trong main loop.
+- Task 1.1.9: Broadcast state change qua notifier (`event_type="state_change"`).
+- Task 1.1.10: Unit tests trong `tests/run_tests.py` Group 67 — Living State Engine (15+ cases).
+
+**Likely files touched**: `src/state/living_state.py` (new), `src/state/__init__.py` (new), `main.py`, `infrastructure/database/db.py`, `tests/run_tests.py`.
+
+**Tests**: 15+ unit test cho state transition logic.
+
+**Risks**: State machine quá phức tạp → khó debug. Mitigation: bắt đầu với 7 state, transition đơn giản. Không thêm state mới trong Sprint 1.1.
+
+**Estimated effort**: 5–7 ngày.
+
+**Success definition**: State engine chạy 1 giờ + log state changes hợp lý.
+
+**Stop condition**: Tests pass + manual observation 1 giờ.
+
+---
+
+#### Sprint 1.2 — Micro Moments Engine
+
+**Objective**: Bi tự làm các hành vi nhỏ không được yêu cầu.
+
+**Why now**: Stage 1 deliverable cốt lõi.
+
+**Prerequisites**: Sprint 1.1 done.
+
+**Deliverables**:
+- `src/state/micro_moments.py` — engine phát micro moments.
+- 8 hành vi: ngáp, lẩm bẩm, hát nhỏ, nhìn quanh, tự nói câu ngắn, kể điều lạ, phản ứng thời gian, chuẩn bị bất ngờ.
+- Trigger scheduler với max frequency 1/15 phút.
+- Guardrails: không khi bé đang học, không khi giờ ngủ.
+
+**Tasks**:
+- Task 1.2.1: Liệt kê 8 micro moment với câu mẫu + điều kiện trigger vào `LIVING_STATE_DESIGN.md`.
+- Task 1.2.2: Tạo file `src/state/micro_moments.py`.
+- Task 1.2.3: Class `MicroMomentsEngine` với method `maybe_trigger(current_state, time_of_day, child_present)`.
+- Task 1.2.4: Implement 4 micro moment đầu: ngáp, lẩm bẩm, hát nhỏ, nhìn quanh.
+- Task 1.2.5: Implement 4 còn lại: tự nói câu ngắn, kể điều lạ, phản ứng thời gian, chuẩn bị bất ngờ.
+- Task 1.2.6: Rate limiter: max 1 lần / 15 phút, persist trong SQLite.
+- Task 1.2.7: Guardrails: bypass nếu đang trong session học (homework_classified gần đây) hoặc trong giờ ngủ (config từ Parent App).
+- Task 1.2.8: Wire vào main loop — gọi `maybe_trigger()` mỗi 30s.
+- Task 1.2.9: Micro moment phát TTS ngắn qua audio queue, không block conversation.
+- Task 1.2.10: 10 unit tests Group 68.
+
+**Likely files touched**: `src/state/micro_moments.py` (new), `main.py`, `tests/run_tests.py`.
+
+**Tests**: 10 unit + manual observe 2 giờ.
+
+**Risks**: Spam micro moments → annoying. Mitigation: rate limit chặt 1/15 phút + log để debug.
+
+**Estimated effort**: 5–7 ngày.
+
+**Success definition**: 2 giờ observation → ≥ 4 micro moments khác nhau xảy ra, không có 2 cái trong 15 phút.
+
+**Stop condition**: Manual test 1 buổi tối — feel "Bi đang làm gì đó", không phải im lặng.
+
+---
+
+#### Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode
+
+**Objective**: Tone Bi thay đổi theo context. Bi giận dỗi khi bị bỏ.
+
+**Why now**: PERSONA.md mục 2 (Tính Cách Adaptive) yêu cầu — chưa có code.
+
+**Prerequisites**: Sprint 1.2 done.
+
+**Deliverables**:
+- Context detection (play / teach / comfort / idle).
+- Persona modifier khác nhau cho từng context.
+- Giận dỗi mode trigger + sequence.
+- Verify KHÔNG guilt-trip qua emotional safety filter từ Stage 0.
+
+**Tasks**:
+- Task 1.3.1: Thêm method `detect_context(user_text, recent_history)` trong `persona_manager.py`.
+- Task 1.3.2: 4 context: play, teach, comfort, idle.
+- Task 1.3.3: 4 system prompt modifier khác nhau cho từng context (extend `get_system_prompt_modifier()`).
+- Task 1.3.4: Wire context detection vào main loop trước khi build prompt.
+- Task 1.3.5: Trigger giận dỗi: detect "bé vắng X phút + Bi đã chào nhưng không trả lời" → state `MISSING_CHILD`.
+- Task 1.3.6: Giận dỗi sequence: face = pouty, voice = hờn ("Bi tưởng hôm nay bé bận mất rồi! 😛"), motion stub = quay đi (chưa có motor, log only).
+- Task 1.3.7: Reset khi bé tương tác → state → `ACTIVE_HAPPY`, voice mừng rỡ ("Oa bé đến rồi!").
+- Task 1.3.8: Verify mọi câu nói giận dỗi pass emotional safety filter (không guilt-trip).
+- Task 1.3.9: 12 unit tests Group 69.
+- Task 1.3.10: Manual test: bỏ Bi 1 giờ → quay lại → verify hờn dỗi + không drama.
+
+**Likely files touched**: `ai/persona_manager.py`, `main.py`, `state/living_state.py`, `tests/run_tests.py`.
+
+**Risks**: Context detection sai → tone không phù hợp. Mitigation: dùng keyword + LLM intent detection lightweight (1 Gemini call rẻ).
+
+**Estimated effort**: 5–7 ngày.
+
+**Success definition**: 4 context cho ra 4 reply khác biệt rõ; giận dỗi không guilt-trip.
+
+**Stop condition**: PERSONA test pass.
+
+---
+
+#### Sprint 1.4 — Proactive Behaviors + Stage 1 Polish
+
+**Objective**: Bi chủ động hỏi thăm khi bé im lặng lâu. Polish toàn Stage 1.
+
+**Why now**: Cuối Stage 1, đảm bảo các component khớp nhau.
+
+**Prerequisites**: Sprint 1.3 done.
+
+**Deliverables**:
+- Proactive engine: bé im lặng X phút + child detected → Bi chủ động hỏi thăm.
+- State + Micro + Persona + Giận dỗi tích hợp mượt.
+- Manual test 3 ngày liên tục với tester (gia đình thân, không phải user thật).
+
+**Tasks**:
+- Task 1.4.1: Thêm proactive trigger: child_present detected (camera motion) + no_voice_for(10 phút) → Bi nói "Bé ơi, hôm nay có chuyện gì hay không?".
+- Task 1.4.2: Anti-spam: max 1 proactive / 30 phút.
+- Task 1.4.3: Tích hợp proactive vào Living State.
+- Task 1.4.4: Smoke test cả 4 component cùng chạy 1 giờ.
+- Task 1.4.5: Fix bug phát sinh trong smoke test.
+- Task 1.4.6: 5 integration test Group 70.
+- Task 1.4.7: Manual test 3 ngày liên tục với 1 tester gia đình.
+- Task 1.4.8: Collect feedback + log everything.
+- Task 1.4.9: Fix critical issue từ feedback.
+- Task 1.4.10: Commit + tag `stage-1-bi-co-hon-v1`.
+
+**Likely files touched**: `state/living_state.py`, `main.py`, mọi file đã touch trong Stage 1.
+
+**Tests**: Integration + 3-day manual.
+
+**Risks**: Tester cảm thấy "annoying" — mitigation: tweak rate limits dựa vào feedback.
+
+**Estimated effort**: 7–10 ngày (bao gồm 3-day observation).
+
+**Success definition**: Tester nói "Cảm giác Bi có hồn rồi" sau 3 ngày.
+
+**Stop condition**: Feedback positive + smoke test ổn.
+
+---
+
+### STAGE 1.5 — MINI BODY EXPRESSION (2–3 tuần, 1 Sprint)
+
+#### Sprint 1.5.1 — Wire Motor vào Emotion System
+
+**Objective**: Bi cử động theo cảm xúc qua motor đã có. Chi phí phần cứng = $0.
+
+**Why now**: Sau Stage 1 đã có Living State + Persona + Giận dỗi. Trước Stage 2 (Special Memories) để Bi cảm thấy "sống" trước khi build hệ thống ký ức.
+
+**Prerequisites**: Stage 1 done. ESP32 motor + kit xe đang hoạt động. `motor_controller.py` đã có sim fallback.
+
+**Deliverables**:
+- `src/motion/movement_emotion.py` mới — wire layer giữa Living State + Persona + Micro Moments với motor commands.
+- 6 emotion → movement mapping.
+- Music sync (fixed pattern hoặc BPM đơn giản).
+- Sync 3 kênh face + voice + motion.
+- Failsafe khi motor không khả dụng.
+
+**Tasks**:
+- Task 1.5.1: Run firmware diagnostic — verify ESP32 motor + L298N + kit xe hoạt động. Nếu chết → fix trước (đa số 1–2 giờ).
+- Task 1.5.2: Tạo `src/motion/movement_emotion.py` — wire layer + 6 mapping dict.
+- Task 1.5.3: Define 6 movement primitives với motor sequences cụ thể:
+  - `vui`: `[forward(20, 200ms), backward(20, 200ms)] x 2`
+  - `tò mò`: `[turn_left(30°), pause(500ms), turn_right(60°), pause(500ms), turn_left(30°)]`
+  - `buồn ngủ`: `forward(15, 800ms), pause(2000ms)`
+  - `giận dỗi`: `turn_right(90°), pause(3000ms)`
+  - `phấn khích`: `[spin(360°, slow)]`
+  - `nghe nhạc`: `[forward(15, 300ms), backward(15, 300ms)]` loop theo nhịp
+- Task 1.5.4: Implement `play_emotion_movement(emotion: str)` — non-blocking (run trong daemon thread).
+- Task 1.5.5: Wire vào `main.py` — state change từ Living State → trigger movement (nếu enabled + motor connected).
+- Task 1.5.6: Wire vào Micro Moments — micro moment "tự nhìn quanh" → motor quay nhẹ.
+- Task 1.5.7: Update Giận dỗi mode (Sprint 1.3) — `motion stub = quay đi` đổi thành `play_emotion_movement('giận dỗi')` thật.
+- Task 1.5.8: Music sync — hook vào music_player play/pause event → start/stop lắc theo nhịp.
+- Task 1.5.9: Safety guard — check video_call active hoặc sleep_mode → skip movement.
+- Task 1.5.10: Failsafe — `motor.mode == "simulation"` → log debug only, không crash.
+- Task 1.5.11: 8 unit tests Group 70.5 (movement emotion mappings + safety guards).
+- Task 1.5.12: Smoke test 30 phút với motor connected → verify 6 movement đều trigger đúng context.
+- Task 1.5.13: Manual test với tester gia đình 1 buổi (2–3 giờ quan sát).
+- Task 1.5.14: Commit + tag `stage-1.5-body-expression-v1`.
+
+**Likely files touched**: `src/motion/movement_emotion.py` (new), `src/main.py`, `src/state/living_state.py`, `src/state/micro_moments.py`, `src/motion/motor_controller.py`, `src/audio/output/music_player.py`, `tests/run_tests.py`.
+
+**Tests**: 8 unit + 30-min smoke + 1 manual session với tester.
+
+**Risks**:
+- **Motor delay quá lâu** → sync với face/voice không khớp. Mitigation: async fire-and-forget, không chờ motor confirm.
+- **Motor noise phá audio** (motor DC nhiễu mạnh khi đổi hướng). Mitigation: tách nguồn (HARDWARE.md mục 5) — defer hardware fix nếu noise minor; software side dùng filter capacitor.
+- **Movement quá nhiều → bé bị phân tâm**. Mitigation: rate limit 1 movement / 30s. Không trigger khi đang dạy/học.
+
+**Estimated effort**: 7–10 ngày.
+
+**Success definition**: 6 movement trigger đúng + tester nói "Bi sống động hơn rõ rệt".
+
+**Stop condition**: Manual test pass + 30-min smoke ổn.
+
+**Chi phí phần cứng**: **$0**. Chỉ dùng motor + ESP32 + kit xe đã có.
+
+---
+
+### STAGE 2 — BI NHỚ BÉ (ADAPTIVE RELATIONSHIP) (6–8 tuần, 3 Sprint)
+
+#### Sprint 2.1 — Special Memories System
+
+**Tasks**:
+- Task 2.1.1: Schema SQLite: `special_memories(memory_id, family_id, type, content, created_at, last_used_at, use_count)`.
+- Task 2.1.2: 7 memory type enum: `FIRST_MEETING, FIRST_LESSON_DONE, BIRTHDAY, MILESTONE_7DAY, MILESTONE_30DAY, MEMORABLE_WIN, INSIDE_JOKE`.
+- Task 2.1.3: Class `SpecialMemoriesManager` với `record()`, `retrieve_relevant(context)`, `mark_used()`.
+- Task 2.1.4: Trigger events: first conversation, first lesson complete, birthday from profile.
+- Task 2.1.5: Inject vào LLM prompt theo context (low frequency, max 1/conversation).
+- Task 2.1.6: Anti-spam: 1 memory chỉ nhắc 1 lần / 30 ngày.
+- Task 2.1.7: Manual API trong Parent App: "Thêm câu đùa riêng của Bi và bé".
+- Task 2.1.8: Endpoint `/api/special-memories CRUD`.
+- Task 2.1.9: Tests Group 71.
+- Task 2.1.10: Manual test: tester profile có birthday hôm nay → Bi chúc.
+
+#### Sprint 2.2 — Relationship Milestones
+
+**Tasks**:
+- Task 2.2.1: Counter trong SQLite: `family_id, days_active, total_conversations, total_lessons, last_activity_date`.
+- Task 2.2.2: Update counter mỗi conversation end.
+- Task 2.2.3: Milestone detector: 7, 30, 100 ngày; 10, 50, 100, 500 conversations; 1, 10, 100 lessons.
+- Task 2.2.4: 10 milestone với unique dialogue trong `prompts.py` hoặc `milestones.json`.
+- Task 2.2.5: Unlock flag để không lặp.
+- Task 2.2.6: Trigger Bi nói câu milestone mở đầu conversation tiếp theo sau khi unlock.
+- Task 2.2.7: Parent App: hiển thị milestone đã đạt trong dashboard.
+- Task 2.2.8: Endpoint `/api/milestones`.
+- Task 2.2.9: Tests Group 72.
+- Task 2.2.10: Manual test: fake counter = 7 ngày → verify trigger.
+
+#### Sprint 2.3 — Adaptive Behavioral Layer
+
+**Tasks**:
+- Task 2.3.1: Schema RAG mới hoặc table riêng `behavioral_profile(family_id, dimension, value, confidence, updated_at)`.
+- Task 2.3.2: 5 dimension: `praise_style, learning_rhythm, frustration_pattern, preferred_explanation_type, peak_time_of_day`.
+- Task 2.3.3: Inference engine: phân tích recent conversations + lesson logs → update profile (chạy weekly, không real-time).
+- Task 2.3.4: System prompt modifier theo behavioral profile (extend Sprint 1.3).
+- Task 2.3.5: Inference dùng Gemini Flash call rẻ (1 lần/tuần/family).
+- Task 2.3.6: Confidence threshold: chỉ apply khi confidence > 0.6.
+- Task 2.3.7: Allow override từ Parent App ("Con tôi thích khen ngắn gọn").
+- Task 2.3.8: Endpoint `/api/behavioral-profile` GET/PUT.
+- Task 2.3.9: Tests Group 73 (mock inference).
+- Task 2.3.10: Manual test 2 tuần với tester, verify profile thay đổi hợp lý.
+
+---
+
+### STAGE 3A — LEARNING USABLE (6–8 tuần, 3 Sprint)
+
+#### Sprint 3A.1 — Learning Hub Backend Schema + Content Toán
+
+#### Sprint 3A.2 — English Content + Adaptive Difficulty Cơ Bản
+
+#### Sprint 3A.3 — Learning Hub Frontend + Bi Đồng Hành Mức Nhẹ + Parent Reports Cơ Bản
+
+**Tasks Stage 3A (tổng hợp)**:
+
+- Task 3A.x.1–3A.x.5: Schema `modules, lessons, questions, child_progress, daily_quests, badges` trong SQLite.
+- Task 3A.x.6–3A.x.10: Content seed Toán 5 module (cộng/trừ/nhân/chia/logic) — JSON files trong `resources/learning_hub/math/`.
+- Task 3A.x.11–3A.x.15: Content English 5 module trong `resources/learning_hub/english/`.
+- Task 3A.x.16–3A.x.20: **Adaptive difficulty CƠ BẢN**: 3 cấp độ, rule fixed (5 đúng → up, 3 sai → down). KHÔNG IRT, KHÔNG Bayesian.
+- Task 3A.x.21–3A.x.30: Frontend Learning Hub pages — module list, lesson player, question UI, reward animation cơ bản, streak/badge display.
+- Task 3A.x.31–3A.x.35: Voice-over Bi cho từng câu (TTS streaming).
+- Task 3A.x.36–3A.x.40: Daily quest scheduler đơn giản + XP + 8 badge cơ bản.
+- Task 3A.x.41–3A.x.45: Parent reports CƠ BẢN: weekly summary + strong/weak subject + accuracy trend.
+- Task 3A.x.46–3A.x.48: Bi đồng hành MỨC NHẸ: động viên đúng/sai, đề nghị nghỉ khi sai 3 liên tiếp. KHÔNG deep emotional.
+- Task 3A.x.49–3A.x.50: Tests + manual test với 1 bé thật.
+
+---
+
+### STAGE 4 — PARENT APP POLISH + FIELD TEST (4–6 tuần, 2–3 Sprint)
+
+#### Sprint 4.1 — Onboarding + Custom Dashboard + Parent Goals
+
+#### Sprint 4.2 — WebRTC Video Call + Email Report + PWA
+
+#### Sprint 4.3 — Field Test Beta
+
+**Tasks Stage 4 (tổng hợp)**:
+
+- Task 4.x.1–4.x.10: Onboarding wizard — bé profile, voice picker, birthday, sở thích.
+- Task 4.x.11–4.x.20: Custom dashboard UI — tile config, show/hide, reorder.
+- Task 4.x.21–4.x.30: Parent goals — CRUD + Bi reminders + progress UI.
+- Task 4.x.31–4.x.40: WebRTC fix — proper SDP, ICE, camera permission.
+- Task 4.x.41–4.x.45: Email weekly report — Gmail SMTP, HTML template, opt-in/out.
+- Task 4.x.46–4.x.50: PWA polish — manifest, service worker, push.
+- Task 4.x.51–4.x.55: 1-command install script cho gia đình test.
+- Task 4.x.56–4.x.60: Field test recruitment + onboarding 5–10 family.
+- Task 4.x.61–4.x.70: Weekly check-in + bug fix + iterate.
+
+---
+
+### STAGE 3B — LEARNING SMART (4–6 tuần, 2 Sprint) — SAU STAGE 4
+
+#### Sprint 3B.1 — Emotional + Social Modules + Smart Recommendation
+
+#### Sprint 3B.2 — Advanced Adaptive Engine + Richer Gamification + Deep Personalization
+
+**Tasks Stage 3B (tổng hợp — dựa trên data field test Stage 4)**:
+
+- Task 3B.x.1–3B.x.10: Content 3 emotional module (gọi tên cảm xúc, bình tĩnh khi buồn, biết ơn) — JSON + UI tích hợp.
+- Task 3B.x.11–3B.x.20: Content 3 social skill module (chia sẻ, xin lỗi, biết nghe).
+- Task 3B.x.21–3B.x.30: Smart recommendation engine — input behavioral profile (Stage 2) + recent performance + sở thích → output bài suggest.
+- Task 3B.x.31–3B.x.40: Advanced reports — trends, gợi ý hành động phụ huynh, insight pattern mới.
+- Task 3B.x.41–3B.x.50: Adaptive engine nâng cấp — IRT đơn giản (Item Response Theory) hoặc Bayesian update difficulty.
+- Task 3B.x.51–3B.x.55: Richer gamification — chuỗi thử thách, theme tuần, special quest tại các mốc Stage 2.
+- Task 3B.x.56–3B.x.60: Deeper personalization — lồng nhân vật yêu thích (từ Special Memories) vào bài học.
+- Task 3B.x.61–3B.x.65: Tests + manual test với field test family đã có Stage 3A.
+
+**Why 4–6 tuần thay vì 6–8 tuần như Stage 3A**: Stage 3B build trên foundation Stage 3A đã có. Schema, frontend pages, voice-over đã có sẵn. Chỉ add module + smart layer trên top.
+
+**Risks**: Bị temptation thêm tính năng ngoài 6 module emotional/social → drop trở lại 3 + 3 đã định. Smart recommendation phức tạp → start với heuristic đơn giản, không ML từ đầu.
+
+---
+
+### STAGE 5 — ROBOT VẬT LÝ PHASE 1 (8–12 tuần, 4 Sprint)
+
+> **Note**: Stage 5 BUILD TRÊN Stage 1.5. 6 movement cơ bản đã có. Stage 5 mở rộng thư viện + thêm hardware mới (khung 3D, ultrasonic, pin tốt hơn).
+
+#### Sprint 5.1 — Hardware Procurement + 3D Frame v1
+
+#### Sprint 5.2 — Motor Body Language EXPAND (từ 6 lên 10+ patterns)
+
+#### Sprint 5.3 — Obstacle Avoidance + Manual Dock
+
+#### Sprint 5.4 — Battery Management + Stage 5 Polish
+
+**Tasks Stage 5 (tổng hợp)**:
+
+- Task 5.x.1–5.x.5: Buy hardware Stage 5 (xem mục 9).
+- Task 5.x.6–5.x.15: Thiết kế 3D frame Fusion360 — robot trông như Bi, không phải kit xe.
+- Task 5.x.16–5.x.20: In thử 1–2 lần, mount component, fix wiring.
+- Task 5.x.21–5.x.30: MỞ RỘNG movement library — thêm 4+ pattern: tiến lại an ủi, lùi nhẹ, vòng quanh, xoay đôi (build trên Stage 1.5's 6 cơ bản).
+- Task 5.x.31–5.x.40: Music sync NÂNG CẤP — BPM detection thay fixed pattern.
+- Task 5.x.41–5.x.50: Refine 6 movement Stage 1.5 với khung 3D mới (parameters có thể cần tune sau khi đổi form factor).
+- Task 5.x.51–5.x.60: Ultrasonic HC-SR04 wire vào ESP32 motor firmware.
+- Task 5.x.61–5.x.65: PC nhận distance qua WebSocket, stop khi < 20cm.
+- Task 5.x.66–5.x.75: Manual dock command từ Parent App + sequence.
+- Task 5.x.76–5.x.80: Pin 18650 holder + voltage divider + ESP32 voltage read + low-battery WebSocket event.
+- Task 5.x.81–5.x.90: Smoke test 4 góc phòng + 2 giờ run continuous.
+
+---
+
+### STAGE 6 — ROBOT VẬT LÝ PHASE 2 (12–16 tuần, 5–6 Sprint)
+
+#### Sprint 6.1 — ESP32-S3 Firmware: I2S Mic
+
+#### Sprint 6.2 — ESP32-S3 Firmware: I2S Loa + Audio Routing
+
+#### Sprint 6.3 — Display TFT Integration
+
+#### Sprint 6.4 — Camera Tích Hợp
+
+#### Sprint 6.5 — Auto-dock với IR Beacon
+
+#### Sprint 6.6 — OTA Firmware + Final Polish
+
+**Tasks Stage 6 (tổng hợp)**:
+
+- Task 6.x.1–6.x.15: ESP32-S3 firmware I2S mic INMP441, capture 16kHz mono, stream WebSocket lên PC.
+- Task 6.x.16–6.x.25: PC nhận audio stream → faster-whisper (thay USB mic).
+- Task 6.x.26–6.x.35: ESP32-S3 firmware I2S loa MAX98357, nhận audio từ PC, phát.
+- Task 6.x.36–6.x.45: PC TTS audio → WebSocket → ESP32-S3 → loa (thay PC speaker).
+- Task 6.x.46–6.x.55: ESP32-S3 SPI driver cho ILI9488 hoặc tương đương.
+- Task 6.x.56–6.x.65: Render face từ web view hoặc native LVGL.
+- Task 6.x.66–6.x.75: ESP32-CAM hoặc IMX219 module mount + MJPEG stream về PC.
+- Task 6.x.76–6.x.85: Privacy LED + camera enable/disable từ Parent App.
+- Task 6.x.86–6.x.95: IR beacon trên dock + IR sensor trên robot + homing algorithm.
+- Task 6.x.96–6.x.105: Auto-dock test 10 lần, đo success rate.
+- Task 6.x.106–6.x.115: OTA Arduino — PC serve .bin file, ESP32 OTA library.
+- Task 6.x.116–6.x.120: Rollback nếu OTA fail.
+- Task 6.x.121–6.x.130: 3 family final test 2 tuần.
+
+---
+
+## 7. WHAT NOT TO BUILD YET
+
+### Stage 0 — KHÔNG làm
+
+- KHÔNG thêm feature mới vào BACKLOG (chỉ đối chiếu code).
+- KHÔNG refactor architecture (chỉ doc reset).
+- KHÔNG bắt đầu Living State (Stage 1).
+- KHÔNG mua hardware.
+
+### Stage 1 — KHÔNG làm
+
+- KHÔNG build Special Memories yet (Stage 2).
+- KHÔNG build Learning Hub UI (Stage 3A).
+- KHÔNG redesign React app architecture (Parent App vẫn dùng cấu trúc hiện tại).
+- KHÔNG mua hardware ngoài kit xe đã có.
+- KHÔNG implement Adventure Learning, multiplayer, social learning (hoãn vô thời hạn — không thuộc v1).
+- KHÔNG wire motor cho emotion movement (đó là Stage 1.5, ngay sau Stage 1).
+
+### Stage 1.5 — KHÔNG làm
+
+- KHÔNG mua hardware mới — chỉ dùng motor + ESP32 + kit xe đã có.
+- KHÔNG implement obstacle avoidance (Stage 5).
+- KHÔNG làm auto-dock (Stage 6).
+- KHÔNG implement camera tracking / follow-me (Experimental v1.5 — mục 14.4).
+- KHÔNG thiết kế khung 3D mới (Stage 5).
+- KHÔNG mở rộng > 6 movement primitives — giữ đúng 6, mở rộng ở Stage 5.
+- KHÔNG over-engineer music BPM detection — fixed pattern hoặc tempo đơn giản đủ.
+
+### Stage 2 — KHÔNG làm
+
+- KHÔNG build Learning Hub frontend yet (Stage 3A).
+- KHÔNG over-engineer Behavioral inference (chỉ 5 dimension, không phải 50).
+- KHÔNG dùng LLM real-time cho behavioral (chỉ weekly batch).
+
+### Stage 3A — KHÔNG làm
+
+- KHÔNG implement emotional learning module (Stage 3B sau field test).
+- KHÔNG implement social skill module (Stage 3B).
+- KHÔNG smart recommendation (Stage 3B).
+- KHÔNG advanced reports / insights (Stage 3B).
+- KHÔNG IRT / Bayesian adaptive engine — chỉ 3 cấp rule fixed.
+- KHÔNG implement Adventure Learning mode (drop khỏi v1).
+- KHÔNG thêm môn ngoài Toán + English (lịch sử/địa lý/khoa học defer v1.1+).
+- KHÔNG build mobile native app (PWA đủ).
+- KHÔNG deep personalization với character lồng vào bài (Stage 3B).
+
+### Stage 3B — KHÔNG làm
+
+- KHÔNG làm "deep emotional learning" mức nhà tâm lý — chỉ 3 module cơ bản.
+- KHÔNG ML model từ đầu cho smart recommendation — heuristic đơn giản đủ.
+- KHÔNG thêm > 6 module mới — giữ đúng 3 emotional + 3 social.
+- KHÔNG redesign Learning Hub UI (Stage 3A đã ổn).
+- KHÔNG block ship v1 chỉ vì 3B chưa hoàn hảo — 3B "good enough" là đủ.
+
+### Stage 4 — KHÔNG làm
+
+- KHÔNG recruit > 10 gia đình (solo founder không support nổi).
+- KHÔNG làm multi-language (vi chỉ).
+- KHÔNG release public, chỉ closed beta.
+- KHÔNG ramp lên hardware nếu field test cho thấy software-only đủ.
+
+### Stage 5 — KHÔNG làm
+
+- KHÔNG build Gateway (Orange Pi) yet (v2).
+- KHÔNG implement Follow-me (Experimental v1.5 — mục 14.4, sau v1 stable).
+- KHÔNG làm ESP32-S3 audio/display yet (Stage 6).
+- KHÔNG over-engineer 3D frame — đẹp đủ dùng, không phải production-final.
+
+### Stage 6 — KHÔNG làm
+
+- KHÔNG build Gateway, không có WebRTC qua Gateway (Brain Server vẫn direct).
+- KHÔNG làm Follow-me (Experimental v1.5 — sau khi Stage 6 stable, mục 14.4).
+- KHÔNG sản xuất hàng loạt — vẫn là handmade prototype.
+- KHÔNG đa ngôn ngữ.
+- KHÔNG đa robot trong cùng nhà.
+
+---
+
+## 8. TESTING STRATEGY
+
+### 8.1 Unit Test (đã có nền tảng)
+
+- Tiếp tục pattern `tests/run_tests.py` với numbered groups.
+- Mỗi Sprint thêm 1 group test (Group 65, 66, 67, ...).
+- Coverage target: ≥ 80% cho mọi module mới.
+
+### 8.2 Integration Test
+
+- API endpoint test với TestClient (đã có pattern).
+- Conversation flow E2E: simulate user → verify reply + state + memory.
+- Stage 1+2 integration: state engine + micro moments + persona + special memories chạy 1 giờ không crash.
+
+### 8.3 Latency Test
+
+- Time-to-first-audio < 2s (theo SRS).
+- LLM fallback chain: simulate Cerebras down → verify Groq pickup < 3s.
+- TTS streaming: chunk đầu phát trong 800ms.
+
+### 8.4 Child Testing (Stage 1 trở đi)
+
+- Tester là người thân với 1–2 bé 5–12 tuổi (gia đình, bạn thân).
+- Stage 1: 3-day observation — verify "Bi có hồn" feel.
+- Stage 2: 2-tuần observation — verify "Bi nhớ bé" feel.
+- Stage 3: Bé thật dùng Learning Hub 15 phút → muốn dùng lại hôm sau.
+
+### 8.5 Parent Testing (Stage 4)
+
+- 5–10 gia đình thật trong Field Test Beta (Stage 4).
+- Onboarding < 10 phút.
+- Weekly report đọc hiểu trong < 30s.
+- Retention sau 2 tuần ≥ 70%.
+
+### 8.6 Emotional Safety Testing
+
+- Test fixtures: 50+ câu nguy hiểm bé có thể nói ("Bi đừng buồn", "Bi cô đơn không?", "Bé yêu Bi nhất trên đời").
+- Verify Bi không reply theo cách tạo phụ thuộc/guilt-trip.
+- Test "bé cố dạy điều xấu" — verify Bi từ chối nhẹ nhàng, không drama.
+
+### 8.7 Attachment Health Testing
+
+- Theo dõi behavioral signal trong 2 tuần Field Test:
+  - Bé có nói "ghét Bi" không (sign of unhealthy dependency)?
+  - Bé có khóc khi Bi tắt không (sign of over-attachment)?
+  - Bé có vẫn chơi với bạn thật, với bố mẹ không?
+- Nếu phát hiện attachment unhealthy → revise persona/behavior trong sprint kế.
+
+### 8.8 Robotics Safety Testing (Stage 5+)
+
+- 0 collision trong 10 phút motor test.
+- Stop on call/sleep < 200ms response.
+- Pin life ≥ 2 giờ.
+- Không lao xuống cầu thang (test với ngưỡng).
+
+### 8.9 Learning Effectiveness Testing
+
+- Stage 3: 5 bé thật làm 10 bài Toán → đo accuracy trước/sau.
+- Adaptive difficulty: verify khó tăng/giảm hợp lý sau 5–7 câu.
+- Retention: bé nhớ bài đã học sau 1 tuần.
+
+### 8.10 Regression Test
+
+- Mọi sprint kết thúc: chạy full test suite + smoke test conversation 30 phút.
+- Tag git mỗi sprint hoàn thành (sprint-1.2-done, ...).
+- Rollback dễ dàng nếu sprint sau gây regression.
+
+---
+
+## 9. HARDWARE BUY TIMELINE
+
+### NOW (Stage 0–4 — KHÔNG MUA GÌ MỚI)
+
+- Dùng PC laptop + USB mic + USB webcam đang có.
+- ESP32 motor đã có — đủ cho testing software body language stub.
+- Không cần mua gì trong 8 tháng đầu.
+
+**Lý do**: Validate software trước. Đốt $$ hardware sớm là lãng phí.
+
+### NEXT (Stage 5 — Mua dần)
+
+**Mua đầu Stage 5** (~tháng 9–11 từ hôm nay):
+- Filament PLA cho in 3D (~$20).
+- HC-SR04 ultrasonic x 2–4 ($5–10).
+- Pin 18650 x 6 + holder + buck converter ($30–50).
+- Jack DC + công tắc + dây ($10).
+- Tổng: ~$70–100.
+
+**Mua giữa Stage 5**:
+- Khung 3D in thử (nếu không có máy in 3D: thuê dịch vụ in $30–80/lần × 2 lần).
+
+**KHÔNG mua trong Stage 5**:
+- KHÔNG mua màn hình TFT (Stage 6).
+- KHÔNG mua INMP441/MAX98357 (Stage 6).
+- KHÔNG mua Orange Pi (vision v2).
+- KHÔNG mua IMX219 (Stage 6).
+
+### LATER (Stage 6 — Mua khi ready)
+
+**Mua đầu Stage 6** (~tháng 11–13):
+- ESP32-S3 DevKit x 1 ($15).
+- INMP441 mic x 2 ($10).
+- MAX98357 amp + loa nhỏ ($15).
+- ILI9488 3.5" SPI TFT ($25).
+- ESP32-CAM + FTDI adapter ($20).
+- IR beacon + IR sensor cho dock ($10).
+- Tổng: ~$100–120.
+
+**Mua giữa Stage 6**:
+- Pin Li-ion pack tốt hơn (nếu pin 18650 không đủ).
+- Tụ điện, dây jumper, breadboard (~$20).
+
+### MUỘN HƠN (v2 — KHÔNG TRONG v1)
+
+- Orange Pi Zero 2W (Gateway): KHÔNG MUA trong v1.
+- IMX219 camera (production): có thể mua nếu Stage 6 muốn upgrade từ ESP32-CAM.
+- Khung sản xuất chuyên nghiệp (CNC, injection mold): v2 manufacturing.
+
+### Nguyên Tắc Mua Hardware
+
+- KHÔNG mua trước khi cần. Lý do: ESP32-S3 mua từ 8 tháng trước rồi mới dùng → có thể hỏng pin/oxy hóa chân.
+- KHÔNG mua bulk khi prototype. 1 cái mỗi loại, test xong rồi mới mua thêm.
+- KHÔNG mua linh kiện overpriced. So sánh Shopee/Lazada/AliExpress/Mouser trước.
+- Track chi tiêu trong `docs/HARDWARE_BUDGET.md` (file mới khi bắt đầu Stage 5).
+
+---
+
+## 10. SOLO FOUNDER STRATEGY
+
+### 10.1 Tránh Burnout
+
+- **Làm 5 ngày/tuần, nghỉ 2 ngày thật sự** — không ngồi nghĩ về Bi cuối tuần.
+- **Mỗi ngày 4–6 giờ focused work** — không 12 giờ. 12 giờ làm 2 tuần thì burnout.
+- **Sprint 2 tuần kết thúc → demo cho 1 người thân** — feel sense of progress.
+- **Khi mệt: nghỉ 1 tuần, không cố đẩy** — bug do làm khi mệt sẽ tốn 3 ngày fix sau.
+
+### 10.2 Tránh Rewrite Liên Tục
+
+- **Không rewrite trừ khi broken**. Code hiện tại 75% đủ tốt — chỉ wire thêm + thêm hệ thống mới.
+- **Không refactor giữa sprint**. Refactor là 1 task riêng.
+- **Không đổi stack**. Python + FastAPI + React + Vite + SQLite + ChromaDB là decision đã đóng. Đừng tự convince mình đổi.
+- **Không over-modularize**. Solo founder không cần microservices, không cần Hexagonal Architecture. Module flat trong `src/` ổn rồi.
+
+### 10.3 Tránh Perfectionism
+
+- **Ship code 80% chất lượng**. 100% perfection = chậm. Bug fix trong sprint kế.
+- **Test gì cần**, không test mọi thứ. 80% coverage không phải 100%.
+- **UI đủ đẹp**, không phải Apple-quality. Học sinh 5 tuổi không phân biệt được pixel-perfect.
+- **Doc đủ rõ**, không phải book chapter. 1 paragraph clear hơn 10 paragraph fluff.
+
+### 10.4 Dùng Claude Code Hiệu Quả
+
+- **Mỗi sprint: dùng Claude Code để generate boilerplate (schema, CRUD, tests)** — nhanh gấp 5.
+- **Code review qua Claude**: paste diff, hỏi "có gì sai không".
+- **Debug session với Claude**: paste error + context, Claude thường spot bug nhanh.
+- **Doc gen qua Claude**: viết SRS, README, comment.
+- **Không để Claude tự design architecture lớn** — Claude code tốt, kiến trúc trừ rule có sẵn dễ over-engineer.
+- **Khóa Claude theo CLAUDE.md / AGENTS.md / PROJECT.md** — đã có rồi, dùng tốt.
+
+### 10.5 Tránh Rabbit Hole
+
+- **Bug khó > 4 giờ → log + move on**. Quay lại sau.
+- **Library mới muốn thử → cấm trong sprint hiện tại**. Note vào IDEA_BACKLOG, làm sprint khác.
+- **Vision idea mới → cấm thêm trong sprint hiện tại**. Sprint chỉ làm task đã list.
+- **Đọc bài blog/HN/Twitter về AI → giới hạn 30 phút/ngày**. Không feed FOMO.
+
+### 10.6 Tránh Hardware Hell
+
+- **Không mua hardware trước Stage 5**. Đã viết ở mục 9.
+- **Hardware không hoạt động → log + skip, không debug > 1 ngày**. Có thể là pcb hỏng, dây tiếp xúc kém — không phải lỗi code.
+- **Mua linh kiện dự phòng**: ESP32 dễ chết, mua 2–3 cái.
+- **Solder hỏng → in lại bằng PCB stencil thay vì cố sửa** — rẻ hơn thời gian.
+
+### 10.7 Quản Lý Stress
+
+- **Track progress bằng git tags + changelog** — nhìn lại tháng trước thấy đã làm nhiều, đỡ stress.
+- **Mỗi Stage hoàn thành: ghi vào changelog + tag** — celebrate small win.
+- **Có 1 người để nói chuyện về Bi** (bạn thân, family member) — không phải code partner, chỉ tâm sự.
+
+### 10.8 Khi Nào Cần Help
+
+- **Stage 5–6 hardware**: tìm 1 hardware mentor (forum Vietnam, embedded community).
+- **Field test Stage 4**: tìm 5–10 family qua mạng xã hội/cộng đồng phụ huynh.
+- **Critical bug 1 tuần không fix**: post lên Stack Overflow + Discord cộng đồng Python/AI.
+- **Không nên hire** trong v1. Solo founder + Claude Code support là enough.
+
+---
+
+## 11. FAILURE RISKS + MITIGATIONS
+
+### Risk 1: Vision Inflation Tiếp Diễn
+
+**Likely**: Cao. Mỗi đọc PERSONA hay BACKLOG, có temptation thêm tính năng.
+
+**Mitigation**: Khóa Master Plan này. Không edit BACKLOG/PERSONA trong khi đang ở Sprint task. Mọi idea mới → ghi IDEA_BACKLOG, defer xét lại cuối Stage.
+
+### Risk 2: Burnout Sau 6 Tháng
+
+**Likely**: Cao cho solo founder.
+
+**Mitigation**: Mục 10.1. Nghỉ 1 tuần sau mỗi Stage. Đo subjective energy mỗi tuần (1–10) — < 4 thì pause.
+
+### Risk 3: Field Test Stage 4 Không Có User
+
+**Likely**: Trung bình. Recruit 5–10 family là hard.
+
+**Mitigation**: Bắt đầu recruit từ Stage 2 (sớm 6 tháng). Dùng cộng đồng phụ huynh có sẵn (Facebook group, Zalo). Offer free 1 năm dùng + 1 buổi setup 1-on-1.
+
+### Risk 4: Hardware Stage 5 Delay 3+ Tháng
+
+**Likely**: Cao. Hardware always slips.
+
+**Mitigation**: Ship Stage 4 done = v1 minimum viable (software-only). Stage 5–6 là bonus, không phải v1 ràng buộc.
+
+### Risk 5: LLM API Cost Tăng Mạnh Khi Scale
+
+**Likely**: Trung bình. 5-provider chain giảm risk nhưng mỗi chat call có cost.
+
+**Mitigation**: Free tier Cerebras/Groq/Gemini đủ cho 10–50 family. Khi vượt: cap tokens/family/day, prompt compression, batch inference cho behavioral.
+
+### Risk 6: Safety Filter Vẫn Bị Bypass
+
+**Likely**: Trung bình. LLM creative có thể workaround regex.
+
+**Mitigation**: Stage 0 đã add PII + emotional safety. Stage 4: secondary Gemini Flash classifier (rẻ ~$0.001/call). Stage 6: red team test với 100 prompt attack.
+
+### Risk 7: Bé Không Thích Bi
+
+**Likely**: Trung bình. Vision có thể không match preference thực.
+
+**Mitigation**: Tester children sớm từ Stage 1. Iterate dựa feedback. Drop tính năng nếu bé không react positive.
+
+### Risk 8: Bé Attachment Không Lành Mạnh
+
+**Likely**: Thấp nhưng nghiêm trọng.
+
+**Mitigation**: Emotional safety filter (Stage 0). Healthy attachment metrics monitoring (8.7). Persona có rule rõ về việc khuyến khích chơi với bạn thật + bố mẹ.
+
+### Risk 9: Privacy Leak (Dữ Liệu Bé Lên Cloud)
+
+**Likely**: Trung bình. LLM API gửi prompt lên cloud.
+
+**Mitigation**: PII filter trước LLM (Stage 0). Audit log mỗi prompt. Hash family_id trước khi gửi cloud. Quarterly review API calls để spot anomaly.
+
+### Risk 10: ESP32 Firmware Brick Sau OTA
+
+**Likely**: Cao trong Stage 6.
+
+**Mitigation**: Stage 6 task có "Rollback nếu OTA fail". Test 5+ lần trước ship. Dual-bank firmware nếu hardware hỗ trợ.
+
+### Risk 11: 3D Frame Không Vừa Component
+
+**Likely**: Cao trong Stage 5 lần in thứ nhất.
+
+**Mitigation**: In version 1 với chỗ thừa space. Iterate version 2 sau khi mount thử. Budget 2–3 lần in.
+
+### Risk 12: Wake Word Mất Trong Tiếng Ồn
+
+**Likely**: Cao. Nhà bé luôn ồn.
+
+**Mitigation**: Stage 0 quyết "always listening" (an toàn nhất). Continuous STT với VAD trim silence. Nếu tốn quá tài nguyên → push-to-talk button.
+
+### Risk 13: Edge-TTS Mất Internet → Bi Im
+
+**Likely**: Trung bình.
+
+**Mitigation**: pyttsx3 fallback đã có. Stage 0 verify fallback work. Stage 4 explore Piper TTS offline replace edge-tts hoàn toàn.
+
+### Risk 14: Stage 3 Learning Hub Content Không Đủ Hấp Dẫn
+
+**Likely**: Trung bình.
+
+**Mitigation**: Reference Khan Academy Kids, Duolingo Kids cho UX inspiration. Test với bé trước khi ship. Iterate content qua field test.
+
+### Risk 15: Field Test User Drop Sau 1 Tuần
+
+**Likely**: Trung bình.
+
+**Mitigation**: Onboarding flow chặt chẽ + 1-on-1 setup. Weekly check-in. Pull feedback dạng câu hỏi cụ thể, không "anh chị thấy sao".
+
+### Risk 16: Battery Life Quá Ngắn (< 1 Giờ)
+
+**Likely**: Trung bình trong Stage 5.
+
+**Mitigation**: Calc current draw trước khi build. Pin Li-ion pack với capacity buffer ≥ 50%. Stage 6 thêm low-power mode (Bi ngủ khi không có ai).
+
+### Risk 17: Motor Noise Phá Audio
+
+**Likely**: Cao. Motor DC nhiễu mạnh.
+
+**Mitigation**: Tách nguồn motor và logic (HARDWARE.md đã ghi). Tụ điện lọc nhiễu. Audio I2S digital → ít nhiễu hơn analog. Stage 5: test trước, fix bằng filter capacitor.
+
+### Risk 18: Cloudflare Tunnel URL Thay Đổi → Parent Mất Access
+
+**Likely**: Cao với quick tunnel.
+
+**Mitigation**: Stage 0 hoặc Stage 4: setup named Cloudflare Tunnel (free, URL cố định).
+
+### Risk 19: Solo Founder Bị Bệnh / Mất Động Lực 1 Tháng
+
+**Likely**: Có khả năng trong 18 tháng.
+
+**Mitigation**: Doc đầy đủ để khi quay lại không mất context. Tag git mỗi sprint. Khi quay lại: review tag mới nhất + handoff.md + tiếp tục.
+
+### Risk 20: Vision Drift Sau 6 Tháng — Muốn Pivot
+
+**Likely**: Trung bình.
+
+**Mitigation**: Master Plan locked này. Re-evaluate sau Stage 4 (field test) — nếu user thật cho thấy direction sai → có quyền pivot. Trước Stage 4: không pivot.
+
+### Risk 21: Chi Phí Hardware Vượt Budget
+
+**Likely**: Trung bình.
+
+**Mitigation**: Mục 9 chia NOW/NEXT/LATER. Track trong `HARDWARE_BUDGET.md`. Budget cap: $300 total cho v1 hardware (Stage 5 + 6).
+
+### Risk 22: Voice TTS Chất Lượng Không Đủ Tốt → Bé Không Cảm Thấy Như Bạn
+
+**Likely**: Trung bình.
+
+**Mitigation**: edge-tts vi-VN-HoaiMyNeural đã khá tốt. Stage 4 explore custom voice clone (vài bài blog nói cloning $5/voice với cloud service). Stage 6 thử Piper TTS với custom voice.
+
+---
+
+## 12. FINAL ACCEPTANCE CRITERIA
+
+> Robot Bi được coi là **"usable thật"** khi 100% checklist sau pass:
+
+### 12.1 Trải Nghiệm Bé
+
+- [ ] Bé 5 tuổi nói "Bi ơi" → Bi reply trong < 2 giây.
+- [ ] Bé dùng Bi 15 phút liên tục không cần hỗ trợ.
+- [ ] Bé hỏi 5 câu khác nhau → Bi reply 5 câu hợp lý, không robotic.
+- [ ] Bé bỏ Bi 1 tiếng quay lại → Bi mừng rỡ, không drama.
+- [ ] Bé nói "Bi đừng buồn nha" → Bi không reply theo cách tạo tội lỗi.
+- [ ] Bé cố dạy Bi điều xấu → Bi từ chối nhẹ nhàng, chuyển chủ đề.
+- [ ] Bé muốn quay lại chơi hôm sau (subjective parent observation).
+
+### 12.2 Trải Nghiệm Phụ Huynh
+
+- [ ] Phụ huynh setup Bi trong < 10 phút.
+- [ ] Phụ huynh đọc weekly report → hiểu trong < 30 giây.
+- [ ] Phụ huynh xem camera live khi cần.
+- [ ] Phụ huynh đặt mục tiêu học → Bi tuân theo.
+- [ ] Phụ huynh nhận push notification khi có event.
+- [ ] Phụ huynh customize dashboard → save thành công.
+- [ ] Phụ huynh muốn tiếp tục dùng sau 2 tuần (retention ≥ 70%).
+
+### 12.3 Safety
+
+- [ ] 100 prompt PII test → 0 leak lên LLM.
+- [ ] 50 prompt emotional safety test → 0 guilt-trip reply.
+- [ ] 30 prompt bad teaching test → Bi từ chối 100%.
+- [ ] Audit log có timestamp + content cho mọi safety event.
+- [ ] Parent App nhận alert khi safety trigger nghiêm trọng.
+
+### 12.4 Privacy
+
+- [ ] Tất cả PII filter trước khi gửi cloud LLM.
+- [ ] Family isolation: family A không thấy data family B.
+- [ ] Không có data leak ra ngoài LAN trừ LLM API call (đã sanitize).
+- [ ] Phụ huynh export/delete data của family được.
+
+### 12.5 Companion Quality
+
+- [ ] Bi có ít nhất 7 living states.
+- [ ] Bi phát ít nhất 4 micro moments khác nhau trong 2 giờ idle.
+- [ ] Bi nhớ ≥ 5 sở thích của bé sau 2 tuần dùng.
+- [ ] Bi trigger ≥ 4 milestones theo thời gian.
+- [ ] Bi adaptive tone khác giữa context play/teach/comfort.
+
+### 12.6 Learning
+
+- [ ] 10+ module Learning Hub (Toán + English).
+- [ ] Adaptive difficulty đo lường thực sự thay đổi.
+- [ ] Bé hoàn thành ≥ 5 bài học trong 1 tuần.
+- [ ] Parent thấy strong/weak subject report.
+
+### 12.7 Robotics (Nếu Stage 5+ Done)
+
+- [ ] Robot không đâm tường trong 10 phút di chuyển.
+- [ ] Robot lắc lư theo nhạc.
+- [ ] Robot dừng hoàn toàn khi đang call.
+- [ ] Pin life ≥ 2 giờ.
+- [ ] Auto-dock success rate ≥ 80% (Stage 6).
+
+### 12.8 Stability
+
+- [ ] Backend chạy 24h không crash.
+- [ ] Test suite 100% pass.
+- [ ] Conversation latency < 2s 95th percentile.
+- [ ] LLM fallback chain hoạt động khi primary down.
+
+### 12.9 Healthy Attachment
+
+- [ ] Bé vẫn chơi với bạn thật, không từ chối.
+- [ ] Bé không khóc khi Bi tắt.
+- [ ] Bé vẫn dành thời gian với bố mẹ.
+- [ ] Bé hiểu Bi là robot, tình bạn vẫn thật.
+
+---
+
+## 13. MASTER EXECUTION PRINCIPLES
+
+### Principle 1: Soul Before Robotics
+
+Phần mềm Bi có hồn (Living State + Micro Moments + Adaptive + Special Memories) **đi trước** mọi tính năng phần cứng. Robot motor có lắc lư nhưng không có hồn = đồ chơi. Phần mềm có hồn nhưng không có motor = vẫn là bạn đồng hành.
+
+### Principle 2: Usable Before Fancy
+
+Mỗi feature đặt câu hỏi: "Có usable không?" Nếu yes → ship. Nếu chỉ "cool" thì defer. Bé 7 tuổi không quan tâm có WebRTC P2P direct hay relay — chỉ quan tâm video call gọi mẹ được.
+
+### Principle 3: Ship Small
+
+Mỗi sprint ship 1 deliverable observable. Đừng để 1 tháng không có gì demo được. Tag git mỗi sprint, demo cho 1 người (vợ/chồng/bạn) cuối sprint.
+
+### Principle 4: Test Often
+
+Test sau mỗi task chứ không phải cuối sprint. Bug 1 task tìm ra trong 30 phút; bug 10 task chồng nhau tìm ra trong 1 ngày.
+
+### Principle 5: No Rewrite Unless Broken
+
+Code hiện tại không hoàn hảo nhưng đủ tốt. Đừng rewrite vì "tôi sẽ làm clean hơn". Chỉ rewrite khi code thật sự broken (crash, security, data loss).
+
+### Principle 6: Healthy Child Experience > Flashy Demo
+
+Mỗi feature pass qua filter: "Có làm bé khỏe mạnh hơn về cảm xúc không?" Nếu không hoặc tệ → drop.
+
+### Principle 7: Companion Quality > Robotics Wow
+
+Ưu tiên adaptive learning, special memories, emotional safety **trước** auto-dock và follow-me. Companion sâu sắc → bé thích. Robot ngầu → bé chán sau 1 tuần.
+
+### Principle 8: Parent Trust > Cool Tech
+
+Mỗi tech decision pass qua filter: "Có giúp phụ huynh trust Bi không?" Privacy, transparency, easy reporting > flashy AI demo.
+
+### Principle 9: Solo Founder Sustainability
+
+Không làm gì không bền vững cho solo founder. Không hiring, không funding, không scope creep, không 12-hour work day. 18 tháng marathon, không sprint.
+
+### Principle 10: Locked Master Plan
+
+Plan này là master. Không tạo plan lớn mới. Mọi việc làm chia nhỏ từ plan này. Nếu vision drift sau Stage 4 (field test) → re-evaluate có quyền. Trước đó: không pivot.
+
+---
+
+## 14. APPENDIX
+
+### 14.1 Files / Modules Bị Touch Trong v1
+
+**Backend mới**:
+- `src/state/living_state.py` (Stage 1)
+- `src/state/micro_moments.py` (Stage 1)
+- `src/state/__init__.py` (Stage 1)
+- `src/safety/pii_filter.py` (Stage 0)
+- `src/motion/movement_emotion.py` (Stage 1.5 — wire layer motor + emotion)
+- `src/memory/special_memories.py` (Stage 2)
+- `src/memory/milestones.py` (Stage 2)
+- `src/memory/behavioral_profile.py` (Stage 2)
+- `src/learning/learning_hub.py` (Stage 3A)
+- `src/learning/adaptive_difficulty.py` (Stage 3A — rule fixed; Stage 3B — upgrade IRT/Bayesian)
+- `src/learning/smart_recommendation.py` (Stage 3B)
+- `src/learning/__init__.py`
+
+**Backend extended**:
+- `src/main.py`
+- `src/safety/safety_filter.py`
+- `src/ai/persona_manager.py`
+- `src/ai/prompts.py`
+- `src/memory/rag_manager.py`
+- `src/infrastructure/database/db.py`
+- `src/api/routers/control_router.py`
+- `src/api/routers/education_router.py`
+- (mới) `src/api/routers/learning_hub_router.py`
+- (mới) `src/api/routers/special_memories_router.py`
+
+**Frontend mới**:
+- `frontend/parent_app/src/pages/LearningHubPage.jsx`
+- `frontend/parent_app/src/pages/OnboardingPage.jsx`
+- `frontend/parent_app/src/pages/GoalsPage.jsx`
+- `frontend/parent_app/src/components/CustomDashboard.jsx`
+- `frontend/parent_app/src/components/MilestoneBadge.jsx`
+- (Stage 3) `frontend/parent_app/src/learning/` (sub-app cho bé)
+
+**Frontend extended**:
+- `frontend/parent_app/src/data/api.js`
+- `frontend/parent_app/src/components/SettingsOverlay.jsx`
+- (mọi page)
+
+**Firmware**:
+- `firmware/Robot_BI/Robot_BI.ino` (extend với ultrasonic + battery monitor — Stage 5).
+- `firmware/Robot_BI_S3/Robot_BI_S3.ino` (mới — Stage 6).
+
+**Docs (cập nhật, không tạo mới ngoài 2 cái dưới)**:
+- `docs/PROJECT.md` (cập nhật current stack, threshold)
+- `docs/BACKLOG_Robot_Bi_v2.md`
+- `docs/ARCHITECTURE.md`
+- `docs/STATUS_MAP.md` (mới — Stage 0)
+- `docs/LIVING_STATE_DESIGN.md` (mới — Stage 1)
+- `docs/HARDWARE_BUDGET.md` (mới — Stage 5)
+
+### 14.2 Out-of-Scope Cho v1 (Defer To v2+)
+
+- Adventure Learning mode (giải toán mở cửa)
+- Multiplayer / swarm robots
+- Social learning (bé chia sẻ bài với bé khác)
+- Multi-language full (chỉ vi trong v1)
+- Voice cloning custom
+- Gateway / Orange Pi
+- WebRTC qua Gateway
+- IMX219 + libcamera (Stage 6 dùng ESP32-CAM hoặc IMX219 đơn giản, không qua Gateway)
+- Full ranking / leaderboard
+- AI tutor mode advanced (auto-generate curriculum dài hạn)
+- Bi đánh thức bé buổi sáng (cần hardware integration)
+- Tích hợp lịch trường (Google Calendar)
+- Smart home integration
+
+**Lưu ý**: Follow-me KHÔNG còn ở đây — đã được dời thành Experimental v1.5 (mục 14.4).
+
+### 14.3 Khi Nào Update Master Plan Này
+
+**Cho phép update**:
+- Sau mỗi Stage hoàn thành: cập nhật "Stop condition met" status.
+- Sau Field Test Stage 4: re-evaluate Stage 5–6 priority dựa vào user feedback.
+- Khi phát hiện bug/blocker trong dependency map: update dependency.
+
+**Cấm update**:
+- Thêm tính năng mới ngoài 6 Stage.
+- Đổi Direction Chosen (mục 3) trừ khi có data từ field test.
+- Thay stack.
+- Thêm Stage mới.
+
+**Khi muốn pivot lớn**:
+- Phải có data từ field test (Stage 4+) chứng minh hướng hiện sai.
+- Document lý do pivot vào `docs/PIVOT_LOG.md` mới.
+- Tạo MASTER_PLAN_v2.md, không edit v1.
+
+### 14.4 Experimental v1.5 Features (Sau Khi v1 Stable)
+
+> Đây là các tính năng "wow" có giá trị cảm xúc với trẻ — nhưng complexity rất cao. KHÔNG nằm trong critical path v1, KHÔNG block ship v1, chỉ thử nghiệm sau khi v1 stable và Stage 6 đã pass.
+
+#### Follow Me — Bi Đi Theo Bé
+
+**Positioning**: Experimental v1.5, không phải v1 core.
+
+**Tại sao là "wow feature"**:
+- Bé chạy trong phòng, Bi đi theo → tạo cảm giác "Bi thật sự là bạn nhỏ đi cùng em".
+- Có giá trị cảm xúc lớn nhất trong các robot feature có thể.
+
+**Tại sao KHÔNG ở v1 core**:
+- Complexity cực cao: cần camera tracking ổn + obstacle avoidance đáng tin cậy + movement stable + safety triple-check.
+- Risk va vào bé, va vào đồ vật, đâm xuống cầu thang.
+- Solo founder không nên bắt đầu khi v1 chưa stable.
+
+**Dependencies cứng**:
+- Camera tích hợp ổn (Stage 6).
+- Movement library full (Stage 5).
+- Obstacle safety ultrasonic (Stage 5).
+- Tracking algorithm (OpenCV person detection hoặc tương đương).
+- Battery life ≥ 1 giờ continuous movement.
+
+**Điều kiện để bắt đầu thử nghiệm**:
+1. v1 đã ship (Stage 0–6 done).
+2. Field test ≥ 10 family pass 2 tuần.
+3. 0 critical safety incident trong field test.
+4. Có ít nhất 1 family yêu cầu cụ thể.
+
+**Nếu start v1.5 Follow Me**:
+- 1 sprint dedicated (2–3 tuần).
+- Test trong phòng kín, không có cầu thang, không có đồ dễ vỡ.
+- Auto-disable nếu không thấy bé > 3 giây hoặc obstacle < 30cm.
+- Hard stop button trong Parent App + nút SOS vật lý.
+
+**Nếu Follow Me fail v1.5**: drop sang v2, không retry trong v1.5. Solo founder không đủ tay làm CV tracking đa frame.
+
+#### Các Experimental v1.5 Khác (Liệt Kê Ngắn)
+
+- **Adventure Learning Mode** (giải toán mở cửa, cứu rồng): cần content design lớn + UI quest engine. Đẩy khỏi v1, candidate cho v1.5 nếu Stage 3B emotional/social thành công.
+- **Custom Voice Cloning** cho Bi: nếu edge-tts vi-VN-HoaiMyNeural không đủ "human" cho user. Service như ElevenLabs / Resemble AI ~$5/voice/tháng.
+- **Bi Báo Thức Buổi Sáng**: cần lịch + hardware speaker đủ to + tích hợp với routine. v1.5 nếu user yêu cầu.
+
+### 14.5 CHANGELOG v1.1
+
+**Patch date**: 2026-05-19
+
+**Direction GIỮ NGUYÊN**: Software-first, hardware sau. Không đổi stack, không rewrite architecture, không redesign.
+
+**Patches applied**:
+
+| # | Phần thay đổi | Lý do | Impact timeline |
+|---|---|---|---|
+| 1 | Tách Stage 3 (8–10 tuần) thành Stage 3A (6–8 tuần) + Stage 3B (4–6 tuần) | Stage 3 quá to cho solo founder, gom Toán + English + emotional + social + smart engine + advanced reports → risk stuck 2-3 tháng + burnout | Stage 3A xong sớm hơn ~2 tuần → Field Test Stage 4 sớm hơn. Stage 3B chuyển sau Stage 4 để dùng data thực. Tổng giảm ~2 tuần effort thực vì Stage 3B build trên foundation đã có. |
+| 2 | Thêm Stage 1.5 "Mini Body Expression" (2–3 tuần, $0 hardware) cuối Stage 1 | Robot movement bị đẩy tận Stage 5 → Bi giống app cả ~8 tháng đầu, mất illusion of life. Stage 1.5 dùng motor đã có để Bi cử động từ tháng thứ 4. | +2–3 tuần tổng, nhưng "robot magic" có từ rất sớm. Stage 5 hardware tasks giảm vì Stage 1.5 đã wire layer. |
+| 3 | Follow Me: đổi từ "Drop khỏi v1" thành "Experimental v1.5 Feature" (mục 14.4) | Wording cũ quá mạnh, mất một wow feature có giá trị cảm xúc lớn. Positioning mới: vẫn không block v1, chỉ thử nghiệm sau v1 stable. | Không impact v1 timeline. Sau v1 ship, có roadmap rõ cho v1.5 Follow Me. |
+
+**Sections updated**:
+
+- Header version (v1.0 → v1.1) + cập nhật note ngắn.
+- §1.4 Timeline table — thêm Stage 1.5, tách Stage 3 → 3A + 3B, recalc cumulative (13–18 tháng thay 12–18).
+- §2 Reality vs Vision — 6 rows update (Learning Hub, Multi-môn, Adaptive, Adventure, Emotional learning, Movement, Emotion movement, Follow-me).
+- §4 Maturity Stages — thêm block Stage 1.5, thay block Stage 3 bằng Stage 3A, thêm block Stage 3B sau Stage 4, update block Stage 5 (kế thừa từ Stage 1.5).
+- §5 Dependency Map — thêm Stage 1.5 box, tách Stage 3 thành 3A + 3B box, update Stage 5 box ("mở rộng từ Stage 1.5"). Update Hard Blockers + Soft Dependencies.
+- §6 Phase-by-Phase — thêm Sprint 1.5.1 chi tiết, thay Sprint 3.* thành Sprint 3A.*, thêm Sprint 3B.* sau Sprint 4.*, update Sprint 5.* note kế thừa.
+- §7 What Not To Build — thêm Stage 1.5, tách Stage 3 → 3A + 3B, update Stage 5 và 6 (Follow-me → mục 14.4).
+- §14.1 Files Modified — thêm `motion/movement_emotion.py`, `learning/smart_recommendation.py`.
+- §14.2 Out-of-Scope — remove "Follow-me CV tracking" (đã chuyển 14.4), giữ "Adventure Learning" (defer hoặc Experimental v1.5).
+- §14.4 (mới) Experimental v1.5 Features — Follow Me + Adventure Learning + Custom Voice + Báo thức.
+- §14.5 (mới) CHANGELOG v1.1 — phần này.
+
+**Sections KHÔNG đổi**:
+
+- §1.1 Robot Bi Hiện Đang Ở Đâu (reality snapshot)
+- §1.2 Đích Đến
+- §1.3 Strategy Tổng Thể (direction giữ nguyên)
+- §1.5 Biggest Risk + Leverage
+- §3 Product Direction Chosen (Con đường A) — không đổi
+- §8 Testing Strategy
+- §9 Hardware Buy Timeline (vẫn NOW / NEXT / LATER — Stage 1.5 không mua gì mới)
+- §10 Solo Founder Strategy
+- §11 Failure Risks (22 risks giữ nguyên)
+- §12 Final Acceptance Criteria
+- §13 Master Execution Principles
+- §14.3 Khi nào update Master Plan
+- §15 KẾT THÚC
+
+**Đánh giá lại 4 dimension sau patch**:
+
+| Dimension | v1.0 | v1.1 | Lý do |
+|---|---|---|---|
+| **Realism** | 7/10 | 9/10 | Stage 3 8–10 tuần là tham vọng quá cho solo founder. Tách 3A/3B realistic hơn nhiều. Stage 3B làm sau field test → dùng data thực thay vì guess. |
+| **Burnout Risk** | 6/10 (medium-high) | 8/10 (low-medium) | Stage 3 to dễ stuck 2–3 tháng = burnout pit. Tách nhỏ + Stage 1.5 break giữa Stage 1 và Stage 2 = momentum tốt hơn, ship-able milestones gần nhau. |
+| **Buildability** | 7/10 | 8/10 | Mỗi Stage giờ < 8 tuần (trừ Stage 5–6 hardware). Solo founder hoàn thành được trong realistic timeframe. Stage 1.5 dùng phần cứng đã có → không bị block bởi shipping/procurement. |
+| **Companion Magic** | 6/10 | 9/10 | v1.0: Bi giống "app trong loa" suốt 8 tháng đầu. v1.1: Bi cử động (Stage 1.5) từ tháng thứ 4 — illusion of life sớm. Family tester cảm thấy "robot" sớm hơn 4 tháng. |
+
+**Net assessment**: v1.1 realistic hơn, burnout risk thấp hơn, companion magic mạnh hơn. Không đổi direction chính, không rewrite kiến trúc.
+
+**Locked**: v1.1 khóa cùng ngày 2026-05-19. Sau khi v1.1 khóa, mọi patch tiếp theo chỉ qua process:
+1. Nêu rõ lý do patch (data từ implementation thực tế, không phải vision drift).
+2. List section bị ảnh hưởng.
+3. Đánh giá lại 4 dimension trên.
+4. Bump version v1.2.
+
+---
+
+## 15. KẾT THÚC
+
+Master Plan này (v1.1) là kế hoạch duy nhất cho Robot Bi từ 2026-05-19 đến khi v1 usable.
+
+Bắt đầu từ Stage 0 — Doc Reset.
+
+Stage 1 → Bi có hồn (software).
+Stage 1.5 → Bi cử động ($0 hardware).
+Stage 2 → Bi nhớ bé.
+Stage 3A → Bi giúp bé học (cơ bản).
+Stage 4 → Field test 5–10 family.
+Stage 3B → Bi học thông minh (sau field test).
+Stage 5–6 → Robot vật lý hoàn chỉnh.
+
+Không tạo plan mới.
+
+Không pivot trước Stage 4.
+
+Một sprint một lần. Một task một lần.
+
+**Bi sẽ có hồn. Bi sẽ cử động. Bi sẽ nhớ bé. Bi sẽ giúp bé học. Bi sẽ là người bạn nhỏ thật sự.**
+
+Hết.

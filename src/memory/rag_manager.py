@@ -46,8 +46,8 @@ logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 _DEFAULT_DB_PATH      = str((_Path(__file__).parent.parent.parent / "runtime" / "chroma_db").resolve())
 _EMBED_MODEL_NAME     = "paraphrase-multilingual-MiniLM-L12-v2"
 _COLLECTION_NAME      = "bi_memory"
-_MIN_SIMILARITY       = 0.50   # cosine similarity tối thiểu để xem là "liên quan" (0.0–1.0)
-_MIN_SIMILARITY_STRICT = 0.65  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
+_MIN_SIMILARITY       = 0.62   # cosine similarity tối thiểu (tăng từ 0.50 để giảm false positive)
+_MIN_SIMILARITY_STRICT = 0.75  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
 _MAX_FACTS_PER_QUERY  = 3      # Tối đa 3 facts inject vào context (tránh làm LLM confused)
 _MAX_MEMORIES = int(os.getenv("RAG_MAX_MEMORIES", "500"))
 
@@ -67,9 +67,10 @@ def _resolve_local_embed_model_path() -> str:
 # Mỗi pattern: (tên_loại_fact, list_regex)
 _FACT_PATTERNS = [
     # ── Patterns gốc ────────────────────────────────────────────────────────
+    # Tên: giới hạn tối đa 3 từ để tránh capture quá dài
     ("tên", [
-        r"(?:tên|tên mình|tên em|tên con|tên bé|tên tôi|tên mình là|gọi mình là|tên là)\s+([\w\s]+)",
-        r"(?:mình|tôi|em|con|bé)\s+(?:tên là|là|tên)\s+([\w\s]+)",
+        r"(?:tên mình là|tên em là|tên con là|tên bé là|tên tôi là|gọi mình là|tên là)\s+([\w]+(?:\s+[\w]+){0,2})",
+        r"(?:mình|tôi|em|con|bé)\s+tên là\s+([\w]+(?:\s+[\w]+){0,2})",
     ]),
     ("sở thích", [
         r"(?:thích|yêu thích|mê|ghiền|hay|thường)\s+([\w\s]+)",
@@ -241,7 +242,8 @@ class RAGManager:
         Returns:
             Danh sách các fact string đã trích xuất (có thể rỗng), tối đa 5 facts.
         """
-        combined_text = f"{user_text} {bi_text}".lower()
+        # Chỉ chạy regex trên user_text — bi_text gây over-capture làm fact bẩn
+        combined_text = user_text.lower()
         facts = []
 
         for fact_type, patterns in _FACT_PATTERNS:
@@ -286,11 +288,8 @@ class RAGManager:
 
                     facts.append(fact)
 
-        # Nếu không tìm được facts qua regex, lưu toàn bộ user_text nếu đủ ngắn
-        if not facts and len(user_text.strip()) >= 10 and len(user_text.strip()) <= 200:
-            # Chỉ lưu nếu user_text trông như một fact (không phải câu hỏi)
-            if not re.search(r'\?|sao|tại sao|thế nào|như thế|ở đâu|khi nào|bao nhiêu', user_text, re.IGNORECASE):
-                facts.append(user_text.strip())
+        # Bỏ fallback save raw user_text — gây noise (vd: "bi ơi xin chào", "nhớ bà ngoại"
+        # đều bị lưu dù không phải fact hữu ích)
 
         # Deduplication thông minh — loại bỏ facts có nội dung tương tự (overlap >70%)
         unique_facts = []

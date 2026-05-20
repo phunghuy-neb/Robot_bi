@@ -1,0 +1,391 @@
+// Robot Bi Parent App — API Service Layer
+// Tier 1: Real backend (preserved behavior from legacy index.html)
+// Tier 2: Wired to backend with mock fallback when backend returns no data
+
+import {
+  mockChildProfiles,
+  mockRadioChannels,
+  mockVideoLessons,
+  mockMonthlyEmotions,
+  mockInteractiveGames,
+  mockSystemLogs,
+} from '../data/mockData.js';
+
+// —— Auth Storage ——
+let _token = localStorage.getItem('bi_token') || '';
+let _refreshToken = localStorage.getItem('bi_refresh') || '';
+let _refreshPromise = null;
+
+function authHeader() {
+  return _token ? { Authorization: 'Bearer ' + _token } : {};
+}
+
+// —— Toast ——
+export let toastFn = null;
+export function registerToast(fn) { toastFn = fn; }
+export function showToast(msg) { toastFn && toastFn(msg); }
+
+// —— Utilities ——
+export function getBaseUrl() { return window.location.origin; }
+export function getToken() { return _token; }
+
+// —— Auth: login ——
+export async function login(username, password) {
+  const r = await fetch('/auth/login/v2', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.detail || 'Sai tên đăng nhập hoặc mật khẩu.');
+  }
+  const data = await r.json();
+  _token = data.access_token;
+  _refreshToken = data.refresh_token;
+  localStorage.setItem('bi_token', _token);
+  localStorage.setItem('bi_refresh', _refreshToken);
+  return { username: data.username || username, isAdmin: data.is_admin || false };
+}
+
+// —— Auth: logout ——
+export async function logout() {
+  try {
+    if (_token && _refreshToken) {
+      await fetch('/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ refresh_token: _refreshToken }),
+      });
+    }
+  } catch (_) {}
+  _token = '';
+  _refreshToken = '';
+  localStorage.removeItem('bi_token');
+  localStorage.removeItem('bi_refresh');
+}
+
+// —— Auth: refresh token ——
+export async function refreshToken() {
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = (async () => {
+    try {
+      if (!_refreshToken) return false;
+      const rr = await fetch('/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: _refreshToken }),
+      });
+      if (!rr.ok) return false;
+      const data = await rr.json();
+      _token = data.access_token;
+      _refreshToken = data.refresh_token;
+      localStorage.setItem('bi_token', _token);
+      localStorage.setItem('bi_refresh', _refreshToken);
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      _refreshPromise = null;
+    }
+  })();
+  return _refreshPromise;
+}
+
+// —— Check existing session on app load ——
+export async function checkExistingSession() {
+  if (!_token) return null;
+  try {
+    const r = await fetch('/api/auth/me', { headers: authHeader() });
+    if (r.ok) {
+      const data = await r.json();
+      return { username: data.username, isAdmin: data.is_admin || false };
+    }
+    const ok = await refreshToken();
+    if (ok) {
+      const r2 = await fetch('/api/auth/me', { headers: authHeader() });
+      if (r2.ok) {
+        const data = await r2.json();
+        return { username: data.username, isAdmin: data.is_admin || false };
+      }
+    }
+    _token = '';
+    localStorage.removeItem('bi_token');
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// —— apiFetch with 401 → refresh → retry → logout ——
+export async function apiFetch(path, opts = {}) {
+  try {
+    const h1 = { ...authHeader(), ...(opts.headers || {}) };
+    const r = await fetch(path, { ...opts, headers: h1 });
+    if (r.status === 401) {
+      if (_refreshToken) {
+        const ok = await refreshToken();
+        if (!ok) { await logout(); return null; }
+        const h2 = { ...authHeader(), ...(opts.headers || {}) };
+        const retry = await fetch(path, { ...opts, headers: h2 });
+        if (retry.ok) return await retry.json();
+      }
+      await logout();
+      return null;
+    }
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch (_) {
+    return null;
+  }
+}
+
+// —— WebSocket: robot status ——
+let _ws = null;
+let _wsDelay = 1000;
+let _wsLoggedOut = false;
+let _wsReconnectTimer = null;
+let _wsOnEvent = null;
+let _wsOnStatusChange = null;
+
+export function connectWebSocket(onEvent, onStatusChange) {
+  _wsOnEvent = onEvent;
+  _wsOnStatusChange = onStatusChange;
+  _wsLoggedOut = false;
+  _doConnect();
+}
+
+function _doConnect() {
+  if (_wsLoggedOut || !_token) return;
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  _ws = new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(_token)}`);
+  _ws.onopen = () => {
+    _wsDelay = 1000;
+    _wsOnStatusChange && _wsOnStatusChange('online');
+  };
+  _ws.onmessage = e => {
+    try { _wsOnEvent && _wsOnEvent(JSON.parse(e.data)); } catch (_) {}
+  };
+  _ws.onclose = () => {
+    _wsOnStatusChange && _wsOnStatusChange('offline');
+    if (_wsLoggedOut) return;
+    _wsReconnectTimer = setTimeout(_doConnect, Math.min(_wsDelay, 12000));
+    _wsDelay = Math.min(_wsDelay * 1.5, 12000);
+  };
+  _ws.onerror = () => _ws && _ws.close();
+}
+
+export function disconnectWebSocket() {
+  _wsLoggedOut = true;
+  if (_wsReconnectTimer) { clearTimeout(_wsReconnectTimer); _wsReconnectTimer = null; }
+  if (_ws) { _ws.close(); _ws = null; }
+}
+
+// —— Mom-talk audio (protected behavior) ——
+let _momMicActive = false;
+let _momMediaStream = null;
+let _momAudioWs = null;
+let _momScriptProcessor = null;
+let _momAudioCtx = null;
+
+export async function startMomMic() {
+  if (!_token) throw new Error('Vui lòng đăng nhập trước');
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new Error('Trình duyệt không hỗ trợ mic. Dùng Chrome/Firefox và truy cập qua HTTPS.');
+  }
+  try {
+    _momMediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
+    });
+    const sr = await apiFetch('/api/mom/start', { method: 'POST' });
+    if (!sr) throw new Error('Không thể báo server');
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    _momAudioWs = new WebSocket(`${proto}//${location.host}/api/mom/audio?token=${encodeURIComponent(_token)}`);
+    _momAudioWs.binaryType = 'arraybuffer';
+    await new Promise((res, rej) => {
+      _momAudioWs.onopen = res;
+      _momAudioWs.onerror = () => rej(new Error('WebSocket lỗi'));
+      setTimeout(() => rej(new Error('Timeout')), 5000);
+    });
+    _momAudioCtx = new AudioContext({ sampleRate: 16000 });
+    const source = _momAudioCtx.createMediaStreamSource(_momMediaStream);
+    _momScriptProcessor = _momAudioCtx.createScriptProcessor(512, 1, 1);
+    _momScriptProcessor.onaudioprocess = event => {
+      if (!_momMicActive || !_momAudioWs || _momAudioWs.readyState !== WebSocket.OPEN) return;
+      _momAudioWs.send(event.inputBuffer.getChannelData(0).buffer.slice(0));
+    };
+    const sg = _momAudioCtx.createGain();
+    sg.gain.value = 0;
+    source.connect(_momScriptProcessor);
+    _momScriptProcessor.connect(sg);
+    sg.connect(_momAudioCtx.destination);
+    _momMicActive = true;
+    return true;
+  } catch (err) {
+    stopMomMic();
+    throw err;
+  }
+}
+
+export function stopMomMic() {
+  _momMicActive = false;
+  if (_momScriptProcessor) { _momScriptProcessor.disconnect(); _momScriptProcessor = null; }
+  if (_momAudioCtx) { _momAudioCtx.close(); _momAudioCtx = null; }
+  if (_momMediaStream) { _momMediaStream.getTracks().forEach(t => t.stop()); _momMediaStream = null; }
+  if (_momAudioWs) { _momAudioWs.close(); _momAudioWs = null; }
+  if (_token) fetch('/api/mom/stop', { method: 'POST', headers: authHeader() }).catch(() => {});
+}
+
+export function isMomMicActive() { return _momMicActive; }
+
+// —— Conversations (Tier 1) ——
+export async function getConversations(limit = 20) {
+  return apiFetch(`/api/conversations?limit=${limit}`);
+}
+
+export async function getConversation(id) {
+  return apiFetch(`/api/conversations/${id}`);
+}
+
+// —— Tier 2: Backend-wired adapters with mock fallback ——
+
+export async function getChildProfiles() {
+  const data = await apiFetch('/api/children');
+  if (data?.children?.length) {
+    return data.children.map(c => ({
+      id: c.child_id,
+      name: c.name,
+      age: c.age ?? 0,
+      grade: c.grade || '',
+      avatar: c.avatar || '👤',
+      dailyLimit: 0,
+    }));
+  }
+  return mockChildProfiles();
+}
+
+export async function exportReport(fmt) {
+  // TODO: backend integration — POST /api/reports/export
+  return null;
+}
+
+export async function getMonthlyEmotions(month) {
+  const query = month ? `?month=${encodeURIComponent(month)}` : '';
+  const data = await apiFetch(`/api/emotions/monthly${query}`);
+  const weeks = data?.weeks;
+  if (weeks?.length) {
+    return weeks.map((w, i) => {
+      const total = w.count || (w.happy + w.neutral + w.sad + w.stressed) || 1;
+      const pct = v => Math.round((v / total) * 100);
+      return {
+        week: `Tuần ${i + 1}`,
+        happy: pct(w.happy || 0),
+        neutral: pct(w.neutral || 0),
+        sad: pct(w.sad || 0),
+        stressed: pct(w.stressed || 0),
+      };
+    });
+  }
+  return mockMonthlyEmotions(month);
+}
+
+export async function getRoomLocation() {
+  // BLOCKED: no component renders this data yet
+  return null;
+}
+
+export async function getRadioChannels() {
+  const data = await apiFetch('/api/entertainment/radio');
+  const items = data?.channels || data?.items || [];
+  if (items.length) {
+    return items.map(ch => ({
+      id: ch.content_id,
+      name: ch.title,
+      icon: '📻',
+      genre: ch.tags?.[0] || ch.description || '',
+      frequency: '',
+    }));
+  }
+  return mockRadioChannels();
+}
+
+export async function getVideoLessons() {
+  const data = await apiFetch('/api/entertainment/videos');
+  const items = data?.videos || data?.items || [];
+  if (items.length) {
+    return items.map(v => ({
+      id: v.content_id,
+      title: v.title,
+      thumbnail: v.thumbnail_url || '🎬',
+      subject: v.tags?.[0] || '',
+      duration: '',
+      age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
+    }));
+  }
+  return mockVideoLessons();
+}
+
+export async function getInteractiveGames() {
+  const data = await apiFetch('/api/games/interactive');
+  const items = data?.games || data?.items || [];
+  if (items.length) {
+    return items.map(g => ({
+      id: g.content_id,
+      name: g.title,
+      icon: '🎮',
+      description: g.description || '',
+      difficulty: 'Trung bình',
+      age: (g.age_min != null && g.age_max != null) ? `${g.age_min}-${g.age_max}` : '',
+    }));
+  }
+  return mockInteractiveGames();
+}
+
+export async function getSystemLogs() {
+  const data = await apiFetch('/api/admin/logs');
+  if (data?.logs) {
+    return data.logs.map((entry, i) => ({
+      id: i + 1,
+      level: entry.level,
+      message: entry.message,
+      timestamp: entry.timestamp,
+      source: entry.component || entry.source || '',
+    }));
+  }
+  return mockSystemLogs();
+}
+
+export async function savePushSettings(settings) {
+  // TODO: backend integration — POST /api/settings/notifications
+  return null;
+}
+
+export async function saveSleepSchedule(schedule) {
+  // TODO: backend integration — POST /api/settings/sleep
+  return null;
+}
+
+export async function saveTimeLimits(limits) {
+  // TODO: backend integration — POST /api/settings/time-limits
+  return null;
+}
+
+export async function saveAgeFilter(filter) {
+  // TODO: backend integration — POST /api/settings/age-filter
+  return null;
+}
+
+export async function getParentChatHistory() {
+  // BLOCKED: no component renders this data yet
+  return null;
+}
+
+// Camera stop signal — dispatches event so MonitorPage can set camOn=false
+export function stopCamera() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bi:stopcamera'));
+  }
+}
+
+// Audio monitor cleanup alias
+export function stopAudioMonitor() { stopMomMic(); }

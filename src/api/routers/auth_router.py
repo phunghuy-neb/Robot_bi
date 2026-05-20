@@ -301,6 +301,9 @@ async def login_v2(request: Request):
         "refresh_token": raw_refresh,
         "token_type": "bearer",
         "expires_in": 3600,
+        "username": authenticated_user["username"],
+        "family_name": authenticated_user["family_name"],
+        "is_admin": bool(authenticated_user.get("is_admin")),
     }
 
 
@@ -406,6 +409,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "username": user["username"],
         "family_name": user["family_name"],
         "created_at": user["created_at"],
+        "is_admin": bool(user.get("is_admin")),
     }
 
 

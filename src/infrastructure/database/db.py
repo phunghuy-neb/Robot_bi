@@ -246,12 +246,428 @@ def init_db() -> None:
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_events_import_key ON events(import_key)",
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_import_key ON tasks(import_key)",
                 "CREATE INDEX IF NOT EXISTS idx_events_family_db ON events(family_id, db_id)",
+                "CREATE INDEX IF NOT EXISTS idx_events_family_timestamp ON events(family_id, timestamp)",
+                "CREATE INDEX IF NOT EXISTS idx_events_family_type_timestamp ON events(family_id, type, timestamp)",
                 "CREATE INDEX IF NOT EXISTS idx_tasks_family_db ON tasks(family_id, db_id)",
             ):
                 try:
                     conn.execute(index_sql)
                 except Exception as e:
                     logger.warning("[DB] Bo qua import_key unique index: %s", e)
+
+            # Parent notes attached to family-scoped events.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_event_notes (
+                    note_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    event_id TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    note TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_event_notes_family_event
+                ON parent_event_notes(family_id, event_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_event_notes_family_updated
+                ON parent_event_notes(family_id, updated_at)
+                """,
+            ):
+                conn.execute(index_sql)
+
+            # Parent App child profiles and settings storage.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS child_profiles (
+                    child_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    name TEXT NOT NULL,
+                    birth_date TEXT,
+                    grade TEXT,
+                    avatar TEXT,
+                    interests_json TEXT NOT NULL DEFAULT '[]',
+                    notes TEXT,
+                    is_active INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS child_content_settings (
+                    setting_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    min_age INTEGER,
+                    max_age INTEGER,
+                    blocked_topics_json TEXT NOT NULL DEFAULT '[]',
+                    allowed_topics_json TEXT NOT NULL DEFAULT '[]',
+                    strict_mode INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS interaction_limit_settings (
+                    setting_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    daily_limit_minutes INTEGER NOT NULL DEFAULT 60,
+                    warning_minutes INTEGER NOT NULL DEFAULT 10,
+                    reset_time TEXT NOT NULL DEFAULT '00:00',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS daily_interaction_usage (
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_id TEXT NOT NULL DEFAULT '',
+                    usage_date TEXT NOT NULL,
+                    seconds_used INTEGER NOT NULL DEFAULT 0,
+                    sessions_count INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (family_id, child_id, usage_date)
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS sleep_schedule_settings (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    start_time TEXT NOT NULL DEFAULT '21:00',
+                    end_time TEXT NOT NULL DEFAULT '06:30',
+                    days_json TEXT NOT NULL DEFAULT '["mon","tue","wed","thu","fri","sat","sun"]',
+                    timezone TEXT NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS notification_settings (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    event_types_json TEXT NOT NULL DEFAULT '{}',
+                    quiet_hours_json TEXT NOT NULL DEFAULT '{}',
+                    channels_json TEXT NOT NULL DEFAULT '{}',
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS push_subscriptions (
+                    subscription_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    endpoint_hash TEXT NOT NULL,
+                    subscription_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    revoked_at TEXT
+                )
+                '''
+            )
+            for index_sql in (
+                "CREATE INDEX IF NOT EXISTS idx_child_profiles_family ON child_profiles(family_id)",
+                """
+                CREATE INDEX IF NOT EXISTS idx_child_profiles_family_active
+                ON child_profiles(family_id, is_active)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_child_content_settings_family_child
+                ON child_content_settings(family_id, child_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_interaction_limit_settings_family_child
+                ON interaction_limit_settings(family_id, child_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_push_subscriptions_family_user
+                ON push_subscriptions(family_id, user_id)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint_hash
+                ON push_subscriptions(endpoint_hash)
+                """,
+            ):
+                conn.execute(index_sql)
+
+            # Parent App Phase 3: report audit metadata, content catalog, and parent chat.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS report_exports (
+                    export_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    format TEXT NOT NULL,
+                    start_date TEXT NOT NULL,
+                    end_date TEXT NOT NULL,
+                    sections_json TEXT NOT NULL,
+                    row_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    status TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS content_items (
+                    content_id TEXT PRIMARY KEY,
+                    family_id TEXT,
+                    type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    source_url TEXT,
+                    thumbnail_url TEXT,
+                    age_min INTEGER,
+                    age_max INTEGER,
+                    language TEXT NOT NULL DEFAULT 'vi',
+                    tags_json TEXT NOT NULL DEFAULT '[]',
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    sort_order INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_chat_sessions (
+                    session_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    user_id TEXT NOT NULL,
+                    title TEXT,
+                    started_at TEXT NOT NULL,
+                    ended_at TEXT,
+                    message_count INTEGER NOT NULL DEFAULT 0
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS parent_chat_messages (
+                    message_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL
+                        REFERENCES parent_chat_sessions(session_id) ON DELETE CASCADE,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    role TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_report_exports_family_created
+                ON report_exports(family_id, created_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_type_enabled
+                ON content_items(type, enabled, sort_order)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_family_type
+                ON content_items(family_id, type)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_content_items_age
+                ON content_items(age_min, age_max)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_sessions_family_started
+                ON parent_chat_sessions(family_id, started_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_messages_session_time
+                ON parent_chat_messages(session_id, timestamp)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_parent_chat_messages_family_time
+                ON parent_chat_messages(family_id, timestamp)
+                """,
+            ):
+                conn.execute(index_sql)
+
+            content_seeded_at = _utc_now_iso()
+            default_content_items = (
+                (
+                    "radio-bi-story",
+                    "radio",
+                    "Radio ke chuyen",
+                    "Audio stories and calm listening for children.",
+                    "https://example.invalid/radio/stories",
+                    None,
+                    5,
+                    12,
+                    "vi",
+                    ["stories", "listening"],
+                    1,
+                    10,
+                ),
+                (
+                    "radio-bi-learning",
+                    "radio",
+                    "Radio hoc tap",
+                    "Short education-focused radio segments.",
+                    "https://example.invalid/radio/learning",
+                    None,
+                    6,
+                    12,
+                    "vi",
+                    ["education", "science"],
+                    1,
+                    20,
+                ),
+                (
+                    "video-bi-english-animals",
+                    "video",
+                    "English animals",
+                    "Simple English animal vocabulary lesson.",
+                    "https://example.invalid/videos/english-animals",
+                    None,
+                    5,
+                    9,
+                    "vi",
+                    ["english", "animals"],
+                    1,
+                    10,
+                ),
+                (
+                    "video-bi-math-shapes",
+                    "video",
+                    "Hinh hoc vui",
+                    "Shape recognition and early geometry lesson.",
+                    "https://example.invalid/videos/math-shapes",
+                    None,
+                    6,
+                    12,
+                    "vi",
+                    ["math", "geometry"],
+                    1,
+                    20,
+                ),
+                (
+                    "game-bi-word-quiz",
+                    "game",
+                    "Word quiz",
+                    "Interactive vocabulary quiz backed by Robot Bi.",
+                    "/api/game/word-quiz/start",
+                    None,
+                    5,
+                    12,
+                    "vi",
+                    ["vocabulary", "quiz"],
+                    1,
+                    10,
+                ),
+                (
+                    "game-bi-voice-quiz",
+                    "game",
+                    "Voice quiz",
+                    "Voice-based riddle game backed by Robot Bi.",
+                    "/api/game/voice-quiz/start",
+                    None,
+                    7,
+                    12,
+                    "vi",
+                    ["voice", "quiz"],
+                    1,
+                    20,
+                ),
+            )
+            for item in default_content_items:
+                conn.execute(
+                    """
+                    INSERT OR IGNORE INTO content_items (
+                        content_id, family_id, type, title, description, source_url,
+                        thumbnail_url, age_min, age_max, language, tags_json, enabled,
+                        sort_order, created_at, updated_at
+                    ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        item[0],
+                        item[1],
+                        item[2],
+                        item[3],
+                        item[4],
+                        item[5],
+                        item[6],
+                        item[7],
+                        item[8],
+                        json.dumps(item[9], ensure_ascii=False),
+                        item[10],
+                        item[11],
+                        content_seeded_at,
+                        content_seeded_at,
+                    ),
+                )
+
+            # Parent App Phase 4: QR pairing metadata and robot location metadata.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS device_pairing_codes (
+                    pairing_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    purpose TEXT NOT NULL,
+                    code_hash TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    used_at TEXT,
+                    created_at TEXT NOT NULL,
+                    created_by_user_id TEXT NOT NULL
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS robot_location_metadata (
+                    family_id TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    room_name TEXT,
+                    location_label TEXT,
+                    source TEXT NOT NULL DEFAULT 'parent',
+                    confidence REAL NOT NULL DEFAULT 1.0,
+                    updated_at TEXT NOT NULL,
+                    updated_by_user_id TEXT
+                )
+                '''
+            )
+            for index_sql in (
+                """
+                CREATE INDEX IF NOT EXISTS idx_device_pairing_family_expires
+                ON device_pairing_codes(family_id, expires_at)
+                """,
+                """
+                CREATE INDEX IF NOT EXISTS idx_robot_location_source
+                ON robot_location_metadata(source)
+                """,
+            ):
+                conn.execute(index_sql)
 
             # Tao bang login_attempts (rate limiting cho /api/auth/login va /auth/login/v2)
             conn.execute(
@@ -839,12 +1255,134 @@ def create_family_record(family_id: str, display_name: str | None = None) -> dic
             INSERT OR IGNORE INTO families (family_id, display_name, created_at)
             VALUES (?, ?, ?)
             """,
-            (fid, label, _utc_now_iso()),
+                (fid, label, _utc_now_iso()),
         )
         conn.commit()
         if cur.rowcount == 0:
             return None
     return {"family_id": fid, "display_name": label}
+
+
+def event_exists_for_family(family_id: str, event_id: str) -> bool:
+    """Return True when an event belongs to the requested family."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT 1
+            FROM events
+            WHERE family_id = ? AND event_id = ?
+            LIMIT 1
+            """,
+            (fid, str(event_id)),
+        ).fetchone()
+    return row is not None
+
+
+def _note_row_to_dict(row) -> dict:
+    return {
+        "note_id": row["note_id"],
+        "event_id": row["event_id"],
+        "family_id": row["family_id"],
+        "user_id": row["user_id"],
+        "note": row["note"],
+        "created_at": row["created_at"],
+        "updated_at": row["updated_at"],
+    }
+
+
+def list_parent_event_notes(family_id: str, event_id: str) -> list[dict]:
+    """List parent notes attached to one event, scoped by family_id."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT note_id, family_id, event_id, user_id, note, created_at, updated_at
+            FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ?
+            ORDER BY created_at ASC, note_id ASC
+            """,
+            (fid, str(event_id)),
+        ).fetchall()
+    return [_note_row_to_dict(row) for row in rows]
+
+
+def create_parent_event_note(
+    family_id: str,
+    event_id: str,
+    user_id: str,
+    note: str,
+) -> dict:
+    """Create a parent note for an existing family-scoped event."""
+    fid = _normalize_family_id(family_id)
+    now = _utc_now_iso()
+    note_id = uuid4().hex
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO parent_event_notes
+                (note_id, family_id, event_id, user_id, note, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (note_id, fid, str(event_id), str(user_id), str(note), now, now),
+        )
+        conn.commit()
+    return {
+        "note_id": note_id,
+        "event_id": str(event_id),
+        "family_id": fid,
+        "user_id": str(user_id),
+        "note": str(note),
+        "created_at": now,
+        "updated_at": now,
+    }
+
+
+def update_parent_event_note(
+    family_id: str,
+    event_id: str,
+    note_id: str,
+    note: str,
+) -> dict | None:
+    """Update a parent note only within the event's family scope."""
+    fid = _normalize_family_id(family_id)
+    now = _utc_now_iso()
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            UPDATE parent_event_notes
+            SET note = ?, updated_at = ?
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (str(note), now, fid, str(event_id), str(note_id)),
+        )
+        conn.commit()
+        if cur.rowcount <= 0:
+            return None
+        row = conn.execute(
+            """
+            SELECT note_id, family_id, event_id, user_id, note, created_at, updated_at
+            FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (fid, str(event_id), str(note_id)),
+        ).fetchone()
+    return _note_row_to_dict(row) if row else None
+
+
+def delete_parent_event_note(family_id: str, event_id: str, note_id: str) -> bool:
+    """Delete a parent note only within the event's family scope."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            """
+            DELETE FROM parent_event_notes
+            WHERE family_id = ? AND event_id = ? AND note_id = ?
+            """,
+            (fid, str(event_id), str(note_id)),
+        )
+        conn.commit()
+    return cur.rowcount > 0
 
 
 def delete_family_record(family_id: str) -> bool:
@@ -884,6 +1422,7 @@ def delete_family_record(family_id: str) -> bool:
         # Steps 3-5: tables with FK → families (ON DELETE CASCADE would handle
         # these if FK enforcement is active, but explicit deletes are safer)
         conn.execute("DELETE FROM conversations WHERE family_id = ?", (fid,))
+        conn.execute("DELETE FROM parent_event_notes WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM events WHERE family_id = ?", (fid,))
         conn.execute("DELETE FROM tasks WHERE family_id = ?", (fid,))
 
@@ -903,6 +1442,20 @@ def delete_family_record(family_id: str) -> bool:
             "turns",
             "curriculum_schedules",
             "game_scores",
+            "parent_event_notes",
+            "child_profiles",
+            "child_content_settings",
+            "interaction_limit_settings",
+            "daily_interaction_usage",
+            "sleep_schedule_settings",
+            "notification_settings",
+            "push_subscriptions",
+            "report_exports",
+            "content_items",
+            "device_pairing_codes",
+            "robot_location_metadata",
+            "parent_chat_sessions",
+            "parent_chat_messages",
         })
         for table_name in (
             "learning_schedules",
@@ -913,6 +1466,19 @@ def delete_family_record(family_id: str) -> bool:
             "education_sessions",
             "curriculum_schedules",
             "game_scores",
+            "child_content_settings",
+            "interaction_limit_settings",
+            "daily_interaction_usage",
+            "sleep_schedule_settings",
+            "notification_settings",
+            "push_subscriptions",
+            "report_exports",
+            "content_items",
+            "device_pairing_codes",
+            "robot_location_metadata",
+            "parent_chat_messages",
+            "parent_chat_sessions",
+            "child_profiles",
         ):
             if table_name not in ALLOWED_CLEANUP_TABLES:
                 logger.error("[DB] Rejected invalid table name: %s", table_name)
@@ -966,7 +1532,7 @@ def get_user_by_id(user_id: str) -> dict | None:
     """Trả về dict {user_id, username, family_name, created_at} hoặc None."""
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, username, family_name, created_at FROM users WHERE user_id=?",
+            "SELECT user_id, username, family_name, created_at, is_admin FROM users WHERE user_id=?",
             (user_id,),
         ).fetchone()
     return dict(row) if row else None

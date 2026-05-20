@@ -32,6 +32,9 @@ from src.ai.ai_engine import BiAI
 from src.memory.rag_manager import RAGManager
 from src.vision.camera_stream import EyeVision
 from src.safety.safety_filter import SafetyFilter
+from src.safety.pii_filter import PIIFilter
+from src.safety.emotion_risk_detector import EmotionRiskDetector
+from src.safety.manipulation_guard import ManipulationGuard
 from src.education.homework_classifier import classify_homework
 from src.audio.analysis.cry_detector import CryDetector
 from src.infrastructure.database.db import (
@@ -50,6 +53,8 @@ from src.display.face_animator import FaceAnimator
 from src.ai.persona_manager import PersonaManager
 from src.emotion.emotion_analyzer import EmotionAnalyzer
 from src.emotion.emotion_alert import EmotionAlert
+from src.wakeword.wakeword_service import WakeWordService
+from src.wakeword.wakeword_router import WakeWordRouter
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -86,6 +91,9 @@ class RobotBiApp:
         self.eye.start()
 
         self.safety = SafetyFilter()
+        self._pii = PIIFilter()
+        self._risk = EmotionRiskDetector()
+        self._manip = ManipulationGuard()
 
         # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
@@ -105,6 +113,18 @@ class RobotBiApp:
         # CryDetector — daemon thread song song
         self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
         self.cry_detector.start()
+
+        # Wake word service (Sprint 0.3) — disabled by default (WAKEWORD_ENABLED=false)
+        try:
+            self._wakeword_svc = WakeWordService()
+            # Sync mic device from EarSTT probe so both use the same mic
+            self._wakeword_svc.mic_device   = self.ear.mic_device
+            self._wakeword_svc.mic_channels = self.ear.mic_channels
+            self._wakeword = WakeWordRouter(service=self._wakeword_svc)
+        except Exception as _ww_err:
+            logger.warning("[Init] WakeWord unavailable: %s", _ww_err)
+            self._wakeword_svc = None
+            self._wakeword = None
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -312,6 +332,11 @@ class RobotBiApp:
         except Exception:
             pass
         try:
+            if self._wakeword:
+                self._wakeword.stop()
+        except Exception:
+            pass
+        try:
             self.eye.stop()
         except Exception:
             pass
@@ -328,8 +353,162 @@ class RobotBiApp:
 
         logger.info("[Shutdown] Hoan tat.")
 
+    def run_text_mode(self):
+        """
+        Text mode: bypass hoàn toàn STT và TTS.
+        Gõ câu vào terminal → Bi xử lý → reply hiện ra dạng text.
+        Dùng để test ban đêm không cần mic/loa.
+        Gõ 'quit' hoặc Ctrl+C để thoát.
+        """
+        import time as _time
+        print("\n" + "="*55)
+        print("  TEXT MODE — Robot Bi")
+        print("  Gõ câu hỏi → Enter để gửi | 'quit' để thoát")
+        print("="*55 + "\n")
+
+        while True:
+            try:
+                user_text = input("Bạn: ").strip()
+            except (EOFError, KeyboardInterrupt):
+                self._shutdown()
+                print("\n[Tạm biệt!]")
+                break
+
+            if not user_text:
+                continue
+            if user_text.lower() in ("quit", "exit", "thoat", "thoát"):
+                self._shutdown()
+                print("[Tạm biệt!]")
+                break
+
+            # --- Pipeline giống hệt run(), chỉ bỏ STT và TTS ---
+            try:
+                user_text_goc = user_text
+                self._close_current_session()
+                self._current_session_id = create_session(FAMILY_ID)
+                add_turn(self._current_session_id, "user", user_text_goc)
+
+                # Session naming (background)
+                def _name(sid=self._current_session_id, ut=user_text_goc):
+                    from src.infrastructure.sessions.session_namer import _generate_session_title
+                    from src.infrastructure.database.db import update_session_title
+                    update_session_title(sid, _generate_session_title(ut))
+                threading.Thread(target=_name, daemon=True).start()
+
+                # RAG context
+                rag_context = self.rag.retrieve(user_text, family_id=FAMILY_ID)
+                if rag_context:
+                    user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
+
+                # Persona modifier
+                if self._persona:
+                    try:
+                        mod = self._persona.get_system_prompt_modifier()
+                        if mod:
+                            user_text = f"System Instruction: {mod}\n\n{user_text}"
+                    except Exception:
+                        pass
+
+                # Emotion analysis
+                if self._emotion:
+                    try:
+                        emotion, confidence = self._emotion.analyze_text(user_text_goc)
+                        self._emotion.record_emotion(emotion, confidence, family_id=FAMILY_ID)
+                    except Exception:
+                        pass
+
+                # ── Child Safety Checks (user input) ─────────────────────────
+                _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                if _pii_found and _pii_resp:
+                    print(f"Bi: {_pii_resp}\n")
+                    add_turn(self._current_session_id, "assistant", _pii_resp)
+                    continue
+                _risk = self._risk.check(user_text_goc)
+                if _risk["log_event"]:
+                    _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
+                    _risk_meta = {"level": _risk["level"], "triggers": _risk["triggers"]}
+                    threading.Thread(
+                        target=self.notifier.push_event,
+                        args=("system", _risk_msg, None, _risk_meta, FAMILY_ID),
+                        daemon=True
+                    ).start()
+                if _risk["should_override"] and _risk["response"]:
+                    print(f"Bi: {_risk['response']}\n")
+                    add_turn(self._current_session_id, "assistant", _risk["response"])
+                    continue
+                _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
+                if _manip_input and _manip_input_resp:
+                    print(f"Bi: {_manip_input_resp}\n")
+                    add_turn(self._current_session_id, "assistant", _manip_input_resp)
+                    continue
+
+                # Stream LLM → safety filter → in ra terminal
+                print("Bi: ", end="", flush=True)
+                buffer = ""
+                full_reply_parts = []
+                sanitized_reply_parts = []
+
+                for token in self.brain.stream_chat(user_text):
+                    buffer += token
+                    full_reply_parts.append(token)
+                    while True:
+                        match = re.search(r"[.?!\n]", buffer)
+                        if not match:
+                            break
+                        sentence = buffer[:match.end()].strip()
+                        buffer = buffer[match.end():]
+                        if sentence:
+                            is_safe, clean = self.safety.check(sentence)
+                            if is_safe:
+                                _m_hit, _m_safe = self._manip.check_llm_output(clean)
+                                if _m_hit and _m_safe:
+                                    clean = _m_safe
+                            if clean.strip():
+                                sanitized_reply_parts.append(clean)
+                                print(clean, end=" ", flush=True)
+
+                if buffer.strip():
+                    is_safe, clean = self.safety.check(buffer.strip())
+                    if clean.strip():
+                        sanitized_reply_parts.append(clean)
+                        print(clean, end="", flush=True)
+
+                print("\n")  # xuống dòng sau reply
+
+                # Persist vào DB + RAG (giống run())
+                sanitized_reply = " ".join(sanitized_reply_parts).strip()
+                if sanitized_reply:
+                    add_turn(self._current_session_id, "assistant", sanitized_reply)
+                    self._mark_homework_if_needed(self._current_session_id, user_text_goc)
+                    threading.Thread(
+                        target=self.rag.extract_and_save,
+                        args=(user_text_goc, sanitized_reply),
+                        kwargs={"family_id": FAMILY_ID},
+                        daemon=False,  # non-daemon: Python chờ thread này trước khi exit → không mất memory
+                    ).start()
+                    threading.Thread(
+                        target=self.notifier.push_chat_log,
+                        args=(user_text_goc, sanitized_reply),
+                        kwargs={"family_id": FAMILY_ID},
+                        daemon=True,
+                    ).start()
+
+                self._close_current_session()
+
+            except KeyboardInterrupt:
+                self._shutdown()
+                print("\n[Tạm biệt!]")
+                break
+            except Exception as e:
+                logger.error("[TextMode] Lỗi: %s", e, exc_info=True)
+                print(f"[Lỗi: {e}]\n")
+                self._close_current_session()
+
     def run(self):
         import time as _time
+        # Start wake word background listener (no-op when disabled)
+        if self._wakeword:
+            self._wakeword.start()
         try:
             while True:
                 try:
@@ -337,6 +516,12 @@ class RobotBiApp:
                     if is_mom_talking():
                         _time.sleep(0.5)
                         continue
+
+                    # ── Wake word gate (disabled by default: WAKEWORD_ENABLED=false) ──
+                    if self._wakeword and self._wakeword.is_enabled():
+                        if not self._wakeword.wait_for_wakeword(timeout=30.0):
+                            continue  # timeout — loop again
+                        self._wakeword.on_stt_start()  # LISTENING → PROCESSING
 
                     if self._face:
                         try:
@@ -379,6 +564,50 @@ class RobotBiApp:
                     # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
                     user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
                     add_turn(self._current_session_id, 'user', user_text_goc)
+
+                    # ── Child Safety Checks (user input) ────────────────────────
+                    _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                    if _pii_found and _pii_resp:
+                        add_turn(self._current_session_id, "assistant", _pii_resp)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_pii_resp, chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+                    _risk = self._risk.check(user_text_goc)
+                    if _risk["log_event"]:
+                        _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
+                        _risk_meta = {"level": _risk["level"], "triggers": _risk["triggers"]}
+                        threading.Thread(
+                            target=self.notifier.push_event,
+                            args=("system", _risk_msg, None, _risk_meta, self._family_id),
+                            daemon=True
+                        ).start()
+                    if _risk["should_override"] and _risk["response"]:
+                        add_turn(self._current_session_id, "assistant", _risk["response"])
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_risk["response"], chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+                    _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
+                    if _manip_input and _manip_input_resp:
+                        add_turn(self._current_session_id, "assistant", _manip_input_resp)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_manip_input_resp, chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+
                     if is_first_turn_of_session:
                         def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
                             from src.infrastructure.sessions.session_namer import _generate_session_title
@@ -424,6 +653,10 @@ class RobotBiApp:
                             buffer = buffer[end_pos:]
                             if sentence:
                                 is_safe, clean_sentence = self.safety.check(sentence)
+                                if is_safe:
+                                    _m_hit, _m_safe = self._manip.check_llm_output(clean_sentence)
+                                    if _m_hit and _m_safe:
+                                        clean_sentence = _m_safe
                                 if not clean_sentence.strip():
                                     continue  # bỏ qua câu rỗng sau khi lọc
                                 sanitized_reply_parts.append(clean_sentence)
@@ -456,6 +689,10 @@ class RobotBiApp:
                     # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                     self.audio_queue.join()
 
+                    # Wake word cooldown — restart listener sau reply (no-op when disabled)
+                    if self._wakeword and self._wakeword.is_enabled():
+                        self._wakeword.on_reply_done()
+
                     if self._face:
                         try:
                             self._face.set_mode('idle')
@@ -475,7 +712,7 @@ class RobotBiApp:
                             target=self.rag.extract_and_save,
                             args=(user_text_goc, sanitized_reply),
                             kwargs={"family_id": FAMILY_ID},
-                            daemon=True,
+                            daemon=False,  # non-daemon: Python chờ thread này trước khi exit → không mất memory
                         ).start()
                         self._close_current_session()
                         # Log hội thoại cho Parent App (non-blocking)
@@ -492,6 +729,9 @@ class RobotBiApp:
                 except Exception as e:
                     logger.error("[MainLoop] Loi khong mong doi, bo qua iteration: %s", e, exc_info=True)
                     self._close_current_session()
+                    # Reset wake word to IDLE on pipeline error
+                    if self._wakeword and self._wakeword.is_enabled():
+                        self._wakeword.on_error()
                     _time.sleep(1)
                     continue
 
@@ -501,5 +741,18 @@ class RobotBiApp:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--text-mode",
+        action="store_true",
+        help="Bypass STT/TTS — gõ input từ bàn phím, nhận reply dạng text. Dùng để test ban đêm.",
+    )
+    args = parser.parse_args()
+
     app = RobotBiApp()
-    app.run()
+
+    if args.text_mode:
+        app.run_text_mode()
+    else:
+        app.run()

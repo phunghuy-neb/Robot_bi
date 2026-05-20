@@ -63,8 +63,10 @@ _SSL_KEY  = _SSL_DIR / "key.pem"
 _USE_HTTPS = _SSL_CERT.exists() and _SSL_KEY.exists()
 
 # ── Thư mục static ────────────────────────────────────────────────────────────
-_STATIC_DIR = Path(__file__).parent.parent.parent / "frontend" / "parent_app"
-_STATIC_DIR.mkdir(parents=True, exist_ok=True)
+_PARENT_APP_DIR = Path(__file__).parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIR.mkdir(parents=True, exist_ok=True)
+_PARENT_APP_DIST_DIR = _PARENT_APP_DIR / "dist"
+_PARENT_APP_ASSETS_DIR = _PARENT_APP_DIST_DIR / "assets"
 
 
 def get_local_ip() -> str:
@@ -83,7 +85,9 @@ def get_local_ip() -> str:
 
 app = FastAPI(title="Robot Bi — Parent App API", version="2.0")
 
-app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+app.mount("/static", StaticFiles(directory=str(_PARENT_APP_DIR)), name="static")
+if _PARENT_APP_ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(_PARENT_APP_ASSETS_DIR)), name="parent_app_assets")
 
 app.include_router(auth_router)
 app.include_router(admin_router)
