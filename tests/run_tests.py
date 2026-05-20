@@ -5518,6 +5518,198 @@ test("66.22 Router: on_error → IDLE",              test_66_router_on_error_res
 test("66.23 main.py: has _wakeword_svc",           test_66_main_has_wakeword_svc)
 test("66.24 main.py: has WakeWordRouter",          test_66_main_has_wakeword_router)
 
+# == GROUP 67 — Wake Word Training Pipeline (Sprint 0.4) =====================
+# Tests the synthetic dataset + MFCC classifier pipeline.
+# Offline — no mic, no internet, no model file required.
+
+print("\n[Group 67] Wake Word Training Pipeline (Sprint 0.4 — MFCC+SVM)")
+
+import importlib as _importlib67
+import importlib.util as _importlib_util67
+import pathlib as _pl67
+import numpy as _np67
+import scipy.signal as _signal67
+import scipy.fftpack as _dct67
+
+_SCRIPTS_DIR  = _pl67.Path("scripts")
+_DATA_DIR     = _pl67.Path("data") / "wakeword"
+_RUNTIME_DIR  = _pl67.Path("runtime") / "wakeword"
+
+
+def test_67_script_generate_exists():
+    assert (_SCRIPTS_DIR / "generate_wakeword_dataset.py").exists(), \
+        "scripts/generate_wakeword_dataset.py must exist"
+
+def test_67_script_augment_exists():
+    assert (_SCRIPTS_DIR / "augment_audio.py").exists(), \
+        "scripts/augment_audio.py must exist"
+
+def test_67_script_train_exists():
+    assert (_SCRIPTS_DIR / "train_wakeword.py").exists(), \
+        "scripts/train_wakeword.py must exist"
+
+def test_67_script_test_exists():
+    assert (_SCRIPTS_DIR / "test_wakeword.py").exists(), \
+        "scripts/test_wakeword.py must exist"
+
+def test_67_config_has_custom_model_path():
+    from src.wakeword.config import WAKEWORD_CUSTOM_MODEL_PATH
+    assert WAKEWORD_CUSTOM_MODEL_PATH is not None
+    assert "bi_oi_classifier.pkl" in WAKEWORD_CUSTOM_MODEL_PATH
+
+def test_67_service_imports_custom_model_path():
+    import inspect
+    from src.wakeword import wakeword_service as _svc
+    src = inspect.getsource(_svc)
+    assert "WAKEWORD_CUSTOM_MODEL_PATH" in src, "wakeword_service must import custom model path"
+
+def test_67_service_has_custom_mfcc_branch():
+    import inspect
+    from src.wakeword import wakeword_service as _svc
+    src = inspect.getsource(_svc)
+    assert "custom_mfcc" in src, "wakeword_service must have custom_mfcc backend branch"
+
+def test_67_service_has_detect_custom_mfcc():
+    from src.wakeword.wakeword_service import WakeWordService
+    assert hasattr(WakeWordService, "_detect_custom_mfcc"), \
+        "WakeWordService must have _detect_custom_mfcc method"
+
+def test_67_service_has_get_mfcc_payload():
+    from src.wakeword.wakeword_service import WakeWordService
+    assert hasattr(WakeWordService, "_get_mfcc_payload"), \
+        "WakeWordService must have _get_mfcc_payload method"
+
+def test_67_mfcc_payload_returns_none_when_no_file():
+    """_get_mfcc_payload must return None gracefully when model file absent."""
+    from src.wakeword.wakeword_service import WakeWordService
+    svc = WakeWordService()
+    svc._backend = "custom_mfcc"
+    # Point to a guaranteed-absent path
+    import src.wakeword.wakeword_service as _wmod
+    original = _wmod.WAKEWORD_CUSTOM_MODEL_PATH
+    _wmod.WAKEWORD_CUSTOM_MODEL_PATH = "/nonexistent/path/bi_oi_classifier.pkl"
+    try:
+        result = svc._get_mfcc_payload()
+        assert result is None, "_get_mfcc_payload must return None when file missing"
+    finally:
+        _wmod.WAKEWORD_CUSTOM_MODEL_PATH = original
+
+def test_67_detect_custom_mfcc_returns_false_without_model():
+    """_detect_custom_mfcc must return False (not crash) when model absent."""
+    from src.wakeword.wakeword_service import WakeWordService
+    import src.wakeword.wakeword_service as _wmod
+    svc = WakeWordService()
+    svc._backend = "custom_mfcc"
+    original = _wmod.WAKEWORD_CUSTOM_MODEL_PATH
+    _wmod.WAKEWORD_CUSTOM_MODEL_PATH = "/nonexistent/path/bi_oi_classifier.pkl"
+    try:
+        chunk = _np67.random.randn(1280).astype(_np67.float32) * 0.01
+        result = svc._detect_custom_mfcc(chunk)
+        assert result is False
+    finally:
+        _wmod.WAKEWORD_CUSTOM_MODEL_PATH = original
+
+def test_67_mfcc_computation_correct_shape():
+    """MFCC feature vector must be 3*N_MFCC dims (mean+std+delta mean)."""
+    N_MFCC = 20
+    # Simulate 1.5s of audio at 16kHz
+    audio = _np67.sin(2 * _np67.pi * 300 * _np67.linspace(0, 1.5, 24000)).astype(_np67.float32)
+    audio += _np67.random.randn(24000).astype(_np67.float32) * 0.01
+
+    # Replicate compute_mfcc_features logic inline
+    n_mels, n_fft, hop = 40, 512, 160
+    audio_pe = _np67.append(audio[0], audio[1:] - 0.97 * audio[:-1]).astype(_np67.float32)
+    _, _, Zxx = _signal67.stft(audio_pe, fs=16000, nperseg=n_fft, noverlap=n_fft - hop, boundary=None)
+    power = _np67.abs(Zxx) ** 2
+
+    def hz_mel(hz): return 2595 * _np67.log10(1 + hz / 700)
+    def mel_hz(m):  return 700 * (10 ** (m / 2595) - 1)
+    mel_pts = _np67.linspace(hz_mel(0), hz_mel(8000), n_mels + 2)
+    hz_pts  = mel_hz(mel_pts)
+    bins    = _np67.floor((n_fft + 1) * hz_pts / 16000).astype(int)
+    fbank   = _np67.zeros((n_mels, n_fft // 2 + 1))
+    for m in range(1, n_mels + 1):
+        lo, mid, hi = bins[m - 1], bins[m], bins[m + 1]
+        for k in range(lo, mid):
+            if mid > lo: fbank[m - 1, k] = (k - lo) / (mid - lo)
+        for k in range(mid, hi):
+            if hi > mid: fbank[m - 1, k] = (hi - k) / (hi - mid)
+
+    log_mel = _np67.log(fbank @ power + 1e-9)
+    mfcc = _dct67.dct(log_mel, type=2, axis=0, norm='ortho')[:N_MFCC]
+    delta = _np67.diff(mfcc, n=1, axis=1, prepend=mfcc[:, :1])
+    feat = _np67.concatenate([mfcc.mean(axis=1), mfcc.std(axis=1), delta.mean(axis=1)])
+
+    assert feat.shape == (3 * N_MFCC,), f"Expected ({3*N_MFCC},) got {feat.shape}"
+    assert not _np67.isnan(feat).any(), "MFCC features must not contain NaN"
+    assert not _np67.isinf(feat).any(), "MFCC features must not contain Inf"
+
+def _load_augment_mod():
+    spec = _importlib_util67.spec_from_file_location("augment_audio_67", _SCRIPTS_DIR / "augment_audio.py")
+    mod = _importlib_util67.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+def test_67_augment_noise_changes_audio():
+    """Noise augmentation must actually modify the signal."""
+    aug_mod = _load_augment_mod()
+    audio = _np67.ones(16000, dtype=_np67.float32) * 0.1
+    noisy = aug_mod.add_noise(audio, snr_db=20)
+    assert not _np67.allclose(audio, noisy), "Noise augmentation must change signal"
+
+def test_67_augment_speed_changes_length():
+    """Speed change augmentation must change audio length."""
+    aug_mod = _load_augment_mod()
+    audio = _np67.random.randn(16000).astype(_np67.float32)
+    fast = aug_mod.change_speed(audio, rate=1.2)
+    assert len(fast) != len(audio), "Speed change must alter audio length"
+
+def test_67_augment_gain_scales_correctly():
+    aug_mod = _load_augment_mod()
+    audio = _np67.ones(1000, dtype=_np67.float32) * 0.1
+    louder = aug_mod.change_gain(audio, db=20)
+    # 20 dB = 10x amplitude; clipped to 1.0
+    assert louder.max() > audio.max(), "Gain up must increase amplitude"
+
+def test_67_augment_reverb_returns_same_length():
+    aug_mod = _load_augment_mod()
+    audio = _np67.random.randn(8000).astype(_np67.float32) * 0.05
+    reverbed = aug_mod.apply_reverb(audio)
+    assert len(reverbed) == len(audio), "Reverb must preserve audio length"
+
+def test_67_data_dirs_exist():
+    """data/wakeword/{positive,negative} directories must exist."""
+    assert (_DATA_DIR / "positive").exists(), "data/wakeword/positive must exist"
+    assert (_DATA_DIR / "negative").exists(), "data/wakeword/negative must exist"
+
+def test_67_runtime_wakeword_dir_exists():
+    """runtime/wakeword/ directory must exist."""
+    assert _RUNTIME_DIR.exists(), "runtime/wakeword/ directory must exist"
+
+def test_67_requirements_has_sklearn():
+    reqs = _pl67.Path("requirements.txt").read_text(encoding="utf-8")
+    assert "scikit-learn" in reqs, "requirements.txt must list scikit-learn"
+
+test("67.1  Script: generate_wakeword_dataset.py exists",  test_67_script_generate_exists)
+test("67.2  Script: augment_audio.py exists",              test_67_script_augment_exists)
+test("67.3  Script: train_wakeword.py exists",             test_67_script_train_exists)
+test("67.4  Script: test_wakeword.py exists",              test_67_script_test_exists)
+test("67.5  Config: WAKEWORD_CUSTOM_MODEL_PATH defined",   test_67_config_has_custom_model_path)
+test("67.6  Service: imports WAKEWORD_CUSTOM_MODEL_PATH",  test_67_service_imports_custom_model_path)
+test("67.7  Service: custom_mfcc branch present",          test_67_service_has_custom_mfcc_branch)
+test("67.8  Service: _detect_custom_mfcc method exists",   test_67_service_has_detect_custom_mfcc)
+test("67.9  Service: _get_mfcc_payload method exists",     test_67_service_has_get_mfcc_payload)
+test("67.10 Service: payload=None when model absent",      test_67_mfcc_payload_returns_none_when_no_file)
+test("67.11 Service: detect returns False without model",  test_67_detect_custom_mfcc_returns_false_without_model)
+test("67.12 MFCC: correct feature shape (3×N_MFCC)",      test_67_mfcc_computation_correct_shape)
+test("67.13 Augment: noise changes signal",                test_67_augment_noise_changes_audio)
+test("67.14 Augment: speed changes length",                test_67_augment_speed_changes_length)
+test("67.15 Augment: gain scales amplitude",               test_67_augment_gain_scales_correctly)
+test("67.16 Augment: reverb preserves length",             test_67_augment_reverb_returns_same_length)
+test("67.17 Dirs: data/wakeword/{pos,neg} exist",          test_67_data_dirs_exist)
+test("67.18 Dirs: runtime/wakeword/ exists",               test_67_runtime_wakeword_dir_exists)
+test("67.19 Deps: scikit-learn in requirements.txt",       test_67_requirements_has_sklearn)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

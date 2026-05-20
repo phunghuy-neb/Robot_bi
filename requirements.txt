@@ -34,8 +34,9 @@ pyttsx3==2.99
 argon2-cffi==23.1.0
 python-jose[cryptography]==3.3.0
 
-# Phase 2+ (sẽ thêm sau)
-# openwakeword
+# Wake Word Training (Sprint 0.4 — chạy 1 lần để train model)
+scikit-learn>=1.4.0
+# openwakeword  # (future — cần dataset lớn để train từ đầu)
 
 # WebRTC — cài trên Ubuntu: pip install aiortc
 # aiortc==1.9.0

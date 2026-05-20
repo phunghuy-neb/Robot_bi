@@ -16,6 +16,17 @@
 
 ## Last Completed Task
 
+- 2026-05-20: **Sprint 0.4 — Wake Word Training Pipeline (4 scripts + custom_mfcc backend + 19 tests)**:
+  - `scripts/generate_wakeword_dataset.py` — synthetic dataset via edge-tts (300 positive / 150 negative); requires ffmpeg + internet; ~10-20 min run
+  - `scripts/augment_audio.py` — 18 augmentation types: noise (SNR 8/15/25 dB), fan/TV/kitchen BG, speed (0.85x-1.2x), pitch (±2/+4 semitones), gain, small/large reverb, phone mic, far mic, combined
+  - `scripts/train_wakeword.py` — MFCC (scipy/numpy, no librosa) + SVM RBF classifier; output: `runtime/wakeword/bi_oi_classifier.pkl`; 5-fold CV; target F1 ≥ 0.75
+  - `scripts/test_wakeword.py` — `--check-dataset`, `--file`, `--backend`, `--threshold`, `--timeout`; real-time mic test with sounddevice
+  - `src/wakeword/config.py` — added `WAKEWORD_CUSTOM_MODEL_PATH` env var
+  - `src/wakeword/wakeword_service.py` — added `custom_mfcc` backend: `_detect_custom_mfcc()` + `_get_mfcc_payload()` lazy loader; gracefully returns False when model absent
+  - `requirements.txt` — added `scikit-learn>=1.4.0`
+  - `tests/run_tests.py` — Group 67 (19 tests): scripts exist, config, service backend, MFCC shape, augmentation functions, directory structure, requirements
+  - Status: scripts ready; **model not yet trained** (no dataset yet); run pipeline below to get usable prototype
+
 - 2026-05-20: **Sprint 0.3 — Wake Word Foundation (6 new files + main.py integration + 24 tests)**. 454/455 PASS (28.9 pre-existing):
   - `src/wakeword/config.py` — all config from env (backend/threshold/cooldown/model path)
   - `src/wakeword/audio_listener.py` — background mic stream, stops on detection (EarSTT handoff)
@@ -68,6 +79,34 @@
 
 - 2026-05-13: AI context and instruction docs were normalized so PROJECT remains authoritative, SYSTEM_MAP is descriptive only, Spec Kit is conditional, and generated agent docs sync from PROJECT.
 
+## Sprint 0.4 — Wake Word Training Pipeline (HOW TO USE)
+
+```bash
+# 1. Generate synthetic dataset (~300 positive, ~150 negative)
+#    Yêu cầu: internet + ffmpeg trong PATH
+python scripts/generate_wakeword_dataset.py
+
+# 2. Augment dataset (×4 expansion → ~1800+ positive, ~900+ negative)
+python scripts/augment_audio.py
+
+# 3. Train MFCC+SVM classifier (cần scikit-learn)
+pip install scikit-learn
+python scripts/train_wakeword.py
+# → runtime/wakeword/bi_oi_classifier.pkl
+
+# 4. Test ngay
+python scripts/test_wakeword.py
+
+# 5. Kiểm tra dataset trước khi train
+python scripts/test_wakeword.py --check-dataset
+
+# 6. Kích hoạt trong .env
+WAKEWORD_ENABLED=true
+WAKEWORD_BACKEND=custom_mfcc
+WAKEWORD_CUSTOM_MODEL_PATH=runtime/wakeword/bi_oi_classifier.pkl
+WAKEWORD_THRESHOLD=0.5
+```
+
 ## Known Issues
 
 - Wake word **disabled by default** (`WAKEWORD_ENABLED=false`). Uses `faster-whisper tiny` fuzzy match when enabled — not a trained model.
@@ -83,13 +122,16 @@
 
 ## Next Recommended Action
 
-Sprint 0.3 is complete. Wake word foundation ready. **Next steps in order:**
-1. **Collect wake word dataset** per `docs/WAKEWORD_DATASET_GUIDE.md` (50+ positive, 100+ negative WAV files)
-2. **Train model**: `pip install openwakeword` + `python -m openwakeword.train ...` → `runtime/wakeword/bi_oi.tflite`
-3. **Enable**: set `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=openwakeword` in `.env`
-4. **Test**: `python tests/wakeword_test_harness.py` (future — test harness is in Group 66 for now)
+Sprint 0.4 is complete. **Wake word v0 training pipeline ready.** Next steps in order:
+1. **Generate dataset**: `python scripts/generate_wakeword_dataset.py` (needs internet + ffmpeg)
+2. **Augment**: `python scripts/augment_audio.py` (no deps)
+3. **Train**: `pip install scikit-learn && python scripts/train_wakeword.py` → `runtime/wakeword/bi_oi_classifier.pkl`
+4. **Enable**: set `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=custom_mfcc` in `.env`
+5. **Test**: `python scripts/test_wakeword.py`
 
-OR: skip dataset collection for now and start **Sprint 1.1 — Living Conversation**.
+Target: 8/10 "Bi ơi" detections in normal environment.
+
+OR: skip wake word for now and start **Sprint 1.1 — Living Conversation**.
 
 Safety layer (all active): safety_filter + pii_filter + emotion_risk_detector + manipulation_guard.
 Wake word (disabled by default): `WAKEWORD_ENABLED=false`. Foundation complete; model needed.
@@ -102,6 +144,19 @@ For large feature/API/schema/cross-module work: use Spec Kit or write a clear pl
 ```bash
 python tests/run_tests.py
 ```
+
+## Files Recently Touched (Sprint 0.4)
+
+- `scripts/generate_wakeword_dataset.py` (new — edge-tts synthetic dataset generator)
+- `scripts/augment_audio.py` (new — 18 augmentation types, scipy+numpy only)
+- `scripts/train_wakeword.py` (new — MFCC+SVM training, output: bi_oi_classifier.pkl)
+- `scripts/test_wakeword.py` (new — real-time mic test harness + dataset check)
+- `src/wakeword/config.py` (modified — added WAKEWORD_CUSTOM_MODEL_PATH)
+- `src/wakeword/wakeword_service.py` (modified — custom_mfcc backend + _detect_custom_mfcc + _get_mfcc_payload)
+- `requirements.txt` (modified — added scikit-learn>=1.4.0)
+- `tests/run_tests.py` (modified — Group 67, 19 tests)
+- `docs/STATUS_MAP.md` (updated v1.3 — wake word status reflects Sprint 0.4)
+- `.claude/handoff.md`
 
 ## Files Recently Touched (Sprint 0.3)
 

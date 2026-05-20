@@ -40,6 +40,7 @@ from src.wakeword.config import (
     WAKEWORD_COOLDOWN_SEC,
     WAKEWORD_MODEL_PATH,
     WAKEWORD_INFERENCE_FRAMEWORK,
+    WAKEWORD_CUSTOM_MODEL_PATH,
     SAMPLE_RATE,
     ENERGY_MIN,
     WHISPER_WINDOW_SEC,
@@ -90,8 +91,9 @@ class WakeWordService:
         self._listener: Optional[object] = None  # AudioListener instance
         self._oww_model    = None               # openWakeWord lazy model
         self._whisper_model = None              # faster-whisper lazy model
+        self._mfcc_payload  = None              # custom MFCC+SVM model payload
 
-        # Whisper rolling buffer
+        # Shared rolling buffer for whisper + custom_mfcc backends
         self._whisper_buffer: list = []
         self._whisper_window_frames = int(SAMPLE_RATE * WHISPER_WINDOW_SEC)
         self._whisper_overlap_frames = int(self._whisper_window_frames * (1 - WHISPER_OVERLAP_RATIO))
@@ -240,7 +242,11 @@ class WakeWordService:
 
         detected = False
         try:
-            if self._backend == "openwakeword":
+            if self._backend == "custom_mfcc":
+                detected = self._detect_custom_mfcc(chunk)
+                if not detected:
+                    pass  # no automatic fallback for custom_mfcc
+            elif self._backend == "openwakeword":
                 detected = self._detect_openwakeword(chunk)
                 if not detected:
                     # Transparent fallback if model not loaded
@@ -258,6 +264,94 @@ class WakeWordService:
             return True  # stop listener; mic is free for EarSTT
 
         return False
+
+    def _detect_custom_mfcc(self, chunk: np.ndarray) -> bool:
+        """Detect using MFCC+SVM classifier (Sprint 0.4 training pipeline)."""
+        # Accumulate into rolling window (reuse whisper buffer logic)
+        self._whisper_buffer.extend(chunk.tolist())
+        if len(self._whisper_buffer) < self._whisper_window_frames:
+            return False
+
+        window = np.array(self._whisper_buffer[:self._whisper_window_frames], dtype=np.float32)
+        self._whisper_buffer = self._whisper_buffer[self._whisper_overlap_frames:]
+
+        payload = self._get_mfcc_payload()
+        if payload is None:
+            return False
+
+        try:
+            import scipy.fftpack
+            import scipy.signal
+
+            scaler = payload["scaler"]
+            model  = payload["model"]
+            cfg    = payload.get("config", {})
+            n_mfcc = cfg.get("n_mfcc", 20)
+            n_mels = cfg.get("n_mels", 40)
+            n_fft  = cfg.get("n_fft",  512)
+            hop    = cfg.get("hop_len", 160)
+
+            # Pre-emphasis + STFT
+            audio = np.append(window[0], window[1:] - 0.97 * window[:-1])
+            _, _, Zxx = scipy.signal.stft(audio, fs=SAMPLE_RATE, nperseg=n_fft,
+                                           noverlap=n_fft - hop, boundary=None)
+            power = np.abs(Zxx) ** 2
+
+            # Mel filterbank (simplified inline)
+            def _hz_mel(hz): return 2595 * np.log10(1 + hz / 700)
+            def _mel_hz(m):  return 700 * (10 ** (m / 2595) - 1)
+            mel_pts = np.linspace(_hz_mel(0), _hz_mel(SAMPLE_RATE / 2), n_mels + 2)
+            hz_pts  = _mel_hz(mel_pts)
+            bins    = np.floor((n_fft + 1) * hz_pts / SAMPLE_RATE).astype(int)
+            fbank   = np.zeros((n_mels, n_fft // 2 + 1))
+            for m in range(1, n_mels + 1):
+                lo, mid, hi = bins[m - 1], bins[m], bins[m + 1]
+                for k in range(lo, mid):
+                    if mid > lo: fbank[m - 1, k] = (k - lo) / (mid - lo)
+                for k in range(mid, hi):
+                    if hi > mid: fbank[m - 1, k] = (hi - k) / (hi - mid)
+
+            log_mel = np.log(fbank @ power + 1e-9)
+            mfcc    = scipy.fftpack.dct(log_mel, type=2, axis=0, norm='ortho')[:n_mfcc]
+            delta   = np.diff(mfcc, n=1, axis=1, prepend=mfcc[:, :1])
+            feat    = np.concatenate([mfcc.mean(axis=1), mfcc.std(axis=1), delta.mean(axis=1)])
+
+            feat_s = scaler.transform(feat.reshape(1, -1))
+            pred   = model.predict(feat_s)[0]
+            prob   = model.predict_proba(feat_s)[0]
+            score  = prob[1]
+
+            if pred == 1 and score >= self._threshold:
+                logger.debug("[WakeWord] MFCC+SVM score=%.3f >= %.3f", score, self._threshold)
+                return True
+        except Exception as e:
+            logger.debug("[WakeWord] custom_mfcc error: %s", e)
+
+        return False
+
+    def _get_mfcc_payload(self):
+        """Lazy load MFCC+SVM model. Returns None if unavailable."""
+        if self._mfcc_payload is not None:
+            return self._mfcc_payload
+
+        if not os.path.exists(WAKEWORD_CUSTOM_MODEL_PATH):
+            logger.debug(
+                "[WakeWord] Custom model not found at '%s' — run scripts/train_wakeword.py",
+                WAKEWORD_CUSTOM_MODEL_PATH,
+            )
+            return None
+
+        try:
+            import pickle
+            with open(WAKEWORD_CUSTOM_MODEL_PATH, "rb") as f:
+                self._mfcc_payload = pickle.load(f)
+            metrics = self._mfcc_payload.get("metrics", {})
+            logger.info("[WakeWord] Loaded MFCC+SVM model (F1=%.2f) from '%s'",
+                        metrics.get("cv_f1_mean", 0), WAKEWORD_CUSTOM_MODEL_PATH)
+            return self._mfcc_payload
+        except Exception as e:
+            logger.warning("[WakeWord] Cannot load custom model: %s", e)
+            return None
 
     def _detect_openwakeword(self, chunk: np.ndarray) -> bool:
         """Detect using openWakeWord TFLite model."""

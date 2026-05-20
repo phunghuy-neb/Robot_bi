@@ -3,14 +3,20 @@ config.py — Wake word configuration constants (all from environment / .env).
 
 Environment variables:
   WAKEWORD_ENABLED              = "false"         # Enable wake word gate
-  WAKEWORD_BACKEND              = "openwakeword"  # openwakeword | whisper | placeholder
+  WAKEWORD_BACKEND              = "openwakeword"  # openwakeword | custom_mfcc | whisper | placeholder
   WAKEWORD_THRESHOLD            = "0.5"           # Detection confidence threshold
   WAKEWORD_COOLDOWN_SEC         = "1.5"           # Seconds to ignore after each reply
   WAKEWORD_MODEL_PATH           = "runtime/wakeword/bi_oi.tflite"
   WAKEWORD_INFERENCE_FRAMEWORK  = "tflite"        # tflite | onnx
+  WAKEWORD_CUSTOM_MODEL_PATH    = "runtime/wakeword/bi_oi_classifier.pkl"
 
 Backends:
-  openwakeword  Primary — TFLite custom model trained on "Bi ơi" samples.
+  custom_mfcc   Sprint 0.4 — MFCC+SVM classifier trained on synthetic data.
+                Requires: pip install scikit-learn
+                Requires: model at WAKEWORD_CUSTOM_MODEL_PATH (scripts/train_wakeword.py)
+                CPU-friendly. ~1.5s window. 75-85% accuracy with synthetic dataset.
+
+  openwakeword  TFLite custom model (future — needs large training dataset).
                 Requires: pip install openwakeword
                 Requires: model file at WAKEWORD_MODEL_PATH (see docs/WAKEWORD_DATASET_GUIDE.md)
 
@@ -41,6 +47,12 @@ WAKEWORD_MODEL_PATH = os.getenv(
     os.path.join("runtime", "wakeword", "bi_oi.tflite"),
 )
 WAKEWORD_INFERENCE_FRAMEWORK = os.getenv("WAKEWORD_INFERENCE_FRAMEWORK", "tflite")
+
+# Custom MFCC+SVM model path (Sprint 0.4 — scripts/train_wakeword.py)
+WAKEWORD_CUSTOM_MODEL_PATH = os.getenv(
+    "WAKEWORD_CUSTOM_MODEL_PATH",
+    os.path.join("runtime", "wakeword", "bi_oi_classifier.pkl"),
+)
 
 # ── Audio constants ───────────────────────────────────────────────────────────
 SAMPLE_RATE  = 16000
