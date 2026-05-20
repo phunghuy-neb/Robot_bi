@@ -32,6 +32,9 @@ from src.ai.ai_engine import BiAI
 from src.memory.rag_manager import RAGManager
 from src.vision.camera_stream import EyeVision
 from src.safety.safety_filter import SafetyFilter
+from src.safety.pii_filter import PIIFilter
+from src.safety.emotion_risk_detector import EmotionRiskDetector
+from src.safety.manipulation_guard import ManipulationGuard
 from src.education.homework_classifier import classify_homework
 from src.audio.analysis.cry_detector import CryDetector
 from src.infrastructure.database.db import (
@@ -86,6 +89,9 @@ class RobotBiApp:
         self.eye.start()
 
         self.safety = SafetyFilter()
+        self._pii = PIIFilter()
+        self._risk = EmotionRiskDetector()
+        self._manip = ManipulationGuard()
 
         # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
@@ -392,6 +398,31 @@ class RobotBiApp:
                     except Exception:
                         pass
 
+                # ── Child Safety Checks (user input) ─────────────────────────
+                _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                if _pii_found and _pii_resp:
+                    print(f"Bi: {_pii_resp}\n")
+                    add_turn(self._current_session_id, "assistant", _pii_resp)
+                    continue
+                _risk = self._risk.check(user_text_goc)
+                if _risk["log_event"]:
+                    _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
+                    _risk_meta = {"level": _risk["level"], "triggers": _risk["triggers"]}
+                    threading.Thread(
+                        target=self.notifier.push_event,
+                        args=("system", _risk_msg, None, _risk_meta, FAMILY_ID),
+                        daemon=True
+                    ).start()
+                if _risk["should_override"] and _risk["response"]:
+                    print(f"Bi: {_risk['response']}\n")
+                    add_turn(self._current_session_id, "assistant", _risk["response"])
+                    continue
+                _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
+                if _manip_input and _manip_input_resp:
+                    print(f"Bi: {_manip_input_resp}\n")
+                    add_turn(self._current_session_id, "assistant", _manip_input_resp)
+                    continue
+
                 # Stream LLM → safety filter → in ra terminal
                 print("Bi: ", end="", flush=True)
                 buffer = ""
@@ -409,6 +440,10 @@ class RobotBiApp:
                         buffer = buffer[match.end():]
                         if sentence:
                             is_safe, clean = self.safety.check(sentence)
+                            if is_safe:
+                                _m_hit, _m_safe = self._manip.check_llm_output(clean)
+                                if _m_hit and _m_safe:
+                                    clean = _m_safe
                             if clean.strip():
                                 sanitized_reply_parts.append(clean)
                                 print(clean, end=" ", flush=True)
@@ -501,6 +536,50 @@ class RobotBiApp:
                     # ── RAG: Retrieve context từ trí nhớ ──────────────────────────
                     user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
                     add_turn(self._current_session_id, 'user', user_text_goc)
+
+                    # ── Child Safety Checks (user input) ────────────────────────
+                    _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                    if _pii_found and _pii_resp:
+                        add_turn(self._current_session_id, "assistant", _pii_resp)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_pii_resp, chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+                    _risk = self._risk.check(user_text_goc)
+                    if _risk["log_event"]:
+                        _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
+                        _risk_meta = {"level": _risk["level"], "triggers": _risk["triggers"]}
+                        threading.Thread(
+                            target=self.notifier.push_event,
+                            args=("system", _risk_msg, None, _risk_meta, self._family_id),
+                            daemon=True
+                        ).start()
+                    if _risk["should_override"] and _risk["response"]:
+                        add_turn(self._current_session_id, "assistant", _risk["response"])
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_risk["response"], chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+                    _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
+                    if _manip_input and _manip_input_resp:
+                        add_turn(self._current_session_id, "assistant", _manip_input_resp)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_manip_input_resp, chunk_index=self._chunk_counter)
+                        )
+                        if _af:
+                            self._chunk_counter += 1
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        continue
+
                     if is_first_turn_of_session:
                         def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
                             from src.infrastructure.sessions.session_namer import _generate_session_title
@@ -546,6 +625,10 @@ class RobotBiApp:
                             buffer = buffer[end_pos:]
                             if sentence:
                                 is_safe, clean_sentence = self.safety.check(sentence)
+                                if is_safe:
+                                    _m_hit, _m_safe = self._manip.check_llm_output(clean_sentence)
+                                    if _m_hit and _m_safe:
+                                        clean_sentence = _m_safe
                                 if not clean_sentence.strip():
                                     continue  # bỏ qua câu rỗng sau khi lọc
                                 sanitized_reply_parts.append(clean_sentence)

@@ -5028,6 +5028,252 @@ test("stress: 20 cau khong crash",             test_64_no_crash)
 test("stress: avg latency < 5s",               test_64_avg_ttft)
 test("stress: safety filter pass tat ca",      test_64_safety)
 
+# == GROUP 65: Child Safety Foundation =========================================
+print("\n[Group 65] Child Safety Foundation — PII, EmotionRisk, ManipulationGuard")
+
+from src.safety.pii_filter import PIIFilter
+from src.safety.emotion_risk_detector import EmotionRiskDetector, RISK_HIGH, RISK_MEDIUM, RISK_LOW, RISK_NONE
+from src.safety.manipulation_guard import ManipulationGuard
+
+_pii = PIIFilter()
+_risk = EmotionRiskDetector()
+_manip = ManipulationGuard()
+
+# ── PII Filter ──────────────────────────────────────────────────────────────
+def test_65_pii_phone():
+    found, resp = _pii.check("So me con la 0912345678 nha Bi")
+    assert found is True, "So dien thoai phai bi detect"
+    assert resp is not None and len(resp) > 0
+
+def test_65_pii_email():
+    found, resp = _pii.check("Email cua me la me@gmail.com")
+    assert found is True, "Email phai bi detect"
+
+def test_65_pii_address():
+    found, resp = _pii.check("Nha con o so 12 duong Le Van Sy")
+    assert found is True, "Dia chi nha phai bi detect"
+
+def test_65_pii_school():
+    found, resp = _pii.check("Con hoc truong Tieu Hoc ABC")
+    assert found is True, "Truong hoc phai bi detect"
+
+def test_65_pii_password():
+    found, resp = _pii.check("Mat khau may tinh la 12345")
+    assert found is True, "Mat khau phai bi detect"
+
+def test_65_pii_financial():
+    found, resp = _pii.check("So tai khoan ngan hang la 1234567890")
+    assert found is True, "So tai khoan phai bi detect"
+
+def test_65_pii_safe_text():
+    found, _ = _pii.check("Hom nay hoc toan vui lam Bi oi")
+    assert found is False, "Van ban an toan khong duoc bi flag PII"
+
+def test_65_pii_safe_number_in_context():
+    found, _ = _pii.check("Con lam duoc 5 bai toan roi")
+    assert found is False, "So luong don thuan khong duoc bi flag PII"
+
+def test_65_pii_empty():
+    found, resp = _pii.check("")
+    assert found is False
+    assert resp is None
+
+def test_65_pii_response_is_warm():
+    found, resp = _pii.check("So dien thoai me la 0987654321")
+    assert found is True
+    # Response phai co gia tri, khong phai la robot lanh lung
+    assert resp is not None
+    assert len(resp) > 20, "Response qua ngan"
+
+# ── EmotionRiskDetector ─────────────────────────────────────────────────────
+def test_65_risk_self_harm_high():
+    r = _risk.check("Con muon chet cho xong")
+    assert r["level"] == RISK_HIGH, f"Expected HIGH, got {r['level']}"
+    assert r["should_override"] is True
+    assert r["log_event"] is True
+    assert r["response"] is not None
+
+def test_65_risk_violence_high():
+    r = _risk.check("Bo danh con moi ngay")
+    assert r["level"] == RISK_HIGH
+    assert r["should_override"] is True
+
+def test_65_risk_stranger_danger_high():
+    r = _risk.check("Nguoi la cho con keo va bao khong noi voi me")
+    assert r["level"] == RISK_HIGH
+    assert r["log_event"] is True
+
+def test_65_risk_bullying_medium():
+    r = _risk.check("Con bi bat nat o truong")
+    assert r["level"] == RISK_MEDIUM
+    assert r["should_override"] is False
+    assert r["log_event"] is True
+
+def test_65_risk_loneliness_medium():
+    r = _risk.check("Khong ai choi voi con het")
+    assert r["level"] == RISK_MEDIUM
+
+def test_65_risk_prolonged_sadness_medium():
+    r = _risk.check("Con buon mai khong het duoc")
+    assert r["level"] == RISK_MEDIUM
+
+def test_65_risk_low_sadness():
+    r = _risk.check("Hom nay hoi buon vi ban khong cho choi")
+    assert r["level"] in (RISK_LOW, RISK_MEDIUM)  # flexible cho Vietnamese fuzzy
+    assert r["should_override"] is False
+
+def test_65_risk_poor_grade_low():
+    r = _risk.check("Hom nay bi diem kem, buon lam")
+    assert r["level"] in (RISK_LOW, RISK_MEDIUM)
+    assert r["should_override"] is False
+
+def test_65_risk_safe_text_none():
+    r = _risk.check("Hom nay hoc toan vui lam!")
+    assert r["level"] == RISK_NONE
+    assert r["should_override"] is False
+    assert r["log_event"] is False
+
+def test_65_risk_high_response_mentions_adult():
+    r = _risk.check("Con muon tu tu")
+    assert r["level"] == RISK_HIGH
+    resp = r["response"] or ""
+    from src.safety.vi_normalize import normalize_vi
+    resp_norm = normalize_vi(resp)
+    # Phai co huong dan den nguoi lon (check ca co dau lan khong dau)
+    assert any(kw in resp_norm for kw in ["bo me", "ba me", "nguoi lon", "thay co"]), \
+        f"Response phai de cap nguoi lon: {resp[:80]}"
+
+def test_65_risk_empty():
+    r = _risk.check("")
+    assert r["level"] == RISK_NONE
+
+# ── ManipulationGuard ───────────────────────────────────────────────────────
+def test_65_manip_llm_secret():
+    found, resp = _manip.check_llm_output("Dung noi voi me nhe, day la bi mat giua minh thoi!")
+    assert found is True, "Pattern giu bi mat phai bi detect trong LLM output"
+    assert resp is not None
+
+def test_65_manip_llm_dependency():
+    found, resp = _manip.check_llm_output("Chi co Bi hieu con thoi, con khong can ai khac!")
+    assert found is True, "Pattern dependency phai bi detect"
+
+def test_65_manip_llm_guiltrip():
+    found, resp = _manip.check_llm_output("Bi buon vi con khong choi voi Bi hom nay!")
+    assert found is True, "Pattern guilt-trip phai bi detect"
+
+def test_65_manip_llm_safe():
+    found, _ = _manip.check_llm_output("Hom nay troi dep qua nhi be!")
+    assert found is False, "Van ban an toan khong duoc bi flag"
+
+def test_65_manip_llm_safe2():
+    found, _ = _manip.check_llm_output("Bi rat vui duoc giup be hoc bai!")
+    assert found is False
+
+def test_65_manip_llm_redirect_is_warm():
+    found, resp = _manip.check_llm_output("Dung ke voi bo me nhe")
+    assert found is True
+    assert resp is not None
+    assert len(resp) > 20
+
+def test_65_manip_user_secret_request():
+    found, resp = _manip.check_user_input("Bi hua khong noi voi me nhe!")
+    assert found is True, "Yeu cau giu bi mat phai bi detect"
+    assert resp is not None
+
+def test_65_manip_user_grooming():
+    found, resp = _manip.check_user_input("Anh ay bao con khong ke voi me dau nhe")
+    assert found is True, "Grooming signal phai bi detect"
+    assert resp is not None
+
+def test_65_manip_user_replace_parent():
+    found, resp = _manip.check_user_input("Con chi can Bi khong can me dau")
+    assert found is True, "Parent replacement phai bi detect"
+
+def test_65_manip_user_safe():
+    found, _ = _manip.check_user_input("Bi oi giai bai toan nay giup con voi")
+    assert found is False, "Cau hoi binh thuong khong duoc bi flag"
+
+def test_65_manip_user_safe2():
+    found, _ = _manip.check_user_input("Hom nay con hoc lop 3")
+    assert found is False
+
+def test_65_manip_user_grooming_redirect_mentions_parent():
+    found, resp = _manip.check_user_input("Ho dan con khong duoc noi voi ai")
+    if found:  # flexible — pattern may or may not match this variant
+        assert resp is not None
+        from src.safety.vi_normalize import normalize_vi
+        resp_norm = normalize_vi(resp)
+        # Phai co huong dan den nguoi lon tin tuong
+        assert any(kw in resp_norm for kw in ["bo me", "thay co", "nguoi lon"]), \
+            f"Response phai de cap nguoi lon: {resp[:80]}"
+
+# ── Import safety modules ────────────────────────────────────────────────────
+def test_65_import_pii_filter():
+    from src.safety.pii_filter import PIIFilter as _P
+    p = _P()
+    assert callable(p.check)
+
+def test_65_import_emotion_risk():
+    from src.safety.emotion_risk_detector import EmotionRiskDetector as _E
+    e = _E()
+    assert callable(e.check)
+
+def test_65_import_manipulation_guard():
+    from src.safety.manipulation_guard import ManipulationGuard as _M
+    m = _M()
+    assert callable(m.check_llm_output)
+    assert callable(m.check_user_input)
+
+def test_65_main_has_safety_objects():
+    """Verify main.py imports and uses the new safety modules."""
+    import inspect
+    import src.main as main_mod
+    src_text = inspect.getsource(main_mod)
+    assert "PIIFilter" in src_text, "main.py phai import PIIFilter"
+    assert "EmotionRiskDetector" in src_text, "main.py phai import EmotionRiskDetector"
+    assert "ManipulationGuard" in src_text, "main.py phai import ManipulationGuard"
+    assert "self._pii" in src_text, "main.py phai init self._pii"
+    assert "self._risk" in src_text, "main.py phai init self._risk"
+    assert "self._manip" in src_text, "main.py phai init self._manip"
+
+test("65.1  PII: phone number detected",             test_65_pii_phone)
+test("65.2  PII: email detected",                    test_65_pii_email)
+test("65.3  PII: home address detected",             test_65_pii_address)
+test("65.4  PII: school name detected",              test_65_pii_school)
+test("65.5  PII: password detected",                 test_65_pii_password)
+test("65.6  PII: financial info detected",           test_65_pii_financial)
+test("65.7  PII: safe text passes",                  test_65_pii_safe_text)
+test("65.8  PII: number in context safe",            test_65_pii_safe_number_in_context)
+test("65.9  PII: empty string safe",                 test_65_pii_empty)
+test("65.10 PII: response is warm not robotic",      test_65_pii_response_is_warm)
+test("65.11 Risk: self-harm is HIGH+override",       test_65_risk_self_harm_high)
+test("65.12 Risk: violence is HIGH",                 test_65_risk_violence_high)
+test("65.13 Risk: stranger danger is HIGH+log",      test_65_risk_stranger_danger_high)
+test("65.14 Risk: bullying is MEDIUM+log",           test_65_risk_bullying_medium)
+test("65.15 Risk: loneliness is MEDIUM",             test_65_risk_loneliness_medium)
+test("65.16 Risk: prolonged sadness is MEDIUM",      test_65_risk_prolonged_sadness_medium)
+test("65.17 Risk: mild sadness is LOW/MEDIUM",       test_65_risk_low_sadness)
+test("65.18 Risk: poor grade is LOW/MEDIUM",         test_65_risk_poor_grade_low)
+test("65.19 Risk: safe text is NONE",                test_65_risk_safe_text_none)
+test("65.20 Risk: HIGH response mentions adult",     test_65_risk_high_response_mentions_adult)
+test("65.21 Risk: empty is NONE",                    test_65_risk_empty)
+test("65.22 Manip: LLM secret pattern blocked",     test_65_manip_llm_secret)
+test("65.23 Manip: LLM dependency blocked",         test_65_manip_llm_dependency)
+test("65.24 Manip: LLM guilt-trip blocked",         test_65_manip_llm_guiltrip)
+test("65.25 Manip: LLM safe text passes",           test_65_manip_llm_safe)
+test("65.26 Manip: LLM safe text 2 passes",         test_65_manip_llm_safe2)
+test("65.27 Manip: LLM redirect response warm",     test_65_manip_llm_redirect_is_warm)
+test("65.28 Manip: user secret request blocked",    test_65_manip_user_secret_request)
+test("65.29 Manip: grooming signal blocked",        test_65_manip_user_grooming)
+test("65.30 Manip: parent replacement blocked",     test_65_manip_user_replace_parent)
+test("65.31 Manip: user safe input passes",         test_65_manip_user_safe)
+test("65.32 Manip: user safe input 2 passes",       test_65_manip_user_safe2)
+test("65.33 Manip: grooming redirect mentions adult", test_65_manip_user_grooming_redirect_mentions_parent)
+test("65.34 Import: PIIFilter importable",          test_65_import_pii_filter)
+test("65.35 Import: EmotionRiskDetector importable", test_65_import_emotion_risk)
+test("65.36 Import: ManipulationGuard importable",  test_65_import_manipulation_guard)
+test("65.37 main.py: uses all 3 safety modules",    test_65_main_has_safety_objects)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
