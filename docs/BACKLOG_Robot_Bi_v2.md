@@ -1,6 +1,6 @@
 # BACKLOG Robot Bi — Danh Sách Tính Năng
 
-> Phiên bản: 2.3 | Cập nhật: 2026-05-20
+> Phiên bản: 2.4 | Cập nhật: 2026-05-20
 > Đây là living document — thêm ý tưởng mới bất cứ lúc nào, không có timeline cứng.
 > Status: ✅ Done | 🔧 In progress / partial | ⬜ Not started | 💡 Idea / exploring
 > Thứ tự trong mỗi nhóm không phản ánh priority — priority được quyết định theo từng session.
@@ -33,8 +33,9 @@
 | ✅ | Safety filter post-LLM pre-TTS | Không bao giờ bỏ qua |
 | ✅ | RAG memory với threshold 0.62 | Deduplication, family-scoped; max 500 memories/family |
 | ✅ | Session naming tự động | Groq non-streaming, 5s timeout |
-| 🔧 | Wake word "Bi ơi" | **Disabled by default** (`WAKEWORD_ENABLED=false`). Khi bật: fuzzy match qua `faster-whisper tiny`, chưa có custom model |
-| ⬜ | Train wake word model tùy chỉnh | Cần 30+ audio samples |
+| 🔧 | Wake word "Bi ơi" — Foundation | Sprint 0.3: `src/wakeword/` — state machine, 3 backends, wired in `main.py`. **Disabled by default.** Model chưa train |
+| ⬜ | Thu dataset wake word | Cần 50–100 positive + 100+ negative WAV — xem `docs/WAKEWORD_DATASET_GUIDE.md` |
+| ⬜ | Train wake word model tùy chỉnh | Dùng openWakeWord sau khi có dataset. Output: `runtime/wakeword/bi_oi.tflite` |
 | ⬜ | Ngôn ngữ: hỗ trợ tiếng Anh song song | Bé có thể nói cả Anh lẫn Việt |
 | ⬜ | Pronunciation scoring tiếng Anh | Đánh giá phát âm của bé |
 | ⬜ | Language auto-detect | Tự nhận biết bé đang nói ngôn ngữ nào |

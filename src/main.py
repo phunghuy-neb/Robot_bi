@@ -53,6 +53,8 @@ from src.display.face_animator import FaceAnimator
 from src.ai.persona_manager import PersonaManager
 from src.emotion.emotion_analyzer import EmotionAnalyzer
 from src.emotion.emotion_alert import EmotionAlert
+from src.wakeword.wakeword_service import WakeWordService
+from src.wakeword.wakeword_router import WakeWordRouter
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -111,6 +113,18 @@ class RobotBiApp:
         # CryDetector — daemon thread song song
         self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
         self.cry_detector.start()
+
+        # Wake word service (Sprint 0.3) — disabled by default (WAKEWORD_ENABLED=false)
+        try:
+            self._wakeword_svc = WakeWordService()
+            # Sync mic device from EarSTT probe so both use the same mic
+            self._wakeword_svc.mic_device   = self.ear.mic_device
+            self._wakeword_svc.mic_channels = self.ear.mic_channels
+            self._wakeword = WakeWordRouter(service=self._wakeword_svc)
+        except Exception as _ww_err:
+            logger.warning("[Init] WakeWord unavailable: %s", _ww_err)
+            self._wakeword_svc = None
+            self._wakeword = None
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -318,6 +332,11 @@ class RobotBiApp:
         except Exception:
             pass
         try:
+            if self._wakeword:
+                self._wakeword.stop()
+        except Exception:
+            pass
+        try:
             self.eye.stop()
         except Exception:
             pass
@@ -487,6 +506,9 @@ class RobotBiApp:
 
     def run(self):
         import time as _time
+        # Start wake word background listener (no-op when disabled)
+        if self._wakeword:
+            self._wakeword.start()
         try:
             while True:
                 try:
@@ -494,6 +516,12 @@ class RobotBiApp:
                     if is_mom_talking():
                         _time.sleep(0.5)
                         continue
+
+                    # ── Wake word gate (disabled by default: WAKEWORD_ENABLED=false) ──
+                    if self._wakeword and self._wakeword.is_enabled():
+                        if not self._wakeword.wait_for_wakeword(timeout=30.0):
+                            continue  # timeout — loop again
+                        self._wakeword.on_stt_start()  # LISTENING → PROCESSING
 
                     if self._face:
                         try:
@@ -661,6 +689,10 @@ class RobotBiApp:
                     # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                     self.audio_queue.join()
 
+                    # Wake word cooldown — restart listener sau reply (no-op when disabled)
+                    if self._wakeword and self._wakeword.is_enabled():
+                        self._wakeword.on_reply_done()
+
                     if self._face:
                         try:
                             self._face.set_mode('idle')
@@ -697,6 +729,9 @@ class RobotBiApp:
                 except Exception as e:
                     logger.error("[MainLoop] Loi khong mong doi, bo qua iteration: %s", e, exc_info=True)
                     self._close_current_session()
+                    # Reset wake word to IDLE on pipeline error
+                    if self._wakeword and self._wakeword.is_enabled():
+                        self._wakeword.on_error()
                     _time.sleep(1)
                     continue
 

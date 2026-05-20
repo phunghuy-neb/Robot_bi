@@ -5274,6 +5274,256 @@ test("65.35 Import: EmotionRiskDetector importable", test_65_import_emotion_risk
 test("65.36 Import: ManipulationGuard importable",  test_65_import_manipulation_guard)
 test("65.37 main.py: uses all 3 safety modules",    test_65_main_has_safety_objects)
 
+# == GROUP 66 — Wake Word Foundation (Sprint 0.3) ============================
+# Uses placeholder backend (no mic, no model) — fully testable offline.
+
+import os as _os66
+_os66.environ.setdefault("WAKEWORD_ENABLED", "true")
+_os66.environ.setdefault("WAKEWORD_BACKEND", "placeholder")
+
+from src.wakeword.config import (
+    WAKEWORD_ENABLED as _WW_ENABLED,
+    WAKEWORD_BACKEND as _WW_BACKEND,
+    WAKEWORD_THRESHOLD as _WW_THRESHOLD,
+    WAKEWORD_COOLDOWN_SEC as _WW_COOLDOWN,
+    SAMPLE_RATE as _WW_SR,
+    CHUNK_FRAMES as _WW_CF,
+)
+from src.wakeword.wakeword_service import WakeWordService, WakeWordState
+from src.wakeword.wakeword_router import WakeWordRouter
+
+
+def _make_placeholder_svc():
+    """Create a WakeWordService in placeholder mode for testing."""
+    svc = WakeWordService()
+    svc._enabled  = True
+    svc._backend  = "placeholder"
+    svc._cooldown_sec = 0.1  # short cooldown for test speed
+    return svc
+
+
+# ── 66.1-66.5 Import + config ────────────────────────────────────────────────
+def test_66_import_config():
+    from src.wakeword import config as _c
+    assert hasattr(_c, "WAKEWORD_ENABLED")
+    assert hasattr(_c, "WAKEWORD_BACKEND")
+    assert hasattr(_c, "SAMPLE_RATE")
+
+def test_66_import_service():
+    from src.wakeword.wakeword_service import WakeWordService, WakeWordState
+    assert WakeWordState.IDLE == "IDLE"
+
+def test_66_import_router():
+    from src.wakeword.wakeword_router import WakeWordRouter
+    assert WakeWordRouter is not None
+
+def test_66_import_audio_listener():
+    from src.wakeword.audio_listener import AudioListener
+    assert AudioListener is not None
+
+def test_66_config_defaults_sane():
+    assert _WW_SR == 16000
+    assert _WW_CF == int(16000 * 80 / 1000)  # 1280 frames
+    assert 0.0 < _WW_THRESHOLD < 1.0
+    assert _WW_COOLDOWN > 0.0
+
+
+# ── 66.6-66.10 State machine basics ─────────────────────────────────────────
+def test_66_init_idle_state():
+    svc = _make_placeholder_svc()
+    assert svc.get_state() == WakeWordState.IDLE
+
+def test_66_is_enabled():
+    svc = _make_placeholder_svc()
+    assert svc.is_enabled() is True
+
+def test_66_disabled_service():
+    svc = _make_placeholder_svc()
+    svc._enabled = False
+    assert svc.is_enabled() is False
+    # wait_for_detection on disabled → False immediately
+    result = svc.wait_for_detection(timeout=0.05)
+    assert result is False
+
+def test_66_force_trigger_idle_to_listening():
+    svc = _make_placeholder_svc()
+    assert svc.get_state() == WakeWordState.IDLE
+    accepted = svc.force_trigger()
+    assert accepted is True
+    assert svc.get_state() == WakeWordState.LISTENING
+
+def test_66_set_state_processing():
+    svc = _make_placeholder_svc()
+    svc.force_trigger()
+    svc.set_state(WakeWordState.PROCESSING)
+    assert svc.get_state() == WakeWordState.PROCESSING
+
+
+# ── 66.11-66.15 Anti-spam / double-trigger protection ────────────────────────
+def test_66_double_trigger_rejected():
+    svc = _make_placeholder_svc()
+    # First trigger: accepted
+    first = svc.force_trigger()
+    assert first is True
+    # Second trigger in LISTENING state: rejected
+    second = svc.force_trigger()
+    assert second is False
+    assert svc.get_state() == WakeWordState.LISTENING
+
+def test_66_force_trigger_in_processing_rejected():
+    svc = _make_placeholder_svc()
+    svc.set_state(WakeWordState.PROCESSING)
+    result = svc.force_trigger()
+    assert result is False
+    assert svc.get_state() == WakeWordState.PROCESSING
+
+def test_66_force_trigger_in_cooldown_rejected():
+    svc = _make_placeholder_svc()
+    svc.set_state(WakeWordState.COOLDOWN)
+    result = svc.force_trigger()
+    assert result is False
+
+def test_66_reset_to_idle():
+    svc = _make_placeholder_svc()
+    svc.set_state(WakeWordState.PROCESSING)
+    svc.reset_to_idle()
+    assert svc.get_state() == WakeWordState.IDLE
+
+def test_66_reset_to_idle_clears_event():
+    import threading
+    svc = _make_placeholder_svc()
+    svc.force_trigger()
+    svc.reset_to_idle()
+    # After reset, wait_for_detection should time out (event cleared)
+    result = svc.wait_for_detection(timeout=0.05)
+    assert result is False
+
+
+# ── 66.16-66.20 Full cycle via wait_for_detection ────────────────────────────
+def test_66_wait_for_detection_timeout():
+    """wait_for_detection returns False on timeout (no trigger)."""
+    svc = _make_placeholder_svc()
+    result = svc.wait_for_detection(timeout=0.05)
+    assert result is False
+    assert svc.get_state() == WakeWordState.IDLE
+
+def test_66_wait_for_detection_with_trigger():
+    """force_trigger before wait → wait_for_detection returns True immediately."""
+    import threading
+    svc = _make_placeholder_svc()
+    # Trigger from a separate thread after short delay
+    def _trigger():
+        import time
+        time.sleep(0.02)
+        svc.force_trigger()
+    threading.Thread(target=_trigger, daemon=True).start()
+    result = svc.wait_for_detection(timeout=1.0)
+    assert result is True
+    assert svc.get_state() == WakeWordState.LISTENING
+
+def test_66_enter_cooldown_transitions():
+    svc = _make_placeholder_svc()
+    svc.force_trigger()
+    svc.set_state(WakeWordState.PROCESSING)
+    svc.enter_cooldown()
+    assert svc.get_state() == WakeWordState.COOLDOWN
+
+def test_66_cooldown_auto_returns_to_idle():
+    """COOLDOWN → IDLE after cooldown_sec (0.1s in test)."""
+    import time
+    svc = _make_placeholder_svc()
+    svc._cooldown_sec = 0.1
+    svc.force_trigger()
+    svc.set_state(WakeWordState.PROCESSING)
+    svc.enter_cooldown()
+    time.sleep(0.3)  # wait > cooldown_sec
+    assert svc.get_state() == WakeWordState.IDLE
+
+def test_66_full_placeholder_cycle():
+    """Full IDLE→LISTENING→PROCESSING→COOLDOWN→IDLE cycle."""
+    import time, threading
+    svc = _make_placeholder_svc()
+    svc._cooldown_sec = 0.1
+    router = WakeWordRouter(svc)
+
+    # IDLE
+    assert router.get_state() == WakeWordState.IDLE
+
+    # Trigger from background
+    def _trigger():
+        time.sleep(0.02)
+        svc.force_trigger()
+    threading.Thread(target=_trigger, daemon=True).start()
+
+    # LISTENING
+    detected = router.wait_for_wakeword(timeout=1.0)
+    assert detected is True
+    assert router.get_state() == WakeWordState.LISTENING
+
+    # PROCESSING
+    router.on_stt_start()
+    assert router.get_state() == WakeWordState.PROCESSING
+
+    # COOLDOWN
+    router.on_reply_done()
+    assert router.get_state() == WakeWordState.COOLDOWN
+
+    # IDLE (after cooldown)
+    time.sleep(0.3)
+    assert router.get_state() == WakeWordState.IDLE
+
+
+# ── 66.21-66.22 WakeWordRouter API ──────────────────────────────────────────
+def test_66_router_is_enabled():
+    svc = _make_placeholder_svc()
+    router = WakeWordRouter(svc)
+    assert router.is_enabled() is True
+
+def test_66_router_on_error_resets_idle():
+    svc = _make_placeholder_svc()
+    router = WakeWordRouter(svc)
+    svc.set_state(WakeWordState.PROCESSING)
+    router.on_error()
+    assert router.get_state() == WakeWordState.IDLE
+
+
+# ── 66.23-66.24 main.py integration ─────────────────────────────────────────
+def test_66_main_has_wakeword_svc():
+    import ast, pathlib
+    src = pathlib.Path("src/main.py").read_text(encoding="utf-8")
+    assert "_wakeword_svc" in src, "main.py must have _wakeword_svc"
+
+def test_66_main_has_wakeword_router():
+    import pathlib
+    src = pathlib.Path("src/main.py").read_text(encoding="utf-8")
+    assert "_wakeword" in src, "main.py must have _wakeword"
+    assert "WakeWordRouter" in src, "main.py must use WakeWordRouter"
+
+test("66.1  Import: wakeword config",              test_66_import_config)
+test("66.2  Import: WakeWordService + State",      test_66_import_service)
+test("66.3  Import: WakeWordRouter",               test_66_import_router)
+test("66.4  Import: AudioListener",                test_66_import_audio_listener)
+test("66.5  Config: defaults sane",                test_66_config_defaults_sane)
+test("66.6  State: init = IDLE",                   test_66_init_idle_state)
+test("66.7  State: is_enabled True",               test_66_is_enabled)
+test("66.8  State: disabled returns False",        test_66_disabled_service)
+test("66.9  State: force_trigger IDLE→LISTENING",  test_66_force_trigger_idle_to_listening)
+test("66.10 State: set_state PROCESSING",          test_66_set_state_processing)
+test("66.11 Anti-spam: double trigger rejected",   test_66_double_trigger_rejected)
+test("66.12 Anti-spam: trigger in PROCESSING",     test_66_force_trigger_in_processing_rejected)
+test("66.13 Anti-spam: trigger in COOLDOWN",       test_66_force_trigger_in_cooldown_rejected)
+test("66.14 Reset: reset_to_idle works",           test_66_reset_to_idle)
+test("66.15 Reset: reset clears event",            test_66_reset_to_idle_clears_event)
+test("66.16 Wait: timeout returns False",          test_66_wait_for_detection_timeout)
+test("66.17 Wait: trigger → returns True",         test_66_wait_for_detection_with_trigger)
+test("66.18 Cooldown: transitions to COOLDOWN",    test_66_enter_cooldown_transitions)
+test("66.19 Cooldown: auto-returns to IDLE",       test_66_cooldown_auto_returns_to_idle)
+test("66.20 Cycle: full placeholder flow",         test_66_full_placeholder_cycle)
+test("66.21 Router: is_enabled mirrors service",   test_66_router_is_enabled)
+test("66.22 Router: on_error → IDLE",              test_66_router_on_error_resets_idle)
+test("66.23 main.py: has _wakeword_svc",           test_66_main_has_wakeword_svc)
+test("66.24 main.py: has WakeWordRouter",          test_66_main_has_wakeword_router)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

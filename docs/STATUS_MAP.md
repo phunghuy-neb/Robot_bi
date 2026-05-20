@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.1 | Cập nhật: 2026-05-20
+> Phiên bản: 1.2 | Cập nhật: 2026-05-20
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -30,7 +30,7 @@
 | TTS edge-tts chunked | 🟢 | `src/audio/output/mouth_tts.py` | **Yêu cầu internet**; fallback pyttsx3 local |
 | Mom talk audio | 🟢 | `src/audio/output/mouth_tts.py` | `pygame.Channel(7)`, 16k→44.1k resample; **Protected Fix** |
 | Cry detection YAMNet | 🟢 | `src/audio/input/cry_detector.py` | Optional TFLite runtime; fallback RMS/ZCR |
-| Wake word | 🟡 | `src/audio/input/wake_word.py` | **Disabled by default** (`WAKEWORD_ENABLED=false`); fuzzy match tiny model |
+| Wake word | 🟡 | `src/wakeword/` | Sprint 0.3 foundation: state machine (IDLE/LISTENING/PROCESSING/COOLDOWN), 3 backends (openwakeword/whisper/placeholder), wired in main.py; **model not trained yet** |
 | Persona manager | 🟡 | `src/ai/persona_manager.py` | Static persona load; adaptive personality chưa có |
 | Emotion analyzer | 🟡 | `src/emotion/emotion_analyzer.py` | Basic sentiment; không phải ML model thật |
 | Emotion journal | 🟡 | `src/emotion/emotion_journal.py` | SQLite log; no real analysis |
