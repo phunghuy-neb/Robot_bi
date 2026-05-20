@@ -1,6 +1,6 @@
 # ARCHITECTURE.md — Kiến Trúc Hệ Thống Robot Bi
 
-> Phiên bản: 1.1 | Cập nhật: 2026-05-19
+> Phiên bản: 1.2 | Cập nhật: 2026-05-20
 > File này mô tả kiến trúc tổng thể, data flow, và các quyết định thiết kế quan trọng.
 > Đây là tài liệu descriptive — implementation details nằm trong `PROJECT.md` và `SYSTEM_MAP.md`.
 > Cập nhật khi có thay đổi về kiến trúc, không cập nhật cho bugfix thông thường.
@@ -93,7 +93,7 @@ Wake word detected
        │
        ▼
   LLM Processing
-  Groq primary → Gemini fallback
+  5-provider chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare AI
        │
        ▼
   Safety Filter (POST-LLM)
@@ -480,7 +480,7 @@ Admin endpoints (`/api/admin/families`) chỉ accessible với `is_admin = True`
 | USB webcam chỉ cho prototype | Đơn giản, test nhanh, không cần phần cứng robot |
 | SQLite thay vì PostgreSQL | Đơn giản, không cần server riêng, đủ cho scale hiện tại |
 | ChromaDB cho RAG | Local, không cần cloud, privacy-first |
-| Groq primary + Gemini fallback chain | Groq nhanh hơn, fallback chain đảm bảo không bao giờ mất AI |
+| 5-provider LLM fallback chain (Cerebras → Groq → Sambanova → Gemini → Cloudflare AI) | Không bao giờ mất AI kể cả khi 4/5 provider lỗi; Groq có cooldown mechanism |
 | edge-tts + pygame chunked | Time-to-first-audio < 2s, không cần đợi full audio |
 | Robot Display là web app | Dễ update UI không cần reflash ESP32; Brain Server serve, ESP32-S3 render |
 | Cloudflare Tunnel | Remote access không cần port forwarding, secure |

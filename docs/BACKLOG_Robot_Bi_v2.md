@@ -1,6 +1,6 @@
 # BACKLOG Robot Bi — Danh Sách Tính Năng
 
-> Phiên bản: 2.1 | Cập nhật: 2026-05-19
+> Phiên bản: 2.2 | Cập nhật: 2026-05-20
 > Đây là living document — thêm ý tưởng mới bất cứ lúc nào, không có timeline cứng.
 > Status: ✅ Done | 🔧 In progress / partial | ⬜ Not started | 💡 Idea / exploring
 > Thứ tự trong mỗi nhóm không phản ánh priority — priority được quyết định theo từng session.
@@ -27,13 +27,13 @@
 
 | Status | Feature | Ghi chú |
 |---|---|---|
-| ✅ | LLM: Groq primary + Gemini fallback | `llama-3.3-70b-versatile` / `gemini-2.5-flash-lite` |
+| ✅ | LLM: 5-provider fallback chain | Cerebras → Groq → Sambanova → Gemini → Cloudflare AI; config trong `config.json` |
 | ✅ | STT: faster-whisper GPU/CPU auto-detect | `large-v2` GPU, `medium` CPU |
-| ✅ | TTS: edge-tts + pyttsx3 fallback | Chunked streaming |
+| ✅ | TTS: edge-tts + pyttsx3 fallback | Chunked streaming; **edge-tts yêu cầu internet** (Microsoft cloud TTS) |
 | ✅ | Safety filter post-LLM pre-TTS | Không bao giờ bỏ qua |
-| ✅ | RAG memory với threshold 0.50 | Deduplication, family-scoped |
+| ✅ | RAG memory với threshold 0.62 | Deduplication, family-scoped; max 500 memories/family |
 | ✅ | Session naming tự động | Groq non-streaming, 5s timeout |
-| 🔧 | Wake word "Bi ơi" | Dev/test path hiện tại, chưa có custom model |
+| 🔧 | Wake word "Bi ơi" | **Disabled by default** (`WAKEWORD_ENABLED=false`). Khi bật: fuzzy match qua `faster-whisper tiny`, chưa có custom model |
 | ⬜ | Train wake word model tùy chỉnh | Cần 30+ audio samples |
 | ⬜ | Ngôn ngữ: hỗ trợ tiếng Anh song song | Bé có thể nói cả Anh lẫn Việt |
 | ⬜ | Pronunciation scoring tiếng Anh | Đánh giá phát âm của bé |

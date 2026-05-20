@@ -346,7 +346,7 @@ Robot Bi dùng kiến trúc AI kết hợp — không phải hoàn toàn offline
 
 ### 10.2 Fallback
 - Whisper GPU → CPU fallback tự động
-- Groq (primary) → Gemini (fallback) tự động
+- LLM 5-provider chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare AI (tự động theo thứ tự)
 - TTS edge-tts → pyttsx3 fallback
 - Microphone không có → silent mode, không crash
 - Camera không có → tiếp tục hoạt động không có vision

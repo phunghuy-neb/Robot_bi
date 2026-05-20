@@ -1,8 +1,8 @@
 """
 prompts.py — Robot Bi: Kho lưu trữ System Prompts
 ===================================================
-Tách biệt khỏi core_ai.py để dễ maintain và A/B test.
-Hiện tại chưa import vào core_ai.py — chuẩn bị cho refactor sau.
+Tách biệt khỏi ai_engine.py để dễ maintain và A/B test.
+Import bởi src/ai/ai_engine.py (MAIN_SYSTEM_PROMPT, REFUSAL_RESPONSE, ERROR_RESPONSE).
 """
 
 # ── System Prompt chính — Persona Bi ─────────────────────────────────────────

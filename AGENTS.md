@@ -25,7 +25,7 @@ Do not install packages, download tools, edit `.env`, or run global installers w
 
 # PROJECT.md - Robot Bi Single Source of Truth
 
-> Updated: 2026-05-13
+> Updated: 2026-05-20
 > Robot Bi is an AI tutor robot project for children ages 5-12.
 > This file is the single source of truth for rules, workflow, protected fixes, technical constraints, and AI context policy.
 
@@ -126,24 +126,24 @@ Priorities:
 - Parent-friendly operation and monitoring
 - Stable local runtime with cloud AI APIs only where explicitly part of the current stack
 
-AI backend: Groq primary and Gemini fallback. Do not switch to Ollama unless the user explicitly requests a stack change.
+AI backend: 5-provider fallback chain — Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI. Primary is Cerebras (Qwen-3-235B); Groq has cooldown mechanism. Do not switch to Ollama unless the user explicitly requests a stack change.
 
 ## Current Stack
 
 | Layer | Current technology | Constraint |
 |---|---|---|
-| LLM primary | Groq `llama-3.3-70b-versatile` | Use through `src/ai/ai_engine.py` |
-| LLM fallback | Gemini `gemini-2.5-flash-lite` | Use through fallback path in `ai_engine.py` |
+| LLM | 5-provider fallback chain: Cerebras `qwen-qwq-32b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.5-flash-lite` → Cloudflare Workers AI | All through `src/ai/ai_engine.py`; Groq has `_groq_cooldown_until` mechanism; config via `config.json` |
 | STT | `faster-whisper` | GPU path keeps `large-v2`; CPU uses `WHISPER_CPU_MODEL`, current default `medium` |
-| TTS | `edge-tts` + `pygame` | Fallback to `pyttsx3` |
-| Safety | Regex/pattern filter | `src/safety/safety_filter.py`, post-LLM and pre-TTS |
-| RAG | `chromadb` + `sentence-transformers` | Family-scoped queries required |
-| Vision | `opencv-python` | Camera capture in background thread |
+| TTS | `edge-tts` + `pygame` | **Requires internet** (edge-tts is cloud Microsoft TTS). Fallback to `pyttsx3` (local). |
+| Wake word | `faster-whisper tiny` fuzzy match | **Disabled by default** (`WAKEWORD_ENABLED=false` in `.env`). Not a trained custom model. |
+| Safety | Regex/pattern filter | `src/safety/safety_filter.py`, post-LLM and pre-TTS. 3 layers: topic classifier (5 patterns) + blacklist (11 words) + sentence cap |
+| RAG | `chromadb` + `sentence-transformers` | Family-scoped queries required; similarity threshold `0.62`; model `paraphrase-multilingual-MiniLM-L12-v2`; max 500 memories/family |
+| Vision | `opencv-python` | Camera capture in background thread. follow_me.py and face_recognizer.py are **stubs only** |
 | Cry detection | YAMNet TFLite + fallback | Optional TensorFlow Lite runtime |
 | API | `fastapi`, `uvicorn`, WebSocket routes | Main module `src/api/server.py` |
 | Storage | SQLite | Fixed runtime path `runtime/robot_bi.db` |
 | Auth | `argon2-cffi`, `python-jose` | JWT access/refresh and legacy PIN auth |
-| Firmware | ESP32 Arduino firmware | `firmware/Robot_BI/Robot_BI.ino` |
+| Firmware | ESP32 Arduino (motor only) | `firmware/Robot_BI/Robot_BI.ino` — motor + L298N + WebSocket only. ESP32-S3 audio firmware does **not exist yet** |
 
 ## Protected Fixes
 
@@ -153,8 +153,8 @@ Do not regress these behaviors without explicit user approval and full verificat
 - Mom pause logic and `is_mom_talking()`.
 - Camera delay fix: separate camera thread, queue bridge, `CAP_PROP_BUFFERSIZE=1`.
 - SafetyFilter must run post-LLM and pre-TTS.
-- RAG threshold `0.50`, deduplication, and family-scoped ChromaDB filters.
-- Groq primary `llama-3.3-70b-versatile` plus Gemini fallback.
+- RAG threshold `0.62`, deduplication, and family-scoped ChromaDB filters.
+- 5-provider LLM chain order: Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI. Do not reorder or remove providers without explicit approval.
 - faster-whisper GPU/CPU auto-detect and `WHISPER_CPU_MODEL` CPU fallback.
 - HTTPS self-signed startup path and Cloudflare Tunnel support.
 - Audio queue and chunked TTS streaming for low time-to-first-audio.
@@ -187,7 +187,7 @@ Do not regress these behaviors without explicit user approval and full verificat
 - API server: `src/api/server.py` and `src/api/routers/`
 - Database: `src/infrastructure/database/db.py`
 - Auth: `src/infrastructure/auth/auth.py`
-- Parent App: `frontend/parent_app/index.html`
+- Parent App: `frontend/parent_app/src/` (React+Vite SPA; `index.html` is Vite template)
 - Robot Display: `frontend/robot_display/index.html`
 - Firmware: `firmware/Robot_BI/Robot_BI.ino`
 - System map: `SYSTEM_MAP.md`
@@ -249,10 +249,15 @@ start_robot.bat
 
 ## Known Current Gaps
 
-- Wake-word "Bi oi" still uses a dev/test path; a custom trained model is not confirmed in the current repo.
+- Wake word is **disabled by default** (`WAKEWORD_ENABLED=false`). When enabled, it uses `faster-whisper tiny` fuzzy match — not a trained custom wake word model.
+- `edge-tts` (primary TTS) **requires internet** — Microsoft cloud TTS. Robot Bi is not fully offline-capable with default TTS.
+- ESP32-S3 (audio + display board) has **no firmware** — hardware exists but INMP441 mic and MAX98357 speaker are not integrated yet.
+- `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are **stub placeholders** — no actual CV or motion logic.
+- Motor firmware has **hardcoded IP** `192.168.40.107:8443` — must be changed per deployment. Not configurable via OTA.
 - Cloudflare quick tunnel URLs can change after restart unless a named tunnel is configured.
 - YAMNet TFLite cry detection depends on optional TensorFlow Lite support and falls back when unavailable.
 - Camera, browser audio, mobile behavior, and motor hardware require real-device verification.
+- Parent App migrated to React+Vite; `frontend/parent_app/src/` is the real source. Some API calls use mock fallbacks (radio, videos, games, system logs).
 
 ## Historical Notes
 
