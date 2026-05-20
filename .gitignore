@@ -53,12 +53,19 @@ Thumbs.db
 # Runtime directory (DB, chroma, logs, caches)
 runtime/
 !runtime/.gitkeep
+!runtime/wakeword/
+!runtime/wakeword/.gitkeep
 
 # Legacy (đã chuyển sang runtime/)
 event_queue.json
 tasks.json
 robot_bi.db
 data/
+!data/wakeword/
+!data/wakeword/positive/
+!data/wakeword/positive/.gitkeep
+!data/wakeword/negative/
+!data/wakeword/negative/.gitkeep
 
 # Frontend build artifacts
 node_modules/

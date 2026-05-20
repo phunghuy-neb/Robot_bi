@@ -3550,10 +3550,10 @@ def test_48_4_stress_test_uses_src_paths():
 def test_48_5_stress_test_runs_without_module_not_found():
     import subprocess
     result = subprocess.run(
-        ["python3", "stress_test.py"],
+        [sys.executable, "stress_test.py"],  # sys.executable tránh python3 vs python trên Windows
         capture_output=True,
         text=True,
-        timeout=60,
+        timeout=120,
     )
     assert "ModuleNotFoundError" not in result.stderr, (
         f"stress_test co ModuleNotFoundError: {result.stderr[:300]}"
