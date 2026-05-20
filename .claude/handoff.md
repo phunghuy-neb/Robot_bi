@@ -16,6 +16,13 @@
 
 ## Last Completed Task
 
+- 2026-05-20: **Sprint 0.1 — Sync docs to code reality (docs-only, no code changed, no tests needed)**. 4 tasks:
+  - Task 0.1.1: `PROJECT.md` updated — 5-provider LLM chain (Cerebras→Groq→Sambanova→Gemini→Cloudflare), RAG threshold 0.62, edge-tts internet requirement, wake word disabled by default, firmware stubs flagged, Parent App path corrected.
+  - Task 0.1.2: Docs drift fixed — `ARCHITECTURE.md` LLM chain corrected, `SRS_Robot_Bi_v2.md` fallback section updated, `prompts.py` stale comment fixed.
+  - Task 0.1.3: `BACKLOG_Robot_Bi_v2.md` v2.2 — LLM row reflects 5-provider chain, RAG 0.50→0.62, edge-tts internet note, wake word status note.
+  - Task 0.1.4: `docs/STATUS_MAP.md` created — 93-item feature reality map (🟢/🟡/🔴/⚪) across 7 domains, critical gaps section.
+  - `CLAUDE.md` + `AGENTS.md` regenerated via `python sync.py`. Commit: `479d850`.
+
 - 2026-05-18: **AI engine overhaul (390/390 PASS)**. Fixed Gemini model name (`gemini-2.0-flash` in `config.json`). Extended fallback chain: Groq → Gemini → Cerebras → Sambanova → Cloudflare Workers AI. New API keys needed in `.env`: `CEREBRAS_API_KEY`, `SAMBANOVA_API_KEY`, `CLOUDFLARE_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`. Fixed emotional tone in `MAIN_SYSTEM_PROMPT` (no "Oa!" on sad inputs, listen before advising, no character-name carryover). Split `REFUSAL_RESPONSE` (safety filter) from `ERROR_RESPONSE` (connection errors) in `prompts.py`; synced `safety_filter._REFUSAL_RESPONSE` to match.
 
 - 2026-05-14: **Goal 4 — wire Parent App mock adapters to backend APIs (390/390 PASS)**. `frontend/parent_app/src/services/api.js` rewritten with transform functions for 6 adapters: `getChildProfiles` (GET /api/children, child_id→id, age already computed by backend), `getRadioChannels` / `getVideoLessons` / `getInteractiveGames` (content_items schema, content_id→id, fallback to mock when backend has no seeded data), `getMonthlyEmotions` (GET /api/emotions/monthly, weekly count→percentage transform), `getSystemLogs` (GET /api/admin/logs, component→source). All six use mock fallback when backend returns empty or 403. BLOCKED adapters (`getRoomLocation`, `getParentChatHistory`) return null — no component renders their data. Save-button stubs in SettingsOverlay unchanged (show toast, no api.js call). Encoding artifacts cleaned. 390/390 PASS, `npm run build` passes (196KB JS, 25KB CSS).
@@ -40,19 +47,22 @@
 
 ## Known Issues
 
-- Wake-word custom `bi_oi` model is not confirmed; current repo contains dev/test wake-word paths.
+- Wake word **disabled by default** (`WAKEWORD_ENABLED=false`). Uses `faster-whisper tiny` fuzzy match when enabled — not a trained model.
+- `edge-tts` (primary TTS) **requires internet** — not fully offline.
+- ESP32-S3 (audio board) has **no firmware** — INMP441 + MAX98357 hardware is silent.
+- `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are **stubs** — no real logic.
+- Motor firmware has **hardcoded IP** `192.168.40.107:8443` — must change per deployment.
 - Cloudflare quick tunnel URL may change after restart unless a named tunnel is configured.
 - YAMNet TFLite support depends on optional runtime dependencies.
-- Camera, browser audio, mobile behavior, and motor hardware still require real-device verification.
+- Parent App: radio/videos/games/logs use mock fallbacks; 4 saveSettings() stubs return null.
+- See `docs/STATUS_MAP.md` for complete feature reality map.
 
 ## Next Recommended Action
 
-- **Manual browser test recommended**: login with real credentials, verify WebSocket status, open Settings overlay (child profiles), open More tab (radio/video/games), open Journal tab (emotion chart), open Admin panel (system logs). Check Network tab that calls hit real backend, not mock.
-- Seed content data in SQLite (`content_items` table) if radio/video/game sections show mock data — backend returns empty array when no rows exist, triggering mock fallback.
-- Remaining BLOCKED items: `getRoomLocation` (no component renders it), `getParentChatHistory` (LearningPage shows coming-soon), SettingsOverlay save buttons (show toast, backend endpoints exist but buttons don't call them yet).
-- If backend serves Parent App via `ops_router.py` StaticFiles, point it to `frontend/parent_app/dist/` instead of the root `frontend/parent_app/`.
-- For other code changes, read `PROJECT.md`, this handoff, and relevant source files.
-- For large feature/API/schema/cross-module work, use Spec Kit or write a clear plan first.
+Sprint 0.1 is complete. Next up per MASTER_PLAN: **Sprint 0.2 — Code Cleanup** (remove dead stubs, fix hardcoded IP in firmware, clean TODOs) OR start **Sprint 1.1 — Living Conversation** (conversation state machine, topic tracking, context-aware responses).
+
+For code changes: read `PROJECT.md`, this handoff, and relevant source files.
+For large feature/API/schema/cross-module work: use Spec Kit or write a clear plan first.
 
 ## Current Test Command
 
