@@ -16,6 +16,18 @@
 
 ## Last Completed Task
 
+- 2026-05-20: **Sprint 0.3 — Wake Word Foundation (6 new files + main.py integration + 24 tests)**. 454/455 PASS (28.9 pre-existing):
+  - `src/wakeword/config.py` — all config from env (backend/threshold/cooldown/model path)
+  - `src/wakeword/audio_listener.py` — background mic stream, stops on detection (EarSTT handoff)
+  - `src/wakeword/wakeword_service.py` — 4-state machine (IDLE/LISTENING/PROCESSING/COOLDOWN), 3 backends (openwakeword/whisper/placeholder), double-trigger protection, auto-cooldown + restart
+  - `src/wakeword/wakeword_router.py` — thin shim: wait_for_wakeword / on_stt_start / on_reply_done / on_error
+  - `src/main.py` — WakeWordService + WakeWordRouter wired; gate in run(), cooldown after reply, reset on error, stop on shutdown; no-op when disabled
+  - `docs/WAKEWORD_DATASET_GUIDE.md` — complete dataset spec (50–150 positive, 100–200 negative, recording guide, format, naming, training commands)
+  - Tech stack decision: openWakeWord (primary, lazy-load when model exists) → faster-whisper tiny (fallback) → placeholder (testing)
+  - No new hard dependencies
+  - Model NOT trained — ready to collect dataset per WAKEWORD_DATASET_GUIDE.md
+  - Commit: `c8fe264`
+
 - 2026-05-20: **Sprint 0.2 — Child Safety Foundation (4 new modules + main.py integration + 37 tests)**. 430/431 PASS (28.9 pre-existing, unrelated):
   - `src/safety/vi_normalize.py` — strip Vietnamese diacritics for fuzzy matching (no external deps)
   - `src/safety/pii_filter.py` — 8 PII types (phone/email/CCCD/address/school/password/financial/fullname), dual-pattern (có/không dấu), gentle redirect
@@ -71,9 +83,16 @@
 
 ## Next Recommended Action
 
-Sprint 0.2 is complete. Next up per MASTER_PLAN: **Sprint 0.3 — Code Cleanup** (remove dead stubs, fix hardcoded IP in firmware, clean TODOs) OR **Sprint 1.1 — Living Conversation** (conversation state machine, topic tracking, context-aware responses).
+Sprint 0.3 is complete. Wake word foundation ready. **Next steps in order:**
+1. **Collect wake word dataset** per `docs/WAKEWORD_DATASET_GUIDE.md` (50+ positive, 100+ negative WAV files)
+2. **Train model**: `pip install openwakeword` + `python -m openwakeword.train ...` → `runtime/wakeword/bi_oi.tflite`
+3. **Enable**: set `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=openwakeword` in `.env`
+4. **Test**: `python tests/wakeword_test_harness.py` (future — test harness is in Group 66 for now)
 
-Safety layer is now: safety_filter (post-LLM) + pii_filter (pre-LLM) + emotion_risk_detector (pre-LLM) + manipulation_guard (pre-LLM input + post-LLM output).
+OR: skip dataset collection for now and start **Sprint 1.1 — Living Conversation**.
+
+Safety layer (all active): safety_filter + pii_filter + emotion_risk_detector + manipulation_guard.
+Wake word (disabled by default): `WAKEWORD_ENABLED=false`. Foundation complete; model needed.
 
 For code changes: read `PROJECT.md`, this handoff, and relevant source files.
 For large feature/API/schema/cross-module work: use Spec Kit or write a clear plan first.
@@ -83,6 +102,20 @@ For large feature/API/schema/cross-module work: use Spec Kit or write a clear pl
 ```bash
 python tests/run_tests.py
 ```
+
+## Files Recently Touched (Sprint 0.3)
+
+- `src/wakeword/__init__.py` (new)
+- `src/wakeword/config.py` (new — all env config)
+- `src/wakeword/audio_listener.py` (new — background mic capture)
+- `src/wakeword/wakeword_service.py` (new — state machine + backends)
+- `src/wakeword/wakeword_router.py` (new — main.py integration shim)
+- `src/wakeword/README.md` (new — training instructions)
+- `src/main.py` (modified — WakeWordService + WakeWordRouter integrated)
+- `tests/run_tests.py` (modified — Group 66, 24 tests)
+- `docs/WAKEWORD_DATASET_GUIDE.md` (new — full dataset recording guide)
+- `docs/STATUS_MAP.md` (updated v1.2)
+- `docs/BACKLOG_Robot_Bi_v2.md` (updated v2.4)
 
 ## Files Recently Touched (Sprint 0.2)
 
