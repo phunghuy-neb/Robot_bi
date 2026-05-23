@@ -109,6 +109,8 @@
 10. **Không commit broken tests** — kể cả pre-existing failures phải được ghi chú rõ.
 11. **Respect deferred items** — không build deferred item trừ khi user yêu cầu.
 12. **Cập nhật EXECUTION_STATE.md** khi sprint kết thúc.
+13. **Claude MUST stop after implementation and update CODE_REVIEW_STATE.md** — không tiếp tục commit trước khi file được điền đầy đủ.
+14. **Claude MUST wait for external review before final commit** — Codex/ChatGPT/Gemini phải review trước. Claude không tự approve.
 
 ---
 
