@@ -51,15 +51,29 @@ from src.api.server import init_server, start_api_server, get_puppet_queue, init
 import src.infrastructure.sessions.state as _network_state
 
 from src.display.face_animator import FaceAnimator
-from src.ai.persona_manager import PersonaManager
+from src.ai.persona_manager import PersonaManager, ConversationContext
 from src.emotion.emotion_analyzer import EmotionAnalyzer
 from src.emotion.emotion_alert import EmotionAlert
 from src.wakeword.wakeword_service import WakeWordService
 from src.wakeword.wakeword_router import WakeWordRouter
-from src.living.living_state import LivingStateEngine
+from src.living.living_state import LivingStateEngine, BiState
 from src.living.micro_moments import MicroMomentsEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
+
+# Giận dỗi phrases — hờn dỗi nhẹ, không drama, không guilt-trip
+_POUTING_PHRASES = [
+    "Ừ thôi, Bi ngồi đây tự chơi vậy~",
+    "Bi tự nghĩ trò gì hay hay đây...",
+    "Hm... yên tĩnh quá, Bi ngồi một mình thôi~",
+    "Ừ mà không sao, Bi tự vui cũng được~",
+]
+_WELCOME_BACK_PHRASES = [
+    "Oa, bé đến rồi! Vui quá!",
+    "Bé ơi, có bé là vui hơn nhiều~",
+    "Á có bé rồi! Bi đang nghĩ trò gì vui cùng bé nè~",
+    "Yay! Bé quay lại rồi! Bi vui lắm~",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +147,8 @@ class RobotBiApp:
         self._living = LivingStateEngine()
         self._micro = MicroMomentsEngine()
         self._last_homework_at: float = 0.0
-        self._micro_speaking: bool = False  # True while micro moment TTS is playing
+        self._micro_speaking: bool = False   # True while micro moment TTS is playing
+        self._pouting_announced: bool = False  # True after first MISSING_KID pouting phrase fired
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -361,6 +376,22 @@ class RobotBiApp:
         except Exception as e:
             logger.debug("[MicroMoment] skip: %s", e)
 
+    def _fire_pouting_phrase(self) -> None:
+        """Fire a single giận dỗi phrase (non-blocking); skips during sleep hours 22:00–07:00."""
+        import random as _rand
+        from datetime import datetime as _dt
+        _hour = _dt.now().hour
+        if _hour >= 22 or _hour < 7:
+            return
+        phrase = _rand.choice(_POUTING_PHRASES)
+        threading.Thread(target=self._speak_micro_moment, args=(phrase,), daemon=True).start()
+
+    def _fire_welcome_back_phrase(self) -> None:
+        """Speak a welcome-back phrase synchronously before the LLM response."""
+        import random as _rand
+        phrase = _rand.choice(_WELCOME_BACK_PHRASES)
+        self._speak_text(phrase)
+
     def _shutdown(self):
         if self._shutdown_done:
             return
@@ -467,12 +498,16 @@ class RobotBiApp:
                 if rag_context:
                     user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
 
-                # Persona modifier
+                # Persona + context modifier — passed via system_context, not injected into user_text
+                persona_system_ctx: str | None = None
                 if self._persona:
                     try:
-                        mod = self._persona.get_system_prompt_modifier()
-                        if mod:
-                            user_text = f"System Instruction: {mod}\n\n{user_text}"
+                        persona_mod = self._persona.get_system_prompt_modifier()
+                        context = self._persona.detect_context(user_text_goc)
+                        ctx_mod = self._persona.get_context_prompt_modifier(context)
+                        combined = f"{persona_mod} {ctx_mod}".strip()
+                        if combined:
+                            persona_system_ctx = combined
                     except Exception:
                         pass
 
@@ -513,6 +548,7 @@ class RobotBiApp:
                     continue
 
                 living_context = self._living_thinking_context()
+                system_ctx = "\n".join(filter(None, [persona_system_ctx, living_context])) or None
 
                 # Stream LLM → safety filter → in ra terminal
                 print("Bi: ", end="", flush=True)
@@ -520,7 +556,7 @@ class RobotBiApp:
                 full_reply_parts = []
                 sanitized_reply_parts = []
 
-                for token in self.brain.stream_chat(user_text, system_context=living_context):
+                for token in self.brain.stream_chat(user_text, system_context=system_ctx):
                     buffer += token
                     full_reply_parts.append(token)
                     while True:
@@ -623,6 +659,12 @@ class RobotBiApp:
                         puppet_played = self._handle_puppet_queue()
                         if not puppet_played:
                             self._fire_micro_moment_if_ready()
+                        # Giận dỗi — announce once; skip when micro moment is already speaking
+                        if (self._living.get_state() == BiState.MISSING_KID
+                                and not self._pouting_announced
+                                and not self._micro_speaking):
+                            self._fire_pouting_phrase()
+                            self._pouting_announced = True
                         continue
 
                     try:
@@ -698,6 +740,16 @@ class RobotBiApp:
                         self._complete_direct_response_turn()
                         continue
 
+                    # Welcome back after giận dỗi (after safety, before LLM; skip for COMFORT)
+                    if self._pouting_announced:
+                        try:
+                            _wb_ctx = self._persona.detect_context(user_text_goc) if self._persona else None
+                            if _wb_ctx != ConversationContext.COMFORT:
+                                self._fire_welcome_back_phrase()
+                        except Exception:
+                            pass
+                        self._pouting_announced = False
+
                     if is_first_turn_of_session:
                         def _name_session(session_id=self._current_session_id, user_text=user_text_goc):
                             from src.infrastructure.sessions.session_namer import _generate_session_title
@@ -720,20 +772,25 @@ class RobotBiApp:
                         except Exception:
                             pass
 
+                    persona_system_ctx: str | None = None
                     if self._persona:
                         try:
                             persona_mod = self._persona.get_system_prompt_modifier()
-                            if persona_mod:
-                                user_text = f"System Instruction: {persona_mod}\n\n{user_text}"
+                            context = self._persona.detect_context(user_text_goc)
+                            ctx_mod = self._persona.get_context_prompt_modifier(context)
+                            combined = f"{persona_mod} {ctx_mod}".strip()
+                            if combined:
+                                persona_system_ctx = combined
                         except Exception as e:
                             logger.debug("[Persona] Error: %s", e)
 
                     living_context = self._living_thinking_context()
+                    system_ctx = "\n".join(filter(None, [persona_system_ctx, living_context])) or None
 
                     # Stream tokens từ LLM, tách câu theo . ? ! \n
                     full_reply_parts = []
                     sanitized_reply_parts = []
-                    for token in self.brain.stream_chat(user_text, system_context=living_context):
+                    for token in self.brain.stream_chat(user_text, system_context=system_ctx):
                         buffer += token
                         full_reply_parts.append(token)
                         while True:

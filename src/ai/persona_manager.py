@@ -11,11 +11,37 @@ import copy
 import json
 import logging
 import os
+from enum import Enum
 from typing import Any
 
 from src.infrastructure.database.db import get_db_connection
 
 logger = logging.getLogger(__name__)
+
+
+class ConversationContext(Enum):
+    PLAY    = "play"
+    TEACH   = "teach"
+    COMFORT = "comfort"
+    IDLE    = "idle"
+
+
+# Vietnamese keyword sets for lightweight context detection.
+# Priority when overlapping: COMFORT > TEACH > PLAY > IDLE.
+_COMFORT_KEYWORDS: frozenset[str] = frozenset({
+    "buồn", "khóc", "sợ", "đau", "mệt", "chán", "tức",
+    "lo", "lo lắng", "không vui", "ghét", "nhớ", "khó chịu",
+    "bực", "bực mình", "cô đơn", "buồn bực",
+})
+_TEACH_KEYWORDS: frozenset[str] = frozenset({
+    "học", "bài", "toán", "giải", "nghĩa", "cách", "hướng dẫn",
+    "tại sao", "vì sao", "làm sao", "bài tập", "đề bài", "giải thích",
+    "bài toán", "kiến thức", "ôn", "ôn bài", "đọc", "viết", "tính",
+})
+_PLAY_KEYWORDS: frozenset[str] = frozenset({
+    "chơi", "trò chơi", "đố", "câu đố", "vui", "hát",
+    "kể chuyện", "bài hát", "truyện", "game", "trò", "cười", "nhảy",
+})
 
 DEFAULT_PERSONA = {
     "name": "Bi",
@@ -174,6 +200,62 @@ class PersonaManager:
         except Exception:
             logger.exception("[PersonaManager] Khong the tao prompt modifier")
             return "Hay tra loi than thien, an toan va phu hop tre em 5-12 tuoi."
+
+    def detect_context(
+        self,
+        user_text: str,
+        recent_history: list[str] | None = None,
+    ) -> ConversationContext:
+        """Infer conversation context from user_text keywords.
+
+        Priority: COMFORT > TEACH > PLAY > IDLE.
+        Single-word keywords are matched by set intersection; multi-word
+        phrases (e.g. "không vui", "bài tập") are matched by substring.
+        recent_history is accepted for future use but not consulted yet.
+        """
+        text_lower = user_text.lower()
+        words = set(text_lower.split())
+
+        def _matches(kw_set: frozenset) -> bool:
+            for kw in kw_set:
+                if ' ' in kw:
+                    if kw in text_lower:
+                        return True
+                elif kw in words:
+                    return True
+            return False
+
+        if _matches(_COMFORT_KEYWORDS):
+            return ConversationContext.COMFORT
+        if _matches(_TEACH_KEYWORDS):
+            return ConversationContext.TEACH
+        if _matches(_PLAY_KEYWORDS):
+            return ConversationContext.PLAY
+        return ConversationContext.IDLE
+
+    def get_context_prompt_modifier(self, context: ConversationContext) -> str:
+        """Return a system prompt modifier tuned for the given conversation context."""
+        _MODIFIERS: dict[ConversationContext, str] = {
+            ConversationContext.PLAY: (
+                "Bi đang chơi vui cùng bé! Hãy hồn nhiên, vui vẻ, dùng ngôn ngữ "
+                "tự nhiên như 'á nha nhé', đặt câu hỏi ngắn để rủ bé tham gia. "
+                "Tránh câu dài và từ ngữ học thuật."
+            ),
+            ConversationContext.TEACH: (
+                "Bé đang học bài. Hãy kiên nhẫn, giải thích từng bước ngắn gọn, "
+                "dùng ví dụ gần gũi với trẻ em, khuyến khích nhẹ nhàng khi bé "
+                "cố gắng. Không nói quá nhiều một lúc."
+            ),
+            ConversationContext.COMFORT: (
+                "Bé đang không vui hoặc gặp khó khăn. Hãy nhẹ nhàng, ấm áp, "
+                "lắng nghe trước khi nói, không phán xét, không ép bé chia sẻ."
+            ),
+            ConversationContext.IDLE: (
+                "Bi đang trò chuyện tự nhiên. Hãy thân thiện, ngắn gọn, "
+                "tò mò về bé và khơi gợi câu chuyện vui."
+            ),
+        }
+        return _MODIFIERS.get(context, _MODIFIERS[ConversationContext.IDLE])
 
     def get_voice_id(self) -> str:
         """Tra ve voice ID cho TTS."""

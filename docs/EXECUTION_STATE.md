@@ -12,11 +12,11 @@
 |---|---|
 | **Current Stage** | Stage 1 — Bi Có Hồn (Living Engine) |
 | **Current Sprint** | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
-| **Current Status** | Sprint 1.2 committed. `python tests/run_tests.py` PASS 517/517. Next: Sprint 1.3. |
+| **Current Status** | Sprint 1.3 implemented + all review fixes applied. `python tests/run_tests.py` PASS 532/532. Ready for final commit. |
 | **Project Mode** | Software-First. Hardware sau Stage 4+. |
 | **Active Branch** | `002-parent-app-backend-integration` |
 | **Test command** | `python tests/run_tests.py` |
-| **Last commit** | `cb83b91` — feat: Sprint 1.2 — Micro Moments Engine + review fixes |
+| **Last commit** | `cb83b91` — feat: Sprint 1.2 (Sprint 1.3 implemented, pending review) |
 
 ---
 
@@ -47,6 +47,10 @@
 **Sprint 1.1** — Living State Engine ✅ DONE
 - Goal: Runtime-only state machine để Bi có trạng thái bên trong khi trò chuyện.
 - Outcome: `src/living/living_state.py` với 7 states, tích hợp vào text mode + voice mode. Living hint đi qua `system_context`, không pollute user/RAG history. Safety early-response paths hoàn tất living/wakeword lifecycle. Bug fix: `ACTIVE_HAPPY→IDLE_SLEEPY` skip (`_CURIOUS_TO_SLEEPY_SECS` cumulative threshold 40 min). Windows fallback temp DB cleanup added. 24 tests (Group 68), tổng 497/497 PASS. Commit: `a4c4978`.
+
+**Sprint 1.2** — Micro Moments Engine ✅ DONE
+- Goal: Bi tự phát các hành vi nhỏ khi idle — không chờ lệnh.
+- Outcome: `src/living/micro_moments.py` — `MomentId` (8 moments: YAWN, MUMBLE, HUM, LOOK_AROUND, SELF_TALK, SHARE_FACT, TIME_REACTION, PREPARE_SURPRISE) + `MicroMomentsEngine`. Rate limit 15 phút, guardrails homework + sleep hours 22:00–07:00. `_micro_speaking` flag ngăn STT overlap. `_handle_puppet_queue()` trả bool để tránh micro moment khi puppet vừa phát. 20 tests (Group 69), tổng 517/517 PASS. Commit: `cb83b91`.
 
 ---
 
@@ -134,3 +138,5 @@
 | 2026-05-23 | Created EXECUTION_STATE.md + CODE_REVIEW_STATE.md | _(this commit)_ | Sprint 1.1 — Living State Engine |
 | 2026-05-23 | Sprint 1.1: Living State Engine + all review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 — Micro Moments Engine |
 | 2026-05-23 | Sprint 1.2: Micro Moments Engine — all review fixes applied; 517/517 PASS | `cb83b91` | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
+| 2026-05-23 | Sprint 1.3: Adaptive Persona + Giận Dỗi Mode — IMPLEMENTED; 530/530 PASS | _(pending review)_ | Sprint 1.4 — Proactive Behaviors + Stage 1 Polish |
+| 2026-05-23 | Sprint 1.3: All review fixes applied (multi-word kw, sys_ctx routing, welcome-back safety, overlap+sleep guards, 2 new tests); 532/532 PASS | _(pending commit)_ | Sprint 1.4 |

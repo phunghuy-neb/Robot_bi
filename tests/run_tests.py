@@ -5855,7 +5855,8 @@ def test_68_biai_system_context_not_saved_to_history():
 
 def test_68_main_uses_system_context_not_user_prefix():
     src = _Path68("src/main.py").read_text(encoding="utf-8")
-    assert "system_context=living_context" in src
+    # Sprint 1.3: system_ctx combines persona + living context; living_context variable still exists
+    assert "system_context=system_ctx" in src
     assert "[Trạng thái của Bi:" not in src
 
 def test_68_main_direct_responses_complete_living_turn():
@@ -6063,6 +6064,134 @@ test("69.17 Main: _fire_micro_moment_if_ready defined in source",        test_69
 test("69.18 Behavioral: None result does not consume rate limit",        test_69_none_does_not_consume_rate_limit)
 test("69.19 Behavioral: puppet guard exists in main.py idle path",       test_69_puppet_guard_in_source)
 test("69.20 Validation: hour out of 0–23 raises ValueError",            test_69_hour_validation)
+
+# == GROUP 70 — Adaptive Persona + Giận Dỗi Mode (Sprint 1.3) ================
+print("\n[Group 70] Adaptive Persona + Giận Dỗi Mode — context detection, modifiers, pouting phrases")
+
+from src.ai.persona_manager import PersonaManager, ConversationContext
+from src.safety.manipulation_guard import ManipulationGuard as _MG70
+
+def test_70_import():
+    from src.ai.persona_manager import PersonaManager, ConversationContext
+    assert ConversationContext is not None
+    assert hasattr(PersonaManager, "detect_context")
+    assert hasattr(PersonaManager, "get_context_prompt_modifier")
+
+def test_70_context_enum_four_values():
+    assert len(ConversationContext) == 4
+    values = {c.value for c in ConversationContext}
+    assert values == {"play", "teach", "comfort", "idle"}
+
+def test_70_detect_teach():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}  # avoid DB init for unit test
+    result = pm.detect_context("Bé muốn học toán lớp 2")
+    assert result == ConversationContext.TEACH, f"Expected TEACH, got {result}"
+
+def test_70_detect_comfort():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    result = pm.detect_context("Con buồn quá Bi ơi")
+    assert result == ConversationContext.COMFORT, f"Expected COMFORT, got {result}"
+
+def test_70_detect_play():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    result = pm.detect_context("Bi ơi mình chơi trò chơi đi")
+    assert result == ConversationContext.PLAY, f"Expected PLAY, got {result}"
+
+def test_70_detect_idle():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    result = pm.detect_context("Xin chào Bi")
+    assert result == ConversationContext.IDLE, f"Expected IDLE, got {result}"
+
+def test_70_comfort_over_teach():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    # Contains both comfort and teach keywords — COMFORT wins
+    result = pm.detect_context("Con mệt lắm, học không vào")
+    assert result == ConversationContext.COMFORT, f"COMFORT must beat TEACH, got {result}"
+
+def test_70_teach_over_play():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    # Contains both teach and play keywords
+    result = pm.detect_context("Giải bài toán vui này đi Bi")
+    assert result == ConversationContext.TEACH, f"TEACH must beat PLAY, got {result}"
+
+def test_70_four_modifiers_distinct():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    mods = {ctx: pm.get_context_prompt_modifier(ctx) for ctx in ConversationContext}
+    assert all(isinstance(m, str) and len(m) > 10 for m in mods.values()), \
+        "All modifiers must be non-empty strings"
+    # All four must be different
+    assert len(set(mods.values())) == 4, "All 4 context modifiers must be distinct"
+
+def test_70_pouting_phrases_pass_manipulation_guard():
+    from src.main import _POUTING_PHRASES
+    mg = _MG70()
+    for phrase in _POUTING_PHRASES:
+        found, _ = mg.check_llm_output(phrase)
+        assert not found, f"Pouting phrase triggered ManipulationGuard: {phrase!r}"
+
+def test_70_welcome_back_phrases_pass_manipulation_guard():
+    from src.main import _WELCOME_BACK_PHRASES
+    mg = _MG70()
+    for phrase in _WELCOME_BACK_PHRASES:
+        found, _ = mg.check_llm_output(phrase)
+        assert not found, f"Welcome-back phrase triggered ManipulationGuard: {phrase!r}"
+
+def test_70_detect_multiword_comfort():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    # "không vui" is a multi-word phrase that word-split would miss without phrase matching
+    result = pm.detect_context("Con không vui hôm nay")
+    assert result == ConversationContext.COMFORT, f"Multi-word 'không vui' must → COMFORT, got {result}"
+
+def test_70_detect_multiword_teach():
+    pm = PersonaManager.__new__(PersonaManager)
+    pm._persona = {}
+    # "bài tập" is a multi-word phrase
+    result = pm.detect_context("Bi ơi giải bài tập này cho con với")
+    assert result == ConversationContext.TEACH, f"Multi-word 'bài tập' must → TEACH, got {result}"
+
+def test_70_pouting_sleep_hour_guard():
+    """_fire_pouting_phrase must check sleep hours before firing."""
+    import inspect
+    from src.main import RobotBiApp
+    src = inspect.getsource(RobotBiApp._fire_pouting_phrase)
+    assert "22" in src, "_fire_pouting_phrase must contain hour-22 sleep guard"
+    assert "7" in src, "_fire_pouting_phrase must contain hour-7 sleep guard"
+    assert "hour" in src, "_fire_pouting_phrase must check .hour"
+
+def test_70_pouting_micro_overlap_guard():
+    """Pouting must not fire when _micro_speaking is True; must come after micro moment fire."""
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "not self._micro_speaking" in src, \
+        "pouting condition must include 'not self._micro_speaking' guard"
+    micro_idx = src.index("_fire_micro_moment_if_ready")
+    pouting_idx = src.index("_fire_pouting_phrase")
+    assert pouting_idx > micro_idx, \
+        "_fire_pouting_phrase check must appear after _fire_micro_moment_if_ready in source"
+
+test("70.1  Import: ConversationContext importable + PersonaManager has new methods",    test_70_import)
+test("70.2  Enum: ConversationContext has exactly 4 values",                             test_70_context_enum_four_values)
+test("70.3  detect_context: TEACH for homework keywords",                                test_70_detect_teach)
+test("70.4  detect_context: COMFORT for emotion keywords",                               test_70_detect_comfort)
+test("70.5  detect_context: PLAY for play keywords",                                     test_70_detect_play)
+test("70.6  detect_context: IDLE for generic input",                                     test_70_detect_idle)
+test("70.7  Priority: COMFORT beats TEACH on overlap",                                   test_70_comfort_over_teach)
+test("70.8  Priority: TEACH beats PLAY on overlap",                                      test_70_teach_over_play)
+test("70.9  Modifiers: 4 contexts produce 4 distinct non-empty modifiers",              test_70_four_modifiers_distinct)
+test("70.10 Safety: pouting phrases pass ManipulationGuard",                             test_70_pouting_phrases_pass_manipulation_guard)
+test("70.11 Safety: welcome-back phrases pass ManipulationGuard",                        test_70_welcome_back_phrases_pass_manipulation_guard)
+test("70.12 Behavioral: detect_context matches multi-word phrase 'không vui' → COMFORT", test_70_detect_multiword_comfort)
+test("70.13 Behavioral: detect_context matches multi-word phrase 'bài tập' → TEACH",    test_70_detect_multiword_teach)
+test("70.14 Guard: _fire_pouting_phrase has sleep-hour check (22–07)",                  test_70_pouting_sleep_hour_guard)
+test("70.15 Guard: pouting has _micro_speaking guard + fires after micro moment",        test_70_pouting_micro_overlap_guard)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
