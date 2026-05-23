@@ -16,6 +16,15 @@
 
 ## Last Completed Task
 
+- 2026-05-23: **Sprint 1.1 — Living State Engine (all review fixes applied, 497/497 PASS)**:
+  - `src/living/living_state.py` — runtime-only 7-state engine; **bug fix**: `_CURIOUS_TO_SLEEPY_SECS` was `20 * 60` matching `_HAPPY_TO_CURIOUS_SECS`, causing `ACTIVE_HAPPY` to skip `IDLE_CURIOUS` and jump directly to `IDLE_SLEEPY` at 20 min. Fixed to cumulative `40 * 60` so the 20-min `IDLE_CURIOUS` window is preserved.
+  - `src/living/__init__.py` — package exports for `BiState` and `LivingStateEngine`
+  - `src/ai/ai_engine.py` — backward-compatible `system_context` keeps living hints out of user/RAG history
+  - `src/main.py` — integrated living hooks in text + voice loops; safety early-returns complete living/wakeword lifecycle
+  - `tests/run_tests.py` — Group 68 expanded to 24 tests: 68.23 (regression: ACTIVE_HAPPY 25 min → IDLE_CURIOUS, not IDLE_SLEEPY), 68.24 (behavioral integration: full turn cycle); test 68.11 updated to 45 min threshold; Windows fallback temp DB cleanup added
+  - Docs updated: `docs/CODE_REVIEW_STATE.md`, `docs/EXECUTION_STATE.md`, `.claude/handoff.md`
+  - Status: ready for final commit; next execution target is Sprint 1.2 — Micro Moments Engine
+
 - 2026-05-20: **Sprint 0.4 — Wake Word Training Pipeline (4 scripts + custom_mfcc backend + 19 tests)**:
   - `scripts/generate_wakeword_dataset.py` — synthetic dataset via edge-tts (300 positive / 150 negative); requires ffmpeg + internet; ~10-20 min run
   - `scripts/augment_audio.py` — 18 augmentation types: noise (SNR 8/15/25 dB), fan/TV/kitchen BG, speed (0.85x-1.2x), pitch (±2/+4 semitones), gain, small/large reverb, phone mic, far mic, combined
@@ -117,24 +126,24 @@ WAKEWORD_THRESHOLD=0.5
 - Cloudflare quick tunnel URL may change after restart unless a named tunnel is configured.
 - YAMNet TFLite support depends on optional runtime dependencies.
 - Parent App: radio/videos/games/logs use mock fallbacks; 4 saveSettings() stubs return null.
-- Test 28.9: `docs/kehoach.md` missing — pre-existing, unrelated to Sprint 0.2.
+- Micro Moments Engine is not implemented yet; next target is Sprint 1.2.
 - See `docs/STATUS_MAP.md` for complete feature reality map.
 
 ## Next Recommended Action
 
-Sprint 0.4 is complete. **Wake word v0 training pipeline ready.** Next steps in order:
-1. **Generate dataset**: `python scripts/generate_wakeword_dataset.py` (needs internet + ffmpeg)
-2. **Augment**: `python scripts/augment_audio.py` (no deps)
-3. **Train**: `pip install scikit-learn && python scripts/train_wakeword.py` → `runtime/wakeword/bi_oi_classifier.pkl`
-4. **Enable**: set `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=custom_mfcc` in `.env`
-5. **Test**: `python scripts/test_wakeword.py`
+Sprint 1.1 is complete with all review fixes applied (497/497 PASS). Next execution target:
+1. **Final commit Sprint 1.1** after human confirms commit/push workflow.
+2. Start **Sprint 1.2 — Micro Moments Engine** from `docs/EXECUTION_STATE.md`.
+3. Keep scope tight: 8 micro moments, rate limit, guardrails, non-blocking TTS; no motor movement or adaptive persona yet.
 
-Target: 8/10 "Bi ơi" detections in normal environment.
-
-OR: skip wake word for now and start **Sprint 1.1 — Living Conversation**.
+Deferred wake word validation remains available:
+- Generate dataset: `python scripts/generate_wakeword_dataset.py` (needs internet + ffmpeg)
+- Augment: `python scripts/augment_audio.py`
+- Train: `pip install scikit-learn && python scripts/train_wakeword.py`
+- Enable via `.env`: `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=custom_mfcc`
 
 Safety layer (all active): safety_filter + pii_filter + emotion_risk_detector + manipulation_guard.
-Wake word (disabled by default): `WAKEWORD_ENABLED=false`. Foundation complete; model needed.
+Wake word (disabled by default): `WAKEWORD_ENABLED=false`. Foundation complete; model still needs training.
 
 For code changes: read `PROJECT.md`, this handoff, and relevant source files.
 For large feature/API/schema/cross-module work: use Spec Kit or write a clear plan first.
@@ -144,6 +153,19 @@ For large feature/API/schema/cross-module work: use Spec Kit or write a clear pl
 ```bash
 python tests/run_tests.py
 ```
+
+## Files Recently Touched (Sprint 1.1)
+
+- `src/living/__init__.py` (new — package exports)
+- `src/living/living_state.py` (new — runtime-only 7-state engine)
+- `src/ai/ai_engine.py` (modified — `system_context` internal prompt hook)
+- `src/main.py` (modified — text/voice living hooks and direct-response completion)
+- `tests/run_tests.py` (modified — Group 68, 22 tests)
+- `docs/CODE_REVIEW_STATE.md` (updated — review fixes and ready status)
+- `docs/EXECUTION_STATE.md` (updated — next target Sprint 1.2)
+- `docs/STATUS_MAP.md` (updated v1.4)
+- `SYSTEM_MAP.md` (updated — `src/living/` module map)
+- `.claude/handoff.md`
 
 ## Files Recently Touched (Sprint 0.4)
 

@@ -60,8 +60,8 @@ _groq_lock = threading.Lock()
 _GROQ_COOLDOWN = _CONFIG.get("groq_cooldown_seconds", 60)
 
 
-def _get_system_prompt() -> str:
-    """Lấy system prompt từ prompts.py và thêm rule ngôn ngữ."""
+def _get_system_prompt(system_context: str | None = None) -> str:
+    """Lấy system prompt từ prompts.py, thêm rule ngôn ngữ và context nội bộ."""
     try:
         from src.ai.prompts import MAIN_SYSTEM_PROMPT
         base = MAIN_SYSTEM_PROMPT
@@ -86,7 +86,14 @@ def _get_system_prompt() -> str:
         "- TUYỆT ĐỐI không tự ý thêm tiếng Trung hoặc ngôn ngữ không được yêu cầu.\n"
         "- Câu trả lời ngắn gọn, tự nhiên, phù hợp trẻ em."
     )
-    return base + language_rule
+    prompt = base + language_rule
+    if system_context and system_context.strip():
+        prompt += (
+            "\n\nTRẠNG THÁI NỘI BỘ CỦA BI — CHỈ DÙNG ĐỂ CHỈNH GIỌNG ĐIỆU:\n"
+            "- Đây không phải lời bé nói, không nhắc lại nguyên văn cho bé.\n"
+            f"- {system_context.strip()}"
+        )
+    return prompt
 
 
 def _get_error_response() -> str:
@@ -250,7 +257,7 @@ def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, Non
     yield text
 
 
-def stream_chat(messages: list) -> Generator[str, None, None]:
+def stream_chat(messages: list, system_context: str | None = None) -> Generator[str, None, None]:
     """
     Public API — gọi hàm này từ main_loop.py.
     Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → thông báo lỗi.
@@ -265,7 +272,7 @@ def stream_chat(messages: list) -> Generator[str, None, None]:
     if len(messages) > max_turns * 2:
         messages = messages[-(max_turns * 2):]
 
-    system_prompt = _get_system_prompt()
+    system_prompt = _get_system_prompt(system_context)
     now = time.time()
 
     # --- Cerebras (primary — nhanh ngang Groq, ít bị rate-limit hơn) ---
@@ -339,7 +346,12 @@ class BiAI:
         self.history: list = []
         self.total_turns: int = 0
 
-    def stream_chat(self, user_input: str, history: list = None) -> Generator[str, None, None]:
+    def stream_chat(
+        self,
+        user_input: str,
+        history: list = None,
+        system_context: str | None = None,
+    ) -> Generator[str, None, None]:
         """
         Stream phản hồi từ AI.
 
@@ -347,6 +359,8 @@ class BiAI:
             user_input: Văn bản câu hỏi của người dùng.
             history: Nếu truyền vào thì dùng history này (không cập nhật nội bộ).
                      Nếu None thì dùng và cập nhật self.history.
+            system_context: Context nội bộ để nối vào system prompt,
+                            không lưu vào user history.
         """
         if history is not None:
             msgs = list(history)
@@ -355,7 +369,7 @@ class BiAI:
         msgs.append({"role": "user", "content": user_input})
 
         full_reply = ""
-        for token in stream_chat(msgs):
+        for token in stream_chat(msgs, system_context=system_context):
             full_reply += token
             yield token
 

@@ -55,6 +55,7 @@ from src.emotion.emotion_analyzer import EmotionAnalyzer
 from src.emotion.emotion_alert import EmotionAlert
 from src.wakeword.wakeword_service import WakeWordService
 from src.wakeword.wakeword_router import WakeWordRouter
+from src.living.living_state import LivingStateEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -125,6 +126,9 @@ class RobotBiApp:
             logger.warning("[Init] WakeWord unavailable: %s", _ww_err)
             self._wakeword_svc = None
             self._wakeword = None
+
+        # Living State Engine (Sprint 1.1)
+        self._living = LivingStateEngine()
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -296,6 +300,39 @@ class RobotBiApp:
         except Exception:
             pass
 
+    def _living_interaction_start(self) -> None:
+        try:
+            self._living.on_interaction_start()
+        except Exception as e:
+            logger.warning("[LivingState] interaction_start failed: %s", e)
+
+    def _living_thinking_context(self) -> str | None:
+        try:
+            hint = self._living.get_state_context_hint()
+            self._living.on_thinking_start()
+            return hint
+        except Exception as e:
+            logger.warning("[LivingState] thinking_start failed: %s", e)
+            return None
+
+    def _living_reply_done(self) -> None:
+        try:
+            self._living.on_reply_done()
+        except Exception as e:
+            logger.warning("[LivingState] reply_done failed: %s", e)
+
+    def _living_turn_aborted(self) -> None:
+        try:
+            self._living.on_turn_aborted()
+        except Exception as e:
+            logger.warning("[LivingState] turn_aborted failed: %s", e)
+
+    def _complete_direct_response_turn(self) -> None:
+        self._living_reply_done()
+        if self._wakeword and self._wakeword.is_enabled():
+            self._wakeword.on_reply_done()
+        self._close_current_session()
+
     def _shutdown(self):
         if self._shutdown_done:
             return
@@ -388,6 +425,8 @@ class RobotBiApp:
                 self._current_session_id = create_session(FAMILY_ID)
                 add_turn(self._current_session_id, "user", user_text_goc)
 
+                self._living_interaction_start()
+
                 # Session naming (background)
                 def _name(sid=self._current_session_id, ut=user_text_goc):
                     from src.infrastructure.sessions.session_namer import _generate_session_title
@@ -422,6 +461,7 @@ class RobotBiApp:
                 if _pii_found and _pii_resp:
                     print(f"Bi: {_pii_resp}\n")
                     add_turn(self._current_session_id, "assistant", _pii_resp)
+                    self._complete_direct_response_turn()
                     continue
                 _risk = self._risk.check(user_text_goc)
                 if _risk["log_event"]:
@@ -435,12 +475,16 @@ class RobotBiApp:
                 if _risk["should_override"] and _risk["response"]:
                     print(f"Bi: {_risk['response']}\n")
                     add_turn(self._current_session_id, "assistant", _risk["response"])
+                    self._complete_direct_response_turn()
                     continue
                 _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
                 if _manip_input and _manip_input_resp:
                     print(f"Bi: {_manip_input_resp}\n")
                     add_turn(self._current_session_id, "assistant", _manip_input_resp)
+                    self._complete_direct_response_turn()
                     continue
+
+                living_context = self._living_thinking_context()
 
                 # Stream LLM → safety filter → in ra terminal
                 print("Bi: ", end="", flush=True)
@@ -448,7 +492,7 @@ class RobotBiApp:
                 full_reply_parts = []
                 sanitized_reply_parts = []
 
-                for token in self.brain.stream_chat(user_text):
+                for token in self.brain.stream_chat(user_text, system_context=living_context):
                     buffer += token
                     full_reply_parts.append(token)
                     while True:
@@ -493,6 +537,11 @@ class RobotBiApp:
                         daemon=True,
                     ).start()
 
+                if sanitized_reply:
+                    self._living_reply_done()
+                else:
+                    self._living_turn_aborted()
+
                 self._close_current_session()
 
             except KeyboardInterrupt:
@@ -502,6 +551,7 @@ class RobotBiApp:
             except Exception as e:
                 logger.error("[TextMode] Lỗi: %s", e, exc_info=True)
                 print(f"[Lỗi: {e}]\n")
+                self._living_turn_aborted()
                 self._close_current_session()
 
     def run(self):
@@ -565,6 +615,8 @@ class RobotBiApp:
                     user_text_goc = user_text  # giữ lại bản gốc cho extract_and_save
                     add_turn(self._current_session_id, 'user', user_text_goc)
 
+                    self._living_interaction_start()
+
                     # ── Child Safety Checks (user input) ────────────────────────
                     _pii_found, _pii_resp = self._pii.check(user_text_goc)
                     if _pii_found and _pii_resp:
@@ -576,6 +628,7 @@ class RobotBiApp:
                             self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
+                        self._complete_direct_response_turn()
                         continue
                     _risk = self._risk.check(user_text_goc)
                     if _risk["log_event"]:
@@ -595,6 +648,7 @@ class RobotBiApp:
                             self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
+                        self._complete_direct_response_turn()
                         continue
                     _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
                     if _manip_input and _manip_input_resp:
@@ -606,6 +660,7 @@ class RobotBiApp:
                             self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
+                        self._complete_direct_response_turn()
                         continue
 
                     if is_first_turn_of_session:
@@ -638,10 +693,12 @@ class RobotBiApp:
                         except Exception as e:
                             logger.debug("[Persona] Error: %s", e)
 
+                    living_context = self._living_thinking_context()
+
                     # Stream tokens từ LLM, tách câu theo . ? ! \n
                     full_reply_parts = []
                     sanitized_reply_parts = []
-                    for token in self.brain.stream_chat(user_text):
+                    for token in self.brain.stream_chat(user_text, system_context=living_context):
                         buffer += token
                         full_reply_parts.append(token)
                         while True:
@@ -708,6 +765,7 @@ class RobotBiApp:
                     if sanitized_reply:
                         add_turn(self._current_session_id, 'assistant', sanitized_reply)
                         self._mark_homework_if_needed(self._current_session_id, user_text_goc)
+                        self._living_reply_done()
                         threading.Thread(
                             target=self.rag.extract_and_save,
                             args=(user_text_goc, sanitized_reply),
@@ -723,12 +781,14 @@ class RobotBiApp:
                             daemon=True,
                         ).start()
                     else:
+                        self._living_turn_aborted()
                         self._close_current_session()
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
                     logger.error("[MainLoop] Loi khong mong doi, bo qua iteration: %s", e, exc_info=True)
                     self._close_current_session()
+                    self._living_turn_aborted()
                     # Reset wake word to IDLE on pipeline error
                     if self._wakeword and self._wakeword.is_enabled():
                         self._wakeword.on_error()

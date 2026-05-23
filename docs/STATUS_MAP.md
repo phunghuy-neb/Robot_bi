@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.3 | Cập nhật: 2026-05-20
+> Phiên bản: 1.4 | Cập nhật: 2026-05-23
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -35,7 +35,7 @@
 | Emotion analyzer | 🟡 | `src/emotion/emotion_analyzer.py` | Basic sentiment; không phải ML model thật |
 | Emotion journal | 🟡 | `src/emotion/emotion_journal.py` | SQLite log; no real analysis |
 | Emotion alerts | 🟡 | `src/emotion/emotion_alert.py` | Rule-based; threshold check |
-| Living State System | ⚪ | — | Chỉ có trong docs/BACKLOG; không có code |
+| Living State System | 🟡 | `src/living/living_state.py` | Sprint 1.1: runtime-only 7-state engine integrated into text/voice loop; no Micro Moments yet |
 | Micro Moments Engine | ⚪ | — | Chỉ có trong docs/BACKLOG; không có code |
 
 ---
@@ -165,16 +165,16 @@
 
 | Domain | 🟢 Done | 🟡 Partial | 🔴 Stub | ⚪ Zero |
 |---|---|---|---|---|
-| Backend Brain | 10 | 5 | 0 | 2 |
+| Backend Brain | 10 | 6 | 0 | 1 |
 | Parent App | 11 | 5 | 0 | 4 |
 | Voice System | 7 | 1 | 0 | 3 |
 | Robot Control | 3 | 0 | 3 | 5 |
 | Learning | 3 | 4 | 0 | 3 |
 | Safety/Privacy | 11 | 0 | 2 | 2 |
 | Infrastructure | 6 | 1 | 0 | 4 |
-| **Tổng** | **51** | **16** | **5** | **21** |
+| **Tổng** | **51** | **17** | **5** | **20** |
 
-**Tổng cộng: 93 items (+ 4 mục mới = 97) — 53% Done, 16% Partial, 5% Stub, 22% Zero**
+**Tổng cộng: 93 items — 55% Done, 18% Partial, 5% Stub, 22% Zero**
 
 ---
 

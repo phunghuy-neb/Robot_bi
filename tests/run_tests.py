@@ -174,7 +174,12 @@ from src.memory.rag_manager import RAGManager
 
 TEST_DB = "runtime/_audit_test_db"
 if os.path.exists(TEST_DB):
-    shutil.rmtree(TEST_DB)
+    try:
+        shutil.rmtree(TEST_DB)
+    except (PermissionError, OSError):
+        # Windows: ChromaDB may still hold file locks from a prior run
+        import tempfile
+        TEST_DB = tempfile.mkdtemp(prefix="_audit_test_db_")
 
 rag = RAGManager(db_path=TEST_DB)
 
@@ -255,6 +260,12 @@ try:
     shutil.rmtree(TEST_DB)
 except Exception:
     pass
+# Windows: if fallback temp dir was used, also attempt to remove the stale original path
+if TEST_DB != "runtime/_audit_test_db":
+    try:
+        shutil.rmtree("runtime/_audit_test_db")
+    except Exception:
+        pass
 
 # == GROUP 5: EventNotifier =================================================
 print("\n[Group 5] EventNotifier")
@@ -5709,6 +5720,205 @@ test("67.16 Augment: reverb preserves length",             test_67_augment_rever
 test("67.17 Dirs: data/wakeword/{pos,neg} exist",          test_67_data_dirs_exist)
 test("67.18 Dirs: runtime/wakeword/ exists",               test_67_runtime_wakeword_dir_exists)
 test("67.19 Deps: scikit-learn in requirements.txt",       test_67_requirements_has_sklearn)
+
+# == GROUP 68 — Living State Engine (Sprint 1.1) ================================
+print("\n[Group 68] Living State Engine — BiState machine, idle-decay, context hints")
+
+from pathlib import Path as _Path68
+from src.living.living_state import LivingStateEngine, BiState, _STATE_CONTEXT
+import time as _time68
+
+def test_68_import():
+    from src.living.living_state import LivingStateEngine, BiState
+    assert LivingStateEngine is not None
+    assert BiState is not None
+
+def test_68_seven_states():
+    assert len(BiState) == 7, f"Expected 7 states, got {len(BiState)}"
+
+def test_68_initial_state_is_curious():
+    eng = LivingStateEngine()
+    assert eng.get_state() == BiState.IDLE_CURIOUS
+
+def test_68_on_interaction_start_sets_engaged():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    assert eng.get_state() == BiState.ACTIVE_ENGAGED
+
+def test_68_on_thinking_start_sets_thinking():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    eng.on_thinking_start()
+    assert eng.get_state() == BiState.THINKING
+
+def test_68_on_reply_done_sets_happy():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    eng.on_reply_done()
+    assert eng.get_state() == BiState.ACTIVE_HAPPY
+
+def test_68_get_state_name_returns_string():
+    eng = LivingStateEngine()
+    name = eng.get_state_name()
+    assert isinstance(name, str) and len(name) > 0
+
+def test_68_get_state_context_hint_non_empty():
+    eng = LivingStateEngine()
+    hint = eng.get_state_context_hint()
+    assert isinstance(hint, str) and len(hint) > 10
+
+def test_68_all_states_have_context():
+    for state in BiState:
+        assert state in _STATE_CONTEXT, f"Missing context for {state}"
+        assert len(_STATE_CONTEXT[state]) > 5
+
+def test_68_interaction_resets_from_any_state():
+    eng = LivingStateEngine()
+    # Force to pouting via timestamp manipulation
+    eng._state = BiState.POUTING
+    eng.on_interaction_start()
+    assert eng.get_state() == BiState.ACTIVE_ENGAGED
+
+def test_68_idle_decay_curious_to_sleepy():
+    eng = LivingStateEngine()
+    eng._state = BiState.IDLE_CURIOUS
+    # Simulate 45 minutes idle (cumulative threshold is 40 min)
+    eng._last_interaction_at = _time68.time() - (45 * 60)
+    assert eng.get_state() == BiState.IDLE_SLEEPY
+
+def test_68_idle_decay_sleepy_to_pouting():
+    eng = LivingStateEngine()
+    eng._state = BiState.IDLE_CURIOUS
+    # Simulate 65 minutes idle
+    eng._last_interaction_at = _time68.time() - (65 * 60)
+    assert eng.get_state() == BiState.POUTING
+
+def test_68_idle_decay_pouting_to_missing():
+    eng = LivingStateEngine()
+    eng._state = BiState.POUTING
+    # Simulate 125 minutes idle
+    eng._last_interaction_at = _time68.time() - (125 * 60)
+    assert eng.get_state() == BiState.MISSING_KID
+
+def test_68_happy_stays_happy_within_window():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    eng.on_reply_done()
+    # Simulate 5 minutes — should still be happy (threshold is 20 min)
+    eng._last_interaction_at = _time68.time() - (5 * 60)
+    assert eng.get_state() == BiState.ACTIVE_HAPPY
+
+def test_68_engaged_not_subject_to_idle_decay():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    # Even with old timestamp, ACTIVE_ENGAGED should hold
+    eng._last_interaction_at = _time68.time() - (200 * 60)
+    assert eng.get_state() == BiState.ACTIVE_ENGAGED
+
+def test_68_turn_aborted_restores_previous_state():
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    eng.on_thinking_start()
+    eng.on_turn_aborted()
+    assert eng.get_state() == BiState.IDLE_CURIOUS
+
+def test_68_package_exports():
+    from src.living import LivingStateEngine as ExportedEngine, BiState as ExportedState
+    assert ExportedEngine is LivingStateEngine
+    assert ExportedState is BiState
+
+def test_68_ai_engine_system_context_prompt():
+    from src.ai.ai_engine import _get_system_prompt
+    prompt = _get_system_prompt("Bi đang vui sau lượt trả lời trước.")
+    assert "TRẠNG THÁI NỘI BỘ CỦA BI" in prompt
+    assert "Bi đang vui sau lượt trả lời trước." in prompt
+
+def test_68_biai_system_context_not_saved_to_history():
+    import src.ai.ai_engine as ai_engine
+    original_stream_chat = ai_engine.stream_chat
+    captured = {}
+
+    def fake_stream_chat(messages, system_context=None):
+        captured["messages"] = messages
+        captured["system_context"] = system_context
+        yield "Chào bé."
+
+    ai_engine.stream_chat = fake_stream_chat
+    try:
+        bi = ai_engine.BiAI()
+        reply = "".join(bi.stream_chat("Xin chào", system_context="Bi đang tò mò."))
+        assert reply == "Chào bé."
+        assert captured["system_context"] == "Bi đang tò mò."
+        assert "Bi đang tò mò" not in bi.history[0]["content"]
+    finally:
+        ai_engine.stream_chat = original_stream_chat
+
+def test_68_main_uses_system_context_not_user_prefix():
+    src = _Path68("src/main.py").read_text(encoding="utf-8")
+    assert "system_context=living_context" in src
+    assert "[Trạng thái của Bi:" not in src
+
+def test_68_main_direct_responses_complete_living_turn():
+    src = _Path68("src/main.py").read_text(encoding="utf-8")
+    assert "def _complete_direct_response_turn" in src
+    assert src.count("self._complete_direct_response_turn()") >= 6
+
+def test_68_living_init_not_silent_optional():
+    src = _Path68("src/main.py").read_text(encoding="utf-8")
+    assert "LivingState unavailable" not in src
+    assert "self._living = LivingStateEngine()" in src
+
+test("68.1  Import: LivingStateEngine + BiState importable",       test_68_import)
+test("68.2  States: BiState has exactly 7 members",               test_68_seven_states)
+test("68.3  Init: default state is IDLE_CURIOUS",                  test_68_initial_state_is_curious)
+test("68.4  Event: on_interaction_start → ACTIVE_ENGAGED",        test_68_on_interaction_start_sets_engaged)
+test("68.5  Event: on_thinking_start → THINKING",                 test_68_on_thinking_start_sets_thinking)
+test("68.6  Event: on_reply_done → ACTIVE_HAPPY",                 test_68_on_reply_done_sets_happy)
+test("68.7  Query: get_state_name returns non-empty string",       test_68_get_state_name_returns_string)
+test("68.8  Query: get_state_context_hint returns non-empty",     test_68_get_state_context_hint_non_empty)
+test("68.9  Context: all 7 states have context strings",          test_68_all_states_have_context)
+test("68.10 Event: on_interaction_start resets from POUTING",     test_68_interaction_resets_from_any_state)
+test("68.11 Decay: IDLE_CURIOUS → IDLE_SLEEPY after 45 min",     test_68_idle_decay_curious_to_sleepy)
+test("68.12 Decay: IDLE_CURIOUS → POUTING after 65 min",         test_68_idle_decay_sleepy_to_pouting)
+test("68.13 Decay: POUTING → MISSING_KID after 125 min",         test_68_idle_decay_pouting_to_missing)
+test("68.14 Decay: ACTIVE_HAPPY stays within 20-min window",      test_68_happy_stays_happy_within_window)
+test("68.15 Decay: ACTIVE_ENGAGED immune to idle decay",          test_68_engaged_not_subject_to_idle_decay)
+test("68.16 Abort: turn_aborted restores previous state",          test_68_turn_aborted_restores_previous_state)
+test("68.17 Package: src.living exports engine/state",             test_68_package_exports)
+test("68.18 AI: system context appended to prompt",                test_68_ai_engine_system_context_prompt)
+test("68.19 AI: system context is not saved to history",           test_68_biai_system_context_not_saved_to_history)
+test("68.20 Main: living context uses system_context",             test_68_main_uses_system_context_not_user_prefix)
+test("68.21 Main: direct responses complete living turn",          test_68_main_direct_responses_complete_living_turn)
+test("68.22 Main: LivingState init is not silently optional",      test_68_living_init_not_silent_optional)
+
+def test_68_active_happy_25min_decays_to_curious_not_sleepy():
+    """Regression: ACTIVE_HAPPY at 25 min must be IDLE_CURIOUS, not IDLE_SLEEPY."""
+    eng = LivingStateEngine()
+    eng.on_interaction_start()
+    eng.on_reply_done()
+    # 25 min: past HAPPY window (20 min) but before CURIOUS→SLEEPY (40 min cumulative)
+    eng._last_interaction_at = _time68.time() - (25 * 60)
+    state = eng.get_state()
+    assert state == BiState.IDLE_CURIOUS, \
+        f"Expected IDLE_CURIOUS at 25 min from ACTIVE_HAPPY, got {state.value}"
+
+def test_68_full_turn_behavioral_cycle():
+    """Behavioral integration: curious→engaged→thinking→happy→idle decay ladder."""
+    eng = LivingStateEngine()
+    assert eng.get_state() == BiState.IDLE_CURIOUS
+    eng.on_interaction_start()
+    assert eng.get_state() == BiState.ACTIVE_ENGAGED
+    eng.on_thinking_start()
+    assert eng.get_state() == BiState.THINKING
+    eng.on_reply_done()
+    assert eng.get_state() == BiState.ACTIVE_HAPPY
+    eng._last_interaction_at = _time68.time() - (25 * 60)   # past happy, before sleepy
+    assert eng.get_state() == BiState.IDLE_CURIOUS
+    eng._last_interaction_at = _time68.time() - (45 * 60)   # past sleepy threshold
+    assert eng.get_state() == BiState.IDLE_SLEEPY
+
+test("68.23 Regression: ACTIVE_HAPPY 25 min → IDLE_CURIOUS not IDLE_SLEEPY", test_68_active_happy_25min_decays_to_curious_not_sleepy)
+test("68.24 Behavioral: full turn cycle idle→engaged→thinking→happy→decay",   test_68_full_turn_behavioral_cycle)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
