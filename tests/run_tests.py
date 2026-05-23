@@ -6031,7 +6031,6 @@ def test_69_puppet_guard_in_source():
     assert "if not puppet_played" in src, "Puppet guard condition must exist in main.py"
 
 def test_69_hour_validation():
-    import pytest
     eng = MicroMomentsEngine()
     try:
         eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=24)
