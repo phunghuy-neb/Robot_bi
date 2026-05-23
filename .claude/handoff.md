@@ -16,6 +16,14 @@
 
 ## Last Completed Task
 
+- 2026-05-23: **Sprint 1.2 — Micro Moments Engine ✅ COMMITTED (`cb83b91`, 517/517 PASS)**:
+  - `src/living/micro_moments.py` — `MomentId` enum (8 moments: YAWN, MUMBLE, HUM, LOOK_AROUND, SELF_TALK, SHARE_FACT, TIME_REACTION, PREPARE_SURPRISE) + `MicroMomentsEngine` class
+  - Rate limit: max 1 per 15 minutes (in-memory `_last_fired_at`, no DB); None result does not consume rate limit
+  - Guardrails: `is_homework=True` blocks; sleep hours 22:00–07:00 blocks; hour range validation (ValueError outside 0–23); state-compatible filtering
+  - `src/main.py` — `_micro_speaking` flag prevents STT overlap; `_handle_puppet_queue()` returns `bool`; idle path skips micro moment when puppet played
+  - `tests/run_tests.py` — Group 69 (20 tests: import, rate limit, guardrails, moment states, text generation, time-reaction, package exports, source integration, behavioral tests)
+  - Sprint 1.2 runtime-only (NO SQLite), no motor, no persona changes, no UI
+
 - 2026-05-23: **Sprint 1.1 — Living State Engine (all review fixes applied, 497/497 PASS)**:
   - `src/living/living_state.py` — runtime-only 7-state engine; **bug fix**: `_CURIOUS_TO_SLEEPY_SECS` was `20 * 60` matching `_HAPPY_TO_CURIOUS_SECS`, causing `ACTIVE_HAPPY` to skip `IDLE_CURIOUS` and jump directly to `IDLE_SLEEPY` at 20 min. Fixed to cumulative `40 * 60` so the 20-min `IDLE_CURIOUS` window is preserved.
   - `src/living/__init__.py` — package exports for `BiState` and `LivingStateEngine`
@@ -126,15 +134,12 @@ WAKEWORD_THRESHOLD=0.5
 - Cloudflare quick tunnel URL may change after restart unless a named tunnel is configured.
 - YAMNet TFLite support depends on optional runtime dependencies.
 - Parent App: radio/videos/games/logs use mock fallbacks; 4 saveSettings() stubs return null.
-- Micro Moments Engine is not implemented yet; next target is Sprint 1.2.
 - See `docs/STATUS_MAP.md` for complete feature reality map.
 
 ## Next Recommended Action
 
-Sprint 1.1 is complete with all review fixes applied (497/497 PASS). Next execution target:
-1. **Final commit Sprint 1.1** after human confirms commit/push workflow.
-2. Start **Sprint 1.2 — Micro Moments Engine** from `docs/EXECUTION_STATE.md`.
-3. Keep scope tight: 8 micro moments, rate limit, guardrails, non-blocking TTS; no motor movement or adaptive persona yet.
+Sprint 1.2 committed (`cb83b91`, 517/517 PASS). Next execution target:
+- Start **Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode** from `docs/EXECUTION_STATE.md`.
 
 Deferred wake word validation remains available:
 - Generate dataset: `python scripts/generate_wakeword_dataset.py` (needs internet + ffmpeg)
@@ -153,6 +158,16 @@ For large feature/API/schema/cross-module work: use Spec Kit or write a clear pl
 ```bash
 python tests/run_tests.py
 ```
+
+## Files Recently Touched (Sprint 1.2)
+
+- `src/living/micro_moments.py` (new — `MomentId` enum + `MicroMomentsEngine`; YAWN rename + hour validation)
+- `src/living/__init__.py` (modified — added `MicroMomentsEngine` + `MomentId` exports)
+- `src/main.py` (modified — `self._micro_speaking` flag; `_speak_micro_moment()`; `_handle_puppet_queue()` returns bool; idle path puppet guard; `_micro_speaking` STT overlap guard)
+- `tests/run_tests.py` (modified — Group 69, 20 tests including behavioral + validation tests)
+- `docs/CODE_REVIEW_STATE.md` (updated — review results, all fixes applied, 517/517)
+- `docs/EXECUTION_STATE.md` (updated — Sprint 1.2 DONE commit cb83b91, Sprint 1.3 next)
+- `.claude/handoff.md`
 
 ## Files Recently Touched (Sprint 1.1)
 

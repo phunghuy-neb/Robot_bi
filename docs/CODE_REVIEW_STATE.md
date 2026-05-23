@@ -14,7 +14,7 @@
 | **Task name** | Sprint 1.2 — Micro Moments Engine |
 | **Sprint** | Sprint 1.2 (Stage 1 — Bi Có Hồn) |
 | **Branch** | `002-parent-app-backend-integration` |
-| **Commit hash** | _(pending — fixes applied, ready for final commit)_ |
+| **Commit hash** | `cb83b91` |
 | **Commit range** | `a4c4978..working tree` |
 | **Files changed** | `src/living/micro_moments.py` (new), `src/living/__init__.py`, `src/main.py`, `tests/run_tests.py` |
 | **Short summary** | Thêm `MicroMomentsEngine` — 8 hành vi tự phát runtime-only (ngáp, lẩm bẩm, hát nhỏ, nhìn quanh, tự nói, kể điều lạ, phản ứng thời gian, chuẩn bị bất ngờ). Rate limit 15 phút, guardrails homework + sleep hours. Wire nhẹ vào `main.py` idle path (không block conversation). 18 tests Group 69; tổng 515/515 PASS. |
@@ -156,4 +156,4 @@ _(Nice-to-have improvements — style, doc comments, future-proofing)_
 | Sprint | Task | Commit | Critical | High | Result |
 |---|---|---|---|---|---|
 | Sprint 1.1 | Living State Engine | `a4c4978` | 0 | 4 fixed | ✅ Committed — 497/497 PASS |
-| Sprint 1.2 | Micro Moments Engine | _(see commit)_ | 0 | 0 | ✅ Committed — 517/517 PASS |
+| Sprint 1.2 | Micro Moments Engine | `cb83b91` | 0 | 0 | ✅ Committed — 517/517 PASS |

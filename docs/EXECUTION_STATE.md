@@ -16,7 +16,7 @@
 | **Project Mode** | Software-First. Hardware sau Stage 4+. |
 | **Active Branch** | `002-parent-app-backend-integration` |
 | **Test command** | `python tests/run_tests.py` |
-| **Last commit** | _(Sprint 1.2 — Micro Moments Engine, all review fixes applied)_ |
+| **Last commit** | `cb83b91` — feat: Sprint 1.2 — Micro Moments Engine + review fixes |
 
 ---
 
@@ -133,4 +133,4 @@
 | 2026-05-20 | Sprint 0.4: Wake Word Training Pipeline | `aad6072` | Sprint 1.1 |
 | 2026-05-23 | Created EXECUTION_STATE.md + CODE_REVIEW_STATE.md | _(this commit)_ | Sprint 1.1 — Living State Engine |
 | 2026-05-23 | Sprint 1.1: Living State Engine + all review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 — Micro Moments Engine |
-| 2026-05-23 | Sprint 1.2: Micro Moments Engine — all review fixes applied; 517/517 PASS | _(this commit)_ | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
+| 2026-05-23 | Sprint 1.2: Micro Moments Engine — all review fixes applied; 517/517 PASS | `cb83b91` | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
