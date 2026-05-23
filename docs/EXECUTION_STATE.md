@@ -11,12 +11,12 @@
 | Field | Value |
 |---|---|
 | **Current Stage** | Stage 1 — Bi Có Hồn (Living Engine) |
-| **Current Sprint** | Sprint 1.2 — Micro Moments Engine (NEXT — chưa bắt đầu) |
-| **Current Status** | Sprint 1.1 đã implement + all review fixes applied (incl. ACTIVE_HAPPY→IDLE_SLEEPY bug fix). `python tests/run_tests.py` PASS 497/497. Ready for final commit, then continue Sprint 1.2. |
+| **Current Sprint** | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
+| **Current Status** | Sprint 1.2 committed. `python tests/run_tests.py` PASS 517/517. Next: Sprint 1.3. |
 | **Project Mode** | Software-First. Hardware sau Stage 4+. |
 | **Active Branch** | `002-parent-app-backend-integration` |
 | **Test command** | `python tests/run_tests.py` |
-| **Last commit** | `6855a58` — docs: add mandatory review gate rules to execution state |
+| **Last commit** | _(Sprint 1.2 — Micro Moments Engine, all review fixes applied)_ |
 
 ---
 
@@ -44,9 +44,9 @@
 - Goal: Pipeline hoàn chỉnh để train wake word model từ synthetic dataset.
 - Outcome: 4 scripts mới (`generate_wakeword_dataset.py`, `augment_audio.py`, `train_wakeword.py`, `test_wakeword.py`), `custom_mfcc` backend trong `wakeword_service.py`, 19 tests (Group 67), `scikit-learn>=1.4.0` trong `requirements.txt`. Pipeline SẴNG SÀNG — dataset chưa generate, model chưa train. Commit: `aad6072`.
 
-**Sprint 1.1** — Living State Engine
+**Sprint 1.1** — Living State Engine ✅ DONE
 - Goal: Runtime-only state machine để Bi có trạng thái bên trong khi trò chuyện.
-- Outcome: `src/living/living_state.py` với 7 states, tích hợp vào text mode + voice mode. Living hint đi qua `system_context`, không pollute user/RAG history. Safety early-response paths hoàn tất living/wakeword lifecycle. Bug fix: `ACTIVE_HAPPY→IDLE_SLEEPY` skip (`_CURIOUS_TO_SLEEPY_SECS` cumulative threshold 40 min). Windows fallback temp DB cleanup added. 24 tests (Group 68), tổng 497/497 PASS. Commit: _(pending final commit)_.
+- Outcome: `src/living/living_state.py` với 7 states, tích hợp vào text mode + voice mode. Living hint đi qua `system_context`, không pollute user/RAG history. Safety early-response paths hoàn tất living/wakeword lifecycle. Bug fix: `ACTIVE_HAPPY→IDLE_SLEEPY` skip (`_CURIOUS_TO_SLEEPY_SECS` cumulative threshold 40 min). Windows fallback temp DB cleanup added. 24 tests (Group 68), tổng 497/497 PASS. Commit: `a4c4978`.
 
 ---
 
@@ -68,34 +68,39 @@
 
 ## SECTION 4 — NEXT TASK
 
-### Sprint 1.2 — Micro Moments Engine
+### Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode
 
 **Stage**: Stage 1 — Bi Có Hồn (Living Engine)
 
-**Goal**: Bi có các hành vi nhỏ tự phát khi không được hỏi, nhưng có rate-limit và guardrails để không spam hoặc phá session học.
+**Goal**: Tone Bi thay đổi theo context (play/teach/comfort/idle). Bi giận dỗi khi bị bỏ mặc quá lâu — không guilt-trip.
 
-**Scope**:
-- `src/living/micro_moments.py` — engine phát micro moments runtime-only, dùng `LivingStateEngine` hiện có
-- 8 hành vi: ngáp, lẩm bẩm, hát nhỏ, nhìn quanh, tự nói câu ngắn, kể điều lạ, phản ứng thời gian, chuẩn bị bất ngờ
-- Trigger scheduler/rate limiter: max 1 lần / 15 phút
-- Guardrails: không phát khi đang trong session học/homework hoặc trong giờ ngủ
-- Wire nhẹ vào `main.py`: check định kỳ, phát TTS ngắn qua audio queue, không block conversation
-- Tests: Group 69 — micro moment selection, rate limit, guardrails, integration source checks
+**Scope (from MASTER_PLAN.md Sprint 1.3)**:
+- `detect_context(user_text, recent_history)` in `src/ai/persona_manager.py` — 4 context: play / teach / comfort / idle
+- 4 system prompt modifier khác nhau cho từng context
+- Wire context detection vào main loop trước khi build prompt
+- Giận dỗi trigger: bé vắng X phút, Bi chào nhưng không trả lời → `MISSING_KID`
+- Giận dỗi sequence: voice hờn nhẹ (không guilt-trip) + state reset khi bé quay lại
+- Verify mọi câu giận dỗi pass emotional safety filter
+- Tests: Group 70 (≥ 12 tests)
 
 **What NOT to build**:
-- Giận dỗi mode với motor movement (Stage 1.5)
-- Adaptive Persona / context detection (Sprint 1.3)
-- Bất kỳ UI nào
-- Không motor movement
-- Không proactive conversation phức tạp ngoài micro moment scope
+- Motor movement / body expression (Stage 1.5)
+- SQLite schema mới (runtime-only)
+- Advanced behavioral profile (Stage 2)
+- Micro Moments thêm (đã xong Sprint 1.2)
 
 **Definition of Done**:
-- `MicroMomentsEngine` có 8 micro moments với trigger/guardrail rõ ràng
-- Rate limit chống spam hoạt động
-- Main loop gọi micro moments không block STT/TTS conversation chính
-- Tests pass: ≥ 10 tests cho micro moments (selection, rate limit, guardrails, source integration)
+- 4 context cho ra 4 reply khác biệt rõ
+- Giận dỗi sequence không có câu guilt-trip (kiểm tra qua ManipulationGuard)
+- Tests pass: ≥ 12 tests
 - `python tests/run_tests.py` 100% pass
-- `CODE_REVIEW_STATE.md` updated sau khi implement
+- `CODE_REVIEW_STATE.md` updated
+
+---
+
+### Sprint 1.2 — Micro Moments Engine ✅ DONE
+
+**Outcome**: `src/living/micro_moments.py` — `MomentId` (8 moments, YAWN renamed) + `MicroMomentsEngine`. Rate limit 15 phút, guardrails homework + sleep hours 22:00–07:00. Wire vào `main.py` idle path with `_micro_speaking` guard and puppet overlap fix. 20 tests (Group 69), tổng 517/517 PASS.
 
 ---
 
@@ -127,4 +132,5 @@
 | 2026-05-20 | Sprint 0.3: Wake Word Foundation | `c8fe264` | Sprint 0.4 |
 | 2026-05-20 | Sprint 0.4: Wake Word Training Pipeline | `aad6072` | Sprint 1.1 |
 | 2026-05-23 | Created EXECUTION_STATE.md + CODE_REVIEW_STATE.md | _(this commit)_ | Sprint 1.1 — Living State Engine |
-| 2026-05-23 | Sprint 1.1: Living State Engine + all review fixes; 497/497 PASS | _(pending)_ | Sprint 1.2 — Micro Moments Engine |
+| 2026-05-23 | Sprint 1.1: Living State Engine + all review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 — Micro Moments Engine |
+| 2026-05-23 | Sprint 1.2: Micro Moments Engine — all review fixes applied; 517/517 PASS | _(this commit)_ | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |

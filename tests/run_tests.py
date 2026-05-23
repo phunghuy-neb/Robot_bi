@@ -5920,6 +5920,151 @@ def test_68_full_turn_behavioral_cycle():
 test("68.23 Regression: ACTIVE_HAPPY 25 min → IDLE_CURIOUS not IDLE_SLEEPY", test_68_active_happy_25min_decays_to_curious_not_sleepy)
 test("68.24 Behavioral: full turn cycle idle→engaged→thinking→happy→decay",   test_68_full_turn_behavioral_cycle)
 
+# == GROUP 69 — Micro Moments Engine (Sprint 1.2) ================================
+print("\n[Group 69] Micro Moments Engine — spontaneous behaviors, rate-limit, guardrails")
+
+from src.living.micro_moments import (
+    MicroMomentsEngine, MomentId, _MOMENT_STATES, _is_sleep_hours, _pick_text,
+    _RATE_LIMIT_SECS,
+)
+import time as _time69
+
+def test_69_import():
+    from src.living.micro_moments import MicroMomentsEngine, MomentId
+    assert MicroMomentsEngine is not None
+    assert MomentId is not None
+
+def test_69_eight_moments():
+    assert len(MomentId) == 8, f"Expected 8 moments, got {len(MomentId)}"
+
+def test_69_fresh_ready():
+    eng = MicroMomentsEngine()
+    assert eng.seconds_until_next() == 0.0
+
+def test_69_rate_limit_blocks_after_fire():
+    eng = MicroMomentsEngine()
+    first = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10)
+    assert first is not None, "First call should fire"
+    second = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10)
+    assert second is None, "Immediate second call must be blocked by rate limit"
+
+def test_69_rate_limit_resets():
+    eng = MicroMomentsEngine(rate_limit_secs=1)
+    eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10)
+    _time69.sleep(1.1)
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10)
+    assert result is not None, "Should fire after cooldown expires"
+
+def test_69_guardrail_homework():
+    eng = MicroMomentsEngine()
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, is_homework=True, hour=10)
+    assert result is None, "Must not fire during homework session"
+
+def test_69_guardrail_sleep_23():
+    eng = MicroMomentsEngine()
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=23)
+    assert result is None, "Must not fire at hour 23 (sleep hours)"
+
+def test_69_guardrail_sleep_5():
+    eng = MicroMomentsEngine()
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=5)
+    assert result is None, "Must not fire at hour 5 (before 07:00)"
+
+def test_69_awake_hours_not_sleep():
+    assert not _is_sleep_hours(7),  "07:00 is not sleep hours"
+    assert not _is_sleep_hours(10), "10:00 is not sleep hours"
+    assert not _is_sleep_hours(21), "21:00 is not sleep hours"
+    assert _is_sleep_hours(22),     "22:00 IS sleep hours"
+    assert _is_sleep_hours(0),      "00:00 IS sleep hours"
+    assert _is_sleep_hours(6),      "06:00 IS sleep hours"
+
+def test_69_yawn_only_sleepy():
+    assert BiState.IDLE_SLEEPY in _MOMENT_STATES[MomentId.YAWN]
+    assert BiState.IDLE_CURIOUS not in _MOMENT_STATES[MomentId.YAWN]
+    assert BiState.ACTIVE_HAPPY not in _MOMENT_STATES[MomentId.YAWN]
+
+def test_69_hum_states():
+    assert BiState.ACTIVE_HAPPY in _MOMENT_STATES[MomentId.HUM]
+    assert BiState.IDLE_CURIOUS in _MOMENT_STATES[MomentId.HUM]
+
+def test_69_all_moments_have_states():
+    for moment in MomentId:
+        assert moment in _MOMENT_STATES, f"Missing state map for {moment}"
+        assert len(_MOMENT_STATES[moment]) >= 1, f"Empty state set for {moment}"
+
+def test_69_all_moments_produce_text():
+    for moment in MomentId:
+        text = _pick_text(moment, 10)
+        assert isinstance(text, str) and len(text) > 0, f"Empty text for {moment}"
+
+def test_69_time_reaction_morning():
+    text = _pick_text(MomentId.TIME_REACTION, 8)
+    assert "sáng" in text, f"Expected morning text to contain 'sáng', got: {text!r}"
+
+def test_69_package_exports():
+    from src.living import MicroMomentsEngine as MME, MomentId as MI
+    assert MME is MicroMomentsEngine
+    assert MI is MomentId
+
+def test_69_main_micro_initialized():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "self._micro = MicroMomentsEngine()" in src
+
+def test_69_main_fire_method_exists():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "def _fire_micro_moment_if_ready" in src
+
+def test_69_none_does_not_consume_rate_limit():
+    eng = MicroMomentsEngine()
+    # Guardrail blocks the call → rate limit must not advance
+    result1 = eng.maybe_trigger(BiState.IDLE_CURIOUS, is_homework=True, hour=10)
+    assert result1 is None
+    # _last_fired_at must still be 0.0 — cooldown must not have been consumed
+    assert eng._last_fired_at == 0.0, "Rate limit must not advance on a blocked (None) call"
+
+def test_69_puppet_guard_in_source():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "puppet_played" in src, "Puppet guard variable must exist in main.py"
+    assert "if not puppet_played" in src, "Puppet guard condition must exist in main.py"
+
+def test_69_hour_validation():
+    import pytest
+    eng = MicroMomentsEngine()
+    try:
+        eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=24)
+        assert False, "Expected ValueError for hour=24"
+    except ValueError as e:
+        assert "24" in str(e)
+    try:
+        eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=-1)
+        assert False, "Expected ValueError for hour=-1"
+    except ValueError as e:
+        assert "-1" in str(e)
+
+test("69.1  Import: MicroMomentsEngine + MomentId importable",           test_69_import)
+test("69.2  States: MomentId has exactly 8 members",                     test_69_eight_moments)
+test("69.3  Init: fresh instance reports 0 cooldown",                    test_69_fresh_ready)
+test("69.4  Rate limit: None returned immediately after firing",         test_69_rate_limit_blocks_after_fire)
+test("69.5  Rate limit: fires again after cooldown expires",             test_69_rate_limit_resets)
+test("69.6  Guardrail: homework=True → None",                            test_69_guardrail_homework)
+test("69.7  Guardrail: hour=23 (sleep) → None",                         test_69_guardrail_sleep_23)
+test("69.8  Guardrail: hour=5 (pre-dawn) → None",                       test_69_guardrail_sleep_5)
+test("69.9  Guardrail: awake hours correctly classified",                test_69_awake_hours_not_sleep)
+test("69.10 Moment: YAWN compatible only with IDLE_SLEEPY",              test_69_yawn_only_sleepy)
+test("69.11 Moment: HUM fires in ACTIVE_HAPPY or IDLE_CURIOUS",          test_69_hum_states)
+test("69.12 All 8 moments have ≥1 compatible state",                     test_69_all_moments_have_states)
+test("69.13 All moments produce non-empty TTS text",                     test_69_all_moments_produce_text)
+test("69.14 Time: morning hour gives text containing 'sáng'",            test_69_time_reaction_morning)
+test("69.15 Package: src.living exports MicroMomentsEngine + MomentId",  test_69_package_exports)
+test("69.16 Main: self._micro initialized in RobotBiApp source",         test_69_main_micro_initialized)
+test("69.17 Main: _fire_micro_moment_if_ready defined in source",        test_69_main_fire_method_exists)
+test("69.18 Behavioral: None result does not consume rate limit",        test_69_none_does_not_consume_rate_limit)
+test("69.19 Behavioral: puppet guard exists in main.py idle path",       test_69_puppet_guard_in_source)
+test("69.20 Validation: hour out of 0–23 raises ValueError",            test_69_hour_validation)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

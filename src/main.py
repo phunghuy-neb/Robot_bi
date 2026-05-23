@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import atexit
 import logging
 import threading
@@ -56,6 +57,7 @@ from src.emotion.emotion_alert import EmotionAlert
 from src.wakeword.wakeword_service import WakeWordService
 from src.wakeword.wakeword_router import WakeWordRouter
 from src.living.living_state import LivingStateEngine
+from src.living.micro_moments import MicroMomentsEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -127,8 +129,11 @@ class RobotBiApp:
             self._wakeword_svc = None
             self._wakeword = None
 
-        # Living State Engine (Sprint 1.1)
+        # Living State Engine (Sprint 1.1) + Micro Moments Engine (Sprint 1.2)
         self._living = LivingStateEngine()
+        self._micro = MicroMomentsEngine()
+        self._last_homework_at: float = 0.0
+        self._micro_speaking: bool = False  # True while micro moment TTS is playing
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -223,11 +228,12 @@ class RobotBiApp:
                 message=f"Nhan ra: {clip_path}",
             )
 
-    def _handle_puppet_queue(self) -> None:
+    def _handle_puppet_queue(self) -> bool:
         """
         Xử lý tất cả puppet commands đang chờ trong queue.
         Được gọi sau mỗi lượt nói chuyện và khi listen() trả về rỗng.
         SRS 4.5: "Phụ huynh gõ câu bất kỳ trên app, Bi đọc to ngay tại nhà"
+        Returns True if any puppet audio was played.
         """
         queued = 0
         while not self._puppet_queue.empty():
@@ -250,6 +256,7 @@ class RobotBiApp:
                 queued += 1
         if queued > 0:
             self.audio_queue.join()
+        return queued > 0
 
     def _cleanup_chunks(self):
         """Xóa tất cả file voice_chunk_*.mp3 và *.wav còn sót lại."""
@@ -283,6 +290,7 @@ class RobotBiApp:
             if not classify_homework(user_text):
                 return
             if mark_session_homework(session_id, family_id=self._family_id):
+                self._last_homework_at = time.time()
                 self.notifier.push_event(
                     "homework",
                     f"Bé vừa hỏi bài: {user_text[:50]}",
@@ -332,6 +340,26 @@ class RobotBiApp:
         if self._wakeword and self._wakeword.is_enabled():
             self._wakeword.on_reply_done()
         self._close_current_session()
+
+    def _speak_micro_moment(self, text: str) -> None:
+        """Play a micro moment TTS phrase; holds _micro_speaking=True until audio finishes."""
+        self._micro_speaking = True
+        try:
+            self._speak_text(text)
+            self.audio_queue.join()
+        finally:
+            self._micro_speaking = False
+
+    def _fire_micro_moment_if_ready(self) -> None:
+        """Fire a spontaneous micro moment TTS phrase when Bi is idle (non-blocking)."""
+        try:
+            is_hw = (time.time() - self._last_homework_at) < 5 * 60
+            result = self._micro.maybe_trigger(self._living.get_state(), is_homework=is_hw)
+            if result:
+                _, text = result
+                threading.Thread(target=self._speak_micro_moment, args=(text,), daemon=True).start()
+        except Exception as e:
+            logger.debug("[MicroMoment] skip: %s", e)
 
     def _shutdown(self):
         if self._shutdown_done:
@@ -573,6 +601,11 @@ class RobotBiApp:
                             continue  # timeout — loop again
                         self._wakeword.on_stt_start()  # LISTENING → PROCESSING
 
+                    # Yield briefly if a micro moment TTS is still playing
+                    if self._micro_speaking:
+                        _time.sleep(0.3)
+                        continue
+
                     if self._face:
                         try:
                             self._face.set_mode('listening')
@@ -587,7 +620,9 @@ class RobotBiApp:
                                 self._face.set_mode('idle')
                             except Exception:
                                 pass
-                        self._handle_puppet_queue()   # xử lý puppet khi không có ai nói
+                        puppet_played = self._handle_puppet_queue()
+                        if not puppet_played:
+                            self._fire_micro_moment_if_ready()
                         continue
 
                     try:
