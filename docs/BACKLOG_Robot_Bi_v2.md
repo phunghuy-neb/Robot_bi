@@ -258,16 +258,17 @@
 
 | Status | Feature | Ghi chú |
 |---|---|---|
-| ⬜ | Trạng thái năng lượng | Cao/thấp ảnh hưởng cách Bi phản ứng |
-| ⬜ | Trạng thái buồn ngủ | Buổi tối, pin yếu — chuyển động chậm, mắt lim dim |
-| ⬜ | Trạng thái tò mò | Tự quay nhìn quanh khi không có hoạt động |
-| ⬜ | Trạng thái muốn chơi | Hơi nhún nhảy, liếc tìm bé |
-| ⬜ | Trạng thái tập trung | Khi bé đang học — Bi không làm phiền |
+| 🟡 | Trạng thái năng lượng | Đã có active/sleepy/happy runtime state; chưa nối pin thật |
+| ✅ | Trạng thái buồn ngủ | `IDLE_SLEEPY` + micro moment ngáp; face/motor deferred |
+| 🟡 | Trạng thái tò mò | `IDLE_CURIOUS` + look-around phrase; motor quay nhìn quanh deferred Stage 1.5 |
+| 🟡 | Trạng thái muốn chơi | Active happy + prepare-surprise micro moment; body expression deferred |
+| ✅ | Trạng thái tập trung | `ACTIVE_ENGAGED`/`THINKING`; homework guard không làm phiền |
 | ⬜ | Trạng thái hơi lười | Di chuyển chậm, ít chủ động |
 | ⬜ | Trạng thái đang nạp pin | Về dock — "đang về nhà nghỉ" |
-| ⬜ | Trạng thái đang nhớ bé | Khi bé vắng lâu |
-| ⬜ | Trạng thái chuẩn bị bất ngờ | Tạo kỳ vọng tự nhiên trước khi bé tương tác |
-| ⬜ | Trạng thái ảnh hưởng đến hội thoại và học tập | Bi điều chỉnh cách dạy theo trạng thái hiện tại |
+| ✅ | Trạng thái đang nhớ bé | `POUTING`/`MISSING_KID` + giận dỗi nhẹ, không guilt-trip |
+| ✅ | Trạng thái chuẩn bị bất ngờ | `PREPARE_SURPRISE` micro moment |
+| ✅ | Trạng thái ảnh hưởng đến hội thoại và học tập | Living hint + context persona modifier đi vào `system_context` |
+| ✅ | Chủ động hỏi thăm khi bé im lặng lâu | Sprint 1.4 `ProactiveBehaviorsEngine`; cần child-present signal từ vision event |
 
 ---
 
@@ -277,16 +278,16 @@
 
 | Status | Feature | Ghi chú |
 |---|---|---|
-| ⬜ | Tự ngáp | Buổi tối, pin yếu — có âm thanh nhỏ + mặt ngáp |
-| ⬜ | Tự hát nhỏ | Khi Bi "vui", không có hoạt động |
-| ⬜ | Tự lẩm bẩm | Khi Bi "đang nghĩ" — "Hmm..." |
-| ⬜ | Tự nhìn quanh | Khi Bi "tò mò" — quay trái phải nhẹ |
-| ⬜ | Tự nói câu ngắn ngẫu nhiên | "Hôm nay trời đẹp ghê..." |
-| ⬜ | Phản ứng với thời gian trong ngày | Chào sáng, buổi tối buồn ngủ |
-| ⬜ | Tự kể điều lạ | "Bi vừa nghĩ ra một điều hay lắm..." |
-| ⬜ | Giới hạn tần suất | Không quá 1 lần / 15 phút khi chờ |
-| ⬜ | Không làm khi bé học | Tuyệt đối không gián đoạn session học |
-| ⬜ | Không làm khi bé ngủ | Bi chuyển sang chế độ yên tĩnh theo giờ ngủ |
+| ✅ | Tự ngáp | `MomentId.YAWN`; TTS phrase, face/motor deferred |
+| ✅ | Tự hát nhỏ | `MomentId.HUM` |
+| ✅ | Tự lẩm bẩm | `MomentId.MUMBLE` |
+| 🟡 | Tự nhìn quanh | `MomentId.LOOK_AROUND` phrase có rồi; motor quay trái phải deferred Stage 1.5 |
+| ✅ | Tự nói câu ngắn ngẫu nhiên | `SELF_TALK` |
+| ✅ | Phản ứng với thời gian trong ngày | `TIME_REACTION` |
+| ✅ | Tự kể điều lạ | `SHARE_FACT` |
+| ✅ | Giới hạn tần suất | Không quá 1 lần / 15 phút khi chờ |
+| ✅ | Không làm khi bé học | `is_homework=True` guard |
+| ✅ | Không làm khi bé ngủ | Sleep-hour guard 22:00–07:00 |
 
 ---
 

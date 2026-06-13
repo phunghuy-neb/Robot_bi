@@ -48,7 +48,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/emotion/` | Emotion analyzer, emotion journal, and emotion alert state. |
 | `src/entertainment/` | Story engine, music library, word quiz, and voice quiz logic backed by local resources. |
 | `src/infrastructure/` | Auth/JWT helpers, SQLite database helpers, logging setup, notifier, session state/naming, and task manager. |
-| `src/living/` | Runtime-only Living State Engine for Bi's inner state; integrated into `src/main.py` text/voice loops and passed to LLM through internal `system_context`. |
+| `src/living/` | Runtime-only Stage 1 living layer: `living_state.py` state machine, `micro_moments.py` spontaneous idle behaviors, and `proactive_behaviors.py` child-present idle prompts; integrated into `src/main.py` text/voice loops and passed to LLM through internal `system_context` where needed. |
 | `src/memory/` | ChromaDB RAG manager plus smaller memory/progress placeholder or support files. |
 | `src/motion/` | Motor controller with simulation/serial/WebSocket paths plus navigation, follow-me, and dock helper modules. |
 | `src/safety/` | Safety filter for LLM/puppet text before TTS. |

@@ -3,8 +3,9 @@
 ## Yeu Cau Truoc Khi Chay
 
 1. Tao va dien `.env` tren may local. Khong commit `.env`.
-2. Can cac bien chinh: `GROQ_API_KEY`, `GEMINI_API_KEY`, `JWT_SECRET_KEY`, `AUTH_PIN`, `ADMIN_PASSWORD`.
-3. Can internet cho Groq, Gemini, edge-tts, va tunnel neu dung.
+2. Can cac bien chinh: `CEREBRAS_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `JWT_SECRET_KEY`, `AUTH_PIN`, `ADMIN_PASSWORD`.
+3. Neu muon day du fallback chain, them `SAMBANOVA_API_KEY`, `CLOUDFLARE_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`.
+4. Can internet cho Cerebras/Groq/Gemini, edge-tts, va tunnel neu dung.
 
 ## Lenh Chinh
 

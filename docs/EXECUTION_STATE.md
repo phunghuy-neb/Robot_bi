@@ -1,8 +1,8 @@
 # EXECUTION_STATE.md — Robot Bi
 
-> Source of truth cho Claude execution.
+> Source of truth cho execution state.
 > Không phụ thuộc chat history. Đọc file này để biết current position, completed work, deferred items, và next task.
-> Updated: 2026-05-23
+> Updated: 2026-06-13
 
 ---
 
@@ -11,12 +11,13 @@
 | Field | Value |
 |---|---|
 | **Current Stage** | Stage 1 — Bi Có Hồn (Living Engine) |
-| **Current Sprint** | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
-| **Current Status** | Sprint 1.3 implemented + all review fixes applied. `python tests/run_tests.py` PASS 532/532. Ready for final commit. |
-| **Project Mode** | Software-First. Hardware sau Stage 4+. |
+| **Current Sprint** | Stage 1 software complete; next recommended task is Stage 1.5 — Body Expression |
+| **Current Status** | Sprint 1.4 Proactive Behaviors + Stage 1 Polish implemented and reviewed. `python tests/run_tests.py` PASS 545/545. |
+| **Project Mode** | Software-First. Hardware/body movement remains separate. |
 | **Active Branch** | `002-parent-app-backend-integration` |
 | **Test command** | `python tests/run_tests.py` |
-| **Last commit** | `cb83b91` — feat: Sprint 1.2 (Sprint 1.3 implemented, pending review) |
+| **Last commit** | `6be68d8` — fix: Sprint 1.3 review fixes |
+| **Working tree** | Sprint 1.4 committed; unrelated local files may still be dirty |
 
 ---
 
@@ -24,106 +25,79 @@
 
 ### Stage 0 — Foundation Truth Reset ✅ DONE
 
-**Goal**: Docs khớp code, safety upgrade, wake word decision, test pass 100%.
+- **Sprint 0.1 — Sync Docs to Code Reality**: `PROJECT.md`, architecture/SRS/backlog/status docs normalized; generated agent docs synced. Commit: `479d850`.
+- **Sprint 0.2 — Child Safety Foundation**: PII filter, emotion risk detector, manipulation guard, main loop integration. Commits: `1ba66ec`, `12113d2`.
+- **Sprint 0.3 — Wake Word Foundation**: wake-word service/router/listener and main loop gating. Commit: `c8fe264`.
+- **Sprint 0.4 — Wake Word Training Pipeline**: synthetic dataset, augmentation, MFCC+SVM training/test scripts; model still requires human training run. Commit: `aad6072`.
+
+### Stage 1 — Bi Có Hồn ✅ SOFTWARE COMPLETE
+
+- **Sprint 1.1 — Living State Engine**: `src/living/living_state.py` runtime-only 7-state machine, text/voice integration, `system_context` hints, 497/497 PASS. Commit: `a4c4978`.
+- **Sprint 1.2 — Micro Moments Engine**: `src/living/micro_moments.py` with 8 idle moments, 15-minute rate limit, homework/sleep guards, idle TTS overlap guard, 517/517 PASS. Commit: `cb83b91`.
+- **Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode**: context detection/modifiers, pouting and welcome-back flow, review fixes for prompt routing/safety/guards, 532/532 PASS. Commit: `6be68d8`.
+- **Sprint 1.4 — Proactive Behaviors + Stage 1 Polish**: `src/living/proactive_behaviors.py`, child-present idle prompt after 10 minutes silence, 30-minute anti-spam, homework/sleep/active-state guards, same-tick pouting guard, Cerebras model updated to `gpt-oss-120b`, 545/545 PASS. Commit: this commit.
 
 ---
 
-**Sprint 0.1** — Sync Docs to Code Reality
-- Goal: Đảm bảo tất cả doc file phản ánh đúng code thực tế.
-- Outcome: `PROJECT.md` updated với 5-provider LLM chain, RAG threshold 0.62, edge-tts internet note, wake word disabled by default, firmware stubs flagged. `ARCHITECTURE.md`, `SRS_Robot_Bi_v2.md`, `BACKLOG_Robot_Bi_v2.md` sửa. `docs/STATUS_MAP.md` tạo mới (93-item feature map). `CLAUDE.md` + `AGENTS.md` regenerated. Commit: `479d850`.
+## SECTION 3 — DEFERRED / HUMAN VALIDATION
 
-**Sprint 0.2** — Child Safety Foundation
-- Goal: PII filter + emotional safety + manipulation guard trước LLM và sau LLM.
-- Outcome: 4 module mới (`vi_normalize.py`, `pii_filter.py`, `emotion_risk_detector.py`, `manipulation_guard.py`), 37 tests (Group 65), tích hợp vào `main.py` cả TEXT mode + VOICE mode. 430/431 PASS. Commits: `1ba66ec`, `12113d2`.
-
-**Sprint 0.3** — Wake Word Foundation
-- Goal: Wake word infrastructure, state machine, 3 backends, tích hợp `main.py`.
-- Outcome: 6 file mới trong `src/wakeword/`, state machine (IDLE/LISTENING/PROCESSING/COOLDOWN), 3 backends (openwakeword/whisper/placeholder), 24 tests (Group 66). Model CHƯA train — đây là foundation. Commit: `c8fe264`.
-
-**Sprint 0.4** — Wake Word Training Pipeline
-- Goal: Pipeline hoàn chỉnh để train wake word model từ synthetic dataset.
-- Outcome: 4 scripts mới (`generate_wakeword_dataset.py`, `augment_audio.py`, `train_wakeword.py`, `test_wakeword.py`), `custom_mfcc` backend trong `wakeword_service.py`, 19 tests (Group 67), `scikit-learn>=1.4.0` trong `requirements.txt`. Pipeline SẴNG SÀNG — dataset chưa generate, model chưa train. Commit: `aad6072`.
-
-**Sprint 1.1** — Living State Engine ✅ DONE
-- Goal: Runtime-only state machine để Bi có trạng thái bên trong khi trò chuyện.
-- Outcome: `src/living/living_state.py` với 7 states, tích hợp vào text mode + voice mode. Living hint đi qua `system_context`, không pollute user/RAG history. Safety early-response paths hoàn tất living/wakeword lifecycle. Bug fix: `ACTIVE_HAPPY→IDLE_SLEEPY` skip (`_CURIOUS_TO_SLEEPY_SECS` cumulative threshold 40 min). Windows fallback temp DB cleanup added. 24 tests (Group 68), tổng 497/497 PASS. Commit: `a4c4978`.
-
-**Sprint 1.2** — Micro Moments Engine ✅ DONE
-- Goal: Bi tự phát các hành vi nhỏ khi idle — không chờ lệnh.
-- Outcome: `src/living/micro_moments.py` — `MomentId` (8 moments: YAWN, MUMBLE, HUM, LOOK_AROUND, SELF_TALK, SHARE_FACT, TIME_REACTION, PREPARE_SURPRISE) + `MicroMomentsEngine`. Rate limit 15 phút, guardrails homework + sleep hours 22:00–07:00. `_micro_speaking` flag ngăn STT overlap. `_handle_puppet_queue()` trả bool để tránh micro moment khi puppet vừa phát. 20 tests (Group 69), tổng 517/517 PASS. Commit: `cb83b91`.
-
----
-
-## SECTION 3 — DEFERRED
-
-### Human Mic Validation for Wake Word
+### Wake Word Human Mic Validation
 
 | Field | Detail |
 |---|---|
-| **Status** | 🟡 Partial — Pipeline sẵn sàng, chưa validate bằng mic thật |
-| **Reason deferred** | Chưa có thời gian; cần người ngồi nói "Bi ơi" trực tiếp |
-| **Must complete before** | Stage 1.5 hoặc trước khi deploy robot thật với user |
-| **Wake Word overall** | 🟡 Partial / Ready for Human Validation |
-| **How to run** | `python scripts/generate_wakeword_dataset.py` → `augment_audio.py` → `train_wakeword.py` → `test_wakeword.py` |
-| **Target** | 8/10 "Bi ơi" detections trong môi trường bình thường |
+| **Status** | 🟡 Partial — pipeline ready, model not trained/validated by real mic |
+| **How to run** | `python scripts/generate_wakeword_dataset.py` → `python scripts/augment_audio.py` → `python scripts/train_wakeword.py` → `python scripts/test_wakeword.py` |
+| **Target** | 8/10 "Bi ơi" detections in normal room conditions |
 | **Enable in .env** | `WAKEWORD_ENABLED=true`, `WAKEWORD_BACKEND=custom_mfcc`, `WAKEWORD_CUSTOM_MODEL_PATH=runtime/wakeword/bi_oi_classifier.pkl` |
+
+### Stage 1 Manual Product Validation
+
+| Field | Detail |
+|---|---|
+| **Status** | Pending human/device validation |
+| **Reason** | Requires real microphone/camera/child-present signals and observation over time |
+| **Suggested check** | 1–3 day home test: idle moments not annoying, proactive prompt fires only when child is present and silent, no homework/sleep interruptions |
+
+### Provider Quota
+
+| Field | Detail |
+|---|---|
+| **Status** | Code OK; runtime quota may throttle |
+| **Observed** | Full test passed even when Cerebras/Groq returned quota 429 warnings; fallback chain continued |
+| **Action** | Monitor quota/billing on provider dashboards; no `.env` changes by agent |
 
 ---
 
 ## SECTION 4 — NEXT TASK
 
-### Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode
+### Stage 1.5 — Body Expression
 
-**Stage**: Stage 1 — Bi Có Hồn (Living Engine)
+**Why next**: Stage 1 software illusion-of-life is complete. The remaining "feels alive" gap is physical expression: motor movement mapped to living state, micro moments, and giận dỗi.
 
-**Goal**: Tone Bi thay đổi theo context (play/teach/comfort/idle). Bi giận dỗi khi bị bỏ mặc quá lâu — không guilt-trip.
+**Scope**:
+- `src/motion/movement_emotion.py` wire layer.
+- Map Living State → motor command when motor is enabled.
+- Map Micro Moments `LOOK_AROUND` → light turn.
+- Update giận dỗi movement from stub/log to real motor command.
+- Add safety guards: sleep mode, video call active, motor simulation mode.
+- Tests for mappings and guards.
 
-**Scope (from MASTER_PLAN.md Sprint 1.3)**:
-- `detect_context(user_text, recent_history)` in `src/ai/persona_manager.py` — 4 context: play / teach / comfort / idle
-- 4 system prompt modifier khác nhau cho từng context
-- Wire context detection vào main loop trước khi build prompt
-- Giận dỗi trigger: bé vắng X phút, Bi chào nhưng không trả lời → `MISSING_KID`
-- Giận dỗi sequence: voice hờn nhẹ (không guilt-trip) + state reset khi bé quay lại
-- Verify mọi câu giận dỗi pass emotional safety filter
-- Tests: Group 70 (≥ 12 tests)
-
-**What NOT to build**:
-- Motor movement / body expression (Stage 1.5)
-- SQLite schema mới (runtime-only)
-- Advanced behavioral profile (Stage 2)
-- Micro Moments thêm (đã xong Sprint 1.2)
-
-**Definition of Done**:
-- 4 context cho ra 4 reply khác biệt rõ
-- Giận dỗi sequence không có câu guilt-trip (kiểm tra qua ManipulationGuard)
-- Tests pass: ≥ 12 tests
-- `python tests/run_tests.py` 100% pass
-- `CODE_REVIEW_STATE.md` updated
-
----
-
-### Sprint 1.2 — Micro Moments Engine ✅ DONE
-
-**Outcome**: `src/living/micro_moments.py` — `MomentId` (8 moments, YAWN renamed) + `MicroMomentsEngine`. Rate limit 15 phút, guardrails homework + sleep hours 22:00–07:00. Wire vào `main.py` idle path with `_micro_speaking` guard and puppet overlap fix. 20 tests (Group 69), tổng 517/517 PASS.
+**Do not start automatically unless user asks**:
+- Special Memories / Stage 2.
+- New DB schema for memories/milestones.
+- Advanced behavioral profile.
 
 ---
 
 ## SECTION 5 — EXECUTION RULES
 
-1. **Đọc MASTER_PLAN.md trước** — xác nhận task đang làm đúng với plan.
-2. **Chỉ execute current task** — không jump sang sprint tiếp theo.
-3. **Tối đa 2 tasks mỗi run** — nếu task lớn, tách ra.
-4. **Không feature creep** — nếu thấy cần thêm, ghi vào deferred, không build.
-5. **Small commits** — commit sau mỗi unit hoàn chỉnh, không commit blob lớn.
-6. **Test trước khi commit** — `python tests/run_tests.py` phải pass.
-7. **Update CODE_REVIEW_STATE.md sau implement** — trước khi commit final.
-8. **Stop for review trước final commit** — để reviewer (Codex/ChatGPT/Gemini) check.
-9. **Không fake pass** — nếu test fail, fix trước, không skip/mock để pass.
-10. **Không commit broken tests** — kể cả pre-existing failures phải được ghi chú rõ.
-11. **Respect deferred items** — không build deferred item trừ khi user yêu cầu.
-12. **Cập nhật EXECUTION_STATE.md** khi sprint kết thúc.
-13. **Claude MUST stop after implementation and update CODE_REVIEW_STATE.md** — không tiếp tục commit trước khi file được điền đầy đủ.
-14. **Claude MUST wait for external review before final commit** — Codex/ChatGPT/Gemini phải review trước. Claude không tự approve.
+1. Read `PROJECT.md`, `.claude/handoff.md`, and relevant source files before code changes.
+2. Use Spec Kit only for large features/API/schema/cross-module/major UI work or when explicitly requested.
+3. Do not edit `CLAUDE.md` or `AGENTS.md` manually; edit `PROJECT.md` then run `python sync.py`.
+4. Do not read/edit `.env`, runtime DB, logs, cache/model/media files, or generated artifacts by default.
+5. After code changes, run `python tests/run_tests.py`; fix failures caused by the change.
+6. Keep `SYSTEM_MAP.md` current when system structure/capability changes.
+7. Do not fake pass; record any manual/hardware validation gap honestly.
 
 ---
 
@@ -135,8 +109,7 @@
 | 2026-05-20 | Sprint 0.2: Child Safety Foundation | `1ba66ec`, `12113d2` | Sprint 0.3 |
 | 2026-05-20 | Sprint 0.3: Wake Word Foundation | `c8fe264` | Sprint 0.4 |
 | 2026-05-20 | Sprint 0.4: Wake Word Training Pipeline | `aad6072` | Sprint 1.1 |
-| 2026-05-23 | Created EXECUTION_STATE.md + CODE_REVIEW_STATE.md | _(this commit)_ | Sprint 1.1 — Living State Engine |
-| 2026-05-23 | Sprint 1.1: Living State Engine + all review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 — Micro Moments Engine |
-| 2026-05-23 | Sprint 1.2: Micro Moments Engine — all review fixes applied; 517/517 PASS | `cb83b91` | Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode |
-| 2026-05-23 | Sprint 1.3: Adaptive Persona + Giận Dỗi Mode — IMPLEMENTED; 530/530 PASS | _(pending review)_ | Sprint 1.4 — Proactive Behaviors + Stage 1 Polish |
-| 2026-05-23 | Sprint 1.3: All review fixes applied (multi-word kw, sys_ctx routing, welcome-back safety, overlap+sleep guards, 2 new tests); 532/532 PASS | _(pending commit)_ | Sprint 1.4 |
+| 2026-05-23 | Sprint 1.1: Living State Engine + review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 |
+| 2026-05-23 | Sprint 1.2: Micro Moments Engine; 517/517 PASS | `cb83b91` | Sprint 1.3 |
+| 2026-05-23 | Sprint 1.3: Adaptive Persona + Giận Dỗi Mode review fixes; 532/532 PASS | `6be68d8` | Sprint 1.4 |
+| 2026-06-13 | Sprint 1.4: Proactive Behaviors + Stage 1 Polish; 545/545 PASS | _(this commit)_ | Stage 1.5 |

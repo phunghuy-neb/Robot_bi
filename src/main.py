@@ -58,6 +58,7 @@ from src.wakeword.wakeword_service import WakeWordService
 from src.wakeword.wakeword_router import WakeWordRouter
 from src.living.living_state import LivingStateEngine, BiState
 from src.living.micro_moments import MicroMomentsEngine
+from src.living.proactive_behaviors import ProactiveBehaviorsEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -146,7 +147,9 @@ class RobotBiApp:
         # Living State Engine (Sprint 1.1) + Micro Moments Engine (Sprint 1.2)
         self._living = LivingStateEngine()
         self._micro = MicroMomentsEngine()
+        self._proactive = ProactiveBehaviorsEngine()
         self._last_homework_at: float = 0.0
+        self._child_present_until: float = 0.0
         self._micro_speaking: bool = False   # True while micro moment TTS is playing
         self._pouting_announced: bool = False  # True after first MISSING_KID pouting phrase fired
 
@@ -222,6 +225,8 @@ class RobotBiApp:
 
     def _on_vision_event(self, event_type: str, clip_path: str | None) -> None:
         """Callback khi EyeVision phát hiện sự kiện."""
+        if event_type in ("motion", "known_face"):
+            self._child_present_until = time.time() + 2 * 60
         if event_type == "stranger":
             logger.info("[Bi - Mat] Phat hien nguoi la! Clip: %s", clip_path)
             self.notifier.push_event(
@@ -326,6 +331,7 @@ class RobotBiApp:
     def _living_interaction_start(self) -> None:
         try:
             self._living.on_interaction_start()
+            self._proactive.on_interaction()
         except Exception as e:
             logger.warning("[LivingState] interaction_start failed: %s", e)
 
@@ -365,6 +371,15 @@ class RobotBiApp:
         finally:
             self._micro_speaking = False
 
+    def _start_idle_phrase_thread(self, text: str) -> None:
+        """Start a non-blocking idle phrase and mark audio busy before the thread runs."""
+        try:
+            self._micro_speaking = True
+            threading.Thread(target=self._speak_micro_moment, args=(text,), daemon=True).start()
+        except Exception:
+            self._micro_speaking = False
+            raise
+
     def _fire_micro_moment_if_ready(self) -> None:
         """Fire a spontaneous micro moment TTS phrase when Bi is idle (non-blocking)."""
         try:
@@ -372,9 +387,27 @@ class RobotBiApp:
             result = self._micro.maybe_trigger(self._living.get_state(), is_homework=is_hw)
             if result:
                 _, text = result
-                threading.Thread(target=self._speak_micro_moment, args=(text,), daemon=True).start()
+                self._start_idle_phrase_thread(text)
         except Exception as e:
             logger.debug("[MicroMoment] skip: %s", e)
+
+    def _fire_proactive_if_ready(self) -> bool:
+        """Fire a gentle proactive prompt when child is present but silent."""
+        try:
+            child_present = time.time() <= self._child_present_until
+            is_hw = (time.time() - self._last_homework_at) < 5 * 60
+            text = self._proactive.maybe_trigger(
+                self._living.get_state(),
+                child_present=child_present,
+                is_homework=is_hw,
+            )
+            if not text:
+                return False
+            self._start_idle_phrase_thread(text)
+            return True
+        except Exception as e:
+            logger.debug("[Proactive] skip: %s", e)
+            return False
 
     def _fire_pouting_phrase(self) -> None:
         """Fire a single giận dỗi phrase (non-blocking); skips during sleep hours 22:00–07:00."""
@@ -384,7 +417,7 @@ class RobotBiApp:
         if _hour >= 22 or _hour < 7:
             return
         phrase = _rand.choice(_POUTING_PHRASES)
-        threading.Thread(target=self._speak_micro_moment, args=(phrase,), daemon=True).start()
+        self._start_idle_phrase_thread(phrase)
 
     def _fire_welcome_back_phrase(self) -> None:
         """Speak a welcome-back phrase synchronously before the LLM response."""
@@ -656,11 +689,15 @@ class RobotBiApp:
                                 self._face.set_mode('idle')
                             except Exception:
                                 pass
+                        proactive_fired = False
                         puppet_played = self._handle_puppet_queue()
                         if not puppet_played:
-                            self._fire_micro_moment_if_ready()
+                            proactive_fired = self._fire_proactive_if_ready()
+                            if not proactive_fired:
+                                self._fire_micro_moment_if_ready()
                         # Giận dỗi — announce once; skip when micro moment is already speaking
-                        if (self._living.get_state() == BiState.MISSING_KID
+                        if (not proactive_fired
+                                and self._living.get_state() == BiState.MISSING_KID
                                 and not self._pouting_announced
                                 and not self._micro_speaking):
                             self._fire_pouting_phrase()

@@ -127,13 +127,13 @@ Priorities:
 - Parent-friendly operation and monitoring
 - Stable local runtime with cloud AI APIs only where explicitly part of the current stack
 
-AI backend: 5-provider fallback chain — Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI. Primary is Cerebras (Qwen-3-235B); Groq has cooldown mechanism. Do not switch to Ollama unless the user explicitly requests a stack change.
+AI backend: 5-provider fallback chain — Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI. Primary is Cerebras (`gpt-oss-120b`); Groq has cooldown mechanism. Do not switch to Ollama unless the user explicitly requests a stack change.
 
 ## Current Stack
 
 | Layer | Current technology | Constraint |
 |---|---|---|
-| LLM | 5-provider fallback chain: Cerebras `qwen-qwq-32b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.5-flash-lite` → Cloudflare Workers AI | All through `src/ai/ai_engine.py`; Groq has `_groq_cooldown_until` mechanism; config via `config.json` |
+| LLM | 5-provider fallback chain: Cerebras `gpt-oss-120b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.0-flash` → Cloudflare Workers AI | All through `src/ai/ai_engine.py`; Cerebras/Groq/Gemini models are configured via `config.json`; Groq has `_groq_cooldown_until` mechanism |
 | STT | `faster-whisper` | GPU path keeps `large-v2`; CPU uses `WHISPER_CPU_MODEL`, current default `medium` |
 | TTS | `edge-tts` + `pygame` | **Requires internet** (edge-tts is cloud Microsoft TTS). Fallback to `pyttsx3` (local). |
 | Wake word | `faster-whisper tiny` fuzzy match | **Disabled by default** (`WAKEWORD_ENABLED=false` in `.env`). Not a trained custom model. |

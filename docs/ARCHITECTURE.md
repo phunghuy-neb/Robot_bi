@@ -171,10 +171,19 @@ faster-whisper (STT)
     CPU fallback: WHISPER_CPU_MODEL (default: medium)
     │
     ▼
-Groq API — llama-3.3-70b-versatile (Primary LLM)
+Cerebras API — gpt-oss-120b (Primary LLM; configurable in config.json)
     │ (nếu fail)
     ▼
-Gemini API — gemini-2.5-flash-lite (Fallback LLM)
+Groq API — llama-3.3-70b-versatile (Fallback LLM; configurable in config.json)
+    │ (nếu fail)
+    ▼
+Sambanova API (Fallback LLM)
+    │ (nếu fail)
+    ▼
+Gemini API — gemini-2.0-flash (Fallback LLM; configurable in config.json)
+    │ (nếu fail)
+    ▼
+Cloudflare Workers AI (Fallback LLM)
     │
     ▼
 Safety Filter — regex/pattern (post-LLM)
@@ -480,7 +489,7 @@ Admin endpoints (`/api/admin/families`) chỉ accessible với `is_admin = True`
 | USB webcam chỉ cho prototype | Đơn giản, test nhanh, không cần phần cứng robot |
 | SQLite thay vì PostgreSQL | Đơn giản, không cần server riêng, đủ cho scale hiện tại |
 | ChromaDB cho RAG | Local, không cần cloud, privacy-first |
-| 5-provider LLM fallback chain (Cerebras → Groq → Sambanova → Gemini → Cloudflare AI) | Không bao giờ mất AI kể cả khi 4/5 provider lỗi; Groq có cooldown mechanism |
+| 5-provider LLM fallback chain (Cerebras `gpt-oss-120b` → Groq → Sambanova → Gemini → Cloudflare AI) | Không bao giờ mất AI kể cả khi 4/5 provider lỗi; Cerebras/Groq/Gemini models configurable in `config.json`; Groq có cooldown mechanism |
 | edge-tts + pygame chunked | Time-to-first-audio < 2s, không cần đợi full audio |
 | Robot Display là web app | Dễ update UI không cần reflash ESP32; Brain Server serve, ESP32-S3 render |
 | Cloudflare Tunnel | Remote access không cần port forwarding, secure |

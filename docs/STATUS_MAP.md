@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.4 | Cập nhật: 2026-05-23
+> Phiên bản: 1.5 | Cập nhật: 2026-06-13
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -18,7 +18,7 @@
 |---|---|---|---|
 | Main conversation loop | 🟢 | `src/main.py` | Hoạt động |
 | FastAPI + WebSocket server | 🟢 | `src/api/server.py` | Production-ready |
-| LLM 5-provider chain | 🟢 | `src/ai/ai_engine.py` | Cerebras→Groq→Sambanova→Gemini→Cloudflare; cooldown mechanism |
+| LLM 5-provider chain | 🟢 | `src/ai/ai_engine.py` | Cerebras `gpt-oss-120b` → Groq → Sambanova → Gemini → Cloudflare; cooldown mechanism |
 | System prompt / persona | 🟢 | `src/ai/prompts.py` | Personality rules đầy đủ |
 | RAG memory (ChromaDB) | 🟢 | `src/memory/rag_manager.py` | threshold 0.62, 12 fact types, max 500/family |
 | Session naming tự động | 🟢 | `src/ai/session_namer.py` | Groq non-streaming, fallback text[:30] |
@@ -31,12 +31,13 @@
 | Mom talk audio | 🟢 | `src/audio/output/mouth_tts.py` | `pygame.Channel(7)`, 16k→44.1k resample; **Protected Fix** |
 | Cry detection YAMNet | 🟢 | `src/audio/input/cry_detector.py` | Optional TFLite runtime; fallback RMS/ZCR |
 | Wake word | 🟡 | `src/wakeword/` | Sprint 0.4: synthetic dataset pipeline + MFCC+SVM classifier (custom_mfcc backend); train: `scripts/train_wakeword.py`; test: `scripts/test_wakeword.py`; target 75–85% accuracy; **model file needs training run** |
-| Persona manager | 🟡 | `src/ai/persona_manager.py` | Static persona load; adaptive personality chưa có |
+| Persona manager | 🟡 | `src/ai/persona_manager.py` | Static persona + Sprint 1.3 context modifiers đã có; long-term behavioral profile chưa có |
 | Emotion analyzer | 🟡 | `src/emotion/emotion_analyzer.py` | Basic sentiment; không phải ML model thật |
 | Emotion journal | 🟡 | `src/emotion/emotion_journal.py` | SQLite log; no real analysis |
 | Emotion alerts | 🟡 | `src/emotion/emotion_alert.py` | Rule-based; threshold check |
-| Living State System | 🟡 | `src/living/living_state.py` | Sprint 1.1: runtime-only 7-state engine integrated into text/voice loop; no Micro Moments yet |
-| Micro Moments Engine | ⚪ | — | Chỉ có trong docs/BACKLOG; không có code |
+| Living State System | 🟢 | `src/living/living_state.py` | Sprint 1.1: runtime-only 7-state engine integrated into text/voice loop |
+| Micro Moments Engine | 🟢 | `src/living/micro_moments.py` | Sprint 1.2: 8 idle moments, rate limit, homework + sleep-hour guards |
+| Proactive Behaviors Engine | 🟢 | `src/living/proactive_behaviors.py` | Sprint 1.4: child-present idle prompt after silence; anti-spam, homework + sleep-hour guards |
 
 ---
 
@@ -165,16 +166,16 @@
 
 | Domain | 🟢 Done | 🟡 Partial | 🔴 Stub | ⚪ Zero |
 |---|---|---|---|---|
-| Backend Brain | 10 | 6 | 0 | 1 |
-| Parent App | 11 | 5 | 0 | 4 |
+| Backend Brain | 17 | 5 | 0 | 0 |
+| Parent App | 11 | 6 | 0 | 3 |
 | Voice System | 7 | 1 | 0 | 3 |
 | Robot Control | 3 | 0 | 3 | 5 |
 | Learning | 3 | 4 | 0 | 3 |
 | Safety/Privacy | 11 | 0 | 2 | 2 |
 | Infrastructure | 6 | 1 | 0 | 4 |
-| **Tổng** | **51** | **17** | **5** | **20** |
+| **Tổng** | **58** | **17** | **5** | **20** |
 
-**Tổng cộng: 93 items — 55% Done, 18% Partial, 5% Stub, 22% Zero**
+**Tổng cộng: 100 items — 58% Done, 17% Partial, 5% Stub, 20% Zero**
 
 ---
 

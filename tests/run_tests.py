@@ -6193,6 +6193,157 @@ test("70.13 Behavioral: detect_context matches multi-word phrase 'bài tập' �
 test("70.14 Guard: _fire_pouting_phrase has sleep-hour check (22–07)",                  test_70_pouting_sleep_hour_guard)
 test("70.15 Guard: pouting has _micro_speaking guard + fires after micro moment",        test_70_pouting_micro_overlap_guard)
 
+# == GROUP 71 — Proactive Behaviors + Stage 1 Polish (Sprint 1.4) ============
+print("\n[Group 71] Proactive Behaviors — child-present idle prompt, anti-spam, polish")
+
+import time as _time71
+from src.living.proactive_behaviors import ProactiveBehaviorsEngine, _TEXTS as _PROACTIVE_TEXTS
+
+
+def test_71_import():
+    from src.living.proactive_behaviors import ProactiveBehaviorsEngine
+    assert ProactiveBehaviorsEngine is not None
+
+
+def test_71_no_trigger_before_silence_threshold():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    result = eng.maybe_trigger(
+        BiState.IDLE_CURIOUS,
+        child_present=True,
+        hour=10,
+        now=now + 599,
+    )
+    assert result is None
+
+
+def test_71_triggers_after_silence_when_child_present():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    result = eng.maybe_trigger(
+        BiState.IDLE_CURIOUS,
+        child_present=True,
+        hour=10,
+        now=now + 601,
+    )
+    assert result in _PROACTIVE_TEXTS
+
+
+def test_71_requires_child_presence():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    result = eng.maybe_trigger(
+        BiState.IDLE_CURIOUS,
+        child_present=False,
+        hour=10,
+        now=now + 601,
+    )
+    assert result is None
+
+
+def test_71_rate_limit_blocks_second_prompt():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    first = eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=10, now=now + 601)
+    second = eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=10, now=now + 700)
+    assert first in _PROACTIVE_TEXTS
+    assert second is None
+
+
+def test_71_homework_blocks_prompt():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    result = eng.maybe_trigger(
+        BiState.IDLE_CURIOUS,
+        child_present=True,
+        is_homework=True,
+        hour=10,
+        now=now + 601,
+    )
+    assert result is None
+
+
+def test_71_sleep_hours_block_prompt():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=22, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=6, now=now + 601) is None
+
+
+def test_71_active_states_block_prompt():
+    eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
+    now = _time71.time()
+    eng.on_interaction(now=now)
+    assert eng.maybe_trigger(BiState.ACTIVE_ENGAGED, child_present=True, hour=10, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.THINKING, child_present=True, hour=10, now=now + 601) is None
+
+
+def test_71_phrases_pass_manipulation_guard():
+    mg = _MG70()
+    for phrase in _PROACTIVE_TEXTS:
+        found, _ = mg.check_llm_output(phrase)
+        assert not found, f"Proactive phrase triggered ManipulationGuard: {phrase!r}"
+
+
+def test_71_package_exports_proactive_engine():
+    from src.living import ProactiveBehaviorsEngine as Exported
+    assert Exported is ProactiveBehaviorsEngine
+
+
+def test_71_main_wires_proactive_idle_path():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "self._proactive = ProactiveBehaviorsEngine()" in src
+    assert "def _fire_proactive_if_ready" in src
+    assert "_fire_proactive_if_ready()" in src
+    assert "self._start_idle_phrase_thread(text)" in src
+    assert "_child_present_until" in src
+    proactive_idx = src.index("_fire_proactive_if_ready()")
+    micro_idx = src.index("_fire_micro_moment_if_ready()")
+    assert proactive_idx < micro_idx, "proactive prompt should be checked before micro moments"
+
+
+def test_71_proactive_blocks_same_tick_pouting():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    init_idx = src.index("proactive_fired = False")
+    puppet_idx = src.index("puppet_played = self._handle_puppet_queue()")
+    assert init_idx < puppet_idx, "proactive_fired must be initialized before puppet branch"
+    assert "proactive_fired = self._fire_proactive_if_ready()" in src
+    assert "not proactive_fired" in src, \
+        "pouting branch must not fire in the same idle tick as a proactive prompt"
+
+
+def test_71_cerebras_model_config_not_deprecated_qwen():
+    import json as _json
+    from pathlib import Path as _P
+    cfg = _json.loads(_P("config.json").read_text(encoding="utf-8"))
+    assert cfg.get("primary_api") == "cerebras"
+    assert cfg.get("cerebras_model") == "gpt-oss-120b"
+    engine_src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
+    assert "qwen-3-235b-a22b-instruct-2507" not in engine_src
+
+
+test("71.1  Import: ProactiveBehaviorsEngine importable",                 test_71_import)
+test("71.2  Guard: no prompt before 10-minute silence threshold",         test_71_no_trigger_before_silence_threshold)
+test("71.3  Trigger: child present + silence returns proactive phrase",   test_71_triggers_after_silence_when_child_present)
+test("71.4  Guard: child presence required",                              test_71_requires_child_presence)
+test("71.5  Guard: 30-minute anti-spam rate limit",                       test_71_rate_limit_blocks_second_prompt)
+test("71.6  Guard: homework blocks proactive prompt",                     test_71_homework_blocks_prompt)
+test("71.7  Guard: sleep hours block proactive prompt",                   test_71_sleep_hours_block_prompt)
+test("71.8  Guard: active states block proactive prompt",                 test_71_active_states_block_prompt)
+test("71.9  Safety: proactive phrases pass ManipulationGuard",            test_71_phrases_pass_manipulation_guard)
+test("71.10 Package: src.living exports ProactiveBehaviorsEngine",        test_71_package_exports_proactive_engine)
+test("71.11 Main: proactive is wired before micro moments in idle path",  test_71_main_wires_proactive_idle_path)
+test("71.12 Guard: proactive blocks same-tick pouting",                   test_71_proactive_blocks_same_tick_pouting)
+test("71.13 LLM: Cerebras model configured as gpt-oss-120b",              test_71_cerebras_model_config_not_deprecated_qwen)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

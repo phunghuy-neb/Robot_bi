@@ -1,7 +1,7 @@
 """
 core_ai.py — Robot Bi AI Core
 Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI
-- Cerebras Llama 3.3 70B: primary, ~450 token/s, ít bị rate-limit nhất
+- Cerebras GPT OSS 120B: primary, fast public endpoint
 - Groq Llama 3.3 70B: secondary, ~400 token/s, có cooldown riêng
 - Sambanova Llama 3.3 70B: fallback
 - Gemini 2.0 Flash: fallback, ổn định cao
@@ -30,6 +30,7 @@ try:
         _CONFIG = json.load(_f)
 except FileNotFoundError:
     _CONFIG = {
+        "cerebras_model": "gpt-oss-120b",
         "groq_model": "llama3.3-70b-versatile",
         "gemini_model": "gemini-2.0-flash",
         "max_history_turns": 10,
@@ -210,7 +211,12 @@ def _stream_cerebras(messages: list, system_prompt: str) -> Generator[str, None,
     if not CEREBRAS_API_KEY or CEREBRAS_API_KEY.startswith("DIEN_"):
         raise RuntimeError("CEREBRAS_API_KEY chưa được cấu hình trong .env")
     yield from _stream_openai_compat(
-        _CEREBRAS_URL, CEREBRAS_API_KEY, "qwen-3-235b-a22b-instruct-2507", messages, system_prompt, "Cerebras"
+        _CEREBRAS_URL,
+        CEREBRAS_API_KEY,
+        _CONFIG.get("cerebras_model", "gpt-oss-120b"),
+        messages,
+        system_prompt,
+        "Cerebras",
     )
 
 
@@ -224,8 +230,6 @@ def _stream_sambanova(messages: list, system_prompt: str) -> Generator[str, None
 
 def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, None, None]:
     """Gọi Cloudflare Workers AI (non-streaming, yield toàn bộ response)."""
-    if not CLOUDFLARE_API_KEY or CLOUDFLARE_ACCOUNT_ID:
-        pass  # will check below
     if not CLOUDFLARE_API_KEY or CLOUDFLARE_API_KEY.startswith("DIEN_"):
         raise RuntimeError("CLOUDFLARE_API_KEY chưa được cấu hình trong .env")
     if not CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_ACCOUNT_ID.startswith("DIEN_"):
@@ -275,9 +279,9 @@ def stream_chat(messages: list, system_context: str | None = None) -> Generator[
     system_prompt = _get_system_prompt(system_context)
     now = time.time()
 
-    # --- Cerebras (primary — nhanh ngang Groq, ít bị rate-limit hơn) ---
+    # --- Cerebras (primary — fast public endpoint) ---
     try:
-        logger.debug("[Bi - Não] Cerebras (Llama 70B)...")
+        logger.debug("[Bi - Não] Cerebras (%s)...", _CONFIG.get("cerebras_model", "gpt-oss-120b"))
         yield from _stream_cerebras(messages, system_prompt)
         return
     except Exception as e:
@@ -395,6 +399,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  TEST core_ai.py — Full Fallback Chain")
     print("=" * 60)
+    print(f"  Cerebras model: {_CONFIG.get('cerebras_model', 'gpt-oss-120b')}")
     print(f"  Groq model    : {_CONFIG['groq_model']}")
     print(f"  Gemini model  : {_CONFIG['gemini_model']}")
     print(f"  GROQ_API_KEY  : {'OK' if GROQ_API_KEY and not GROQ_API_KEY.startswith('DIEN_') else 'CHUA CAU HINH'}")
