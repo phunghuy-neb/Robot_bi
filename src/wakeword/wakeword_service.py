@@ -149,7 +149,9 @@ class WakeWordService:
         if not self._enabled:
             return False
 
-        self._detected_event.clear()
+        # M-NEW-3: do NOT clear here — the event is cleared inside _restart_listener()
+        # before the listener starts.  Clearing here would race with detection that
+        # fires between listener start and this wait() call.
         detected = self._detected_event.wait(timeout=timeout)
         if detected:
             # State was already set to LISTENING by _on_audio_chunk / force_trigger
@@ -186,10 +188,11 @@ class WakeWordService:
                 if self._state == WakeWordState.COOLDOWN:
                     self._state = WakeWordState.IDLE
                     logger.debug("[WakeWord] Cooldown done → IDLE")
-            self._detected_event.clear()
-            # Restart audio listener for next detection cycle
+            # Restart audio listener; _restart_listener() clears the event before start.
             if self._enabled and self._backend != "placeholder":
                 self._restart_listener()
+            else:
+                self._detected_event.clear()
 
         threading.Thread(target=_auto_idle, daemon=True, name="WakeWordCooldown").start()
 
@@ -199,9 +202,10 @@ class WakeWordService:
         Restarts audio listener so detection can resume.
         """
         self.set_state(WakeWordState.IDLE)
-        self._detected_event.clear()
         if self._enabled and self._backend != "placeholder":
-            self._restart_listener()
+            self._restart_listener()  # clears event before listener start
+        else:
+            self._detected_event.clear()
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
@@ -214,6 +218,10 @@ class WakeWordService:
                     self._listener.stop()
                 except Exception:
                     pass
+            # M-NEW-3: clear the event BEFORE starting the listener so any
+            # detection that fires after start() will not be raced with a
+            # subsequent clear() in wait_for_detection().
+            self._detected_event.clear()
             self._listener = AudioListener(
                 on_chunk=self._on_audio_chunk,
                 mic_device=self.mic_device,
@@ -342,7 +350,21 @@ class WakeWordService:
             return None
 
         try:
+            import hashlib
             import pickle
+            # Verify SHA-256 against sidecar .sha256 file before deserializing (L-NEW-2)
+            hash_path = WAKEWORD_CUSTOM_MODEL_PATH + ".sha256"
+            if os.path.exists(hash_path):
+                expected = open(hash_path).read().strip().lower()
+                actual = hashlib.sha256(
+                    open(WAKEWORD_CUSTOM_MODEL_PATH, "rb").read()
+                ).hexdigest()
+                if actual != expected:
+                    logger.error(
+                        "[WakeWord] Model file hash mismatch — refusing to load '%s'",
+                        WAKEWORD_CUSTOM_MODEL_PATH,
+                    )
+                    return None
             with open(WAKEWORD_CUSTOM_MODEL_PATH, "rb") as f:
                 self._mfcc_payload = pickle.load(f)
             metrics = self._mfcc_payload.get("metrics", {})

@@ -85,7 +85,12 @@ def get_local_ip() -> str:
 
 app = FastAPI(title="Robot Bi — Parent App API", version="2.0")
 
-app.mount("/static", StaticFiles(directory=str(_PARENT_APP_DIR)), name="static")
+# Serve only the built dist/ to avoid exposing src/, package-lock.json, etc. (L-NEW-3)
+if _PARENT_APP_DIST_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(_PARENT_APP_DIST_DIR)), name="static")
+else:
+    # dist/ not built yet — serve nothing rather than exposing the full source tree
+    pass
 if _PARENT_APP_ASSETS_DIR.exists():
     app.mount("/assets", StaticFiles(directory=str(_PARENT_APP_ASSETS_DIR)), name="parent_app_assets")
 

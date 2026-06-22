@@ -17,12 +17,15 @@ Interface:
 
 import re
 
+from src.safety.vi_normalize import normalize_vi
+
 # ── Câu từ chối chuẩn (SRS 2.3) ──────────────────────────────────────────────
 _REFUSAL_RESPONSE = "Oi cai nay Bi khong the huong dan duoc dau nhe! Minh choi thu khac vui hon di!"
 
 # ── Blacklist từ tiêu cực (SRS ST-04) ────────────────────────────────────────
-# Danh sách các từ không phù hợp với robot gia sư trẻ em.
-# Thứ tự: từ dài trước từ ngắn để tránh partial-match sai.
+# Chỉ giữ những từ thực sự xúc phạm / không phù hợp trẻ em.
+# Đã loại bỏ các từ chức năng phổ biến như "không được", "tệ", "thất bại"
+# vì chúng xuất hiện trong câu an toàn và khi bị thay thế sẽ đảo ngược nghĩa.
 _BLACKLIST_WORDS = [
     "ngu ngốc",
     "sai bét",
@@ -32,14 +35,16 @@ _BLACKLIST_WORDS = [
     "ngốc",
     "khùng",
     "điên",
-    "không được",
-    "tệ",
-    "thất bại",
 ]
 
 # ── Patterns chủ đề nhạy cảm ─────────────────────────────────────────────────
-# Dùng để phát hiện output LLM có nội dung không phù hợp trẻ em.
-_SENSITIVE_PATTERNS = [
+# Hai nhóm tách biệt để tránh collision khi normalize:
+#   - _VI_ACCENTED: pattern có dấu tiếng Việt → chỉ match trên text gốc
+#     (bắn→ban = bạn→ban nếu normalize, gây false positive)
+#   - _NORM_ONLY:  pattern không dấu / tiếng Anh → chỉ match trên text đã normalize
+#     (dùng để bắt "tu tu", "cat tay", English terms)
+
+_SENSITIVE_PATTERNS_VI_ACCENTED = [
     # Bạo lực rõ ràng
     r'(?<!\w)(giết|bắn|đánh nhau|chiến tranh|vũ khí|bom|dao găm|súng)(?!\w)',
     # Chính trị
@@ -48,9 +53,21 @@ _SENSITIVE_PATTERNS = [
     r'(?<!\w)(thánh chiến|khủng bố|cực đoan|tử đạo)(?!\w)',
     # Tự hại
     r'(?<!\w)(tự tử|tự làm đau|cắt tay|tự sát)(?!\w)',
-    # Nội dung người lớn — pattern chung
-    r'(?<!\w)(sex|porn|18\+|khiêu dâm|nội dung người lớn)(?!\w)',
+    # Nội dung người lớn
+    r'(?<!\w)(khiêu dâm|nội dung người lớn)(?!\w)',
 ]
+
+_SENSITIVE_PATTERNS_NORM_ONLY = [
+    # Tiếng Việt không dấu — bắt khi LLM output hoặc user gõ không dấu
+    r'(?<!\w)(tu tu|tu sat|tu lam dau|cat tay|giet nguoi)(?!\w)',
+    r'(?<!\w)(chien tranh|vu khi|dao gam|thanh chien|khung bo|cuc doan)(?!\w)',
+    r'(?<!\w)(chinh tri|dang phai|bieu tinh|cach mang|lat do|che do)(?!\w)',
+    # English
+    r'(?<!\w)(kill|weapon|shoot|murder|suicide|self.harm|terrorism|extremist)(?!\w)',
+    r'(?<!\w)(sex|porn|18\+|adult content|pornography)(?!\w)',
+]
+
+
 
 
 class SafetyFilter:
@@ -62,10 +79,15 @@ class SafetyFilter:
     """
 
     def __init__(self):
-        # Compile tất cả regex patterns một lần để tối ưu hiệu năng
-        self._sensitive_regexes = [
+        # Accented Vietnamese: compile orig only (no normalize to avoid bắn→ban collision)
+        self._vi_regexes = [
             re.compile(p, re.IGNORECASE | re.UNICODE)
-            for p in _SENSITIVE_PATTERNS
+            for p in _SENSITIVE_PATTERNS_VI_ACCENTED
+        ]
+        # No-diacritic/English: compile against normalized text
+        self._norm_regexes = [
+            re.compile(p, re.IGNORECASE)
+            for p in _SENSITIVE_PATTERNS_NORM_ONLY
         ]
         # Compile blacklist thành pattern word-boundary để tránh partial match
         self._blacklist_regexes = [
@@ -124,17 +146,21 @@ class SafetyFilter:
         """
         Phát hiện chủ đề nhạy cảm bằng regex pattern matching.
 
-        Args:
-            text: Chuỗi cần kiểm tra.
+        - Accented Vietnamese patterns: match trên text gốc (giữ nguyên dấu).
+        - No-diacritic/English patterns: match trên text đã normalize.
+        Tách hai nhóm để tránh bắn→ban = bạn→ban collision.
 
         Returns:
-            True nếu an toàn (không có pattern nhạy cảm),
-            False nếu phát hiện chủ đề nhạy cảm.
+            True nếu an toàn, False nếu phát hiện chủ đề nhạy cảm.
         """
-        for pattern in self._sensitive_regexes:
+        for pattern in self._vi_regexes:
             if pattern.search(text):
-                return False  # Nhạy cảm → không an toàn
-        return True  # Không có pattern → an toàn
+                return False
+        norm_text = normalize_vi(text)
+        for pattern in self._norm_regexes:
+            if pattern.search(norm_text):
+                return False
+        return True
 
     def _sentence_length_check(self, text: str) -> str:
         """

@@ -25,6 +25,8 @@ _tunnel_process = None
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 
+from src.infrastructure.database.db import get_db_connection
+
 router = APIRouter()
 
 
@@ -180,7 +182,12 @@ async def _camera_auth(
 
 @router.get("/health")
 async def health():
-    """Health check — khong can auth."""
+    """Health check — includes DB liveness probe (M4)."""
+    try:
+        with get_db_connection() as conn:
+            conn.execute("SELECT 1")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"DB unavailable: {e}")
     return {"status": "ok"}
 
 

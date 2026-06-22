@@ -122,6 +122,8 @@ class StoryEngine:
         """
         try:
             from src.ai.ai_engine import stream_chat
+            from src.safety.safety_filter import SafetyFilter
+            from src.safety.manipulation_guard import ManipulationGuard
             topic = ", ".join(interests or ["khám phá thế giới"])
             prompt = (
                 f"Bạn là người kể chuyện cho trẻ em. Hãy kể một câu chuyện ngắn gọn (khoảng 3-5 phút đọc). "
@@ -131,14 +133,28 @@ class StoryEngine:
                 f"Chỉ trả về nội dung câu chuyện, không thêm giải thích gì khác."
             )
             messages = [{"role": "user", "content": prompt}]
-            
+
             content = ""
             for token in stream_chat(messages):
                 content += token
-                
+
+            content = content.strip()
+
+            # Gate LLM story content through SafetyFilter + ManipulationGuard
+            # (mirrors the main conversation loop — story text is child-facing)
+            safety = SafetyFilter()
+            is_safe, content = safety.check(content)
+            if not is_safe:
+                return {"title": "", "content": "", "duration_estimate": 0, "moral": ""}
+
+            manip = ManipulationGuard()
+            _hit, safe_content = manip.check_llm_output(content)
+            if safe_content:
+                content = safe_content
+
             return {
                 "title": f"Chuyến phiêu lưu của {child_name}",
-                "content": content.strip(),
+                "content": content,
                 "duration_estimate": 5,
                 "moral": "Bài học từ câu chuyện"
             }

@@ -19,6 +19,8 @@ from src.infrastructure.auth.auth import get_current_user
 import src.infrastructure.sessions.state as _state
 from src.motion.motor_controller import get_shared_motor
 
+_MAX_DURATION_MS = 5000  # mirrors motor_router.py — physical safety cap
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -91,7 +93,7 @@ async def ws_endpoint(websocket: WebSocket):
                 if msg.get("type") == "motor":
                     cmd = msg.get("cmd", "")
                     speed = int(msg.get("speed", 50))
-                    duration_ms = int(msg.get("duration_ms", 800))
+                    duration_ms = min(int(msg.get("duration_ms", 800)), _MAX_DURATION_MS)
                     degrees = int(msg.get("degrees", 45))
                     if cmd == "drive":
                         vx    = float(msg.get("vx",    0))
@@ -113,9 +115,8 @@ async def ws_endpoint(websocket: WebSocket):
                         get_shared_motor().spin(speed, duration_ms)
                     elif cmd == "stop":
                         get_shared_motor().stop()
-                elif msg.get("type") == "wifi":
-                    cmd = msg.get("cmd", "")
-                    get_shared_motor()._send_raw(cmd)
+                # raw wifi passthrough removed (H-NEW-2): arbitrary motor wire commands
+                # must go through typed motor API with safety validation
             except (json.JSONDecodeError, ValueError):
                 pass  # Non-motor messages (keepalive pings etc) — ignore silently
     except WebSocketDisconnect:
@@ -220,8 +221,8 @@ async def mom_stop_talking(_current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/api/mom/status")
-async def mom_status():
-    """Trả về trạng thái hiện tại (không cần auth — main_loop poll nội bộ)."""
+async def mom_status(_current_user: dict = Depends(get_current_user)):
+    """Trả về trạng thái hiện tại của mom talking."""
     return {"mom_talking": _state._mom_talking}
 
 

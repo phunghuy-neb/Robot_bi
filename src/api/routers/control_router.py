@@ -639,16 +639,17 @@ def _location_row_to_dict(family_id: str, row) -> dict:
 # REST: Status
 
 @router.get("/api/status")
-async def get_status():
-    notifier_stats = _state._notifier.get_stats() if _state._notifier else {}
-    rag_stats = _state._rag.get_stats() if _state._rag else {}
-    total_stars = _state._task_manager.get_total_stars() if _state._task_manager else 0
+async def get_status(_current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(_current_user)
+    total_stars = (
+        _state._task_manager.get_total_stars(family_id=family_id)
+        if _state._task_manager
+        else 0
+    )
     return {
         "status": "online",
         "ws_clients": _state._ws_manager.count,
         "puppet_queued": _state._puppet_queue.qsize(),
-        "notifier": notifier_stats,
-        "rag": rag_stats,
         "total_stars": total_stars,
     }
 

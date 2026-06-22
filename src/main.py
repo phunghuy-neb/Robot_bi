@@ -28,10 +28,10 @@ import pygame
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.audio.input.ear_stt import EarSTT
+from src.audio.input.microphone_utils import parse_optional_device_index
 from src.audio.output.mouth_tts import MouthTTS
 from src.ai.ai_engine import BiAI
 from src.memory.rag_manager import RAGManager
-from src.vision.camera_stream import EyeVision
 from src.safety.safety_filter import SafetyFilter
 from src.safety.pii_filter import PIIFilter
 from src.safety.emotion_risk_detector import EmotionRiskDetector
@@ -79,6 +79,19 @@ _WELCOME_BACK_PHRASES = [
 logger = logging.getLogger(__name__)
 
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+CAMERA_ENABLED = _env_flag("CAMERA_ENABLED", False)
+CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", "0") or "0")
+CRY_DETECTION_ENABLED = _env_flag("CRY_DETECTION_ENABLED", True)
+CRY_MIC_DEVICE = parse_optional_device_index(os.getenv("CRY_MIC_DEVICE"))
+
+
 class RobotBiApp:
     def __init__(self):
         self._shutdown_done = False
@@ -91,6 +104,7 @@ class RobotBiApp:
         self.rag = RAGManager()
         self.audio_queue = queue.Queue()
         self._chunk_counter = 0
+        self._chunk_lock = threading.Lock()
         self._loop = asyncio.new_event_loop()
         self._current_session_id = None
         self._family_id = FAMILY_ID
@@ -101,13 +115,6 @@ class RobotBiApp:
         )
         self._worker_thread.start()
 
-        # EyeVision: daemon thread song song, không block voice I/O
-        self.eye = EyeVision(
-            camera_index=0,
-            on_event_callback=self._on_vision_event,
-        )
-        self.eye.start()
-
         self.safety = SafetyFilter()
         self._pii = PIIFilter()
         self._risk = EmotionRiskDetector()
@@ -115,6 +122,29 @@ class RobotBiApp:
 
         # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
+
+        # Living State Engine (Sprint 1.1) + idle behavior engines
+        self._living = LivingStateEngine()
+        self._micro = MicroMomentsEngine()
+        self._proactive = ProactiveBehaviorsEngine()
+        self._last_homework_at: float = 0.0
+        self._micro_speaking: bool = False
+        self._pouting_announced: bool = False
+
+        # Camera is optional hardware and disabled by default.
+        self.eye = None
+        if CAMERA_ENABLED:
+            try:
+                from src.vision.camera_stream import EyeVision
+
+                self.eye = EyeVision(
+                    camera_index=CAMERA_INDEX,
+                    on_event_callback=self._on_vision_event,
+                )
+                self.eye.start()
+            except Exception as camera_error:
+                self.eye = None
+                logger.warning("[Init] Camera unavailable: %s", camera_error)
 
         try:
             self._face = FaceAnimator(notifier=self.notifier)
@@ -128,9 +158,15 @@ class RobotBiApp:
             self._emotion = None
             self._alert = None
 
-        # CryDetector — daemon thread song song
-        self.cry_detector = CryDetector(on_cry_callback=self._on_cry_detected)
-        self.cry_detector.start()
+        # CryDetector uses a second microphone and never reuses the STT mic.
+        self.cry_detector = None
+        if CRY_DETECTION_ENABLED:
+            self.cry_detector = CryDetector(
+                on_cry_callback=self._on_cry_detected,
+                mic_index=CRY_MIC_DEVICE,
+                excluded_mic_indexes={self.ear.mic_device},
+            )
+            self.cry_detector.start()
 
         # Wake word service (Sprint 0.3) — disabled by default (WAKEWORD_ENABLED=false)
         try:
@@ -143,15 +179,6 @@ class RobotBiApp:
             logger.warning("[Init] WakeWord unavailable: %s", _ww_err)
             self._wakeword_svc = None
             self._wakeword = None
-
-        # Living State Engine (Sprint 1.1) + Micro Moments Engine (Sprint 1.2)
-        self._living = LivingStateEngine()
-        self._micro = MicroMomentsEngine()
-        self._proactive = ProactiveBehaviorsEngine()
-        self._last_homework_at: float = 0.0
-        self._child_present_until: float = 0.0
-        self._micro_speaking: bool = False   # True while micro moment TTS is playing
-        self._pouting_announced: bool = False  # True after first MISSING_KID pouting phrase fired
 
         # Parent App API Server (Sprint 5)
         init_server(self.notifier, self.rag)
@@ -166,15 +193,21 @@ class RobotBiApp:
 
         logger.info("[Hệ thống] Robot Bi đã khởi động và sẵn sàng!")
 
+    def _next_chunk_idx(self) -> int:
+        """Thread-safe monotonic chunk index. Never reset — ensures no filename collision."""
+        with self._chunk_lock:
+            idx = self._chunk_counter
+            self._chunk_counter += 1
+            return idx
+
     def _speak_text(self, text: str) -> None:
         """Phát text qua TTS — dùng cho TaskManager reminder.
         Dùng asyncio.run() thay vì self._loop để tránh xung đột khi gọi từ reminder thread.
         """
         audio_file = asyncio.run(
-            self.mouth._generate_audio(text, chunk_index=self._chunk_counter)
+            self.mouth._generate_audio(text, chunk_index=self._next_chunk_idx())
         )
         if audio_file:
-            self._chunk_counter += 1
             self.audio_queue.put(audio_file)
 
     def _audio_worker_loop(self):
@@ -226,7 +259,7 @@ class RobotBiApp:
     def _on_vision_event(self, event_type: str, clip_path: str | None) -> None:
         """Callback khi EyeVision phát hiện sự kiện."""
         if event_type in ("motion", "known_face"):
-            self._child_present_until = time.time() + 2 * 60
+            self._proactive.on_presence()
         if event_type == "stranger":
             logger.info("[Bi - Mat] Phat hien nguoi la! Clip: %s", clip_path)
             self.notifier.push_event(
@@ -268,10 +301,9 @@ class RobotBiApp:
                 continue
             logger.info("[Bi - Puppet] queued len=%d", len(clean))
             audio_file = self._loop.run_until_complete(
-                self.mouth._generate_audio(clean, chunk_index=self._chunk_counter)
+                self.mouth._generate_audio(clean, chunk_index=self._next_chunk_idx())
             )
             if audio_file:
-                self._chunk_counter += 1
                 self.audio_queue.put(audio_file)
                 queued += 1
         if queued > 0:
@@ -394,11 +426,9 @@ class RobotBiApp:
     def _fire_proactive_if_ready(self) -> bool:
         """Fire a gentle proactive prompt when child is present but silent."""
         try:
-            child_present = time.time() <= self._child_present_until
             is_hw = (time.time() - self._last_homework_at) < 5 * 60
             text = self._proactive.maybe_trigger(
                 self._living.get_state(),
-                child_present=child_present,
                 is_homework=is_hw,
             )
             if not text:
@@ -456,19 +486,21 @@ class RobotBiApp:
         except Exception:
             pass
 
-        try:
-            self.cry_detector.stop()
-        except Exception:
-            pass
+        if self.cry_detector:
+            try:
+                self.cry_detector.stop()
+            except Exception:
+                pass
         try:
             if self._wakeword:
                 self._wakeword.stop()
         except Exception:
             pass
-        try:
-            self.eye.stop()
-        except Exception:
-            pass
+        if self.eye:
+            try:
+                self.eye.stop()
+            except Exception:
+                pass
         try:
             self.audio_queue.put(None)
             self.audio_queue.join()
@@ -610,6 +642,10 @@ class RobotBiApp:
 
                 if buffer.strip():
                     is_safe, clean = self.safety.check(buffer.strip())
+                    if is_safe:
+                        _m_hit, _m_safe = self._manip.check_llm_output(clean)
+                        if _m_hit and _m_safe:
+                            clean = _m_safe
                     if clean.strip():
                         sanitized_reply_parts.append(clean)
                         print(clean, end="", flush=True)
@@ -720,7 +756,6 @@ class RobotBiApp:
 
                     logger.debug("[Bi - Não] Đang suy nghĩ...")
                     buffer = ""
-                    self._chunk_counter = 0
                     self._close_current_session()
                     self._current_session_id = create_session(FAMILY_ID)
                     is_first_turn_of_session = True
@@ -736,10 +771,9 @@ class RobotBiApp:
                     if _pii_found and _pii_resp:
                         add_turn(self._current_session_id, "assistant", _pii_resp)
                         _af = self._loop.run_until_complete(
-                            self.mouth._generate_audio(_pii_resp, chunk_index=self._chunk_counter)
+                            self.mouth._generate_audio(_pii_resp, chunk_index=self._next_chunk_idx())
                         )
                         if _af:
-                            self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
                         self._complete_direct_response_turn()
@@ -756,10 +790,9 @@ class RobotBiApp:
                     if _risk["should_override"] and _risk["response"]:
                         add_turn(self._current_session_id, "assistant", _risk["response"])
                         _af = self._loop.run_until_complete(
-                            self.mouth._generate_audio(_risk["response"], chunk_index=self._chunk_counter)
+                            self.mouth._generate_audio(_risk["response"], chunk_index=self._next_chunk_idx())
                         )
                         if _af:
-                            self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
                         self._complete_direct_response_turn()
@@ -768,10 +801,9 @@ class RobotBiApp:
                     if _manip_input and _manip_input_resp:
                         add_turn(self._current_session_id, "assistant", _manip_input_resp)
                         _af = self._loop.run_until_complete(
-                            self.mouth._generate_audio(_manip_input_resp, chunk_index=self._chunk_counter)
+                            self.mouth._generate_audio(_manip_input_resp, chunk_index=self._next_chunk_idx())
                         )
                         if _af:
-                            self._chunk_counter += 1
                             self.audio_queue.put(_af)
                             self.audio_queue.join()
                         self._complete_direct_response_turn()
@@ -846,31 +878,35 @@ class RobotBiApp:
                                 if not clean_sentence.strip():
                                     continue  # bỏ qua câu rỗng sau khi lọc
                                 sanitized_reply_parts.append(clean_sentence)
+                                _idx = self._next_chunk_idx()
                                 audio_file = self._loop.run_until_complete(
                                     self.mouth._generate_audio(
-                                        clean_sentence, chunk_index=self._chunk_counter
+                                        clean_sentence, chunk_index=_idx
                                     )
                                 )
                                 if audio_file is None:
                                     continue  # TTS hoàn toàn fail → bỏ qua chunk này
-                                self._chunk_counter += 1
                                 self.audio_queue.put(audio_file)
-                                logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_sentence))
+                                logger.debug("[Bi - Miệng] Chunk %d len=%d", _idx, len(clean_sentence))
 
                     # Phần còn lại trong buffer (câu chưa kết thúc bằng dấu câu)
                     if buffer.strip():
                         is_safe, clean_buffer = self.safety.check(buffer.strip())
+                        if is_safe:
+                            _m_hit, _m_safe = self._manip.check_llm_output(clean_buffer)
+                            if _m_hit and _m_safe:
+                                clean_buffer = _m_safe
                         if clean_buffer.strip():
                             sanitized_reply_parts.append(clean_buffer)
+                            _idx = self._next_chunk_idx()
                             audio_file = self._loop.run_until_complete(
                                 self.mouth._generate_audio(
-                                    clean_buffer, chunk_index=self._chunk_counter
+                                    clean_buffer, chunk_index=_idx
                                 )
                             )
                             if audio_file is not None:
-                                self._chunk_counter += 1
                                 self.audio_queue.put(audio_file)
-                                logger.debug("[Bi - Miệng] Chunk %d len=%d", self._chunk_counter, len(clean_buffer))
+                                logger.debug("[Bi - Miệng] Chunk %d len=%d", _idx, len(clean_buffer))
 
                     # Đợi worker phát hết hàng đợi trước khi nghe tiếp
                     self.audio_queue.join()

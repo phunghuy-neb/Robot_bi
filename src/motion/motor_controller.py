@@ -46,34 +46,49 @@ class MotorController:
         self._start_reconnect_thread()
 
     def _try_connect_ws(self):
+        # Connect attempts run OUTSIDE the lock; only the socket swap is locked.
+        # This prevents the ~19 s lock hold that starved the ASGI event loop (M1).
         import time
+        if not self.ws_url:
+            return
+        new_ws = None
+        for attempt in range(3):
+            try:
+                ws = websocket.WebSocket()
+                ws.connect(self.ws_url, timeout=5)
+                new_ws = ws
+                break
+            except Exception as e:
+                logger.warning(f"[MotorController] WiFi connect attempt {attempt+1}/3 failed: {e}")
+                if attempt < 2:
+                    time.sleep(2)
+
         with self._lock:
-            for attempt in range(3):
-                try:
-                    self._ws = websocket.WebSocket()
-                    self._ws.connect(self.ws_url, timeout=5)
-                    self.connected = True
-                    self.mode = "wifi"
-                    logger.info(f"[MotorController] WiFi WebSocket connected: {self.ws_url}")
-                    return
-                except Exception as e:
-                    logger.warning(f"[MotorController] WiFi connect attempt {attempt+1}/3 failed: {e}")
-                    self._ws = None
-                    if attempt < 2:
-                        time.sleep(2)
-            self.connected = False
-            self.mode = "simulation"
-            logger.warning("[MotorController] WiFi connect failed after 3 attempts — simulation mode")
+            if new_ws is not None:
+                self._ws = new_ws
+                self.connected = True
+                self.mode = "wifi"
+                logger.info(f"[MotorController] WiFi WebSocket connected: {self.ws_url}")
+            else:
+                self._ws = None
+                self.connected = False
+                self.mode = "simulation"
+                logger.warning("[MotorController] WiFi connect failed after 3 attempts — simulation mode")
 
     def _start_reconnect_thread(self):
-        """Background thread tự động reconnect khi ở simulation mode."""
+        """Background thread tự động reconnect với exponential backoff."""
         import time, threading
         def reconnect_loop():
+            delay = 10
             while True:
-                time.sleep(10)
+                time.sleep(delay)
                 if self.mode == "simulation" and self.ws_url:
                     logger.info("[MotorController] Background reconnect attempt...")
                     self._try_connect_ws()
+                    if self.mode == "wifi":
+                        delay = 10  # reset backoff on success
+                    else:
+                        delay = min(delay * 2, 120)  # cap at 2 min
         t = threading.Thread(target=reconnect_loop, daemon=True)
         t.start()
 

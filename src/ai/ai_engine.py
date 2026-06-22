@@ -19,6 +19,7 @@ from typing import Generator
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+_PROVIDER_ORDER = ("cerebras", "groq", "sambanova", "gemini", "cloudflare")
 
 # Load .env
 load_dotenv()
@@ -31,6 +32,7 @@ try:
 except FileNotFoundError:
     _CONFIG = {
         "cerebras_model": "gpt-oss-120b",
+        "cerebras_cooldown_seconds": 60,
         "groq_model": "llama3.3-70b-versatile",
         "gemini_model": "gemini-2.0-flash",
         "max_history_turns": 10,
@@ -55,17 +57,29 @@ _CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
 _SAMBANOVA_URL = "https://api.sambanova.ai/v1/chat/completions"
 
 # Trạng thái quota nội bộ
+_cerebras_cooldown_until = 0.0
+_cerebras_lock = threading.Lock()
+_CEREBRAS_COOLDOWN = _CONFIG.get("cerebras_cooldown_seconds", 60)
 _groq_fail_streak = 0
 _groq_cooldown_until = 0.0
 _groq_lock = threading.Lock()
 _GROQ_COOLDOWN = _CONFIG.get("groq_cooldown_seconds", 60)
 
 
-def _get_system_prompt(system_context: str | None = None) -> str:
-    """Lấy system prompt từ prompts.py, thêm rule ngôn ngữ và context nội bộ."""
+def _get_system_prompt(system_context: str | None = None, role: str = "friend") -> str:
+    """Lấy system prompt theo vai trò, thêm rule ngôn ngữ và context nội bộ."""
     try:
-        from src.ai.prompts import MAIN_SYSTEM_PROMPT
-        base = MAIN_SYSTEM_PROMPT
+        from src.ai.prompts import (
+            FRIEND_PROMPT, TEACHER_PROMPT,
+            PARENT_CHILD_PROMPT, PARENT_ADVISOR_PROMPT,
+        )
+        _prompt_map = {
+            "friend": FRIEND_PROMPT,
+            "teacher": TEACHER_PROMPT,
+            "parent_child": PARENT_CHILD_PROMPT,
+            "parent_advisor": PARENT_ADVISOR_PROMPT,
+        }
+        base = _prompt_map.get(role, FRIEND_PROMPT)
     except ImportError:
         try:
             from src.ai import prompts
@@ -79,19 +93,18 @@ def _get_system_prompt(system_context: str | None = None) -> str:
 
     language_rule = (
         "\n\nNGÔN NGỮ PHẢN HỒI — BẮT BUỘC TUÂN THỦ:\n"
-        "- Phát hiện ngôn ngữ bé đang dùng trong tin nhắn cuối.\n"
+        "- Phát hiện ngôn ngữ người dùng đang dùng trong tin nhắn cuối.\n"
         "- Trả lời TOÀN BỘ bằng đúng ngôn ngữ đó. KHÔNG trộn ngôn ngữ khác.\n"
-        "- Bé nói tiếng Việt → trả lời 100% tiếng Việt.\n"
-        "- Bé nói tiếng Anh → trả lời 100% tiếng Anh.\n"
-        "- Ngoại lệ duy nhất: bé chủ động yêu cầu kết hợp 2 ngôn ngữ.\n"
-        "- TUYỆT ĐỐI không tự ý thêm tiếng Trung hoặc ngôn ngữ không được yêu cầu.\n"
-        "- Câu trả lời ngắn gọn, tự nhiên, phù hợp trẻ em."
+        "- Người dùng nói tiếng Việt → trả lời 100% tiếng Việt.\n"
+        "- Người dùng nói tiếng Anh → trả lời 100% tiếng Anh.\n"
+        "- Ngoại lệ duy nhất: người dùng chủ động yêu cầu kết hợp 2 ngôn ngữ.\n"
+        "- TUYỆT ĐỐI không tự ý thêm tiếng Trung hoặc ngôn ngữ không được yêu cầu."
     )
     prompt = base + language_rule
     if system_context and system_context.strip():
         prompt += (
-            "\n\nTRẠNG THÁI NỘI BỘ CỦA BI — CHỈ DÙNG ĐỂ CHỈNH GIỌNG ĐIỆU:\n"
-            "- Đây không phải lời bé nói, không nhắc lại nguyên văn cho bé.\n"
+            "\n\nTRẠNG THÁI NỘI BỘ — CHỈ DÙNG ĐỂ CHỈNH GIỌNG ĐIỆU:\n"
+            "- Đây không phải lời người dùng nói, không nhắc lại nguyên văn.\n"
             f"- {system_context.strip()}"
         )
     return prompt
@@ -128,26 +141,32 @@ def _stream_openai_compat(
     }
     resp = requests.post(url, headers=headers, json=payload, stream=True, timeout=20)
     if resp.status_code == 429:
+        resp.close()
         raise RuntimeError(f"{provider} quota exceeded (429)")
     if resp.status_code != 200:
-        raise RuntimeError(f"{provider} HTTP {resp.status_code}: {resp.text[:200]}")
+        body = resp.text[:200]
+        resp.close()
+        raise RuntimeError(f"{provider} HTTP {resp.status_code}: {body}")
 
-    for raw in resp.iter_lines():
-        if not raw:
-            continue
-        line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
-        if not line.startswith("data: "):
-            continue
-        data = line[6:]
-        if data == "[DONE]":
-            break
-        try:
-            chunk = json.loads(data)
-            delta = chunk["choices"][0]["delta"].get("content", "")
-            if delta:
-                yield delta
-        except (json.JSONDecodeError, KeyError, IndexError):
-            continue
+    try:
+        for raw in resp.iter_lines():
+            if not raw:
+                continue
+            line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+            if not line.startswith("data: "):
+                continue
+            data = line[6:]
+            if data == "[DONE]":
+                break
+            try:
+                chunk = json.loads(data)
+                delta = chunk["choices"][0]["delta"].get("content", "")
+                if delta:
+                    yield delta
+            except (json.JSONDecodeError, KeyError, IndexError):
+                continue
+    finally:
+        resp.close()
 
 
 def _stream_groq(messages: list, system_prompt: str) -> Generator[str, None, None]:
@@ -181,30 +200,36 @@ def _stream_gemini(messages: list, system_prompt: str) -> Generator[str, None, N
     resp = requests.post(url, headers=headers, json=payload, stream=True, timeout=20)
 
     if resp.status_code == 429:
+        resp.close()
         raise RuntimeError("Gemini quota exceeded (429)")
     if resp.status_code != 200:
-        raise RuntimeError(f"Gemini HTTP {resp.status_code}: {resp.text[:200]}")
+        body = resp.text[:200]
+        resp.close()
+        raise RuntimeError(f"Gemini HTTP {resp.status_code}: {body}")
 
-    for raw in resp.iter_lines():
-        if not raw:
-            continue
-        line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
-        if not line.startswith("data: "):
-            continue
-        data = line[6:]
-        try:
-            chunk = json.loads(data)
-            parts = (
-                chunk.get("candidates", [{}])[0]
-                .get("content", {})
-                .get("parts", [])
-            )
-            for part in parts:
-                text = part.get("text", "")
-                if text:
-                    yield text
-        except (json.JSONDecodeError, KeyError, IndexError):
-            continue
+    try:
+        for raw in resp.iter_lines():
+            if not raw:
+                continue
+            line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+            if not line.startswith("data: "):
+                continue
+            data = line[6:]
+            try:
+                chunk = json.loads(data)
+                parts = (
+                    chunk.get("candidates", [{}])[0]
+                    .get("content", {})
+                    .get("parts", [])
+                )
+                for part in parts:
+                    text = part.get("text", "")
+                    if text:
+                        yield text
+            except (json.JSONDecodeError, KeyError, IndexError):
+                continue
+    finally:
+        resp.close()
 
 
 def _stream_cerebras(messages: list, system_prompt: str) -> Generator[str, None, None]:
@@ -248,44 +273,58 @@ def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, Non
         "max_tokens": 512,
         "temperature": 0.7,
     }
-    resp = requests.post(url, headers=headers, json=payload, timeout=30)
-    if resp.status_code == 429:
-        raise RuntimeError("Cloudflare quota exceeded (429)")
-    if resp.status_code != 200:
-        raise RuntimeError(f"Cloudflare HTTP {resp.status_code}: {resp.text[:200]}")
+    with requests.post(url, headers=headers, json=payload, timeout=30) as resp:
+        if resp.status_code == 429:
+            raise RuntimeError("Cloudflare quota exceeded (429)")
+        if resp.status_code != 200:
+            raise RuntimeError(f"Cloudflare HTTP {resp.status_code}: {resp.text[:200]}")
 
-    data = resp.json()
-    text = data.get("result", {}).get("response", "")
-    if not text:
-        raise RuntimeError("Cloudflare returned empty response")
+        data = resp.json()
+        text = data.get("result", {}).get("response", "")
+        if not text:
+            raise RuntimeError("Cloudflare returned empty response")
     yield text
 
 
-def stream_chat(messages: list, system_context: str | None = None) -> Generator[str, None, None]:
+def stream_chat(
+    messages: list,
+    system_context: str | None = None,
+    role: str = "friend",
+) -> Generator[str, None, None]:
     """
     Public API — gọi hàm này từ main_loop.py.
     Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → thông báo lỗi.
 
     Args:
         messages: list of {"role": "user"|"assistant", "content": str}
+        system_context: context nội bộ inject vào system prompt
+        role: "friend" | "teacher" | "parent_child" | "parent_advisor"
     """
-    global _groq_fail_streak, _groq_cooldown_until
+    global _cerebras_cooldown_until, _groq_fail_streak, _groq_cooldown_until
 
     # Trim history để tiết kiệm token
     max_turns = _CONFIG.get("max_history_turns", 10)
     if len(messages) > max_turns * 2:
         messages = messages[-(max_turns * 2):]
 
-    system_prompt = _get_system_prompt(system_context)
+    system_prompt = _get_system_prompt(system_context, role=role)
     now = time.time()
 
     # --- Cerebras (primary — fast public endpoint) ---
-    try:
-        logger.debug("[Bi - Não] Cerebras (%s)...", _CONFIG.get("cerebras_model", "gpt-oss-120b"))
-        yield from _stream_cerebras(messages, system_prompt)
-        return
-    except Exception as e:
-        logger.warning("[Bi - Não] Cerebras lỗi (%s) — chuyển Groq", e)
+    with _cerebras_lock:
+        cerebras_cooldown_until = _cerebras_cooldown_until
+
+    if now > cerebras_cooldown_until:
+        try:
+            logger.debug("[Bi - Não] Cerebras (%s)...", _CONFIG.get("cerebras_model", "gpt-oss-120b"))
+            yield from _stream_cerebras(messages, system_prompt)
+            return
+        except Exception as e:
+            if "429" in str(e) or "quota" in str(e).lower():
+                with _cerebras_lock:
+                    _cerebras_cooldown_until = time.time() + _CEREBRAS_COOLDOWN
+                logger.warning("[Bi - Não] Cerebras tạm dừng %ss do quota", _CEREBRAS_COOLDOWN)
+            logger.warning("[Bi - Não] Cerebras lỗi (%s) — chuyển Groq", e)
 
     # --- Groq (secondary — có cooldown riêng để tránh spam khi hết quota) ---
     with _groq_lock:
@@ -344,17 +383,24 @@ class BiAI:
     """
     Backward-compat wrapper. main_loop.py dùng BiAI().stream_chat(user_text).
     Nội bộ gọi stream_chat() module-level và duy trì history.
+    Tích hợp RoleManager để tự động chuyển vai Friend ↔ Teacher theo lời bé.
     """
 
     def __init__(self) -> None:
         self.history: list = []
         self.total_turns: int = 0
+        try:
+            from src.ai.role_manager import RoleManager
+            self.role_manager = RoleManager()
+        except ImportError:
+            self.role_manager = None
 
     def stream_chat(
         self,
         user_input: str,
         history: list = None,
         system_context: str | None = None,
+        role: str | None = None,
     ) -> Generator[str, None, None]:
         """
         Stream phản hồi từ AI.
@@ -362,10 +408,22 @@ class BiAI:
         Args:
             user_input: Văn bản câu hỏi của người dùng.
             history: Nếu truyền vào thì dùng history này (không cập nhật nội bộ).
-                     Nếu None thì dùng và cập nhật self.history.
-            system_context: Context nội bộ để nối vào system prompt,
-                            không lưu vào user history.
+            system_context: Context nội bộ inject vào system prompt.
+            role: Ép buộc vai trò. Nếu None thì RoleManager tự quyết định.
         """
+        # Xác định role — ưu tiên: tham số ngoài → RoleManager → mặc định friend
+        if role is not None:
+            active_role = role
+        elif self.role_manager is not None:
+            self.role_manager.process_message(user_input)
+            active_role = self.role_manager.current_role
+            # Merge role context (task goal, timer) vào system_context
+            role_ctx = self.role_manager.get_system_context()
+            if role_ctx:
+                system_context = "\n".join(filter(None, [system_context, role_ctx]))
+        else:
+            active_role = "friend"
+
         if history is not None:
             msgs = list(history)
         else:
@@ -373,11 +431,10 @@ class BiAI:
         msgs.append({"role": "user", "content": user_input})
 
         full_reply = ""
-        for token in stream_chat(msgs, system_context=system_context):
+        for token in stream_chat(msgs, system_context=system_context, role=active_role):
             full_reply += token
             yield token
 
-        # Cập nhật history nội bộ khi không có history bên ngoài truyền vào
         if history is None and full_reply:
             self.history.append({"role": "user", "content": user_input})
             self.history.append({"role": "assistant", "content": full_reply.strip()})
@@ -389,6 +446,19 @@ class BiAI:
     def reset_history(self) -> None:
         """Xóa toàn bộ lịch sử hội thoại."""
         self.history.clear()
+
+    def set_role(self, role: str, task_goal: str | None = None,
+                 time_limit_seconds: int | None = None) -> None:
+        """Set vai trò từ ngoài (Parent App hoặc API). Thread-safe."""
+        if self.role_manager is not None:
+            self.role_manager.set_role(role, task_goal=task_goal,
+                                       time_limit_seconds=time_limit_seconds)
+
+    @property
+    def current_role(self) -> str:
+        if self.role_manager is not None:
+            return self.role_manager.current_role
+        return "friend"
 
 
 # ── Test độc lập ──────────────────────────────────────────────────────────────

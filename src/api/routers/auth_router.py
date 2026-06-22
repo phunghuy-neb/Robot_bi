@@ -315,6 +315,63 @@ async def refresh_token_endpoint(request: Request):
     """
     from src.infrastructure.auth.auth import rotate_refresh_token, create_access_token
 
+    # Rate limit refresh endpoint: reuse login_attempts table (M-NEW-1)
+    client_ip = request.client.host if request.client else "unknown"
+    rate_key = f"refresh:{client_ip}"
+    now = datetime.now(timezone.utc)
+    _REFRESH_MAX_ATTEMPTS = 20   # per 15-minute window (generous — valid clients retry rarely)
+    _REFRESH_LOCK_MINUTES = 15
+    with get_db_connection() as conn:
+        conn.execute(
+            "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+            "WHERE ip_address = ? AND locked_until IS NOT NULL AND locked_until <= ?",
+            (rate_key, now.isoformat()),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT attempt_count, locked_until FROM login_attempts WHERE ip_address = ?",
+            (rate_key,),
+        ).fetchone()
+        if row and row["locked_until"]:
+            locked_until = datetime.fromisoformat(row["locked_until"])
+            if locked_until.tzinfo is None:
+                locked_until = locked_until.replace(tzinfo=timezone.utc)
+            if locked_until > now:
+                remaining = math.ceil((locked_until - now).total_seconds() / 60)
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Qua nhieu yeu cau. Thu lai sau {remaining} phut.",
+                )
+        count = int(row["attempt_count"]) if row else 0
+        if count >= _REFRESH_MAX_ATTEMPTS:
+            locked_until_val = (now + timedelta(minutes=_REFRESH_LOCK_MINUTES)).isoformat()
+            if row:
+                conn.execute(
+                    "UPDATE login_attempts SET locked_until = ? WHERE ip_address = ?",
+                    (locked_until_val, rate_key),
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                    "VALUES (?, ?, ?, ?)",
+                    (rate_key, count, now.isoformat(), locked_until_val),
+                )
+            conn.commit()
+            raise HTTPException(status_code=429, detail="Qua nhieu yeu cau. Thu lai sau 15 phut.")
+        # increment counter
+        if row:
+            conn.execute(
+                "UPDATE login_attempts SET attempt_count = ? WHERE ip_address = ?",
+                (count + 1, rate_key),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                "VALUES (?, ?, ?, NULL)",
+                (rate_key, 1, now.isoformat()),
+            )
+        conn.commit()
+
     body = await _read_json_body(request)
     old_refresh = body.get("refresh_token", "").strip()
 
@@ -465,27 +522,27 @@ async def change_password(request: Request, current_user: dict = Depends(get_cur
             (user_id,),
         ).fetchone()
 
-    if not row or not verify_password(current_pw, row["password_hash"]):
-        with get_db_connection() as conn:
-            attempts = conn.execute(
+        # Check password and update counter in the SAME transaction (fixes TOCTOU)
+        if not row or not verify_password(current_pw, row["password_hash"]):
+            attempts_row = conn.execute(
                 "SELECT attempt_count FROM login_attempts WHERE ip_address = ?",
                 (rate_key,),
             ).fetchone()
-            new_count = (int(attempts["attempt_count"]) if attempts else 0) + 1
-            locked_until = (now + timedelta(minutes=15)).isoformat() if new_count >= 5 else None
-            if attempts:
+            new_count = (int(attempts_row["attempt_count"]) if attempts_row else 0) + 1
+            locked_until_val = (now + timedelta(minutes=15)).isoformat() if new_count >= 5 else None
+            if attempts_row:
                 conn.execute(
                     "UPDATE login_attempts SET attempt_count = ?, locked_until = ? WHERE ip_address = ?",
-                    (new_count, locked_until, rate_key),
+                    (new_count, locked_until_val, rate_key),
                 )
             else:
                 conn.execute(
                     "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
                     "VALUES (?, ?, ?, ?)",
-                    (rate_key, new_count, now.isoformat(), locked_until),
+                    (rate_key, new_count, now.isoformat(), locked_until_val),
                 )
             conn.commit()
-        raise HTTPException(status_code=400, detail="Mật khẩu hiện tại không đúng")
+            raise HTTPException(status_code=400, detail="Mật khẩu hiện tại không đúng")
 
     if len(new_pw) < 8:
         raise HTTPException(status_code=400, detail="Mật khẩu mới phải có ít nhất 8 ký tự")
