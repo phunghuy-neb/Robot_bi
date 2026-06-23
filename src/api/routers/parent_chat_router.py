@@ -38,13 +38,14 @@ def _store_chat_event(family_id: str, chat_id: str, parent_msg: str, bi_reply: s
     with get_db_connection() as conn:
         conn.execute(
             """
-            INSERT INTO events (event_id, family_id, type, data, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO events (event_id, family_id, type, message, metadata_json, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 chat_id,
                 family_id,
                 _PARENT_CHAT_EVENT_TYPE,
+                parent_msg[:_MAX_MSG_LEN],
                 json.dumps(
                     {"parent": parent_msg[:_MAX_MSG_LEN], "bi": bi_reply[:_MAX_REPLY_LEN]},
                     ensure_ascii=False,
@@ -60,10 +61,10 @@ def _fetch_chat_history(family_id: str, limit: int) -> list[dict]:
     with get_db_connection() as conn:
         rows = conn.execute(
             """
-            SELECT event_id, data, created_at
+            SELECT event_id, metadata_json, timestamp
             FROM events
             WHERE family_id = ? AND type = ?
-            ORDER BY created_at DESC
+            ORDER BY timestamp DESC
             LIMIT ?
             """,
             (family_id, _PARENT_CHAT_EVENT_TYPE, limit),
@@ -71,7 +72,7 @@ def _fetch_chat_history(family_id: str, limit: int) -> list[dict]:
     result = []
     for row in rows:
         try:
-            payload = json.loads(row["data"] or "{}")
+            payload = json.loads(row["metadata_json"] or "{}")
         except Exception:
             payload = {}
         result.append(
@@ -79,7 +80,7 @@ def _fetch_chat_history(family_id: str, limit: int) -> list[dict]:
                 "chat_id": row["event_id"],
                 "parent": payload.get("parent", ""),
                 "bi": payload.get("bi", ""),
-                "created_at": row["created_at"],
+                "created_at": row["timestamp"],
             }
         )
     return result
