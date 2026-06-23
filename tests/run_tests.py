@@ -6982,6 +6982,136 @@ test("77.6 SettingsOverlay có delete button per child",                   test_
 test("77.7 getSystemLogs fallback về [] không phải mockSystemLogs",       test_77_get_system_logs_returns_empty_not_mock)
 test("77.8 tests/demo_web.py tồn tại và dùng TestClient",                 test_77_demo_web_script_exists)
 
+# == GROUP 78: Learning Hub — English 5-7 =====================================
+print("\n[Group 78] Learning Hub — English 5-7")
+
+
+def test_78_router_module_exists():
+    from src.api.routers import learning_hub_router
+    assert hasattr(learning_hub_router, "router"), "learning_hub_router phải có router"
+
+
+def test_78_modules_endpoint_registered():
+    from src.api.server import app
+    paths = [r.path for r in app.routes if hasattr(r, "path")]
+    assert "/api/learning/modules" in paths, f"/api/learning/modules không tìm thấy trong routes"
+
+
+def test_78_submit_endpoint_registered():
+    from src.api.server import app
+    paths = [r.path for r in app.routes if hasattr(r, "path")]
+    assert "/api/learning/lessons/{lesson_id}/submit" in paths, "submit endpoint không tìm thấy"
+
+
+def test_78_progress_endpoint_registered():
+    from src.api.server import app
+    paths = [r.path for r in app.routes if hasattr(r, "path")]
+    assert "/api/learning/progress" in paths, "/api/learning/progress không tìm thấy"
+
+
+def test_78_learning_lessons_table_exists():
+    with _get_db_connection() as conn:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    assert "learning_lessons" in tables, "Bảng learning_lessons chưa được tạo"
+
+
+def test_78_learning_items_table_exists():
+    with _get_db_connection() as conn:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    assert "learning_items" in tables, "Bảng learning_items chưa được tạo"
+
+
+def test_78_seed_content_lessons_count():
+    with _get_db_connection() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM learning_lessons WHERE language='en' AND age_group='5-7'").fetchone()[0]
+    assert count == 12, f"Phải có 12 lesson (4 module × 3), thực tế: {count}"
+
+
+def test_78_seed_content_items_count():
+    with _get_db_connection() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM learning_items").fetchone()[0]
+    assert count == 60, f"Phải có 60 item (12 lesson × 5), thực tế: {count}"
+
+
+def test_78_get_modules_via_testclient():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"lhub-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("lhub_mod", fam)
+    client = TestClient(app)
+    r = client.get("/api/learning/modules", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code} body={r.text[:200]}"
+    body = r.json()
+    assert "modules" in body, "missing modules key"
+    assert len(body["modules"]) == 4, f"phải có 4 module, có {len(body['modules'])}"
+    assert "streak" in body
+
+
+def test_78_submit_correct_answers():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"lhub-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("lhub_sub", fam)
+    client = TestClient(app)
+
+    # Get colors lesson 1
+    lesson_id = "en57_colors_1"
+    r = client.get(f"/api/learning/lessons/{lesson_id}", headers=headers)
+    assert r.status_code == 200, f"get lesson: {r.status_code}"
+    items = r.json()["items"]
+    correct_answers = [item["question"] for item in items]
+
+    r2 = client.post(
+        f"/api/learning/lessons/{lesson_id}/submit",
+        json={"answers": correct_answers},
+        headers=headers,
+    )
+    assert r2.status_code == 200, f"submit: {r2.status_code} {r2.text[:200]}"
+    result = r2.json()
+    assert result["score"] == 5, f"score phải là 5, có {result['score']}"
+    assert result["xp_earned"] > 0, "xp_earned phải > 0"
+    assert result["completed"] is True, "completed phải là True khi 5/5 đúng"
+
+
+def test_78_streak_increments_on_activity():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"lhub-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("lhub_streak", fam)
+    client = TestClient(app)
+
+    # Check streak before
+    r_before = client.get("/api/learning/streak", headers=headers)
+    assert r_before.status_code == 200
+    streak_before = r_before.json()["current"]
+
+    # Submit a lesson
+    lesson_id = "en57_numbers_1"
+    r_lesson = client.get(f"/api/learning/lessons/{lesson_id}", headers=headers)
+    items = r_lesson.json()["items"]
+    correct_answers = [item["question"] for item in items]
+    client.post(f"/api/learning/lessons/{lesson_id}/submit",
+                json={"answers": correct_answers}, headers=headers)
+
+    r_after = client.get("/api/learning/streak", headers=headers)
+    assert r_after.status_code == 200
+    streak_after = r_after.json()["current"]
+    assert streak_after >= 1, f"streak phải >= 1 sau khi học, có {streak_after}"
+    assert streak_after > streak_before or streak_after >= 1
+
+
+test("78.1  learning_hub_router module tồn tại",                             test_78_router_module_exists)
+test("78.2  GET /api/learning/modules đăng ký trong app",                    test_78_modules_endpoint_registered)
+test("78.3  POST /api/learning/lessons/{id}/submit đăng ký",                 test_78_submit_endpoint_registered)
+test("78.4  GET /api/learning/progress đăng ký",                             test_78_progress_endpoint_registered)
+test("78.5  DB: bảng learning_lessons tồn tại sau init_db",                  test_78_learning_lessons_table_exists)
+test("78.6  DB: bảng learning_items tồn tại sau init_db",                    test_78_learning_items_table_exists)
+test("78.7  Seed: 12 lesson (4 module × 3)",                                 test_78_seed_content_lessons_count)
+test("78.8  Seed: 60 item (12 lesson × 5)",                                  test_78_seed_content_items_count)
+test("78.9  TestClient: GET /api/learning/modules trả về 4 module",          test_78_get_modules_via_testclient)
+test("78.10 TestClient: submit 5/5 đúng → score=5, xp>0, completed=True",   test_78_submit_correct_answers)
+test("78.11 TestClient: streak >= 1 sau khi làm bài",                        test_78_streak_increments_on_activity)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

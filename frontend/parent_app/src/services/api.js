@@ -385,6 +385,26 @@ export async function deleteChildProfile(childId) {
   return apiFetch(`/api/children/${childId}`, { method: 'DELETE' });
 }
 
+export async function getLearningModules() {
+  return apiFetch('/api/learning/modules');
+}
+
+export async function getLearningLesson(lessonId) {
+  return apiFetch(`/api/learning/lessons/${lessonId}`);
+}
+
+export async function submitLearningLesson(lessonId, answers) {
+  return apiFetch(`/api/learning/lessons/${lessonId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers }),
+  });
+}
+
+export async function getLearningProgress() {
+  return apiFetch('/api/learning/progress');
+}
+
 export async function getSleepSchedule() {
   return apiFetch('/api/settings/sleep');
 }

@@ -18,6 +18,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import MonitorPage from './pages/MonitorPage.jsx';
 import LearningPage from './pages/LearningPage.jsx';
+import LearningHubPage from './pages/LearningHubPage.jsx';
 import JournalPage from './pages/JournalPage.jsx';
 import MorePage from './pages/MorePage.jsx';
 
@@ -101,6 +102,7 @@ export default function App() {
     home: <HomePage user={user} lastWsEvent={lastWsEvent} />,
     monitor: <MonitorPage lastWsEvent={lastWsEvent} />,
     learning: <LearningPage activeChild={activeChild} />,
+    learninghub: <LearningHubPage />,
     journal: <JournalPage />,
     more: <MorePage />,
   };

@@ -146,6 +146,118 @@ def cleanup_orphan_sessions(max_age_hours: int = 24) -> int:
         return cur.rowcount
 
 
+def _seed_learning_content(conn) -> None:
+    """Seed English 5-7 learning content. Idempotent (INSERT OR IGNORE)."""
+    import json as _json
+
+    LESSONS = [
+        ("colors", "Basic Colors 1", "Màu cơ bản 1", "🎨", 1, [
+            ("Red",    "Màu đỏ",          "🔴", ["Red","Blue","Green","Yellow"]),
+            ("Blue",   "Màu xanh dương",   "🔵", ["Red","Blue","Green","Pink"]),
+            ("Green",  "Màu xanh lá",      "🟢", ["Green","Orange","Purple","Black"]),
+            ("Yellow", "Màu vàng",         "🟡", ["Yellow","Red","Blue","White"]),
+            ("Orange", "Màu cam",          "🟠", ["Orange","Yellow","Green","Pink"]),
+        ]),
+        ("colors", "Basic Colors 2", "Màu cơ bản 2", "🌈", 2, [
+            ("Purple", "Màu tím",   "🟣", ["Purple","Blue","Pink","Black"]),
+            ("Pink",   "Màu hồng",  "🌸", ["Pink","Red","Purple","Yellow"]),
+            ("White",  "Màu trắng", "⬜", ["White","Black","Gray","Blue"]),
+            ("Black",  "Màu đen",   "⬛", ["Black","White","Gray","Purple"]),
+            ("Brown",  "Màu nâu",   "🟫", ["Brown","Orange","Red","Pink"]),
+        ]),
+        ("colors", "Color Review", "Ôn tập màu sắc", "✏️", 3, [
+            ("Red",    "Màu đỏ",         "🔴", ["Red","Blue","Green","Yellow"]),
+            ("Blue",   "Màu xanh dương", "🔵", ["Orange","Blue","Pink","Brown"]),
+            ("Yellow", "Màu vàng",       "🟡", ["Purple","Green","Yellow","White"]),
+            ("Green",  "Màu xanh lá",    "🟢", ["Green","Black","Red","Pink"]),
+            ("Purple", "Màu tím",        "🟣", ["Blue","Purple","Orange","White"]),
+        ]),
+        ("animals", "Farm Animals", "Động vật nông trại", "🐄", 1, [
+            ("Dog",  "Con chó", "🐕", ["Dog","Cat","Bird","Fish"]),
+            ("Cat",  "Con mèo", "🐈", ["Dog","Cat","Rabbit","Duck"]),
+            ("Cow",  "Con bò",  "🐄", ["Cow","Dog","Cat","Bird"]),
+            ("Pig",  "Con lợn", "🐷", ["Pig","Cat","Cow","Duck"]),
+            ("Duck", "Con vịt", "🦆", ["Duck","Dog","Pig","Rabbit"]),
+        ]),
+        ("animals", "Wild Animals", "Động vật hoang dã", "🦁", 2, [
+            ("Lion",     "Con sư tử", "🦁", ["Lion","Tiger","Bear","Wolf"]),
+            ("Elephant", "Con voi",   "🐘", ["Elephant","Giraffe","Lion","Bear"]),
+            ("Tiger",    "Con hổ",    "🐯", ["Tiger","Lion","Leopard","Wolf"]),
+            ("Bear",     "Con gấu",   "🐻", ["Bear","Dog","Tiger","Elephant"]),
+            ("Rabbit",   "Con thỏ",   "🐰", ["Rabbit","Cat","Duck","Pig"]),
+        ]),
+        ("animals", "Sea & Birds", "Biển & Chim", "🐟", 3, [
+            ("Fish",      "Con cá",   "🐟", ["Fish","Duck","Crab","Turtle"]),
+            ("Bird",      "Con chim", "🐦", ["Bird","Fish","Butterfly","Bee"]),
+            ("Crab",      "Con cua",  "🦀", ["Crab","Fish","Turtle","Snail"]),
+            ("Turtle",    "Con rùa",  "🐢", ["Turtle","Frog","Crab","Fish"]),
+            ("Butterfly", "Con bướm", "🦋", ["Butterfly","Bird","Bee","Dragonfly"]),
+        ]),
+        ("numbers", "Numbers 1-5", "Số 1 đến 5", "🔢", 1, [
+            ("One",   "Một", "1️⃣", ["One","Two","Three","Four"]),
+            ("Two",   "Hai", "2️⃣", ["One","Two","Five","Three"]),
+            ("Three", "Ba",  "3️⃣", ["Three","Four","One","Two"]),
+            ("Four",  "Bốn", "4️⃣", ["Four","Five","One","Three"]),
+            ("Five",  "Năm", "5️⃣", ["Five","Four","Two","Three"]),
+        ]),
+        ("numbers", "Numbers 6-10", "Số 6 đến 10", "🔢", 2, [
+            ("Six",   "Sáu",  "6️⃣", ["Six","Seven","Eight","Five"]),
+            ("Seven", "Bảy",  "7️⃣", ["Six","Seven","Nine","Ten"]),
+            ("Eight", "Tám",  "8️⃣", ["Eight","Seven","Six","Nine"]),
+            ("Nine",  "Chín", "9️⃣", ["Nine","Eight","Ten","Seven"]),
+            ("Ten",   "Mười", "🔟", ["Ten","Nine","Eight","Six"]),
+        ]),
+        ("numbers", "Number Review", "Ôn tập số đếm", "🧮", 3, [
+            ("One",   "Một",  "1️⃣", ["One","Six","Nine","Four"]),
+            ("Three", "Ba",   "3️⃣", ["Two","Three","Seven","Ten"]),
+            ("Five",  "Năm",  "5️⃣", ["Eight","Five","One","Nine"]),
+            ("Seven", "Bảy",  "7️⃣", ["Three","Seven","Two","Six"]),
+            ("Ten",   "Mười", "🔟", ["Four","Eight","Ten","Five"]),
+        ]),
+        ("family", "My Family 1", "Gia đình tôi 1", "👨‍👩‍👧", 1, [
+            ("Mom",    "Mẹ",          "👩", ["Mom","Dad","Sister","Brother"]),
+            ("Dad",    "Bố",          "👨", ["Mom","Dad","Uncle","Aunt"]),
+            ("Sister", "Chị/Em gái", "👧", ["Sister","Brother","Mom","Dad"]),
+            ("Brother","Anh/Em trai","👦", ["Brother","Sister","Dad","Mom"]),
+            ("Baby",   "Em bé",       "👶", ["Baby","Mom","Dad","Sister"]),
+        ]),
+        ("family", "My Family 2", "Gia đình tôi 2", "👴", 2, [
+            ("Grandma", "Bà",      "👵", ["Grandma","Grandpa","Mom","Aunt"]),
+            ("Grandpa", "Ông",     "👴", ["Grandpa","Grandma","Dad","Uncle"]),
+            ("Aunt",    "Dì/Cô",   "👩", ["Aunt","Uncle","Mom","Grandma"]),
+            ("Uncle",   "Chú/Bác", "👨", ["Uncle","Aunt","Dad","Grandpa"]),
+            ("Family",  "Gia đình","👨‍👩‍👧‍👦",["Family","Baby","Home","Friend"]),
+        ]),
+        ("family", "Family Review", "Ôn tập gia đình", "🏠", 3, [
+            ("Mom",     "Mẹ",          "👩", ["Mom","Aunt","Grandma","Sister"]),
+            ("Dad",     "Bố",          "👨", ["Uncle","Dad","Grandpa","Brother"]),
+            ("Grandma", "Bà",          "👵", ["Grandma","Mom","Aunt","Sister"]),
+            ("Brother", "Anh/Em trai", "👦", ["Dad","Uncle","Brother","Grandpa"]),
+            ("Baby",    "Em bé",       "👶", ["Family","Baby","Grandma","Sister"]),
+        ]),
+    ]
+
+    module_order = {"colors": 1, "animals": 2, "numbers": 3, "family": 4}
+    for (module, title, title_vi, emoji, lesson_order, items) in LESSONS:
+        lesson_id = f"en57_{module}_{lesson_order}"
+        conn.execute(
+            """INSERT OR IGNORE INTO learning_lessons
+               (lesson_id, language, age_group, module, title, title_vi, emoji, order_index, xp_reward)
+               VALUES (?, 'en', '5-7', ?, ?, ?, ?, ?, 10)""",
+            (lesson_id, module, title, title_vi, emoji,
+             module_order[module] * 100 + lesson_order),
+        )
+        for idx, (word, word_vi, word_emoji, options) in enumerate(items):
+            item_id = f"{lesson_id}_q{idx + 1}"
+            conn.execute(
+                """INSERT OR IGNORE INTO learning_items
+                   (item_id, lesson_id, order_index, question, question_vi, emoji, answer, options_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (item_id, lesson_id, idx, word, word_vi, word_emoji,
+                 word, _json.dumps(options)),
+            )
+
+
 def init_db() -> None:
     """Khoi tao database va migrate du lieu tu JSON cu neu can."""
     global _INITIALIZED
@@ -869,6 +981,66 @@ def init_db() -> None:
                 ''',
             ):
                 conn.execute(trigger_sql)
+
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS learning_lessons (
+                    lesson_id TEXT PRIMARY KEY,
+                    language TEXT NOT NULL DEFAULT 'en',
+                    age_group TEXT NOT NULL DEFAULT '5-7',
+                    module TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    title_vi TEXT NOT NULL,
+                    emoji TEXT NOT NULL DEFAULT '📚',
+                    order_index INTEGER NOT NULL DEFAULT 0,
+                    xp_reward INTEGER NOT NULL DEFAULT 10
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS learning_items (
+                    item_id TEXT PRIMARY KEY,
+                    lesson_id TEXT NOT NULL
+                        REFERENCES learning_lessons(lesson_id) ON DELETE CASCADE,
+                    order_index INTEGER NOT NULL DEFAULT 0,
+                    question TEXT NOT NULL,
+                    question_vi TEXT NOT NULL,
+                    emoji TEXT NOT NULL DEFAULT '❓',
+                    answer TEXT NOT NULL,
+                    options_json TEXT NOT NULL DEFAULT '[]'
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS learning_progress (
+                    progress_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL,
+                    lesson_id TEXT NOT NULL
+                        REFERENCES learning_lessons(lesson_id) ON DELETE CASCADE,
+                    completed INTEGER NOT NULL DEFAULT 0,
+                    score INTEGER NOT NULL DEFAULT 0,
+                    xp_earned INTEGER NOT NULL DEFAULT 0,
+                    completed_at TEXT,
+                    attempts INTEGER NOT NULL DEFAULT 0,
+                    UNIQUE(family_id, lesson_id)
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS learning_streaks (
+                    streak_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL UNIQUE,
+                    current_streak INTEGER NOT NULL DEFAULT 0,
+                    longest_streak INTEGER NOT NULL DEFAULT 0,
+                    last_activity_date TEXT,
+                    total_xp INTEGER NOT NULL DEFAULT 0
+                )
+                '''
+            )
+            _seed_learning_content(conn)
 
             _migrate_turns_role_constraint(conn)
 
