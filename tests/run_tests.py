@@ -6792,8 +6792,9 @@ def test_75_stream_deepseek_raises_on_missing_key():
 def test_75_deepseek_after_cloudflare_in_stream_chat():
     from pathlib import Path as _P
     src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
-    cloudflare_idx = src.index("_stream_cloudflare(messages")
-    deepseek_idx = src.index("_stream_deepseek(messages")
+    # Use "yield from" calls which only appear inside stream_chat(), not in function definitions
+    cloudflare_idx = src.index("yield from _stream_cloudflare(")
+    deepseek_idx = src.index("yield from _stream_deepseek(")
     assert deepseek_idx > cloudflare_idx, "DeepSeek phải đứng SAU Cloudflare trong stream_chat()"
 
 def test_75_config_deepseek_model():
