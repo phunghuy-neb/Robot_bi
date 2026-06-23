@@ -1,0 +1,683 @@
+{
+  "subject": "en",
+  "exams": [
+    {
+      "paper_id": "english_exam_grade6_1",
+      "title": "Tiếng Anh — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "grammar_vocab_basic",
+      "questions": [
+        {
+          "question": "She ___ to school every day.",
+          "question_vi": "Cô ấy ___ đến trường mỗi ngày.",
+          "emoji": "🏫",
+          "options": [
+            "goes",
+            "go",
+            "going",
+            "gone"
+          ],
+          "answer": "goes",
+          "explanation": "Chủ ngữ ngôi thứ ba số ít (She) ở thì hiện tại đơn thì động từ thêm -es: goes.",
+          "difficulty": 1
+        },
+        {
+          "question": "There are three ___ on the table.",
+          "question_vi": "Có ba ___ trên bàn.",
+          "emoji": "📚",
+          "options": [
+            "books",
+            "book",
+            "bookes",
+            "a book"
+          ],
+          "answer": "books",
+          "explanation": "“three” là số nhiều nên danh từ phải ở dạng số nhiều: books.",
+          "difficulty": 1
+        },
+        {
+          "question": "My brother ___ playing football now.",
+          "question_vi": "Anh tôi đang ___ chơi bóng bây giờ.",
+          "emoji": "⚽",
+          "options": [
+            "is",
+            "are",
+            "am",
+            "be"
+          ],
+          "answer": "is",
+          "explanation": "Thì hiện tại tiếp diễn với chủ ngữ số ít (My brother) dùng “is + V-ing”.",
+          "difficulty": 1
+        },
+        {
+          "question": "I have ___ apple.",
+          "question_vi": "Tôi có ___ quả táo.",
+          "emoji": "🍎",
+          "options": [
+            "an",
+            "a",
+            "the",
+            "some"
+          ],
+          "answer": "an",
+          "explanation": "“apple” bắt đầu bằng nguyên âm nên dùng mạo từ “an”.",
+          "difficulty": 1
+        },
+        {
+          "question": "The opposite of “big” is ___.",
+          "question_vi": "Từ trái nghĩa của “big” là ___.",
+          "emoji": "📏",
+          "options": [
+            "small",
+            "tall",
+            "long",
+            "fast"
+          ],
+          "answer": "small",
+          "explanation": "“big” (to/lớn) trái nghĩa với “small” (nhỏ).",
+          "difficulty": 1
+        },
+        {
+          "question": "A baby cat is called a ___.",
+          "question_vi": "Một con mèo con được gọi là ___.",
+          "emoji": "🐱",
+          "options": [
+            "kitten",
+            "puppy",
+            "calf",
+            "cub"
+          ],
+          "answer": "kitten",
+          "explanation": "Mèo con là “kitten”; puppy là chó con, calf là bê, cub là con của thú dữ.",
+          "difficulty": 2
+        },
+        {
+          "question": "We go to school ___ Monday.",
+          "question_vi": "Chúng tôi đến trường ___ thứ Hai.",
+          "emoji": "📅",
+          "options": [
+            "on",
+            "in",
+            "at",
+            "of"
+          ],
+          "answer": "on",
+          "explanation": "Với thứ trong tuần ta dùng giới từ “on”: on Monday.",
+          "difficulty": 2
+        },
+        {
+          "question": "___ is your name?",
+          "question_vi": "___ là tên của bạn?",
+          "emoji": "❓",
+          "options": [
+            "What",
+            "Where",
+            "When",
+            "Who"
+          ],
+          "answer": "What",
+          "explanation": "Hỏi tên dùng “What”: What is your name?",
+          "difficulty": 1
+        },
+        {
+          "question": "One child, two ___.",
+          "question_vi": "Một đứa trẻ, hai ___.",
+          "emoji": "🧒",
+          "options": [
+            "children",
+            "childs",
+            "childes",
+            "child"
+          ],
+          "answer": "children",
+          "explanation": "“child” có dạng số nhiều bất quy tắc là “children”.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "english_exam_grade10_1",
+      "title": "Tiếng Anh — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "grammar_thcs",
+      "questions": [
+        {
+          "question": "If it ___ tomorrow, we will stay home.",
+          "question_vi": "Nếu ngày mai trời ___, chúng tôi sẽ ở nhà.",
+          "emoji": "🌧️",
+          "options": [
+            "rains",
+            "rain",
+            "rained",
+            "will rain"
+          ],
+          "answer": "rains",
+          "explanation": "Câu điều kiện loại 1: If + hiện tại đơn (rains), will + V.",
+          "difficulty": 2
+        },
+        {
+          "question": "This is the ___ book I have ever read.",
+          "question_vi": "Đây là cuốn sách ___ mà tôi từng đọc.",
+          "emoji": "📖",
+          "options": [
+            "most interesting",
+            "more interesting",
+            "interesting",
+            "interestingest"
+          ],
+          "answer": "most interesting",
+          "explanation": "So sánh nhất với tính từ dài: the most + adj.",
+          "difficulty": 2
+        },
+        {
+          "question": "The letter ___ by Tom yesterday.",
+          "question_vi": "Lá thư ___ bởi Tom hôm qua.",
+          "emoji": "✉️",
+          "options": [
+            "was written",
+            "was wrote",
+            "wrote",
+            "is written"
+          ],
+          "answer": "was written",
+          "explanation": "Bị động thì quá khứ đơn: was/were + V3 (written).",
+          "difficulty": 3
+        },
+        {
+          "question": "She has lived here ___ 2010.",
+          "question_vi": "Cô ấy đã sống ở đây ___ năm 2010.",
+          "emoji": "🏠",
+          "options": [
+            "since",
+            "for",
+            "in",
+            "at"
+          ],
+          "answer": "since",
+          "explanation": "“since” + mốc thời gian (2010); “for” + khoảng thời gian.",
+          "difficulty": 2
+        },
+        {
+          "question": "He asked me where I ___.",
+          "question_vi": "Anh ấy hỏi tôi tôi ___ ở đâu.",
+          "emoji": "🗣️",
+          "options": [
+            "lived",
+            "live",
+            "living",
+            "lives"
+          ],
+          "answer": "lived",
+          "explanation": "Câu tường thuật lùi thì: present → past (live → lived).",
+          "difficulty": 3
+        },
+        {
+          "question": "I enjoy ___ books in my free time.",
+          "question_vi": "Tôi thích ___ sách lúc rảnh.",
+          "emoji": "📕",
+          "options": [
+            "reading",
+            "to read",
+            "read",
+            "reads"
+          ],
+          "answer": "reading",
+          "explanation": "Sau “enjoy” dùng động từ thêm -ing (gerund): reading.",
+          "difficulty": 2
+        },
+        {
+          "question": "You ___ wear a helmet when riding a motorbike.",
+          "question_vi": "Bạn ___ đội mũ bảo hiểm khi đi xe máy.",
+          "emoji": "🪖",
+          "options": [
+            "must",
+            "can",
+            "may",
+            "might"
+          ],
+          "answer": "must",
+          "explanation": "Diễn đạt sự bắt buộc dùng “must”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the synonym of “happy”.",
+          "question_vi": "Chọn từ đồng nghĩa với “happy”.",
+          "emoji": "😄",
+          "options": [
+            "glad",
+            "sad",
+            "angry",
+            "tired"
+          ],
+          "answer": "glad",
+          "explanation": "“happy” (vui) đồng nghĩa với “glad”.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "english_exam_thpt_1",
+      "title": "Tiếng Anh — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "grammar_thpt",
+      "questions": [
+        {
+          "question": "If I had studied harder, I ___ the exam.",
+          "question_vi": "Nếu tôi học chăm hơn, tôi ___ kỳ thi.",
+          "emoji": "📝",
+          "options": [
+            "would have passed",
+            "would pass",
+            "will pass",
+            "passed"
+          ],
+          "answer": "would have passed",
+          "explanation": "Câu điều kiện loại 3: If + past perfect, would have + V3.",
+          "difficulty": 3
+        },
+        {
+          "question": "He is interested ___ learning English.",
+          "question_vi": "Anh ấy hứng thú ___ việc học tiếng Anh.",
+          "emoji": "🎯",
+          "options": [
+            "in",
+            "on",
+            "at",
+            "for"
+          ],
+          "answer": "in",
+          "explanation": "Collocation cố định: interested in.",
+          "difficulty": 2
+        },
+        {
+          "question": "The new policy will ___ effect next month.",
+          "question_vi": "Chính sách mới sẽ ___ hiệu lực tháng tới.",
+          "emoji": "📜",
+          "options": [
+            "take",
+            "make",
+            "do",
+            "get"
+          ],
+          "answer": "take",
+          "explanation": "Cụm cố định: take effect (có hiệu lực).",
+          "difficulty": 3
+        },
+        {
+          "question": "Not only ___ late, but he also forgot his book.",
+          "question_vi": "Không những anh ấy ___ trễ mà còn quên sách.",
+          "emoji": "⏰",
+          "options": [
+            "was he",
+            "he was",
+            "he is",
+            "did he"
+          ],
+          "answer": "was he",
+          "explanation": "Đảo ngữ với “Not only” ở đầu câu: trợ động từ/be đảo lên trước chủ ngữ → was he.",
+          "difficulty": 4
+        },
+        {
+          "question": "Her ___ to detail is impressive.",
+          "question_vi": "Sự ___ đến chi tiết của cô ấy thật ấn tượng.",
+          "emoji": "🔍",
+          "options": [
+            "attention",
+            "attentive",
+            "attentively",
+            "attend"
+          ],
+          "answer": "attention",
+          "explanation": "Sau tính từ sở hữu “Her” cần danh từ: attention (attention to detail).",
+          "difficulty": 3
+        },
+        {
+          "question": "She turned ___ the job offer because the salary was low.",
+          "question_vi": "Cô ấy ___ lời mời làm việc vì lương thấp.",
+          "emoji": "🚪",
+          "options": [
+            "down",
+            "up",
+            "on",
+            "off"
+          ],
+          "answer": "down",
+          "explanation": "Phrasal verb “turn down” = từ chối.",
+          "difficulty": 3
+        },
+        {
+          "question": "By the time we arrived, the movie ___.",
+          "question_vi": "Khi chúng tôi đến nơi, bộ phim ___.",
+          "emoji": "🎬",
+          "options": [
+            "had started",
+            "started",
+            "has started",
+            "starts"
+          ],
+          "answer": "had started",
+          "explanation": "Hành động xảy ra trước một mốc quá khứ dùng quá khứ hoàn thành: had started.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "english_hsg_school_1",
+      "title": "Tiếng Anh — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "grammar_advanced",
+      "questions": [
+        {
+          "question": "Hardly ___ when the phone rang.",
+          "question_vi": "Tôi vừa mới đến thì điện thoại reo.",
+          "emoji": "📞",
+          "options": [
+            "had I arrived",
+            "I had arrived",
+            "I arrived",
+            "did I arrive"
+          ],
+          "answer": "had I arrived",
+          "explanation": "Đảo ngữ với “Hardly … when”: Hardly + had + S + V3.",
+          "difficulty": 4
+        },
+        {
+          "question": "The idiom “once in a blue moon” means ___.",
+          "question_vi": "Thành ngữ “once in a blue moon” nghĩa là ___.",
+          "emoji": "🌙",
+          "options": [
+            "very rarely",
+            "very often",
+            "suddenly",
+            "never"
+          ],
+          "answer": "very rarely",
+          "explanation": "“Once in a blue moon” = rất hiếm khi.",
+          "difficulty": 3
+        },
+        {
+          "question": "I'd rather you ___ smoke here.",
+          "question_vi": "Tôi muốn bạn ___ hút thuốc ở đây.",
+          "emoji": "🚭",
+          "options": [
+            "didn't",
+            "don't",
+            "won't",
+            "not"
+          ],
+          "answer": "didn't",
+          "explanation": "Cấu trúc “would rather + S + past simple” diễn đạt mong muốn: didn't.",
+          "difficulty": 4
+        },
+        {
+          "question": "No sooner had he left ___ it started to rain.",
+          "question_vi": "Anh ấy vừa đi khỏi thì trời bắt đầu mưa.",
+          "emoji": "🌧️",
+          "options": [
+            "than",
+            "then",
+            "when",
+            "that"
+          ],
+          "answer": "than",
+          "explanation": "Cấu trúc “No sooner … than”.",
+          "difficulty": 4
+        },
+        {
+          "question": "The meeting was ___ until next week.",
+          "question_vi": "Cuộc họp bị ___ đến tuần sau.",
+          "emoji": "📆",
+          "options": [
+            "put off",
+            "put on",
+            "put up",
+            "put down"
+          ],
+          "answer": "put off",
+          "explanation": "Phrasal verb “put off” = hoãn lại.",
+          "difficulty": 3
+        },
+        {
+          "question": "It's high time we ___ home.",
+          "question_vi": "Đã đến lúc chúng ta ___ về nhà.",
+          "emoji": "🏡",
+          "options": [
+            "went",
+            "go",
+            "going",
+            "have gone"
+          ],
+          "answer": "went",
+          "explanation": "Cấu trúc “It's high time + S + past simple”: went.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "english_hsg_district_1",
+      "title": "Tiếng Anh — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "grammar_advanced",
+      "questions": [
+        {
+          "question": "___ his wealth, he is not happy.",
+          "question_vi": "___ sự giàu có của mình, anh ấy không hạnh phúc.",
+          "emoji": "💰",
+          "options": [
+            "Despite",
+            "Although",
+            "However",
+            "Because"
+          ],
+          "answer": "Despite",
+          "explanation": "“Despite + danh từ” (his wealth); “Although” đi với mệnh đề.",
+          "difficulty": 4
+        },
+        {
+          "question": "The book, ___ author is famous, sold well.",
+          "question_vi": "Cuốn sách mà tác giả ___ nổi tiếng đã bán chạy.",
+          "emoji": "✍️",
+          "options": [
+            "whose",
+            "who",
+            "which",
+            "that"
+          ],
+          "answer": "whose",
+          "explanation": "Đại từ quan hệ chỉ sự sở hữu (của tác giả) dùng “whose”.",
+          "difficulty": 4
+        },
+        {
+          "question": "The idiom “to bite the bullet” means ___.",
+          "question_vi": "Thành ngữ “to bite the bullet” nghĩa là ___.",
+          "emoji": "😤",
+          "options": [
+            "to endure a difficult situation bravely",
+            "to eat quickly",
+            "to make a mistake",
+            "to feel afraid"
+          ],
+          "answer": "to endure a difficult situation bravely",
+          "explanation": "“Bite the bullet” = can đảm chịu đựng tình huống khó khăn.",
+          "difficulty": 4
+        },
+        {
+          "question": "She speaks English ___ if she were a native.",
+          "question_vi": "Cô ấy nói tiếng Anh ___ thể cô ấy là người bản xứ.",
+          "emoji": "🗽",
+          "options": [
+            "as",
+            "like",
+            "so",
+            "such"
+          ],
+          "answer": "as",
+          "explanation": "Cấu trúc “as if + mệnh đề” diễn đạt sự so sánh giả định.",
+          "difficulty": 4
+        },
+        {
+          "question": "___ I you, I would accept the offer.",
+          "question_vi": "Nếu tôi là bạn, tôi sẽ nhận lời.",
+          "emoji": "🤝",
+          "options": [
+            "Were",
+            "Was",
+            "If",
+            "Had"
+          ],
+          "answer": "Were",
+          "explanation": "Câu điều kiện loại 2 đảo ngữ: Were + S (Were I you = If I were you).",
+          "difficulty": 4
+        },
+        {
+          "question": "He made a ___ decision under pressure.",
+          "question_vi": "Anh ấy đưa ra quyết định ___ dưới áp lực.",
+          "emoji": "⚡",
+          "options": [
+            "split-second",
+            "fast-time",
+            "quick-moment",
+            "rapid-second"
+          ],
+          "answer": "split-second",
+          "explanation": "Collocation “a split-second decision” = quyết định trong tích tắc.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "english_hsg_province_1",
+      "title": "Tiếng Anh — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "grammar_expert",
+      "questions": [
+        {
+          "question": "Scarcely had the game started ___ it began to rain.",
+          "question_vi": "Trận đấu vừa bắt đầu thì trời mưa.",
+          "emoji": "🏟️",
+          "options": [
+            "when",
+            "than",
+            "then",
+            "that"
+          ],
+          "answer": "when",
+          "explanation": "Cấu trúc “Scarcely … when” (tương tự Hardly … when).",
+          "difficulty": 4
+        },
+        {
+          "question": "I wish I ___ more time to finish the project.",
+          "question_vi": "Ước gì tôi ___ nhiều thời gian hơn để hoàn thành dự án.",
+          "emoji": "⏳",
+          "options": [
+            "had",
+            "have",
+            "would have",
+            "had had"
+          ],
+          "answer": "had",
+          "explanation": "“I wish + past simple” diễn đạt ước muốn trái hiện tại: had.",
+          "difficulty": 4
+        },
+        {
+          "question": "The idiom “a blessing in disguise” means ___.",
+          "question_vi": "Thành ngữ “a blessing in disguise” nghĩa là ___.",
+          "emoji": "🎁",
+          "options": [
+            "something good that seemed bad at first",
+            "a secret gift",
+            "a hidden danger",
+            "a religious ceremony"
+          ],
+          "answer": "something good that seemed bad at first",
+          "explanation": "“A blessing in disguise” = điều tốt đẹp tưởng như xấu lúc đầu (trong cái rủi có cái may).",
+          "difficulty": 4
+        },
+        {
+          "question": "The phrase “to throw in the towel” means ___.",
+          "question_vi": "Cụm “to throw in the towel” nghĩa là ___.",
+          "emoji": "🏳️",
+          "options": [
+            "to give up",
+            "to start fighting",
+            "to clean up",
+            "to win easily"
+          ],
+          "answer": "to give up",
+          "explanation": "“Throw in the towel” = bỏ cuộc, đầu hàng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Only after the meeting ___ the truth.",
+          "question_vi": "Chỉ sau cuộc họp chúng tôi mới ___ sự thật.",
+          "emoji": "🔎",
+          "options": [
+            "did we learn",
+            "we learned",
+            "we did learn",
+            "had we learned"
+          ],
+          "answer": "did we learn",
+          "explanation": "Đảo ngữ với “Only after …”: trợ động từ đảo lên trước chủ ngữ → did we learn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Choose the most formal synonym of “to put up with”.",
+          "question_vi": "Chọn từ trang trọng đồng nghĩa với “to put up with”.",
+          "emoji": "🎩",
+          "options": [
+            "to tolerate",
+            "to like",
+            "to enjoy",
+            "to remove"
+          ],
+          "answer": "to tolerate",
+          "explanation": "“Put up with” = chịu đựng; từ trang trọng đồng nghĩa là “tolerate”.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
