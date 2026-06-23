@@ -19,6 +19,12 @@
 
 ## Last Completed Task
 
+- 2026-06-23: **Frontend wiring — robot location, notifications, device URL, drop mock** (branch `003-web-search-integration`, commit `c3039f1`):
+  - `frontend/parent_app/src/pages/HomePage.jsx`: Wired `/api/robot/location` — shows `room_name` or "Chưa xác định"; removed coming-soon badge.
+  - `frontend/parent_app/src/components/SettingsOverlay.jsx`: Notification section now loads from `/api/settings/notifications` and saves; toggle buttons call real API; removed coming-soon badge. Device connection section calls `/api/device/connection-qr` and shows URL + copy button; removed coming-soon badge. Removed mock-data badge from child profiles section.
+  - `frontend/parent_app/src/services/api.js`: `getChildProfiles()` returns `[]` instead of mock when API has no children. Added `getDeviceConnectionUrl()` and `getRobotLocation()` helpers. Removed unused `mockChildProfiles` import.
+  - All CI-passing tests unaffected (Python backend only; these are pure JSX/JS changes).
+
 - 2026-06-23: **Frontend polish + Robot display animation** (branch `003-web-search-integration`):
   - `frontend/parent_app/src/services/api.js`: Fixed `exportReport` to do raw `fetch` + blob download (CSV/PDF, not JSON); added `url` field to `getRadioChannels` + `getVideoLessons` maps from `source_url`.
   - `frontend/parent_app/src/pages/JournalPage.jsx`: Wired export buttons (CSV + PDF) with blob download + toast feedback; removed stale `mock-data` badge from emotion chart.
