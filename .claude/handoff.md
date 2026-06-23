@@ -19,6 +19,24 @@
 
 ## Last Completed Task
 
+- 2026-06-23: **DeepSeek V3 + Frontend settings wiring + DB seed fix** (branch `003-web-search-integration`):
+  - `src/ai/ai_engine.py`: Added DeepSeek V3 as 6th provider (after Cloudflare). `_stream_deepseek()` uses OpenAI-compatible endpoint `https://api.deepseek.com/v1/chat/completions`, model `deepseek-chat`. `_PROVIDER_ORDER` updated to 6 members. Protected original provider order unchanged.
+  - `config.json`: Added `"deepseek_model": "deepseek-chat"`.
+  - `.env.example`: Added `DEEPSEEK_API_KEY` with platform.deepseek.com comment.
+  - `frontend/parent_app/src/services/api.js`: Replaced 4 TODO stubs: `saveSleepSchedule`, `saveTimeLimits`, `saveAgeFilter`, `savePushSettings` — all now call real backend APIs. Added GET wrappers: `getSleepSchedule`, `getTimeLimits`, `getAgeFilter`, `getNotificationSettings`. Wired `exportReport` to `POST /api/reports/export`.
+  - `frontend/parent_app/src/components/SettingsOverlay.jsx`: Loads existing settings from backend on mount (sleep/time/age in parallel). Save buttons now call API and show ✅/❌ feedback. Removed stale `coming-soon` badges from sleep and content sections. Removed `no-backend` badge from system logs (already API-wired). Added loading states for save buttons (`sleepSaving`, `limitSaving`, `ageFilterSaving`).
+  - `src/infrastructure/database/db.py`: Updated content_items seed data — proper Vietnamese names with diacritics, real educational URLs replacing `example.invalid` placeholders.
+  - `tests/run_tests.py`: Fixed `test_71_cerebras_model_config_not_deprecated_qwen` to check 6-provider list without exact string match. Added Group 75 (8 tests) for DeepSeek V3.
+
+- 2026-06-23: **Stage 1.5 Body Expression + Web Search + RAG improvements** (branch `003-web-search-integration`, commit `7e177e6`):
+  - `src/motion/movement_emotion.py` (new): MovementEmotionEngine maps all 7 BiStates and 8 MomentIds to motor gestures; non-blocking daemon threads; sleep-hours (22:00–07:00) and 5s rate-limit guards; simulation mode transparent.
+  - `src/main.py`: wired `_movement` into `_living_interaction_start`, `_living_reply_done`, `_fire_pouting_phrase`, `_fire_welcome_back_phrase`, `_fire_micro_moment_if_ready`.
+  - `src/web_search/search_engine.py`: Tavily → Brave fallback; keyword-triggered; graceful degradation. Tavily live-tested OK.
+  - `src/memory/rag_manager.py`: added RAG patterns for tuổi, màu sắc yêu thích, ước mơ, tên trường.
+  - `.env.example`: reorganised BẮT BUỘC / KHUYẾN NGHỊ / TÙY CHỌN; Brave marked paid.
+  - `tests/run_tests.py`: group 73 (11 tests) + group 74 (14 tests), all PASS.
+  - `tests/test_web_search_live.py`: standalone live test, no robot startup needed.
+
 - 2026-06-23: **Deferred 6 Audit Fixes — no-hardware code fixes**:
   - H1 (Robot_BI.ino): Replaced blocking `delay()` in motor handlers with non-blocking `millis()` state machine. `_timedMotorCmd()` helper; `motorStopAt` checked in `loop()`. stop/go_home also clear `motorStopAt`.
   - L3 (Robot_BI.ino): Added `motorStop()` + `motorStopAt = 0` before `ESP.restart()` in add_wifi handler.

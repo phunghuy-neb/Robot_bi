@@ -1,11 +1,12 @@
 """
 core_ai.py — Robot Bi AI Core
-Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare Workers AI
+Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → DeepSeek V3
 - Cerebras GPT OSS 120B: primary, fast public endpoint
 - Groq Llama 3.3 70B: secondary, ~400 token/s, có cooldown riêng
 - Sambanova Llama 3.3 70B: fallback
 - Gemini 2.0 Flash: fallback, ổn định cao
-- Cloudflare Workers AI: last resort (non-streaming)
+- Cloudflare Workers AI: fallback (non-streaming)
+- DeepSeek V3: last resort, OpenAI-compatible
 """
 
 import logging
@@ -19,7 +20,7 @@ from typing import Generator
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
-_PROVIDER_ORDER = ("cerebras", "groq", "sambanova", "gemini", "cloudflare")
+_PROVIDER_ORDER = ("cerebras", "groq", "sambanova", "gemini", "cloudflare", "deepseek")
 
 # Load .env
 load_dotenv()
@@ -46,6 +47,7 @@ CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
 SAMBANOVA_API_KEY = os.getenv("SAMBANOVA_API_KEY", "")
 CLOUDFLARE_API_KEY = os.getenv("CLOUDFLARE_API_KEY", "")
 CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 
 # Endpoints
 _GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -55,6 +57,7 @@ _GEMINI_URL = (
 )
 _CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
 _SAMBANOVA_URL = "https://api.sambanova.ai/v1/chat/completions"
+_DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 
 # Trạng thái quota nội bộ
 _cerebras_cooldown_until = 0.0
@@ -253,6 +256,19 @@ def _stream_sambanova(messages: list, system_prompt: str) -> Generator[str, None
     )
 
 
+def _stream_deepseek(messages: list, system_prompt: str) -> Generator[str, None, None]:
+    if not DEEPSEEK_API_KEY or DEEPSEEK_API_KEY.startswith("DIEN_"):
+        raise RuntimeError("DEEPSEEK_API_KEY chưa được cấu hình trong .env")
+    yield from _stream_openai_compat(
+        _DEEPSEEK_URL,
+        DEEPSEEK_API_KEY,
+        _CONFIG.get("deepseek_model", "deepseek-chat"),
+        messages,
+        system_prompt,
+        "DeepSeek",
+    )
+
+
 def _stream_cloudflare(messages: list, system_prompt: str) -> Generator[str, None, None]:
     """Gọi Cloudflare Workers AI (non-streaming, yield toàn bộ response)."""
     if not CLOUDFLARE_API_KEY or CLOUDFLARE_API_KEY.startswith("DIEN_"):
@@ -293,7 +309,7 @@ def stream_chat(
 ) -> Generator[str, None, None]:
     """
     Public API — gọi hàm này từ main_loop.py.
-    Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → thông báo lỗi.
+    Fallback chain: Cerebras → Groq → Sambanova → Gemini → Cloudflare → DeepSeek V3 → thông báo lỗi.
 
     Args:
         messages: list of {"role": "user"|"assistant", "content": str}
@@ -365,13 +381,21 @@ def stream_chat(
     except Exception as e:
         logger.warning("[Bi - Não] Gemini lỗi (%s) — chuyển Cloudflare", e)
 
-    # --- Cloudflare Workers AI (last resort) ---
+    # --- Cloudflare Workers AI ---
     try:
         logger.debug("[Bi - Não] Cloudflare Workers AI...")
         yield from _stream_cloudflare(messages, system_prompt)
         return
     except Exception as e:
-        logger.warning("[Bi - Não] Cloudflare lỗi (%s) — tất cả provider fail", e)
+        logger.warning("[Bi - Não] Cloudflare lỗi (%s) — chuyển DeepSeek", e)
+
+    # --- DeepSeek V3 (last resort) ---
+    try:
+        logger.debug("[Bi - Não] DeepSeek V3...")
+        yield from _stream_deepseek(messages, system_prompt)
+        return
+    except Exception as e:
+        logger.warning("[Bi - Não] DeepSeek lỗi (%s) — tất cả provider fail", e)
 
     # --- Tất cả fail ---
     yield _get_error_response()

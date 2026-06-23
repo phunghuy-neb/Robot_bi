@@ -9,5 +9,6 @@
   "groq_model": "llama-3.3-70b-versatile",
   "gemini_model": "gemini-2.0-flash",
   "groq_cooldown_seconds": 60,
-  "daily_limit_warning": 13000
+  "daily_limit_warning": 13000,
+  "deepseek_model": "deepseek-chat"
 }

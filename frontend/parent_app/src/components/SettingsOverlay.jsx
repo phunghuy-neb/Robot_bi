@@ -3,6 +3,12 @@ import {
   apiFetch,
   getChildProfiles,
   getSystemLogs,
+  getSleepSchedule,
+  saveSleepSchedule,
+  getTimeLimits,
+  saveTimeLimits,
+  getAgeFilter,
+  saveAgeFilter,
   showToast,
 } from '../services/api.js';
 import SectionState from './SectionState.jsx';
@@ -19,16 +25,20 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
   const [logsLoading, setLogsLoading] = useState(false);
   const [adminExpanded, setAdminExpanded] = useState(false);
 
-  // Sleep schedule state (UI only, coming-soon)
+  // Sleep schedule state
   const [sleepStart, setSleepStart] = useState('21:00');
   const [sleepEnd, setSleepEnd] = useState('06:30');
+  const [sleepSaving, setSleepSaving] = useState(false);
   // Time limit state
   const [dailyLimit, setDailyLimit] = useState(60);
+  const [limitSaving, setLimitSaving] = useState(false);
   // Age filter state
   const [ageFilter, setAgeFilter] = useState('6-9');
+  const [ageFilterSaving, setAgeFilterSaving] = useState(false);
 
   useEffect(() => {
     loadChildProfiles();
+    loadSettingsFromBackend();
   }, []);
 
   async function loadChildProfiles() {
@@ -36,6 +46,100 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
     const data = await getChildProfiles();
     setChildProfiles(data || []);
     setChildLoading(false);
+  }
+
+  async function loadSettingsFromBackend() {
+    try {
+      const [sleepData, limitData, ageData] = await Promise.all([
+        getSleepSchedule(),
+        getTimeLimits(),
+        getAgeFilter(),
+      ]);
+      if (sleepData?.settings) {
+        const s = sleepData.settings;
+        if (s.start_time) setSleepStart(s.start_time);
+        if (s.end_time) setSleepEnd(s.end_time);
+      }
+      if (limitData?.settings) {
+        const lm = limitData.settings;
+        if (lm.daily_limit_minutes) setDailyLimit(lm.daily_limit_minutes);
+      }
+      if (ageData?.settings) {
+        const af = ageData.settings;
+        if (af.min_age != null && af.max_age != null) {
+          setAgeFilter(`${af.min_age}-${af.max_age}`);
+        }
+      }
+    } catch (_) {}
+  }
+
+  async function handleSaveSleep() {
+    setSleepSaving(true);
+    try {
+      const result = await saveSleepSchedule({
+        enabled: true,
+        start_time: sleepStart,
+        end_time: sleepEnd,
+        days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+        timezone: 'Asia/Ho_Chi_Minh',
+      });
+      if (result?.ok) {
+        showToast('✅ Đã lưu lịch hoạt động robot');
+      } else {
+        showToast('❌ Lưu thất bại, thử lại sau');
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setSleepSaving(false);
+    }
+  }
+
+  async function handleSaveTimeLimits() {
+    setLimitSaving(true);
+    try {
+      const result = await saveTimeLimits({
+        enabled: true,
+        daily_limit_minutes: dailyLimit,
+        warning_minutes: Math.min(10, dailyLimit),
+        reset_time: '00:00',
+      });
+      if (result?.ok) {
+        showToast('✅ Đã lưu giới hạn thời gian');
+      } else {
+        showToast('❌ Lưu thất bại, thử lại sau');
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setLimitSaving(false);
+    }
+  }
+
+  async function handleSaveAgeFilter() {
+    setAgeFilterSaving(true);
+    try {
+      const [minStr, maxStr] = ageFilter.split('-');
+      const minAge = parseInt(minStr, 10);
+      const maxAge = parseInt(maxStr, 10);
+      const result = await saveAgeFilter({
+        enabled: true,
+        min_age: minAge,
+        max_age: maxAge,
+        blocked_topics: [],
+        allowed_topics: [],
+        strict_mode: true,
+      });
+      if (result?.ok) {
+        showToast('✅ Đã lưu bộ lọc độ tuổi');
+      } else {
+        showToast('❌ Lưu thất bại, thử lại sau');
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setAgeFilterSaving(false);
+    }
   }
 
   async function loadPersona() {
@@ -145,7 +249,6 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         <div className="settings-section">
           <div className="settings-section-title">
             ⏰ Giờ hoạt động robot
-            <FeatureBadge type="coming-soon" />
           </div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
             <div>
@@ -171,9 +274,10 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
           </div>
           <button
             className="btn-outline"
-            onClick={() => showToast('Giờ hoạt động: Sắp hỗ trợ')}
+            onClick={handleSaveSleep}
+            disabled={sleepSaving}
           >
-            💾 Lưu lịch
+            {sleepSaving ? '⏳ Đang lưu...' : '💾 Lưu lịch'}
           </button>
         </div>
 
@@ -181,7 +285,6 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         <div className="settings-section">
           <div className="settings-section-title">
             🛡️ Nội dung & An toàn
-            <FeatureBadge type="coming-soon" />
           </div>
           <div style={{ marginBottom: 12 }}>
             <div className="form-label">Giới hạn thời gian mỗi ngày: {dailyLimit} phút</div>
@@ -194,6 +297,14 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
               onChange={e => setDailyLimit(Number(e.target.value))}
               style={{ width: '100%', marginTop: 8 }}
             />
+            <button
+              className="btn-sm secondary"
+              style={{ marginTop: 8 }}
+              onClick={handleSaveTimeLimits}
+              disabled={limitSaving}
+            >
+              {limitSaving ? '⏳ Đang lưu...' : '💾 Lưu giới hạn'}
+            </button>
           </div>
           <div style={{ marginBottom: 12 }}>
             <div className="form-label">Bộ lọc chủ đề theo tuổi</div>
@@ -211,9 +322,10 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
           </div>
           <button
             className="btn-outline"
-            onClick={() => showToast('Nội dung & An toàn: Sắp hỗ trợ')}
+            onClick={handleSaveAgeFilter}
+            disabled={ageFilterSaving}
           >
-            💾 Lưu cài đặt
+            {ageFilterSaving ? '⏳ Đang lưu...' : '💾 Lưu cài đặt'}
           </button>
         </div>
 
@@ -257,7 +369,6 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
                     📋 Nhật ký hệ thống
-                    <FeatureBadge type="no-backend" />
                   </div>
                   {logsLoading ? (
                     <SectionState state="loading" loadingText="Đang tải nhật ký..." />

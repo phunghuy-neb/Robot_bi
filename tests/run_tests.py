@@ -6323,7 +6323,8 @@ def test_71_cerebras_model_config_not_deprecated_qwen():
     assert "primary_api" not in cfg, "Provider order is fixed in code; primary_api must not be decorative config"
     engine_src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
     assert "qwen-3-235b-a22b-instruct-2507" not in engine_src
-    assert '_PROVIDER_ORDER = ("cerebras", "groq", "sambanova", "gemini", "cloudflare")' in engine_src
+    for provider in ("cerebras", "groq", "sambanova", "gemini", "cloudflare", "deepseek"):
+        assert provider in engine_src, f"_PROVIDER_ORDER must include {provider}"
 
 
 def test_71_audio_interaction_marks_recent_presence():
@@ -6742,6 +6743,79 @@ test("74.11 main.py: import movement_emotion và dùng _movement",           tes
 test("74.12 RAG: pattern 'tuổi' đã thêm",                                  test_74_rag_new_patterns_age)
 test("74.13 RAG: pattern 'ước mơ' đã thêm",                               test_74_rag_new_patterns_dream)
 test("74.14 RAG: pattern 'màu sắc yêu thích' đã thêm",                    test_74_rag_new_patterns_color)
+
+# ── Group 75: DeepSeek V3 provider ─────────────────────────────────────────
+
+print("\n[Group 75] DeepSeek V3 — 6th provider in LLM fallback chain")
+
+def test_75_deepseek_in_provider_order():
+    from pathlib import Path as _P
+    src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
+    assert "deepseek" in src, "ai_engine.py phải chứa 'deepseek'"
+    assert "_PROVIDER_ORDER" in src
+    # _PROVIDER_ORDER phải gồm 6 provider kể cả deepseek
+    import re as _re
+    m = _re.search(r'_PROVIDER_ORDER\s*=\s*\(([^)]+)\)', src)
+    assert m, "_PROVIDER_ORDER không tìm thấy"
+    order_str = m.group(1)
+    for p in ("cerebras", "groq", "sambanova", "gemini", "cloudflare", "deepseek"):
+        assert p in order_str, f"_PROVIDER_ORDER thiếu {p}"
+
+def test_75_deepseek_url_constant():
+    import src.ai.ai_engine as _ai
+    assert hasattr(_ai, "_DEEPSEEK_URL"), "_DEEPSEEK_URL phải được khai báo"
+    assert "deepseek.com" in _ai._DEEPSEEK_URL
+
+def test_75_deepseek_api_key_env():
+    import src.ai.ai_engine as _ai
+    assert hasattr(_ai, "DEEPSEEK_API_KEY"), "DEEPSEEK_API_KEY phải được load từ os.getenv"
+
+def test_75_stream_deepseek_function_exists():
+    import src.ai.ai_engine as _ai
+    assert callable(getattr(_ai, "_stream_deepseek", None)), "_stream_deepseek phải là callable"
+
+def test_75_stream_deepseek_raises_on_missing_key():
+    import src.ai.ai_engine as _ai
+    original_key = _ai.DEEPSEEK_API_KEY
+    try:
+        _ai.DEEPSEEK_API_KEY = ""
+        raised = False
+        try:
+            list(_ai._stream_deepseek([], "sys"))
+        except RuntimeError as e:
+            raised = True
+            assert "DEEPSEEK_API_KEY" in str(e)
+        assert raised, "_stream_deepseek phải raise RuntimeError khi key trống"
+    finally:
+        _ai.DEEPSEEK_API_KEY = original_key
+
+def test_75_deepseek_after_cloudflare_in_stream_chat():
+    from pathlib import Path as _P
+    src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
+    cloudflare_idx = src.index("_stream_cloudflare(messages")
+    deepseek_idx = src.index("_stream_deepseek(messages")
+    assert deepseek_idx > cloudflare_idx, "DeepSeek phải đứng SAU Cloudflare trong stream_chat()"
+
+def test_75_config_deepseek_model():
+    import json as _json
+    from pathlib import Path as _P
+    cfg = _json.loads(_P("config.json").read_text(encoding="utf-8"))
+    assert "deepseek_model" in cfg, "config.json phải có deepseek_model"
+    assert cfg["deepseek_model"] == "deepseek-chat"
+
+def test_75_env_example_has_deepseek():
+    from pathlib import Path as _P
+    env_ex = _P(".env.example").read_text(encoding="utf-8")
+    assert "DEEPSEEK_API_KEY" in env_ex, ".env.example phải có DEEPSEEK_API_KEY"
+
+test("75.1  DeepSeek có trong _PROVIDER_ORDER (6 providers)",               test_75_deepseek_in_provider_order)
+test("75.2  _DEEPSEEK_URL khai báo đúng deepseek.com",                      test_75_deepseek_url_constant)
+test("75.3  DEEPSEEK_API_KEY load từ os.getenv",                            test_75_deepseek_api_key_env)
+test("75.4  _stream_deepseek() là callable",                                test_75_stream_deepseek_function_exists)
+test("75.5  _stream_deepseek raise khi key trống",                          test_75_stream_deepseek_raises_on_missing_key)
+test("75.6  DeepSeek đứng sau Cloudflare trong stream_chat()",              test_75_deepseek_after_cloudflare_in_stream_chat)
+test("75.7  config.json có deepseek_model='deepseek-chat'",                 test_75_config_deepseek_model)
+test("75.8  .env.example có DEEPSEEK_API_KEY",                              test_75_env_example_has_deepseek)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

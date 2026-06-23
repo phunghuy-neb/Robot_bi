@@ -264,9 +264,20 @@ export async function getChildProfiles() {
   return mockChildProfiles();
 }
 
-export async function exportReport(fmt) {
-  // TODO: backend integration — POST /api/reports/export
-  return null;
+export async function exportReport(fmt = 'json', options = {}) {
+  const today = new Date().toISOString().slice(0, 10);
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400_000).toISOString().slice(0, 10);
+  return apiFetch('/api/reports/export', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      format: fmt,
+      start_date: options.start_date || thirtyDaysAgo,
+      end_date: options.end_date || today,
+      sections: options.sections || ['events', 'conversations', 'emotions', 'education', 'tasks'],
+      child_id: options.child_id || null,
+    }),
+  });
 }
 
 export async function getMonthlyEmotions(month) {
@@ -355,24 +366,80 @@ export async function getSystemLogs() {
   return mockSystemLogs();
 }
 
-export async function savePushSettings(settings) {
-  // TODO: backend integration — POST /api/settings/notifications
-  return null;
+export async function getSleepSchedule() {
+  return apiFetch('/api/settings/sleep');
 }
 
 export async function saveSleepSchedule(schedule) {
-  // TODO: backend integration — POST /api/settings/sleep
-  return null;
+  return apiFetch('/api/settings/sleep', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      enabled: schedule.enabled !== false,
+      start_time: schedule.start_time || '21:00',
+      end_time: schedule.end_time || '06:30',
+      days: schedule.days || ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+      timezone: schedule.timezone || 'Asia/Ho_Chi_Minh',
+    }),
+  });
+}
+
+export async function getTimeLimits(child_id = null) {
+  const q = child_id ? `?child_id=${encodeURIComponent(child_id)}` : '';
+  return apiFetch(`/api/settings/time-limits${q}`);
 }
 
 export async function saveTimeLimits(limits) {
-  // TODO: backend integration — POST /api/settings/time-limits
-  return null;
+  return apiFetch('/api/settings/time-limits', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      child_id: limits.child_id || null,
+      enabled: limits.enabled !== false,
+      daily_limit_minutes: limits.daily_limit_minutes || 60,
+      warning_minutes: limits.warning_minutes || 10,
+      reset_time: limits.reset_time || '00:00',
+    }),
+  });
+}
+
+export async function getAgeFilter(child_id = null) {
+  const q = child_id ? `?child_id=${encodeURIComponent(child_id)}` : '';
+  return apiFetch(`/api/settings/age-filter${q}`);
 }
 
 export async function saveAgeFilter(filter) {
-  // TODO: backend integration — POST /api/settings/age-filter
-  return null;
+  return apiFetch('/api/settings/age-filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      child_id: filter.child_id || null,
+      enabled: filter.enabled !== false,
+      min_age: filter.min_age || 5,
+      max_age: filter.max_age || 12,
+      blocked_topics: filter.blocked_topics || [],
+      allowed_topics: filter.allowed_topics || [],
+      strict_mode: filter.strict_mode !== false,
+    }),
+  });
+}
+
+export async function getNotificationSettings() {
+  return apiFetch('/api/settings/notifications');
+}
+
+export async function savePushSettings(settings) {
+  return apiFetch('/api/settings/notifications', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      enabled: settings.enabled !== false,
+      event_types: settings.event_types || {},
+      quiet_hours: settings.quiet_hours || {},
+      channels: settings.channels || { in_app: true, web_push: false },
+      push_subscription: settings.push_subscription || null,
+    }),
+  });
 }
 
 export async function getParentChatHistory() {
