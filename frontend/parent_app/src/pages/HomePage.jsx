@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../services/api.js';
+import { apiFetch, getRobotLocation } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
 import FeatureBadge from '../components/FeatureBadge.jsx';
 
@@ -23,6 +23,7 @@ export default function HomePage({ user, lastWsEvent }) {
   const [events, setEvents] = useState([]);
   const [todaySummary, setTodaySummary] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [robotLocation, setRobotLocation] = useState(null);
 
   const today = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -43,6 +44,12 @@ export default function HomePage({ user, lastWsEvent }) {
     loadWeekly();
     loadEvents();
     loadTodaySummary();
+    loadRobotLocation();
+  }
+
+  async function loadRobotLocation() {
+    const data = await getRobotLocation();
+    if (data?.location) setRobotLocation(data.location);
   }
 
   async function loadWeekly() {
@@ -165,15 +172,27 @@ export default function HomePage({ user, lastWsEvent }) {
           )}
         </div>
 
-        {/* Room location — coming soon */}
+        {/* Room location */}
         <div className="card">
           <div className="card-header">
             <span className="card-title">📍 Vị trí phòng robot</span>
-            <FeatureBadge type="coming-soon" />
+            <button className="btn-sm secondary" onClick={loadRobotLocation} style={{ minHeight: 36 }}>↻</button>
           </div>
-          <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-            Tính năng định vị phòng đang được phát triển.
-          </p>
+          {robotLocation?.room_name ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 28 }}>🏠</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>{robotLocation.room_name}</div>
+                {robotLocation.location_label && (
+                  <div style={{ color: 'var(--muted)', fontSize: 13 }}>{robotLocation.location_label}</div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: 'var(--muted)', fontSize: 14 }}>
+              Chưa xác định vị trí — Robot chưa được đặt phòng.
+            </p>
+          )}
         </div>
 
         {/* Recent events */}

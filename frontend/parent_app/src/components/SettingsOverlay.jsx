@@ -9,6 +9,9 @@ import {
   saveTimeLimits,
   getAgeFilter,
   saveAgeFilter,
+  getNotificationSettings,
+  savePushSettings,
+  getDeviceConnectionUrl,
   showToast,
 } from '../services/api.js';
 import SectionState from './SectionState.jsx';
@@ -35,10 +38,18 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
   // Age filter state
   const [ageFilter, setAgeFilter] = useState('6-9');
   const [ageFilterSaving, setAgeFilterSaving] = useState(false);
+  // Notification state
+  const [notifEnabled, setNotifEnabled] = useState(true);
+  const [notifTaskReminder, setNotifTaskReminder] = useState(true);
+  const [notifSaving, setNotifSaving] = useState(false);
+  // Device connection URL
+  const [deviceUrl, setDeviceUrl] = useState(null);
+  const [deviceUrlLoading, setDeviceUrlLoading] = useState(false);
 
   useEffect(() => {
     loadChildProfiles();
     loadSettingsFromBackend();
+    loadNotificationSettings();
   }, []);
 
   async function loadChildProfiles() {
@@ -71,6 +82,52 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         }
       }
     } catch (_) {}
+  }
+
+  async function loadNotificationSettings() {
+    try {
+      const data = await getNotificationSettings();
+      if (data?.settings) {
+        setNotifEnabled(data.settings.enabled !== false);
+        setNotifTaskReminder(data.settings.event_types?.chat !== false);
+      }
+    } catch (_) {}
+  }
+
+  async function handleSaveNotifications() {
+    setNotifSaving(true);
+    try {
+      const result = await savePushSettings({
+        enabled: notifEnabled,
+        event_types: { chat: notifTaskReminder, cry: notifEnabled, homework: notifTaskReminder },
+        channels: { in_app: true, web_push: false },
+      });
+      if (result?.ok) {
+        showToast('✅ Đã lưu cài đặt thông báo');
+      } else {
+        showToast('❌ Lưu thất bại, thử lại sau');
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setNotifSaving(false);
+    }
+  }
+
+  async function handleLoadDeviceUrl() {
+    setDeviceUrlLoading(true);
+    try {
+      const qr = await getDeviceConnectionUrl('parent_app');
+      if (qr?.payload_url) {
+        setDeviceUrl(qr.payload_url);
+      } else {
+        showToast('❌ Không tạo được mã kết nối');
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setDeviceUrlLoading(false);
+    }
   }
 
   async function handleSaveSleep() {
@@ -191,7 +248,6 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         <div className="settings-section">
           <div className="settings-section-title">
             👧 Hồ sơ trẻ
-            <FeatureBadge type="mock-data" />
           </div>
           {childLoading ? (
             <SectionState state="loading" loadingText="Đang tải hồ sơ..." />
@@ -223,15 +279,17 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         <div className="settings-section">
           <div className="settings-section-title">
             🔔 Thông báo & Nhắc nhở
-            <FeatureBadge type="coming-soon" />
           </div>
           <div className="settings-row">
             <div>
               <div className="settings-row-label">Thông báo hoạt động bất thường</div>
               <div className="settings-row-sub">Nhận cảnh báo khi bé khóc hoặc có sự kiện bất thường</div>
             </div>
-            <button className="btn-sm secondary" onClick={() => showToast('Thông báo: Sắp hỗ trợ')}>
-              Bật/Tắt
+            <button
+              className={`btn-sm ${notifEnabled ? 'primary' : 'secondary'}`}
+              onClick={() => setNotifEnabled(v => !v)}
+            >
+              {notifEnabled ? '✅ Bật' : 'Tắt'}
             </button>
           </div>
           <div className="settings-row">
@@ -239,10 +297,21 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
               <div className="settings-row-label">Nhắc nhở nhiệm vụ</div>
               <div className="settings-row-sub">Thông báo khi Bi nhắc bé làm nhiệm vụ</div>
             </div>
-            <button className="btn-sm secondary" onClick={() => showToast('Nhắc nhở: Sắp hỗ trợ')}>
-              Bật/Tắt
+            <button
+              className={`btn-sm ${notifTaskReminder ? 'primary' : 'secondary'}`}
+              onClick={() => setNotifTaskReminder(v => !v)}
+            >
+              {notifTaskReminder ? '✅ Bật' : 'Tắt'}
             </button>
           </div>
+          <button
+            className="btn-outline"
+            style={{ marginTop: 10 }}
+            onClick={handleSaveNotifications}
+            disabled={notifSaving}
+          >
+            {notifSaving ? '⏳ Đang lưu...' : '💾 Lưu thông báo'}
+          </button>
         </div>
 
         {/* Section 3: Giờ hoạt động robot */}
@@ -333,20 +402,31 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
         <div className="settings-section">
           <div className="settings-section-title">
             📡 Kết nối thiết bị
-            <FeatureBadge type="coming-soon" />
           </div>
-          <div
-            style={{
-              width: 120, height: 120, background: 'var(--bg)', border: '2px dashed var(--border)',
-              borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 40, marginBottom: 10,
-            }}
+          {deviceUrl ? (
+            <div style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 10, wordBreak: 'break-all' }}>
+              <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: 'var(--primary)' }}>🔗 URL kết nối:</div>
+              <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.5 }}>{deviceUrl}</div>
+              <button
+                className="btn-sm primary"
+                style={{ marginTop: 8 }}
+                onClick={() => { navigator.clipboard?.writeText(deviceUrl); showToast('✅ Đã sao chép URL'); }}
+              >
+                📋 Sao chép
+              </button>
+            </div>
+          ) : (
+            <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 10 }}>
+              Nhấn để tạo mã kết nối thiết bị
+            </p>
+          )}
+          <button
+            className="btn-outline"
+            onClick={handleLoadDeviceUrl}
+            disabled={deviceUrlLoading}
           >
-            📱
-          </div>
-          <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-            Mã QR kết nối thiết bị — Sắp hỗ trợ
-          </p>
+            {deviceUrlLoading ? '⏳ Đang tạo...' : deviceUrl ? '🔄 Làm mới mã' : '🔗 Tạo mã kết nối'}
+          </button>
         </div>
 
         {/* Section 6: Chế độ kỹ thuật — admin only */}

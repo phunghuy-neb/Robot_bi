@@ -3,7 +3,6 @@
 // Tier 2: Wired to backend with mock fallback when backend returns no data
 
 import {
-  mockChildProfiles,
   mockRadioChannels,
   mockVideoLessons,
   mockMonthlyEmotions,
@@ -261,7 +260,7 @@ export async function getChildProfiles() {
       dailyLimit: 0,
     }));
   }
-  return mockChildProfiles();
+  return [];
 }
 
 export async function exportReport(fmt = 'csv', options = {}) {
@@ -448,6 +447,15 @@ export async function savePushSettings(settings) {
       push_subscription: settings.push_subscription || null,
     }),
   });
+}
+
+export async function getDeviceConnectionUrl(purpose = 'parent_app') {
+  const data = await apiFetch(`/api/device/connection-qr?purpose=${encodeURIComponent(purpose)}&ttl_seconds=300`);
+  return data?.qr || null;
+}
+
+export async function getRobotLocation() {
+  return apiFetch('/api/robot/location');
 }
 
 export async function getParentChatHistory() {
