@@ -405,6 +405,74 @@ export async function getLearningProgress() {
   return apiFetch('/api/learning/progress');
 }
 
+// —— Exam system (Phase 1): question bank, exam papers, attempts ——
+export async function getExamSubjects() {
+  return apiFetch('/api/learning/subjects');
+}
+
+export async function getExamTracks() {
+  return apiFetch('/api/learning/tracks');
+}
+
+export async function getExams(filters = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(filters).filter(([, v]) => v != null && v !== '')
+  ).toString();
+  return apiFetch(`/api/learning/exams${qs ? `?${qs}` : ''}`);
+}
+
+export async function getExam(paperId) {
+  return apiFetch(`/api/learning/exams/${paperId}`);
+}
+
+export async function submitExam(paperId, answers, timeSpentSeconds = 0) {
+  return apiFetch(`/api/learning/exams/${paperId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers, time_spent_seconds: timeSpentSeconds }),
+  });
+}
+
+export async function getExamSessions(limit = 50) {
+  return apiFetch(`/api/learning/exams/sessions?limit=${limit}`);
+}
+
+export async function getExamSession(sessionId) {
+  return apiFetch(`/api/learning/exams/sessions/${sessionId}`);
+}
+
+// —— Admin content pipeline (is_admin only) ——
+export async function adminGenerateQuestions(payload) {
+  return apiFetch('/api/learning/admin/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function adminReviewQueue(params = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v != null && v !== '')
+  ).toString();
+  return apiFetch(`/api/learning/admin/review${qs ? `?${qs}` : ''}`);
+}
+
+export async function adminReviewQuestion(questionId, action, edits = {}) {
+  return apiFetch(`/api/learning/admin/review/${questionId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...edits }),
+  });
+}
+
+export async function adminAssembleExam(payload) {
+  return apiFetch('/api/learning/admin/exams', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function getSleepSchedule() {
   return apiFetch('/api/settings/sleep');
 }

@@ -437,6 +437,171 @@ def _seed_learning_content(conn) -> None:
             )
 
 
+def _seed_exam_content(conn) -> None:
+    """Seed starter exam papers + question bank. Idempotent (INSERT OR IGNORE).
+
+    Phase 1 ships a small, deterministic starter set so the exam UI has data
+    and tests are stable. The bulk of content is produced later by the AI
+    generation pipeline (status='review' -> admin publishes).
+    """
+    import json as _json
+
+    now = _utc_now_iso()
+    year = "2025-2026"
+
+    # Each paper: (paper_id, title, subject, track, comp_level, skill, level,
+    #              age_group, duration_minutes, pass_percent, [questions...])
+    # Each question: (topic, difficulty, qtype, question, question_vi, emoji,
+    #                 options[list], answer, explanation)
+    PAPERS = [
+        (
+            "exam_toeic_lr_starter_1", "TOEIC L&R — Khởi động (Mini)",
+            "toeic_lr", "toeic_lr", "", "reading", "toeic_450",
+            "15-18", 20, 60,
+            [
+                ("part5_grammar", 2, "mcq",
+                 "The meeting has been ____ until next Monday.",
+                 "Chọn từ đúng điền vào chỗ trống.", "📝",
+                 ["postponed", "postpone", "postpones", "postponing"],
+                 "postponed",
+                 "'has been + V3' (thì hiện tại hoàn thành bị động) → 'postponed'."),
+                ("part5_grammar", 2, "mcq",
+                 "She is responsible ____ training new employees.",
+                 "Chọn giới từ đúng.", "📝",
+                 ["for", "of", "to", "with"],
+                 "for",
+                 "'responsible for' là collocation cố định."),
+                ("part5_vocab", 3, "mcq",
+                 "The new policy will ____ take effect on June 1st.",
+                 "Chọn trạng từ phù hợp.", "📝",
+                 ["officially", "office", "official", "officer"],
+                 "officially",
+                 "Cần trạng từ bổ nghĩa cho động từ 'take effect'."),
+                ("part6_text", 2, "mcq",
+                 "We are pleased to ____ you that your order has shipped.",
+                 "Chọn động từ đúng.", "📝",
+                 ["inform", "informing", "informed", "information"],
+                 "inform",
+                 "Sau 'to' dùng động từ nguyên mẫu: 'to inform'."),
+                ("part7_reading", 3, "mcq",
+                 "What is the main purpose of the notice? (A maintenance schedule)",
+                 "Đọc hiểu: mục đích chính của thông báo.", "📖",
+                 ["To announce a schedule", "To sell a product",
+                  "To request payment", "To apologize"],
+                 "To announce a schedule",
+                 "Thông báo về lịch bảo trì → thông báo lịch trình."),
+            ],
+        ),
+        (
+            "exam_ielts_reading_starter_1", "IELTS Reading — Band 5.5 (Mini)",
+            "ielts", "ielts", "", "reading", "band_5.5",
+            "15-18", 20, 60,
+            [
+                ("tfng", 2, "mcq",
+                 "Statement: 'The author was born in London.' Passage says he was born in Manchester. The statement is:",
+                 "Chọn True / False / Not Given.", "📖",
+                 ["False", "True", "Not Given", "Partly true"],
+                 "False",
+                 "Văn bản nói Manchester → mâu thuẫn → False."),
+                ("tfng", 3, "mcq",
+                 "Statement: 'The author enjoyed writing as a child.' Passage does not mention this. The statement is:",
+                 "Chọn True / False / Not Given.", "📖",
+                 ["Not Given", "True", "False", "Unclear"],
+                 "Not Given",
+                 "Không có thông tin → Not Given."),
+                ("vocab", 2, "mcq",
+                 "The word 'crucial' in the passage is closest in meaning to:",
+                 "Chọn từ đồng nghĩa.", "📖",
+                 ["essential", "optional", "unclear", "frequent"],
+                 "essential",
+                 "'crucial' = thiết yếu = essential."),
+                ("heading", 3, "mcq",
+                 "Which heading best fits a paragraph about renewable energy benefits?",
+                 "Chọn tiêu đề phù hợp.", "📖",
+                 ["Advantages of clean power", "A history of coal",
+                  "The cost of oil", "Nuclear risks"],
+                 "Advantages of clean power",
+                 "Đoạn nói về lợi ích năng lượng tái tạo."),
+                ("detail", 2, "mcq",
+                 "According to the passage, solar panels work best when:",
+                 "Chọn chi tiết đúng.", "📖",
+                 ["there is direct sunlight", "it is raining",
+                  "at midnight", "during storms"],
+                 "there is direct sunlight",
+                 "Tấm pin mặt trời hoạt động tốt nhất khi có ánh nắng trực tiếp."),
+            ],
+        ),
+        (
+            "exam_math_thpt_starter_1", "Toán THPT — Đề luyện (Mini)",
+            "math", "exam_thpt", "", "", "grade_12",
+            "15-18", 25, 60,
+            [
+                ("algebra", 2, "mcq",
+                 "Đạo hàm của f(x) = x² là:",
+                 "Tính đạo hàm.", "🧮",
+                 ["2x", "x", "x²", "2"],
+                 "2x",
+                 "(xⁿ)' = n·xⁿ⁻¹ → (x²)' = 2x."),
+                ("algebra", 2, "mcq",
+                 "Nghiệm của phương trình 2x + 4 = 0 là:",
+                 "Giải phương trình.", "🧮",
+                 ["x = -2", "x = 2", "x = 4", "x = -4"],
+                 "x = -2",
+                 "2x = -4 → x = -2."),
+                ("geometry", 3, "mcq",
+                 "Diện tích hình tròn bán kính r là:",
+                 "Chọn công thức đúng.", "📐",
+                 ["πr²", "2πr", "πr", "πd"],
+                 "πr²",
+                 "Diện tích hình tròn = π·r²."),
+                ("probability", 3, "mcq",
+                 "Xác suất tung đồng xu ra mặt ngửa là:",
+                 "Tính xác suất.", "🎲",
+                 ["1/2", "1/3", "1/4", "1"],
+                 "1/2",
+                 "2 khả năng đồng khả năng → 1/2."),
+                ("algebra", 4, "mcq",
+                 "Giá trị của 2³ + 3² là:",
+                 "Tính giá trị.", "🧮",
+                 ["17", "12", "15", "18"],
+                 "17",
+                 "2³ = 8, 3² = 9, tổng = 17."),
+            ],
+        ),
+    ]
+
+    for (paper_id, title, subject, track, comp_level, skill, level,
+         age_group, duration, pass_pct, questions) in PAPERS:
+        conn.execute(
+            """INSERT OR IGNORE INTO exam_papers
+               (paper_id, title, subject, track, comp_level, skill, level,
+                age_group, duration_minutes, total_questions, pass_percent,
+                school_year, source, status, family_id, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'starter', 'published', NULL, ?, ?)""",
+            (paper_id, title, subject, track, comp_level, skill, level,
+             age_group, duration, len(questions), pass_pct, year, now, now),
+        )
+        for idx, (topic, diff, qtype, q, q_vi, emoji, options, answer, expl) in enumerate(questions):
+            question_id = f"{paper_id}_q{idx + 1}"
+            conn.execute(
+                """INSERT OR IGNORE INTO question_bank
+                   (question_id, subject, topic, age_group, track, skill, level,
+                    difficulty, question_type, question, question_vi, emoji,
+                    options_json, answer, explanation, school_year, source,
+                    is_ai_generated, status, family_id, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'starter', 0, 'published', NULL, ?, ?)""",
+                (question_id, subject, topic, age_group, track, skill, level,
+                 diff, qtype, q, q_vi, emoji, _json.dumps(options, ensure_ascii=False),
+                 answer, expl, year, now, now),
+            )
+            conn.execute(
+                """INSERT OR IGNORE INTO exam_paper_questions
+                   (paper_id, question_id, order_index, points)
+                   VALUES (?, ?, ?, 1)""",
+                (paper_id, question_id, idx),
+            )
+
+
 def init_db() -> None:
     """Khoi tao database va migrate du lieu tu JSON cu neu can."""
     global _INITIALIZED
@@ -1219,7 +1384,109 @@ def init_db() -> None:
                 )
                 '''
             )
+
+            # ── Phase 1 exam system: question bank, exam papers, attempts ──
+            # question_bank: large pool of questions tagged for filtering and
+            # AI-generation review. status: draft|review|published|archived.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS question_bank (
+                    question_id TEXT PRIMARY KEY,
+                    subject TEXT NOT NULL,
+                    topic TEXT NOT NULL DEFAULT '',
+                    age_group TEXT NOT NULL DEFAULT 'all',
+                    track TEXT NOT NULL DEFAULT 'practice',
+                    skill TEXT NOT NULL DEFAULT '',
+                    level TEXT NOT NULL DEFAULT '',
+                    difficulty INTEGER NOT NULL DEFAULT 1,
+                    question_type TEXT NOT NULL DEFAULT 'mcq',
+                    question TEXT NOT NULL,
+                    question_vi TEXT NOT NULL DEFAULT '',
+                    emoji TEXT NOT NULL DEFAULT '',
+                    options_json TEXT NOT NULL DEFAULT '[]',
+                    answer TEXT NOT NULL,
+                    explanation TEXT NOT NULL DEFAULT '',
+                    school_year TEXT NOT NULL DEFAULT '',
+                    source TEXT NOT NULL DEFAULT '',
+                    is_ai_generated INTEGER NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'published',
+                    family_id TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            # exam_papers: an assembled test (fixed set of questions, timed).
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS exam_papers (
+                    paper_id TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    subject TEXT NOT NULL,
+                    track TEXT NOT NULL DEFAULT 'practice',
+                    comp_level TEXT NOT NULL DEFAULT '',
+                    skill TEXT NOT NULL DEFAULT '',
+                    level TEXT NOT NULL DEFAULT '',
+                    age_group TEXT NOT NULL DEFAULT 'all',
+                    duration_minutes INTEGER NOT NULL DEFAULT 30,
+                    total_questions INTEGER NOT NULL DEFAULT 0,
+                    pass_percent INTEGER NOT NULL DEFAULT 60,
+                    school_year TEXT NOT NULL DEFAULT '',
+                    source TEXT NOT NULL DEFAULT '',
+                    status TEXT NOT NULL DEFAULT 'published',
+                    family_id TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
+            # exam_paper_questions: ordered junction paper -> questions.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS exam_paper_questions (
+                    paper_id TEXT NOT NULL
+                        REFERENCES exam_papers(paper_id) ON DELETE CASCADE,
+                    question_id TEXT NOT NULL
+                        REFERENCES question_bank(question_id) ON DELETE CASCADE,
+                    order_index INTEGER NOT NULL DEFAULT 0,
+                    points REAL NOT NULL DEFAULT 1,
+                    PRIMARY KEY (paper_id, order_index)
+                )
+                '''
+            )
+            # exam_sessions: a family's attempt at an exam paper.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS exam_sessions (
+                    session_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL,
+                    paper_id TEXT NOT NULL,
+                    started_at TEXT NOT NULL,
+                    completed_at TEXT,
+                    score REAL NOT NULL DEFAULT 0,
+                    max_score REAL NOT NULL DEFAULT 0,
+                    correct_count INTEGER NOT NULL DEFAULT 0,
+                    total_questions INTEGER NOT NULL DEFAULT 0,
+                    time_spent_seconds INTEGER NOT NULL DEFAULT 0,
+                    answers_json TEXT NOT NULL DEFAULT '{}',
+                    status TEXT NOT NULL DEFAULT 'completed'
+                )
+                '''
+            )
+            for index_sql in (
+                "CREATE INDEX IF NOT EXISTS idx_qbank_subject_track_status ON question_bank(subject, track, status)",
+                "CREATE INDEX IF NOT EXISTS idx_qbank_status ON question_bank(status)",
+                "CREATE INDEX IF NOT EXISTS idx_qbank_filter ON question_bank(subject, age_group, difficulty, status)",
+                "CREATE INDEX IF NOT EXISTS idx_exam_papers_subject_track ON exam_papers(subject, track, status)",
+                "CREATE INDEX IF NOT EXISTS idx_exam_papers_track_level ON exam_papers(track, level, status)",
+                "CREATE INDEX IF NOT EXISTS idx_exam_pq_paper ON exam_paper_questions(paper_id, order_index)",
+                "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family ON exam_sessions(family_id, completed_at)",
+                "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family_paper ON exam_sessions(family_id, paper_id)",
+            ):
+                conn.execute(index_sql)
+
             _seed_learning_content(conn)
+            _seed_exam_content(conn)
 
             _migrate_turns_role_constraint(conn)
 

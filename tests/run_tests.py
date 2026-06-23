@@ -7123,6 +7123,176 @@ test("78.9  TestClient: GET /api/learning/modules → 10 module + language filte
 test("78.10 TestClient: submit 5/5 đúng → score=5, xp>0, completed=True",   test_78_submit_correct_answers)
 test("78.11 TestClient: streak >= 1 sau khi làm bài",                        test_78_streak_increments_on_activity)
 
+
+# == Group 79: Exam system (Phase 1) ========================================
+print("\n[Group 79] Exam system — question bank, exam papers, attempts")
+
+
+def test_79_exam_router_module_exists():
+    from src.api.routers import exam_router
+    assert hasattr(exam_router, "router"), "exam_router phải có router"
+
+
+def test_79_endpoints_registered():
+    from src.api.server import app
+    paths = {r.path for r in app.routes}
+    required = [
+        "/api/learning/subjects",
+        "/api/learning/tracks",
+        "/api/learning/exams",
+        "/api/learning/exams/{paper_id}",
+        "/api/learning/exams/{paper_id}/submit",
+        "/api/learning/exams/sessions",
+        "/api/learning/admin/generate",
+        "/api/learning/admin/review",
+    ]
+    for p in required:
+        assert p in paths, f"{p} không tìm thấy trong routes"
+
+
+def test_79_exam_tables_exist():
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        tables = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    for t in ("question_bank", "exam_papers", "exam_paper_questions", "exam_sessions"):
+        assert t in tables, f"Bảng {t} chưa được tạo"
+
+
+def test_79_seed_starter_content():
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        papers = conn.execute(
+            "SELECT COUNT(*) FROM exam_papers WHERE source='starter'").fetchone()[0]
+        questions = conn.execute(
+            "SELECT COUNT(*) FROM question_bank WHERE source='starter'").fetchone()[0]
+        junctions = conn.execute("SELECT COUNT(*) FROM exam_paper_questions").fetchone()[0]
+    assert papers == 3, f"phải có 3 đề starter, có {papers}"
+    assert questions == 15, f"phải có 15 câu hỏi starter, có {questions}"
+    assert junctions >= 15, f"phải có >= 15 junction, có {junctions}"
+
+
+def test_79_list_exams_and_tracks():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"exam-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("exam_list", fam)
+    client = TestClient(app)
+    r = client.get("/api/learning/exams", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code} {r.text[:200]}"
+    assert len(r.json()["exams"]) == 3, f"phải có 3 đề, có {len(r.json()['exams'])}"
+    rt = client.get("/api/learning/tracks", headers=headers)
+    assert rt.status_code == 200
+    assert len(rt.json()["tracks"]) == 11, f"phải có 11 track, có {len(rt.json()['tracks'])}"
+    rs = client.get("/api/learning/subjects", headers=headers)
+    assert rs.status_code == 200
+    assert len(rs.json()["subjects"]) == 3, "3 subject starter (toeic_lr, ielts, math)"
+
+
+def test_79_exam_detail_hides_answers():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"exam-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("exam_detail", fam)
+    client = TestClient(app)
+    r = client.get("/api/learning/exams/exam_math_thpt_starter_1", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code} {r.text[:200]}"
+    qs = r.json()["questions"]
+    assert len(qs) == 5, f"đề Toán phải có 5 câu, có {len(qs)}"
+    for q in qs:
+        assert "answer" not in q, "GET exam KHÔNG được lộ đáp án"
+        assert "explanation" not in q, "GET exam KHÔNG được lộ giải thích"
+        assert len(q["options"]) == 4, "mỗi câu phải có 4 lựa chọn"
+
+
+def test_79_sessions_route_not_shadowed():
+    # /api/learning/exams/sessions must NOT be matched as {paper_id}=sessions
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"exam-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("exam_shadow", fam)
+    client = TestClient(app)
+    r = client.get("/api/learning/exams/sessions", headers=headers)
+    assert r.status_code == 200, f"sessions route bị che bởi {{paper_id}}: {r.status_code}"
+    assert "sessions" in r.json(), "phải trả về key 'sessions'"
+
+
+def test_79_submit_grades_and_stores_session():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"exam-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("exam_submit", fam)
+    client = TestClient(app)
+    pid = "exam_math_thpt_starter_1"
+    detail = client.get(f"/api/learning/exams/{pid}", headers=headers).json()
+    # Starter questions are authored with the correct answer as option[0].
+    answers = {q["question_id"]: q["options"][0] for q in detail["questions"]}
+    r = client.post(f"/api/learning/exams/{pid}/submit",
+                    json={"answers": answers, "time_spent_seconds": 30}, headers=headers)
+    assert r.status_code == 200, f"submit: {r.status_code} {r.text[:200]}"
+    res = r.json()
+    assert res["correct_count"] == 5, f"phải đúng 5 câu, có {res['correct_count']}"
+    assert res["percent"] == 100.0, f"phải 100%, có {res['percent']}"
+    assert res["passed"] is True, "phải đạt khi 100%"
+    assert len(res["review"]) == 5, "review phải có 5 câu kèm đáp án + giải thích"
+    assert any(item.get("explanation") for item in res["review"]), "review phải có giải thích"
+    # Session stored + retrievable
+    sess = client.get("/api/learning/exams/sessions", headers=headers).json()["sessions"]
+    assert len(sess) >= 1, "phải lưu session sau khi nộp"
+    assert sess[0]["percent"] == 100.0
+
+
+def test_79_admin_generate_review_and_auth():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    admin_h = _phase44_headers("exam_admin", f"adm-{_uuid.uuid4().hex[:6]}", is_admin=True)
+    user_h = _phase44_headers("exam_user", f"usr-{_uuid.uuid4().hex[:6]}")
+
+    # Non-admin must be blocked.
+    blocked = client.post("/api/learning/admin/generate",
+                          json={"subject": "math", "count": 2}, headers=user_h)
+    assert blocked.status_code == 403, f"non-admin phải bị chặn 403, có {blocked.status_code}"
+
+    # Admin generate via offline stub (SKIP_LLM) → review queue.
+    prev = _os.environ.get("SKIP_LLM")
+    _os.environ["SKIP_LLM"] = "1"
+    try:
+        gen = client.post("/api/learning/admin/generate",
+                          json={"subject": "chemistry", "topic": "phản ứng",
+                                "age_group": "11-14", "count": 3, "difficulty": 2},
+                          headers=admin_h)
+        assert gen.status_code == 200, f"generate: {gen.status_code} {gen.text[:200]}"
+        body = gen.json()
+        assert body["generated"] == 3, f"phải tạo 3 câu, có {body['generated']}"
+        assert body["offline"] is True, "phải ở chế độ offline (SKIP_LLM)"
+    finally:
+        if prev is None:
+            _os.environ.pop("SKIP_LLM", None)
+        else:
+            _os.environ["SKIP_LLM"] = prev
+
+    # Review queue lists them; publish one.
+    rev = client.get("/api/learning/admin/review?status=review&subject=chemistry",
+                     headers=admin_h).json()
+    assert rev["count"] >= 3, f"review queue phải >= 3, có {rev['count']}"
+    qid = rev["questions"][0]["question_id"]
+    pub = client.post(f"/api/learning/admin/review/{qid}",
+                      json={"action": "publish"}, headers=admin_h)
+    assert pub.status_code == 200 and pub.json()["status"] == "published"
+
+
+test("79.1  exam_router module tồn tại",                                     test_79_exam_router_module_exists)
+test("79.2  Exam endpoints đăng ký trong app",                              test_79_endpoints_registered)
+test("79.3  DB: 4 bảng exam tồn tại sau init_db",                            test_79_exam_tables_exist)
+test("79.4  Seed: 3 đề starter + 15 câu hỏi",                                test_79_seed_starter_content)
+test("79.5  TestClient: GET exams=3, tracks=11, subjects=3",                test_79_list_exams_and_tracks)
+test("79.6  TestClient: GET exam detail KHÔNG lộ đáp án",                    test_79_exam_detail_hides_answers)
+test("79.7  Route /exams/sessions không bị {paper_id} che",                  test_79_sessions_route_not_shadowed)
+test("79.8  TestClient: submit chấm điểm + lưu session",                     test_79_submit_grades_and_stores_session)
+test("79.9  Admin: generate (offline) + review + publish + chặn non-admin", test_79_admin_generate_review_and_auth)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

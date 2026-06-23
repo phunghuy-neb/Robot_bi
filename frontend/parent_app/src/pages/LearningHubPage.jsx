@@ -1,5 +1,22 @@
-import { useState, useEffect } from 'react';
-import { getLearningModules, getLearningLesson, submitLearningLesson, showToast } from '../services/api.js';
+import { useState, useEffect, useRef } from 'react';
+import {
+  getLearningModules, getLearningLesson, submitLearningLesson, showToast,
+  getExamTracks, getExams, getExam, submitExam, getExamSessions,
+} from '../services/api.js';
+
+// Kind -> badge color for track cards.
+const TRACK_KIND_COLORS = {
+  practice:    '#2196f3',
+  competition: '#e91e63',
+  exam:        '#7c3aed',
+  roadmap:     '#2e7d32',
+};
+
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 const MODULE_COLORS = {
   // English
@@ -51,7 +68,93 @@ export default function LearningHubPage() {
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // ── Exam mode state ──────────────────────────────────────────────────────
+  const [mode, setMode] = useState('learn'); // 'learn' | 'exam'
+  const [examView, setExamView] = useState('tracks'); // 'tracks' | 'list' | 'playing' | 'result'
+  const [tracks, setTracks] = useState([]);
+  const [examLoading, setExamLoading] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState(null);
+  const [examList, setExamList] = useState([]);
+  const [examData, setExamData] = useState(null); // { paper, questions }
+  const [examAnswers, setExamAnswers] = useState({});
+  const [examQIndex, setExamQIndex] = useState(0);
+  const [examTimeLeft, setExamTimeLeft] = useState(0);
+  const [examResult, setExamResult] = useState(null);
+  const [examSubmitting, setExamSubmitting] = useState(false);
+  const examStartRef = useRef(0);
+  const examTimerRef = useRef(null);
+
   useEffect(() => { loadModules(); }, []);
+
+  // Exam countdown timer.
+  useEffect(() => {
+    if (examView !== 'playing') return undefined;
+    examTimerRef.current = setInterval(() => {
+      setExamTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(examTimerRef.current);
+          finishExam(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(examTimerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [examView]);
+
+  async function loadTracks() {
+    setExamLoading(true);
+    const data = await getExamTracks();
+    if (data?.tracks) setTracks(data.tracks);
+    setExamLoading(false);
+  }
+
+  async function openTrack(track) {
+    setSelectedTrack(track);
+    setExamLoading(true);
+    const data = await getExams({ track: track.track });
+    setExamList(data?.exams || []);
+    setExamLoading(false);
+    setExamView('list');
+  }
+
+  async function startExam(paper) {
+    const data = await getExam(paper.paper_id);
+    if (!data?.questions?.length) { showToast('Không tải được đề thi'); return; }
+    setExamData(data);
+    setExamAnswers({});
+    setExamQIndex(0);
+    setExamResult(null);
+    setExamTimeLeft((data.paper.duration_minutes || 30) * 60);
+    examStartRef.current = (data.paper.duration_minutes || 30) * 60;
+    setExamView('playing');
+  }
+
+  function pickAnswer(questionId, option) {
+    setExamAnswers(prev => ({ ...prev, [questionId]: option }));
+  }
+
+  async function finishExam(auto = false) {
+    if (examSubmitting || !examData) return;
+    clearInterval(examTimerRef.current);
+    setExamSubmitting(true);
+    const timeSpent = Math.max(0, examStartRef.current - examTimeLeft);
+    const res = await submitExam(examData.paper.paper_id, examAnswers, timeSpent);
+    setExamSubmitting(false);
+    if (res) {
+      setExamResult({ ...res, auto });
+      setExamView('result');
+    } else {
+      showToast('Nộp bài thất bại, thử lại');
+    }
+  }
+
+  function switchMode(next) {
+    setMode(next);
+    if (next === 'exam' && tracks.length === 0) loadTracks();
+    if (next === 'exam') setExamView('tracks');
+  }
 
   async function loadModules() {
     setLoading(true);
@@ -113,6 +216,242 @@ export default function LearningHubPage() {
 
   // ── Views ────────────────────────────────────────────────────────────────
 
+  const ModeToggle = () => (
+    <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      {[['learn', '📚 Học theo chủ đề'], ['exam', '📝 Làm đề & Thi thử']].map(([key, label]) => (
+        <button
+          key={key}
+          onClick={() => switchMode(key)}
+          style={{
+            flex: 1, padding: '10px 8px', borderRadius: 12, fontWeight: 700, fontSize: 14,
+            border: `2px solid var(--primary, #2196f3)`,
+            background: mode === key ? 'var(--primary, #2196f3)' : 'transparent',
+            color: mode === key ? '#fff' : 'var(--primary, #2196f3)', cursor: 'pointer',
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // ── EXAM MODE ──────────────────────────────────────────────────────────────
+  if (mode === 'exam') {
+    // Result
+    if (examView === 'result' && examResult) {
+      const r = examResult;
+      const byOrder = [...(r.review || [])].sort((a, b) => a.order_index - b.order_index);
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <div style={{ fontSize: 64 }}>{r.passed ? '🏆' : '📚'}</div>
+            <div style={{ fontSize: 30, fontWeight: 800 }}>{r.percent}%</div>
+            <div style={{ fontSize: 16, color: 'var(--muted)' }}>
+              {r.correct_count}/{r.total_questions} câu đúng
+              {r.auto ? ' · hết giờ tự nộp ⏱️' : ''}
+            </div>
+            <div style={{
+              display: 'inline-block', marginTop: 8, padding: '6px 16px', borderRadius: 99,
+              fontWeight: 700, color: '#fff',
+              background: r.passed ? '#2e7d32' : '#ef5350',
+            }}>
+              {r.passed ? '✅ Đạt' : `❌ Chưa đạt (cần ${r.pass_percent}%)`}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {byOrder.map((q, i) => (
+              <div key={q.question_id} style={{
+                background: 'var(--card)', borderRadius: 12, padding: 14,
+                borderLeft: `4px solid ${q.correct === false ? '#ef5350' : q.correct ? '#4caf50' : '#ff9800'}`,
+              }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                  {q.correct === false ? '✗' : q.correct ? '✓' : '✎'} Câu {i + 1}
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--muted)' }}>
+                  Bạn chọn: <b>{q.given || '—'}</b>
+                  {q.correct === false && <> · Đáp án: <b style={{ color: '#2e7d32' }}>{q.expected}</b></>}
+                  {q.correct === null && <> · Đáp án mẫu: <b>{q.expected}</b></>}
+                </div>
+                {q.explanation && (
+                  <div style={{ fontSize: 13, marginTop: 6, color: 'var(--text)' }}>💡 {q.explanation}</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn-sm secondary" style={{ flex: 1, minHeight: 48 }}
+              onClick={() => setExamView('list')}>📋 Đề khác</button>
+            <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+              onClick={() => startExam(examData.paper)}>🔄 Làm lại</button>
+          </div>
+        </div>
+      );
+    }
+
+    // Playing
+    if (examView === 'playing' && examData) {
+      const q = examData.questions[examQIndex];
+      const total = examData.questions.length;
+      const answered = Object.keys(examAnswers).length;
+      const low = examTimeLeft <= 60;
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
+            <div style={{
+              fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
+              background: low ? '#ffebee' : '#e3f2fd', color: low ? '#c62828' : '#1565c0',
+            }}>⏱️ {fmtTime(examTimeLeft)}</div>
+          </div>
+
+          {/* Question nav dots */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+            {examData.questions.map((qq, i) => {
+              const done = examAnswers[qq.question_id] != null;
+              return (
+                <button key={qq.question_id} onClick={() => setExamQIndex(i)}
+                  style={{
+                    width: 32, height: 32, borderRadius: 8, fontWeight: 700, fontSize: 13,
+                    cursor: 'pointer',
+                    border: `2px solid ${i === examQIndex ? 'var(--primary, #2196f3)' : '#ccc'}`,
+                    background: done ? '#c8e6c9' : 'var(--card)',
+                    color: 'var(--text)',
+                  }}>{i + 1}</button>
+              );
+            })}
+          </div>
+
+          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '20px 16px', marginBottom: 16 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6 }}>
+              Câu {examQIndex + 1}/{total} {q.emoji}
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{q.question}</div>
+            {q.question_vi && <div style={{ fontSize: 14, color: 'var(--muted)' }}>{q.question_vi}</div>}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+            {q.options.map(option => {
+              const chosen = examAnswers[q.question_id] === option;
+              return (
+                <button key={option} onClick={() => pickAnswer(q.question_id, option)}
+                  style={{
+                    minHeight: 52, fontSize: 16, fontWeight: 600, borderRadius: 12, textAlign: 'left',
+                    padding: '0 16px', cursor: 'pointer',
+                    border: `2px solid ${chosen ? 'var(--primary, #2196f3)' : 'var(--border, #e0e0e0)'}`,
+                    background: chosen ? '#e3f2fd' : 'var(--card)', color: 'var(--text)',
+                  }}>{option}</button>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn-sm secondary" style={{ flex: 1, minHeight: 48 }}
+              disabled={examQIndex === 0}
+              onClick={() => setExamQIndex(i => Math.max(0, i - 1))}>← Trước</button>
+            {examQIndex < total - 1 ? (
+              <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+                onClick={() => setExamQIndex(i => Math.min(total - 1, i + 1))}>Sau →</button>
+            ) : (
+              <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+                disabled={examSubmitting}
+                onClick={() => finishExam(false)}>
+                {examSubmitting ? 'Đang nộp…' : `📨 Nộp bài (${answered}/${total})`}
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Exam list for a track
+    if (examView === 'list' && selectedTrack) {
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <button className="btn-sm secondary" style={{ minWidth: 40 }}
+              onClick={() => setExamView('tracks')}>←</button>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>{selectedTrack.label}</div>
+          </div>
+          {examLoading ? (
+            <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
+          ) : examList.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--muted)' }}>
+              Chưa có đề thi cho mục này. Nội dung sẽ được bổ sung dần.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {examList.map(ex => (
+                <button key={ex.paper_id} onClick={() => startExam(ex)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+                    borderRadius: 12, background: 'var(--card)', cursor: 'pointer', textAlign: 'left',
+                    border: '2px solid var(--border, #e0e0e0)',
+                  }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700 }}>{ex.title}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                      {ex.total_questions} câu · {ex.duration_minutes} phút · đạt ≥{ex.pass_percent}%
+                      {ex.attempts > 0 && ` · đã làm ${ex.attempts} lần`}
+                    </div>
+                  </div>
+                  {ex.best_percent != null && (
+                    <div style={{
+                      fontWeight: 800, fontSize: 15,
+                      color: ex.best_percent >= ex.pass_percent ? '#2e7d32' : '#ef5350',
+                    }}>{ex.best_percent}%</div>
+                  )}
+                  <span style={{ fontSize: 18, color: 'var(--muted)' }}>▶</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Tracks catalog (default exam view)
+    const grouped = {};
+    tracks.forEach(t => { (grouped[t.kind] = grouped[t.kind] || []).push(t); });
+    const KIND_LABELS = {
+      practice: 'Luyện tập', competition: '🏆 Đội tuyển HSG',
+      exam: '🎓 Thi chuyển cấp', roadmap: '🌐 Lộ trình ngoại ngữ',
+    };
+    return (
+      <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+        <ModeToggle />
+        {examLoading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
+        ) : (
+          Object.entries(grouped).map(([kind, items]) => (
+            <div key={kind} style={{ marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
+                {KIND_LABELS[kind] || kind}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {items.map(t => (
+                  <button key={t.track} onClick={() => openTrack(t)}
+                    style={{
+                      background: 'var(--card)', borderRadius: 14, padding: '16px 12px',
+                      border: `2px solid ${TRACK_KIND_COLORS[t.kind] || '#999'}33`,
+                      cursor: 'pointer', textAlign: 'left',
+                    }}>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{t.label}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                      {t.paper_count} đề{t.levels?.length ? ` · ${t.levels.length} cấp độ` : ''}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    );
+  }
+
+  // ── LEARN MODE (default) ─────────────────────────────────────────────────
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
       <div className="spinner" />
@@ -278,6 +617,7 @@ export default function LearningHubPage() {
 
   return (
     <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
+      <ModeToggle />
       {/* Subject tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {SUBJECTS.map(subj => (
