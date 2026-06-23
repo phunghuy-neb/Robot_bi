@@ -1,0 +1,257 @@
+{
+  "subject": "programming",
+  "exams": [
+    {
+      "paper_id": "programming_python_basics_1",
+      "title": "Lập trình Python — Cơ bản (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "python_basics",
+      "questions": [
+        {
+          "question": "Lệnh nào dùng để in ra màn hình trong Python?",
+          "question_vi": "",
+          "emoji": "🖨️",
+          "options": ["print()", "echo()", "printf()", "write()"],
+          "answer": "print()",
+          "explanation": "Trong Python, hàm print() được dùng để in dữ liệu ra màn hình.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của lệnh print(3 + 2 * 4) là gì?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["11", "20", "14", "9"],
+          "answer": "11",
+          "explanation": "Phép nhân ưu tiên hơn cộng: 2 * 4 = 8, rồi 3 + 8 = 11.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hàm input() trong Python trả về dữ liệu thuộc kiểu nào?",
+          "question_vi": "",
+          "emoji": "⌨️",
+          "options": ["str (chuỗi)", "int (số nguyên)", "float (số thực)", "bool (luận lý)"],
+          "answer": "str (chuỗi)",
+          "explanation": "input() luôn trả về một chuỗi (str); muốn dùng như số phải ép kiểu bằng int() hoặc float().",
+          "difficulty": 2
+        },
+        {
+          "question": "Cách khai báo biến đúng cú pháp trong Python là?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": ["x = 5", "int x = 5", "var x = 5", "5 = x"],
+          "answer": "x = 5",
+          "explanation": "Python không cần khai báo kiểu, chỉ cần gán giá trị bằng dấu =, ví dụ x = 5.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của lệnh print(10 // 3) là gì?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": ["3", "3.33", "1", "4"],
+          "answer": "3",
+          "explanation": "Toán tử // là chia lấy phần nguyên, 10 // 3 = 3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của lệnh print(10 % 3) là gì?",
+          "question_vi": "",
+          "emoji": "🔣",
+          "options": ["1", "3", "0", "3.33"],
+          "answer": "1",
+          "explanation": "Toán tử % là chia lấy phần dư, 10 chia 3 dư 1.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của biểu thức 2 ** 3 trong Python là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["8", "6", "9", "5"],
+          "answer": "8",
+          "explanation": "Toán tử ** là lũy thừa, 2 ** 3 = 2 mũ 3 = 8.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lệnh nào ép kiểu chuỗi '5' thành số nguyên trong Python?",
+          "question_vi": "",
+          "emoji": "🔄",
+          "options": ["int('5')", "str(5)", "float('5')", "5"],
+          "answer": "int('5')",
+          "explanation": "Hàm int() chuyển một chuỗi số hoặc số thực thành số nguyên, ví dụ int('5') trả về 5.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_algorithms_1",
+      "title": "Lập trình Python — Thuật toán (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_11",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "algorithms",
+      "questions": [
+        {
+          "question": "Vòng lặp nào sau đây dùng để lặp khi chưa biết trước số lần lặp?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": ["while", "for i in range(n)", "if", "def"],
+          "answer": "while",
+          "explanation": "Vòng lặp while lặp lại khi điều kiện còn đúng, thích hợp khi chưa biết trước số lần lặp.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lệnh for i in range(5) sẽ cho i nhận các giá trị nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["0, 1, 2, 3, 4", "1, 2, 3, 4, 5", "0, 1, 2, 3, 4, 5", "1, 2, 3, 4"],
+          "answer": "0, 1, 2, 3, 4",
+          "explanation": "range(5) tạo dãy từ 0 đến 4 (5 không bao gồm), nên i nhận các giá trị 0, 1, 2, 3, 4.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ khóa nào dùng để định nghĩa một hàm trong Python?",
+          "question_vi": "",
+          "emoji": "🛠️",
+          "options": ["def", "function", "func", "define"],
+          "answer": "def",
+          "explanation": "Trong Python, hàm được định nghĩa bằng từ khóa def, ví dụ def tinh_tong():.",
+          "difficulty": 1
+        },
+        {
+          "question": "Câu lệnh điều kiện trong Python bắt đầu bằng từ khóa nào?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": ["if", "for", "while", "def"],
+          "answer": "if",
+          "explanation": "Câu lệnh rẽ nhánh trong Python dùng if, kết hợp với elif và else.",
+          "difficulty": 1
+        },
+        {
+          "question": "Lệnh break trong vòng lặp có tác dụng gì?",
+          "question_vi": "",
+          "emoji": "🛑",
+          "options": ["Thoát ngay khỏi vòng lặp", "Bỏ qua lần lặp hiện tại và tiếp tục", "Lặp lại từ đầu", "Kết thúc chương trình"],
+          "answer": "Thoát ngay khỏi vòng lặp",
+          "explanation": "break dừng và thoát hoàn toàn khỏi vòng lặp đang chạy.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hàm trả về giá trị bằng từ khóa nào?",
+          "question_vi": "",
+          "emoji": "↩️",
+          "options": ["return", "print", "yield only", "give"],
+          "answer": "return",
+          "explanation": "Từ khóa return dùng để trả về giá trị từ một hàm cho nơi gọi nó.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đoạn mã sau in ra bao nhiêu dòng?\nfor i in range(3):\n    print('Xin chao')",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": ["3", "1", "0", "4"],
+          "answer": "3",
+          "explanation": "range(3) lặp 3 lần (i = 0, 1, 2), nên print chạy 3 lần và in ra 3 dòng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lệnh continue trong vòng lặp có tác dụng gì?",
+          "question_vi": "",
+          "emoji": "⏭️",
+          "options": ["Bỏ qua phần còn lại của lần lặp hiện tại và sang lần kế tiếp", "Thoát hẳn khỏi vòng lặp", "Dừng chương trình", "Lặp vô hạn"],
+          "answer": "Bỏ qua phần còn lại của lần lặp hiện tại và sang lần kế tiếp",
+          "explanation": "continue bỏ qua phần code còn lại trong lần lặp hiện tại và chuyển ngay sang lần lặp tiếp theo.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_data_structures_1",
+      "title": "Lập trình Python — Cấu trúc dữ liệu (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "data_structures",
+      "questions": [
+        {
+          "question": "Cú pháp nào tạo một danh sách (list) rỗng trong Python?",
+          "question_vi": "",
+          "emoji": "📋",
+          "options": ["[]", "{}", "()", "''"],
+          "answer": "[]",
+          "explanation": "Dấu ngoặc vuông [] tạo một list rỗng; {} tạo dict/set, () tạo tuple.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cho a = [10, 20, 30], lệnh print(a[1]) in ra giá trị nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["20", "10", "30", "1"],
+          "answer": "20",
+          "explanation": "Chỉ số trong list bắt đầu từ 0, nên a[1] là phần tử thứ hai, tức 20.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phương thức nào dùng để thêm một phần tử vào cuối list?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": ["append()", "add()", "insert_last()", "push()"],
+          "answer": "append()",
+          "explanation": "Phương thức append() thêm một phần tử vào cuối danh sách, ví dụ a.append(40).",
+          "difficulty": 2
+        },
+        {
+          "question": "Cấu trúc dữ liệu nào lưu trữ dữ liệu theo cặp khóa - giá trị (key - value)?",
+          "question_vi": "",
+          "emoji": "🗂️",
+          "options": ["dict", "list", "tuple", "string"],
+          "answer": "dict",
+          "explanation": "dict (từ điển) lưu dữ liệu theo cặp key: value, ví dụ {'ten': 'Bi', 'tuoi': 12}.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho d = {'a': 1, 'b': 2}, lệnh print(d['b']) in ra gì?",
+          "question_vi": "",
+          "emoji": "🔑",
+          "options": ["2", "1", "b", "'b'"],
+          "answer": "2",
+          "explanation": "d['b'] truy cập giá trị ứng với khóa 'b', tức là 2.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho s = 'Python', lệnh print(len(s)) in ra giá trị nào?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": ["6", "5", "7", "Python"],
+          "answer": "6",
+          "explanation": "Hàm len() đếm số ký tự; chuỗi 'Python' có 6 ký tự.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho s = 'Hello', lệnh print(s[0]) in ra ký tự nào?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["H", "e", "o", "Hello"],
+          "answer": "H",
+          "explanation": "Chỉ số chuỗi bắt đầu từ 0, nên s[0] là ký tự đầu tiên 'H'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phương thức nào chuyển chuỗi 'abc' thành 'ABC'?",
+          "question_vi": "",
+          "emoji": "🔠",
+          "options": ["upper()", "lower()", "title()", "capitalize()"],
+          "answer": "upper()",
+          "explanation": "Phương thức upper() chuyển toàn bộ chuỗi thành chữ in hoa, 'abc'.upper() trả về 'ABC'.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

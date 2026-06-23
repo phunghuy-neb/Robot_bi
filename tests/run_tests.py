@@ -7310,8 +7310,8 @@ def test_80_packs_loaded():
             "SELECT COUNT(*) FROM exam_papers WHERE source='pack'").fetchone()[0]
         questions = conn.execute(
             "SELECT COUNT(*) FROM question_bank WHERE source='pack'").fetchone()[0]
-    assert papers >= 60, f"phải nạp >= 60 đề từ pack, có {papers}"
-    assert questions >= 480, f"phải nạp >= 480 câu từ pack, có {questions}"
+    assert papers >= 85, f"phải nạp >= 85 đề từ pack, có {papers}"
+    assert questions >= 640, f"phải nạp >= 640 câu từ pack, có {questions}"
 
 
 def test_80_published_answers_valid():
@@ -7330,8 +7330,10 @@ def test_80_subject_coverage():
     with get_db_connection() as conn:
         subs = {r[0] for r in conn.execute(
             "SELECT DISTINCT subject FROM exam_papers WHERE status='published'").fetchall()}
-    assert len(subs) >= 15, f"phải có >= 15 môn, có {len(subs)}"
-    for required in ("en", "math", "ielts", "toeic_lr", "chemistry", "literature", "history"):
+    assert len(subs) >= 22, f"phải có >= 22 môn, có {len(subs)}"
+    for required in ("en", "math", "ielts", "toeic_lr", "chemistry", "literature",
+                     "history", "informatics", "programming", "music", "art",
+                     "economics", "health", "life_skills", "logic"):
         assert required in subs, f"thiếu môn {required} trong content packs"
 
 

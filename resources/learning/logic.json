@@ -1,0 +1,203 @@
+{
+  "subject": "logic",
+  "exams": [
+    {
+      "paper_id": "logic_sequences_1",
+      "title": "Tư duy logic — Quy luật dãy số và hình (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "sequences",
+      "questions": [
+        {
+          "question": "Tìm số tiếp theo trong dãy: 2, 4, 6, 8, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["10", "9", "12", "11"],
+          "answer": "10",
+          "explanation": "Mỗi số cách nhau 2 đơn vị: 8 + 2 = 10.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tìm số tiếp theo trong dãy: 5, 10, 15, 20, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["25", "24", "30", "21"],
+          "answer": "25",
+          "explanation": "Dãy tăng đều 5 đơn vị: 20 + 5 = 25.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tìm số tiếp theo trong dãy: 1, 2, 4, 8, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["16", "10", "12", "14"],
+          "answer": "16",
+          "explanation": "Mỗi số gấp đôi số trước: 8 × 2 = 16.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tìm số tiếp theo trong dãy: 3, 6, 9, 12, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["15", "14", "16", "18"],
+          "answer": "15",
+          "explanation": "Dãy là các bội của 3, tăng đều 3 đơn vị: 12 + 3 = 15.",
+          "difficulty": 1
+        },
+        {
+          "question": "Dãy hình lặp lại: 🔴🔵🔴🔵🔴? Hình tiếp theo là gì?",
+          "question_vi": "",
+          "emoji": "🔵",
+          "options": ["🔵", "🔴", "🟢", "🟡"],
+          "answer": "🔵",
+          "explanation": "Quy luật là đỏ - xanh xen kẽ. Sau 🔴 thứ ba sẽ là 🔵.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tìm số tiếp theo trong dãy: 20, 18, 16, 14, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["12", "13", "10", "15"],
+          "answer": "12",
+          "explanation": "Dãy giảm đều 2 đơn vị: 14 − 2 = 12.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_reasoning_1",
+      "title": "Tư duy logic — Suy luận (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "reasoning",
+      "questions": [
+        {
+          "question": "Nếu trời mưa thì đường ướt. Hôm nay trời đang mưa. Vậy đường sẽ thế nào?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": ["Đường ướt", "Đường khô", "Đường bụi", "Đường nóng"],
+          "answer": "Đường ướt",
+          "explanation": "Theo quy tắc 'nếu... thì...': trời mưa nên đường sẽ ướt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Vật nào KHÔNG cùng nhóm với các vật còn lại: Táo, Chuối, Cam, Bàn?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": ["Bàn", "Táo", "Chuối", "Cam"],
+          "answer": "Bàn",
+          "explanation": "Táo, chuối, cam là trái cây; bàn là đồ vật nên không cùng nhóm.",
+          "difficulty": 1
+        },
+        {
+          "question": "Con vật nào KHÔNG cùng nhóm: Chó, Mèo, Cá, Gà?",
+          "question_vi": "",
+          "emoji": "🐟",
+          "options": ["Cá", "Chó", "Mèo", "Gà"],
+          "answer": "Cá",
+          "explanation": "Chó, mèo, gà sống trên cạn; cá sống dưới nước nên khác nhóm.",
+          "difficulty": 2
+        },
+        {
+          "question": "An cao hơn Bình. Bình cao hơn Cường. Vậy ai cao nhất?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": ["An", "Bình", "Cường", "Cả ba bằng nhau"],
+          "answer": "An",
+          "explanation": "An cao hơn Bình, Bình cao hơn Cường, nên An là người cao nhất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nếu tất cả các con mèo đều có đuôi, và Miu là một con mèo, thì Miu thế nào?",
+          "question_vi": "",
+          "emoji": "🐱",
+          "options": ["Miu có đuôi", "Miu không có đuôi", "Miu là con chó", "Không biết được"],
+          "answer": "Miu có đuôi",
+          "explanation": "Mọi con mèo đều có đuôi, Miu là mèo nên Miu chắc chắn có đuôi.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đồ vật nào KHÔNG cùng nhóm: Bút chì, Tẩy, Thước kẻ, Quả bóng?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": ["Quả bóng", "Bút chì", "Tẩy", "Thước kẻ"],
+          "answer": "Quả bóng",
+          "explanation": "Bút chì, tẩy, thước kẻ là dụng cụ học tập; quả bóng là đồ chơi nên khác nhóm.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_puzzles_1",
+      "title": "Tư duy logic — Giải đố (Đề 1)",
+      "track": "practice",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "puzzles",
+      "questions": [
+        {
+          "question": "Có 5 con chim đậu trên cành. Một thợ săn bắn rơi 2 con. Hỏi còn lại bao nhiêu con trên cành?",
+          "question_vi": "",
+          "emoji": "🐦",
+          "options": ["0 con", "3 con", "2 con", "5 con"],
+          "answer": "0 con",
+          "explanation": "Tiếng súng làm những con còn lại bay đi hết, nên không còn con nào đậu trên cành.",
+          "difficulty": 3
+        },
+        {
+          "question": "Số nào lớn hơn: 0,5 hay 0,45?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": ["0,5", "0,45", "Bằng nhau", "Không so sánh được"],
+          "answer": "0,5",
+          "explanation": "0,5 = 0,50 lớn hơn 0,45 vì 50 phần trăm lớn hơn 45 phần trăm.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong từ 'BANANA' có bao nhiêu chữ cái A?",
+          "question_vi": "",
+          "emoji": "🍌",
+          "options": ["3", "2", "4", "1"],
+          "answer": "3",
+          "explanation": "B-A-N-A-N-A có 3 chữ A ở vị trí thứ 2, 4 và 6.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một cái bánh chia đều cho 4 người. Mỗi người được mấy phần của cái bánh?",
+          "question_vi": "",
+          "emoji": "🍰",
+          "options": ["1/4 cái bánh", "1/2 cái bánh", "1/3 cái bánh", "4 cái bánh"],
+          "answer": "1/4 cái bánh",
+          "explanation": "Chia một cái bánh cho 4 người bằng nhau, mỗi người được 1/4 (một phần tư) cái bánh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nếu hôm nay là thứ Tư, thì hai ngày sau là thứ mấy?",
+          "question_vi": "",
+          "emoji": "📅",
+          "options": ["Thứ Sáu", "Thứ Năm", "Thứ Bảy", "Thứ Hai"],
+          "answer": "Thứ Sáu",
+          "explanation": "Thứ Tư + 1 ngày là thứ Năm, + 2 ngày là thứ Sáu.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một sợi dây dài 12 mét, cắt thành các đoạn dài 3 mét. Cắt được bao nhiêu đoạn?",
+          "question_vi": "",
+          "emoji": "🧵",
+          "options": ["4 đoạn", "3 đoạn", "5 đoạn", "6 đoạn"],
+          "answer": "4 đoạn",
+          "explanation": "12 chia cho 3 bằng 4, nên cắt được 4 đoạn dây dài 3 mét.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

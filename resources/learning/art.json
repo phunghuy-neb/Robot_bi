@@ -1,0 +1,203 @@
+{
+  "subject": "art",
+  "exams": [
+    {
+      "paper_id": "art_color_mixing_1",
+      "title": "Mỹ thuật — Pha màu (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "color_mixing",
+      "questions": [
+        {
+          "question": "Ba màu cơ bản trong hội họa là những màu nào?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": ["Đỏ, vàng, xanh lam", "Cam, lục, tím", "Đen, trắng, xám", "Hồng, nâu, be"],
+          "answer": "Đỏ, vàng, xanh lam",
+          "explanation": "Ba màu cơ bản (màu gốc) là đỏ, vàng và xanh lam.",
+          "difficulty": 1
+        },
+        {
+          "question": "Pha màu đỏ với màu vàng ta được màu gì?",
+          "question_vi": "",
+          "emoji": "🟠",
+          "options": ["Màu cam", "Màu lục", "Màu tím", "Màu nâu"],
+          "answer": "Màu cam",
+          "explanation": "Đỏ pha với vàng tạo thành màu cam.",
+          "difficulty": 1
+        },
+        {
+          "question": "Pha màu xanh lam với màu vàng ta được màu gì?",
+          "question_vi": "",
+          "emoji": "🟢",
+          "options": ["Màu lục", "Màu cam", "Màu tím", "Màu đỏ"],
+          "answer": "Màu lục",
+          "explanation": "Xanh lam pha với vàng tạo thành màu lục (xanh lá).",
+          "difficulty": 2
+        },
+        {
+          "question": "Pha màu đỏ với màu xanh lam ta được màu gì?",
+          "question_vi": "",
+          "emoji": "🟣",
+          "options": ["Màu tím", "Màu cam", "Màu lục", "Màu vàng"],
+          "answer": "Màu tím",
+          "explanation": "Đỏ pha với xanh lam tạo thành màu tím.",
+          "difficulty": 2
+        },
+        {
+          "question": "Màu cam, lục và tím được gọi chung là loại màu gì?",
+          "question_vi": "",
+          "emoji": "🌈",
+          "options": ["Màu thứ cấp", "Màu cơ bản", "Màu trung tính", "Màu vô sắc"],
+          "answer": "Màu thứ cấp",
+          "explanation": "Màu cam, lục, tím được tạo ra từ việc pha hai màu cơ bản nên gọi là màu thứ cấp.",
+          "difficulty": 3
+        },
+        {
+          "question": "Muốn có màu cam, ta KHÔNG nên pha cặp màu nào sau đây?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": ["Xanh lam và vàng", "Đỏ và vàng", "Đỏ nhiều, vàng ít", "Vàng nhiều, đỏ ít"],
+          "answer": "Xanh lam và vàng",
+          "explanation": "Xanh lam pha với vàng cho ra màu lục chứ không phải màu cam.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "art_painting_styles_1",
+      "title": "Mỹ thuật — Phong cách và loại tranh (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "painting_styles",
+      "questions": [
+        {
+          "question": "Tranh dân gian Đông Hồ nổi tiếng có nguồn gốc từ tỉnh nào?",
+          "question_vi": "",
+          "emoji": "🖼️",
+          "options": ["Bắc Ninh", "Huế", "Đà Nẵng", "Cần Thơ"],
+          "answer": "Bắc Ninh",
+          "explanation": "Tranh dân gian Đông Hồ xuất xứ từ làng Đông Hồ, tỉnh Bắc Ninh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bức tranh vẽ núi, sông, cây cối, đồng ruộng được gọi là tranh gì?",
+          "question_vi": "",
+          "emoji": "🏞️",
+          "options": ["Tranh phong cảnh", "Tranh chân dung", "Tranh tĩnh vật", "Tranh dân gian"],
+          "answer": "Tranh phong cảnh",
+          "explanation": "Tranh vẽ cảnh thiên nhiên như núi, sông, cây cối được gọi là tranh phong cảnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tranh vẽ khuôn mặt và hình dáng một con người được gọi là gì?",
+          "question_vi": "",
+          "emoji": "🧑‍🎨",
+          "options": ["Tranh chân dung", "Tranh phong cảnh", "Tranh tĩnh vật", "Tranh trừu tượng"],
+          "answer": "Tranh chân dung",
+          "explanation": "Tranh thể hiện gương mặt, hình dáng một người gọi là tranh chân dung.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tranh vẽ bình hoa, đĩa trái cây, đồ vật đặt yên một chỗ gọi là tranh gì?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": ["Tranh tĩnh vật", "Tranh phong cảnh", "Tranh chân dung", "Tranh sinh hoạt"],
+          "answer": "Tranh tĩnh vật",
+          "explanation": "Tranh vẽ các đồ vật, hoa quả đứng yên gọi là tranh tĩnh vật.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bức tranh dân gian Đông Hồ nổi tiếng nào vẽ chú bé ôm con vật?",
+          "question_vi": "",
+          "emoji": "🐔",
+          "options": ["Đám cưới chuột", "Mùa thu vàng", "Đêm đầy sao", "Thiếu nữ bên hoa huệ"],
+          "answer": "Đám cưới chuột",
+          "explanation": "'Đám cưới chuột' là một bức tranh dân gian Đông Hồ rất nổi tiếng của Việt Nam.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tranh dân gian Đông Hồ truyền thống thường được in trên loại giấy gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Giấy điệp", "Giấy bóng", "Giấy báo", "Vải lụa"],
+          "answer": "Giấy điệp",
+          "explanation": "Tranh Đông Hồ được in trên giấy điệp - loại giấy quét bột vỏ sò điệp đặc trưng.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "art_artists_materials_1",
+      "title": "Mỹ thuật — Họa sĩ và chất liệu (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "artists_materials",
+      "questions": [
+        {
+          "question": "Chất liệu nào sau đây dùng để vẽ và có thể tẩy xóa bằng tẩy?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": ["Bút chì", "Sơn dầu", "Màu nước", "Mực tàu"],
+          "answer": "Bút chì",
+          "explanation": "Bút chì là chất liệu dễ vẽ và có thể tẩy xóa bằng cục tẩy.",
+          "difficulty": 1
+        },
+        {
+          "question": "Loại màu nào cần pha với nước để vẽ và cho nét trong, nhẹ?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["Màu nước", "Sơn dầu", "Bút chì", "Phấn sáp"],
+          "answer": "Màu nước",
+          "explanation": "Màu nước được pha với nước, cho hiệu ứng trong trẻo và nhẹ nhàng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chất liệu sơn dầu thường được vẽ trên bề mặt nào?",
+          "question_vi": "",
+          "emoji": "🖌️",
+          "options": ["Vải toan (canvas)", "Mặt nước", "Kính trong suốt", "Cát"],
+          "answer": "Vải toan (canvas)",
+          "explanation": "Tranh sơn dầu thường được vẽ trên vải toan (canvas) căng trên khung.",
+          "difficulty": 2
+        },
+        {
+          "question": "Danh họa Leonardo da Vinci là tác giả của bức tranh nổi tiếng nào?",
+          "question_vi": "",
+          "emoji": "🖼️",
+          "options": ["Mona Lisa", "Đám cưới chuột", "Hoa hướng dương", "Tiếng thét"],
+          "answer": "Mona Lisa",
+          "explanation": "Bức 'Mona Lisa' (Nàng Mona Lisa) là tác phẩm nổi tiếng của Leonardo da Vinci.",
+          "difficulty": 3
+        },
+        {
+          "question": "Họa sĩ nào của Việt Nam nổi tiếng với tranh 'Thiếu nữ bên hoa huệ'?",
+          "question_vi": "",
+          "emoji": "🌸",
+          "options": ["Tô Ngọc Vân", "Picasso", "Van Gogh", "Claude Monet"],
+          "answer": "Tô Ngọc Vân",
+          "explanation": "'Thiếu nữ bên hoa huệ' là tác phẩm nổi tiếng của họa sĩ Việt Nam Tô Ngọc Vân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tranh sơn mài truyền thống của Việt Nam được làm chủ yếu từ chất liệu gì?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": ["Nhựa cây sơn ta", "Màu nước", "Bút chì than", "Phấn màu"],
+          "answer": "Nhựa cây sơn ta",
+          "explanation": "Tranh sơn mài Việt Nam được làm từ nhựa cây sơn ta phủ nhiều lớp và mài bóng.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
