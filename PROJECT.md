@@ -49,6 +49,11 @@
 - Feature add/remove/change: read `PROJECT.md`, `.claude/handoff.md`, relevant source files, and `SYSTEM_MAP.md`; update `SYSTEM_MAP.md` if current system capability or structure changes.
 - API/schema/cross-module change: use Spec Kit or create a clear plan first.
 - UI work: read relevant frontend files and Robot Bi design rules before editing.
+- UI design skills routing:
+  - `ui-ux-pro-max` is the base for ALL UI work (accessibility, touch targets, responsive, charts, stack-specific correctness), including dashboards and data tables.
+  - `taste-skill` (`design-taste-frontend`) is an aesthetic/anti-generic layer scoped to landing/marketing/onboarding/redesign surfaces ONLY. By the skill's own scope it is **not** for dashboards, data tables, or multi-step product UI — do not apply its hard rules there.
+  - Children-facing Robot Display (`frontend/robot_display/`) keeps Robot Bi's playful, colorful design rules; do NOT apply `taste-skill`'s minimalist / single-accent / low-saturation rules to it.
+  - Robot Bi design rules and existing frontend conventions override any generic skill rule.
 - Docs/audit-only: do not run tests unless code changed.
 - Do not read full changelog, `runtime/`, `logs/`, `.env`, model/cache/media files, or `__pycache__/` by default.
 

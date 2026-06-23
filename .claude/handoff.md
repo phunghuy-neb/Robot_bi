@@ -16,7 +16,7 @@
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
 - **Mid-implementation feature**: none — Learning Hub Phase 2 (24 subjects) is fully landed and tested. No feature is half-built right now.
-- **Uncommitted working tree**: tooling-only edits under `.claude/skills/` (speckit `git-*` skills tweaked; new `speckit-converge` skill added) and `.claude/settings.local.json`. No `src/` or `frontend/` code is dirty.
+- **Tooling installed 2026-06-24** (separate from product code): codegraph MCP (local code knowledge graph; `.mcp.json` + `.codegraph/` index, telemetry off, loads on next Claude Code restart); new skills `taste-skill` (`design-taste-frontend`), `pdf`, `xlsx`; PROJECT.md UI-skill routing rule. Pre-existing dirty files (`speckit-git-*`, `settings.local.json`, `ui-ux-pro-max/scripts/search.py`) left untouched.
 - **Next thread (not started)**: Learning Hub Phase 3 / remaining packs — `toeic_sw` (Speaking/Writing, needs free-text/STT grading) and HSG / exam-track papers (`hsg_*`, `exam_grade6/10`). Produce via the batch-generate pipeline (needs LLM keys) or hand-authoring. Curriculum blueprint already lists the topics.
 
 ## Current State
@@ -109,7 +109,10 @@ python tests/run_tests.py
 
 ## Files Recently Touched (Tooling — 2026-06-24)
 
-- `.claude/skills/speckit-converge/SKILL.md` (new)
-- `.claude/skills/speckit-git-*/SKILL.md`
-- `changelog/2026-06-24-handoff-archive.md` (new)
+- `.claude/skills/speckit-converge/SKILL.md` (new) — committed `0cc1c18`
+- `.claude/skills/taste-skill/` (new, `design-taste-frontend`)
+- `.claude/skills/pdf/`, `.claude/skills/xlsx/` (new, from anthropics/skills — proprietary license; scripts need Python deps NOT yet installed)
+- `.mcp.json` (new, codegraph MCP server), `.gitignore` (+`.codegraph/`)
+- `PROJECT.md` (UI-skill routing rule) → regenerated `CLAUDE.md` / `AGENTS.md` via `python3 sync.py`
+- `changelog/2026-06-24-handoff-archive.md` (new) — committed `0cc1c18`
 - `.claude/handoff.md`
