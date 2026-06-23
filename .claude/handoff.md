@@ -15,7 +15,7 @@
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
-- **Mid-implementation feature**: none — Learning Hub Phase 2 (24 subjects) is fully landed and tested. No feature is half-built right now.
+- **Mid-implementation (active)**: Learning Hub Phase 3 — HSG/exam-track packs. DONE so far: `resources/learning/math_exam.json` (exam_grade6 + exam_grade10 Toán, 17 questions, validated answer∈options, uncommitted). NEXT: other core entrance subjects (Tiếng Việt/Ngữ văn, Tiếng Anh for vào lớp 6/10) + HSG competition papers. Pattern: new per-subject file, subject field groups it, unique paper_ids, track = exam_grade6/exam_grade10/hsg_*. Seed = `_seed_learning_packs` (idempotent). Validate with answer∈options before shipping.
 - **Tooling installed 2026-06-24** (separate from product code): codegraph MCP (local code knowledge graph; `.mcp.json` + `.codegraph/` index, telemetry off, loads on next Claude Code restart); new skills `taste-skill` (`design-taste-frontend`), `pdf`, `xlsx`; PROJECT.md UI-skill routing rule. Pre-existing dirty files (`speckit-git-*`, `settings.local.json`, `ui-ux-pro-max/scripts/search.py`) left untouched.
 - **Next thread (not started)**: Learning Hub Phase 3 / remaining packs — `toeic_sw` (Speaking/Writing, needs free-text/STT grading) and HSG / exam-track papers (`hsg_*`, `exam_grade6/10`). Produce via the batch-generate pipeline (needs LLM keys) or hand-authoring. Curriculum blueprint already lists the topics.
 
