@@ -6617,6 +6617,133 @@ test("73.9  search_if_needed: trả '' khi disabled",                       test
 test("73.10 main.py: import WebSearchEngine",                             test_73_main_imports_web_search)
 test("73.11 main.py: dùng _web_search.search_if_needed()",                test_73_main_wires_web_search_in_text_mode)
 
+# ── Group 74: MovementEmotionEngine (Stage 1.5) ────────────────────────────
+
+def test_74_import():
+    from src.motion.movement_emotion import MovementEmotionEngine, get_movement_engine
+    assert MovementEmotionEngine is not None
+    assert get_movement_engine is not None
+
+def test_74_singleton():
+    from src.motion.movement_emotion import get_movement_engine
+    e1 = get_movement_engine()
+    e2 = get_movement_engine()
+    assert e1 is e2
+
+def test_74_state_map_covers_all_states():
+    from src.motion.movement_emotion import _STATE_MOVES
+    from src.living.living_state import BiState
+    for state in BiState:
+        assert state in _STATE_MOVES, f"BiState.{state.name} missing from _STATE_MOVES"
+
+def test_74_moment_map_covers_all_moments():
+    from src.motion.movement_emotion import _MOMENT_MOVES
+    from src.living.micro_moments import MomentId
+    for moment in MomentId:
+        assert moment in _MOMENT_MOVES, f"MomentId.{moment.name} missing from _MOMENT_MOVES"
+
+def test_74_rate_limit_blocks_second_call():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    from src.living.living_state import BiState
+    import time
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = time.time()  # simulate just fired
+    assert not engine._should_move()
+
+def test_74_sleep_hours_block_movement():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    import unittest.mock as mock
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = 0.0
+    with mock.patch("src.motion.movement_emotion._is_sleep_hours", return_value=True):
+        assert not engine._should_move()
+
+def test_74_on_state_change_fires_in_simulation():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    from src.living.living_state import BiState
+    import unittest.mock as mock
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = 0.0
+    fired = []
+    with mock.patch("src.motion.movement_emotion._is_sleep_hours", return_value=False):
+        with mock.patch.object(engine, "_fire", side_effect=lambda fn, label: fired.append(label)):
+            engine.on_state_change(BiState.ACTIVE_HAPPY)
+    assert len(fired) == 1 and "state:active_happy" in fired[0]
+
+def test_74_on_moment_fires_in_simulation():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    from src.living.micro_moments import MomentId
+    import unittest.mock as mock
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = 0.0
+    fired = []
+    with mock.patch("src.motion.movement_emotion._is_sleep_hours", return_value=False):
+        with mock.patch.object(engine, "_fire", side_effect=lambda fn, label: fired.append(label)):
+            engine.on_moment(MomentId.LOOK_AROUND)
+    assert len(fired) == 1 and "moment:look_around" in fired[0]
+
+def test_74_on_pouting_fires():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    import unittest.mock as mock
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = 0.0
+    fired = []
+    with mock.patch("src.motion.movement_emotion._is_sleep_hours", return_value=False):
+        with mock.patch.object(engine, "_fire", side_effect=lambda fn, label: fired.append(label)):
+            engine.on_pouting()
+    assert any("pouting" in l for l in fired)
+
+def test_74_on_welcome_back_fires():
+    from src.motion.movement_emotion import MovementEmotionEngine
+    import unittest.mock as mock
+    engine = MovementEmotionEngine()
+    engine._last_moved_at = 0.0
+    fired = []
+    with mock.patch("src.motion.movement_emotion._is_sleep_hours", return_value=False):
+        with mock.patch.object(engine, "_fire", side_effect=lambda fn, label: fired.append(label)):
+            engine.on_welcome_back()
+    assert any("welcome_back" in l for l in fired)
+
+def test_74_main_imports_movement_engine():
+    import ast, os
+    path = os.path.join(os.path.dirname(__file__), "..", "src", "main.py")
+    with open(path, "r", encoding="utf-8") as f:
+        src = f.read()
+    assert "movement_emotion" in src, "main.py phải import movement_emotion"
+    assert "_movement" in src, "main.py phải dùng self._movement"
+
+def test_74_rag_new_patterns_age():
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from src.memory.rag_manager import _FACT_PATTERNS
+    pattern_types = [p[0] for p in _FACT_PATTERNS]
+    assert "tuổi" in pattern_types, "RAG phải có pattern 'tuổi'"
+
+def test_74_rag_new_patterns_dream():
+    from src.memory.rag_manager import _FACT_PATTERNS
+    pattern_types = [p[0] for p in _FACT_PATTERNS]
+    assert "ước mơ" in pattern_types, "RAG phải có pattern 'ước mơ'"
+
+def test_74_rag_new_patterns_color():
+    from src.memory.rag_manager import _FACT_PATTERNS
+    pattern_types = [p[0] for p in _FACT_PATTERNS]
+    assert "màu sắc yêu thích" in pattern_types, "RAG phải có pattern 'màu sắc yêu thích'"
+
+test("74.1  MovementEmotionEngine: import và get_movement_engine",         test_74_import)
+test("74.2  MovementEmotionEngine: singleton pattern",                     test_74_singleton)
+test("74.3  _STATE_MOVES: covers tất cả BiState",                          test_74_state_map_covers_all_states)
+test("74.4  _MOMENT_MOVES: covers tất cả MomentId",                        test_74_moment_map_covers_all_moments)
+test("74.5  rate_limit: block second call ngay lập tức",                   test_74_rate_limit_blocks_second_call)
+test("74.6  sleep_hours: block movement 22:00–07:00",                      test_74_sleep_hours_block_movement)
+test("74.7  on_state_change: fire đúng label khi ACTIVE_HAPPY",            test_74_on_state_change_fires_in_simulation)
+test("74.8  on_moment: fire đúng label khi LOOK_AROUND",                   test_74_on_moment_fires_in_simulation)
+test("74.9  on_pouting: fire label 'pouting'",                             test_74_on_pouting_fires)
+test("74.10 on_welcome_back: fire label 'welcome_back'",                   test_74_on_welcome_back_fires)
+test("74.11 main.py: import movement_emotion và dùng _movement",           test_74_main_imports_movement_engine)
+test("74.12 RAG: pattern 'tuổi' đã thêm",                                  test_74_rag_new_patterns_age)
+test("74.13 RAG: pattern 'ước mơ' đã thêm",                               test_74_rag_new_patterns_dream)
+test("74.14 RAG: pattern 'màu sắc yêu thích' đã thêm",                    test_74_rag_new_patterns_color)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

@@ -119,6 +119,25 @@ _FACT_PATTERNS = [
         r"(?:hôm nay|lúc này|bây giờ)\s+(?:mình|em|con|bé)\s+(?:vui|buồn|tức|sợ|lo|hạnh phúc|chán)",
         r"(?:mình|em|con)\s+(?:đang|rất|hơi)\s+(vui|buồn|tức|sợ|lo lắng|hạnh phúc|chán nản)",
     ]),
+    ("tuổi", [
+        r"(?:mình|em|con|bé|tôi)\s+(?:được|có|đã)\s+(\d{1,2})\s+tuổi",
+        r"(?:năm nay|giờ)\s+(?:mình|em|con|bé)\s+(\d{1,2})\s+tuổi",
+        r"(?:mình|em|con)\s+(\d{1,2})\s+tuổi\b",
+        r"sinh\s+năm\s+(\d{4})",
+    ]),
+    ("màu sắc yêu thích", [
+        r"(?:thích|yêu thích|màu yêu thích|màu thích nhất)\s+(?:màu\s+)?(đỏ|xanh|vàng|tím|hồng|cam|trắng|đen|nâu|xám|xanh lá|xanh dương|xanh lơ)",
+        r"màu\s+(đỏ|xanh|vàng|tím|hồng|cam|trắng|đen|nâu)\s+(?:là màu|là|thôi)",
+    ]),
+    ("ước mơ", [
+        r"(?:ước mơ|mơ ước|muốn trở thành|muốn làm|lớn lên muốn)\s+([\w\s]+)",
+        r"(?:sau này|lớn lên)\s+(?:muốn|sẽ|thích)\s+(?:làm|trở thành)\s+([\w\s]+)",
+        r"(?:thích|muốn)\s+(?:làm|trở thành)\s+(bác sĩ|giáo viên|kỹ sư|phi hành gia|ca sĩ|cầu thủ|lập trình viên|nghệ sĩ|nhà khoa học)",
+    ]),
+    ("tên trường", [
+        r"(?:học ở|học tại|trường của mình là|trường mình|đang học ở)\s+(?:trường\s+)?([\w\s]+)",
+        r"trường\s+(tiểu học|trung học|mầm non|THCS|THPT)\s+([\w\s]+)",
+    ]),
 ]
 
 
@@ -283,6 +302,14 @@ class RAGManager:
                         fact = f"Thành tích của bé: {m}"
                     elif fact_type == "cảm xúc":
                         fact = f"Cảm xúc bé: {m}"
+                    elif fact_type == "tuổi":
+                        fact = f"Bé {m} tuổi" if m.isdigit() else f"Bé sinh năm {m}"
+                    elif fact_type == "màu sắc yêu thích":
+                        fact = f"Màu yêu thích của bé: {m}"
+                    elif fact_type == "ước mơ":
+                        fact = f"Ước mơ của bé: {m}"
+                    elif fact_type == "tên trường":
+                        fact = f"Trường bé học: {m}"
                     else:
                         fact = m
 

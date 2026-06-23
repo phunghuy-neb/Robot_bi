@@ -59,6 +59,7 @@ from src.wakeword.wakeword_router import WakeWordRouter
 from src.living.living_state import LivingStateEngine, BiState
 from src.living.micro_moments import MicroMomentsEngine
 from src.living.proactive_behaviors import ProactiveBehaviorsEngine
+from src.motion.movement_emotion import get_movement_engine
 from src.web_search.search_engine import WebSearchEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
@@ -131,6 +132,7 @@ class RobotBiApp:
         self._living = LivingStateEngine()
         self._micro = MicroMomentsEngine()
         self._proactive = ProactiveBehaviorsEngine()
+        self._movement = get_movement_engine()  # Stage 1.5: body expression
         self._last_homework_at: float = 0.0
         self._micro_speaking: bool = False
         self._pouting_announced: bool = False
@@ -368,6 +370,7 @@ class RobotBiApp:
         try:
             self._living.on_interaction_start()
             self._proactive.on_interaction()
+            self._movement.on_state_change(BiState.ACTIVE_ENGAGED)
         except Exception as e:
             logger.warning("[LivingState] interaction_start failed: %s", e)
 
@@ -383,6 +386,7 @@ class RobotBiApp:
     def _living_reply_done(self) -> None:
         try:
             self._living.on_reply_done()
+            self._movement.on_state_change(BiState.ACTIVE_HAPPY)
         except Exception as e:
             logger.warning("[LivingState] reply_done failed: %s", e)
 
@@ -422,7 +426,8 @@ class RobotBiApp:
             is_hw = (time.time() - self._last_homework_at) < 5 * 60
             result = self._micro.maybe_trigger(self._living.get_state(), is_homework=is_hw)
             if result:
-                _, text = result
+                moment, text = result
+                self._movement.on_moment(moment)
                 self._start_idle_phrase_thread(text)
         except Exception as e:
             logger.debug("[MicroMoment] skip: %s", e)
@@ -450,12 +455,14 @@ class RobotBiApp:
         _hour = _dt.now().hour
         if _hour >= 22 or _hour < 7:
             return
+        self._movement.on_pouting()
         phrase = _rand.choice(_POUTING_PHRASES)
         self._start_idle_phrase_thread(phrase)
 
     def _fire_welcome_back_phrase(self) -> None:
         """Speak a welcome-back phrase synchronously before the LLM response."""
         import random as _rand
+        self._movement.on_welcome_back()
         phrase = _rand.choice(_WELCOME_BACK_PHRASES)
         self._speak_text(phrase)
 
