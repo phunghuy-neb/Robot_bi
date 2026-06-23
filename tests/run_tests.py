@@ -456,7 +456,8 @@ test("MouthTTS: has fallback method", test_tts_has_fallback)
 
 # == GROUP 10: EarSTT (import only) =========================================
 print("\n[Group 10] EarSTT (import only)")
-from src.audio.input.ear_stt import EarSTT, WAKEWORD_ENABLED, WAKEWORD_THRESHOLD, MIC_DEVICE
+from src.audio.input.ear_stt import EarSTT, WAKEWORD_THRESHOLD, MIC_DEVICE
+from src.wakeword.config import WAKEWORD_ENABLED
 
 
 def test_ear_constants():
