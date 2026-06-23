@@ -13,8 +13,9 @@ import logging
 from datetime import date, datetime, timezone
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from typing import Optional
 
 from src.infrastructure.auth.auth import get_current_user
 from src.infrastructure.database.db import get_db_connection
@@ -24,10 +25,19 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 MODULE_META = {
-    "colors":  {"label": "Colors",  "label_vi": "Màu sắc",  "emoji": "🎨"},
-    "animals": {"label": "Animals", "label_vi": "Động vật", "emoji": "🐾"},
-    "numbers": {"label": "Numbers", "label_vi": "Số đếm",   "emoji": "🔢"},
-    "family":  {"label": "Family",  "label_vi": "Gia đình", "emoji": "👨‍👩‍👧"},
+    # English
+    "colors":       {"label": "Colors",         "label_vi": "Màu sắc",      "emoji": "🎨", "subject": "en"},
+    "animals":      {"label": "Animals",        "label_vi": "Động vật",     "emoji": "🐾", "subject": "en"},
+    "numbers":      {"label": "Numbers",        "label_vi": "Số đếm",       "emoji": "🔢", "subject": "en"},
+    "family":       {"label": "Family",         "label_vi": "Gia đình",     "emoji": "👨‍👩‍👧", "subject": "en"},
+    # Math
+    "math_shapes":  {"label": "Hình dạng",      "label_vi": "Shapes",       "emoji": "🔺", "subject": "math"},
+    "math_add":     {"label": "Phép cộng",      "label_vi": "Addition",     "emoji": "➕", "subject": "math"},
+    "math_count":   {"label": "Đếm số",         "label_vi": "Counting",     "emoji": "🔢", "subject": "math"},
+    # Science
+    "sci_weather":  {"label": "Thiên nhiên",    "label_vi": "Nature",       "emoji": "☀️", "subject": "science"},
+    "sci_body":     {"label": "Cơ thể người",   "label_vi": "Human Body",   "emoji": "🧠", "subject": "science"},
+    "sci_plant":    {"label": "Thực vật",       "label_vi": "Plants",       "emoji": "🌱", "subject": "science"},
 }
 
 
@@ -91,12 +101,21 @@ def _update_streak(conn, family_id: str, xp_delta: int) -> dict:
 
 
 @router.get("/api/learning/modules")
-async def get_learning_modules(current_user: dict = Depends(get_current_user)):
+async def get_learning_modules(
+    language: Optional[str] = Query(default=None, max_length=20),
+    current_user: dict = Depends(get_current_user),
+):
     family_id = _require_family(current_user)
     with get_db_connection() as conn:
-        lessons = conn.execute(
-            "SELECT lesson_id, module FROM learning_lessons ORDER BY order_index"
-        ).fetchall()
+        if language:
+            lessons = conn.execute(
+                "SELECT lesson_id, module FROM learning_lessons WHERE language = ? ORDER BY order_index",
+                (language,),
+            ).fetchall()
+        else:
+            lessons = conn.execute(
+                "SELECT lesson_id, module FROM learning_lessons ORDER BY order_index"
+            ).fetchall()
         progress_rows = conn.execute(
             "SELECT lesson_id, completed, xp_earned FROM learning_progress WHERE family_id = ?",
             (family_id,),
@@ -109,12 +128,13 @@ async def get_learning_modules(current_user: dict = Depends(get_current_user)):
     for lesson in lessons:
         mod = lesson["module"]
         if mod not in modules:
-            meta = MODULE_META.get(mod, {"label": mod, "label_vi": mod, "emoji": "📚"})
+            meta = MODULE_META.get(mod, {"label": mod, "label_vi": mod, "emoji": "📚", "subject": "en"})
             modules[mod] = {
                 "module": mod,
                 "label": meta["label"],
                 "label_vi": meta["label_vi"],
                 "emoji": meta["emoji"],
+                "subject": meta.get("subject", "en"),
                 "total_lessons": 0,
                 "completed_lessons": 0,
                 "module_xp": 0,

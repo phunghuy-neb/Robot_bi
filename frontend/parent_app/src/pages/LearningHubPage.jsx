@@ -2,11 +2,26 @@ import { useState, useEffect } from 'react';
 import { getLearningModules, getLearningLesson, submitLearningLesson, showToast } from '../services/api.js';
 
 const MODULE_COLORS = {
-  colors:  { bg: '#fff3e0', accent: '#ff9800', icon: '🎨' },
-  animals: { bg: '#e8f5e9', accent: '#4caf50', icon: '🐾' },
-  numbers: { bg: '#e3f2fd', accent: '#2196f3', icon: '🔢' },
-  family:  { bg: '#fce4ec', accent: '#e91e63', icon: '👨‍👩‍👧' },
+  // English
+  colors:       { bg: '#fff3e0', accent: '#ff9800', icon: '🎨' },
+  animals:      { bg: '#e8f5e9', accent: '#4caf50', icon: '🐾' },
+  numbers:      { bg: '#e3f2fd', accent: '#2196f3', icon: '🔢' },
+  family:       { bg: '#fce4ec', accent: '#e91e63', icon: '👨‍👩‍👧' },
+  // Math
+  math_shapes:  { bg: '#ede7f6', accent: '#7c3aed', icon: '🔺' },
+  math_add:     { bg: '#e8eaf6', accent: '#3f51b5', icon: '➕' },
+  math_count:   { bg: '#e3f2fd', accent: '#0288d1', icon: '🔢' },
+  // Science
+  sci_weather:  { bg: '#fff8e1', accent: '#f59e0b', icon: '☀️' },
+  sci_body:     { bg: '#fbe9e7', accent: '#ef5350', icon: '🧠' },
+  sci_plant:    { bg: '#e8f5e9', accent: '#2e7d32', icon: '🌱' },
 };
+
+const SUBJECTS = [
+  { key: 'en',      label: '🔤 Tiếng Anh', color: '#2196f3' },
+  { key: 'math',    label: '🔢 Toán',      color: '#7c3aed' },
+  { key: 'science', label: '🔬 Khoa học',  color: '#2e7d32' },
+];
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -22,6 +37,7 @@ export default function LearningHubPage() {
   const [modules, setModules] = useState([]);
   const [streak, setStreak] = useState({ current: 0, total_xp: 0 });
   const [loading, setLoading] = useState(true);
+  const [activeSubject, setActiveSubject] = useState('en');
 
   const [selectedModule, setSelectedModule] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -257,12 +273,28 @@ export default function LearningHubPage() {
   }
 
   // Modules view (default)
+  const subjectInfo = SUBJECTS.find(s => s.key === activeSubject) || SUBJECTS[0];
+  const filteredModules = modules.filter(m => (m.subject || 'en') === activeSubject);
+
   return (
     <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 28, fontWeight: 700 }}>🔤 Học Tiếng Anh</div>
-        <div style={{ fontSize: 14, color: 'var(--muted)' }}>Cho bé 5–7 tuổi</div>
+      {/* Subject tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
+        {SUBJECTS.map(subj => (
+          <button
+            key={subj.key}
+            onClick={() => setActiveSubject(subj.key)}
+            style={{
+              whiteSpace: 'nowrap', padding: '8px 16px', borderRadius: 99,
+              border: `2px solid ${subj.color}`,
+              background: activeSubject === subj.key ? subj.color : 'transparent',
+              color: activeSubject === subj.key ? '#fff' : subj.color,
+              fontWeight: 600, fontSize: 14, cursor: 'pointer',
+            }}
+          >
+            {subj.label}
+          </button>
+        ))}
       </div>
 
       {/* Streak bar */}
@@ -282,33 +314,41 @@ export default function LearningHubPage() {
       </div>
 
       {/* Module grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {modules.map(mod => {
-          const colors = MODULE_COLORS[mod.module] || { bg: '#f5f5f5', accent: '#666', icon: '📚' };
-          const pct = mod.total_lessons ? Math.round((mod.completed_lessons / mod.total_lessons) * 100) : 0;
-          return (
-            <button
-              key={mod.module}
-              onClick={() => openModule(mod)}
-              style={{
-                background: colors.bg, borderRadius: 16, padding: '18px 14px',
-                border: `2px solid ${colors.accent}22`, cursor: 'pointer',
-                textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 6,
-              }}
-            >
-              <div style={{ fontSize: 44 }}>{colors.icon}</div>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>{mod.label}</div>
-              <div style={{ fontSize: 12, color: '#666' }}>{mod.label_vi}</div>
-              <div style={{ background: '#ddd', borderRadius: 99, height: 6, margin: '4px 0' }}>
-                <div style={{ width: `${pct}%`, background: colors.accent, height: 6, borderRadius: 99 }} />
-              </div>
-              <div style={{ fontSize: 11, color: '#888' }}>
-                {mod.completed_lessons}/{mod.total_lessons} bài · {mod.module_xp} XP
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
+      ) : filteredModules.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--muted)' }}>
+          Chưa có bài học nào
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {filteredModules.map(mod => {
+            const colors = MODULE_COLORS[mod.module] || { bg: '#f5f5f5', accent: '#666', icon: '📚' };
+            const pct = mod.total_lessons ? Math.round((mod.completed_lessons / mod.total_lessons) * 100) : 0;
+            return (
+              <button
+                key={mod.module}
+                onClick={() => openModule(mod)}
+                style={{
+                  background: colors.bg, borderRadius: 16, padding: '18px 14px',
+                  border: `2px solid ${colors.accent}22`, cursor: 'pointer',
+                  textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 6,
+                }}
+              >
+                <div style={{ fontSize: 44 }}>{colors.icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{mod.label}</div>
+                <div style={{ fontSize: 12, color: '#666' }}>{mod.label_vi}</div>
+                <div style={{ background: '#ddd', borderRadius: 99, height: 6, margin: '4px 0' }}>
+                  <div style={{ width: `${pct}%`, background: colors.accent, height: 6, borderRadius: 99 }} />
+                </div>
+                <div style={{ fontSize: 11, color: '#888' }}>
+                  {mod.completed_lessons}/{mod.total_lessons} bài · {mod.module_xp} XP
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -237,6 +237,185 @@ def _seed_learning_content(conn) -> None:
         ]),
     ]
 
+    MATH_LESSONS = [
+        # ── SHAPES ───────────────────────────────────────────────
+        ("math_shapes", "Hình dạng 1", "Basic Shapes", "🔺", 1, [
+            ("Hình tròn",      "Circle",    "⭕", ["Hình tròn","Hình vuông","Tam giác","Hình chữ nhật"]),
+            ("Hình vuông",     "Square",    "🟦", ["Hình tròn","Hình vuông","Tam giác","Hình thoi"]),
+            ("Tam giác",       "Triangle",  "🔺", ["Tam giác","Hình tròn","Hình vuông","Hình chữ nhật"]),
+            ("Hình chữ nhật",  "Rectangle", "▭",  ["Hình chữ nhật","Hình vuông","Tam giác","Hình tròn"]),
+            ("Hình thoi",      "Diamond",   "💠", ["Hình thoi","Hình tròn","Tam giác","Ngôi sao"]),
+        ]),
+        ("math_shapes", "Hình dạng 2", "Shapes in life", "🌟", 2, [
+            ("Hình tròn",      "Mặt trời có dạng hình gì?",     "☀️", ["Hình tròn","Tam giác","Hình vuông","Hình chữ nhật"]),
+            ("Hình chữ nhật",  "Cửa sổ có dạng hình gì?",       "🪟", ["Hình tròn","Hình vuông","Hình chữ nhật","Tam giác"]),
+            ("Hình tròn",      "Bánh pizza có dạng hình gì?",    "🍕", ["Hình thoi","Hình tròn","Tam giác","Hình vuông"]),
+            ("Tam giác",       "Nón lá có dạng hình gì?",        "👒", ["Tam giác","Hình tròn","Hình vuông","Hình chữ nhật"]),
+            ("Hình vuông",     "Khăn tay vuông có dạng gì?",     "🟦", ["Hình tròn","Hình vuông","Tam giác","Hình thoi"]),
+        ]),
+        ("math_shapes", "Ôn tập hình dạng", "Shape Review", "✏️", 3, [
+            ("Tam giác",       "Triangle",  "🔺", ["Hình tròn","Hình vuông","Tam giác","Hình chữ nhật"]),
+            ("Hình tròn",      "Circle",    "⭕", ["Hình thoi","Hình tròn","Tam giác","Hình vuông"]),
+            ("Hình vuông",     "Square",    "🟦", ["Hình chữ nhật","Hình vuông","Tam giác","Hình tròn"]),
+            ("Hình chữ nhật",  "Rectangle", "▭",  ["Hình chữ nhật","Hình vuông","Hình tròn","Tam giác"]),
+            ("Hình thoi",      "Diamond",   "💠", ["Tam giác","Hình tròn","Hình thoi","Hình vuông"]),
+        ]),
+        # ── ADDITION ─────────────────────────────────────────────
+        ("math_add", "Cộng trong 5", "Add up to 5", "➕", 1, [
+            ("2", "1 + 1 = ?", "🧮", ["1","2","3","4"]),
+            ("3", "1 + 2 = ?", "🧮", ["2","3","4","5"]),
+            ("4", "2 + 2 = ?", "🧮", ["3","4","5","6"]),
+            ("5", "2 + 3 = ?", "🧮", ["3","4","5","6"]),
+            ("4", "3 + 1 = ?", "🧮", ["2","3","4","5"]),
+        ]),
+        ("math_add", "Cộng trong 10", "Add up to 10", "➕", 2, [
+            ("7", "3 + 4 = ?", "🧮", ["6","7","8","9"]),
+            ("8", "5 + 3 = ?", "🧮", ["6","7","8","9"]),
+            ("9", "4 + 5 = ?", "🧮", ["7","8","9","10"]),
+            ("10","5 + 5 = ?", "🧮", ["8","9","10","11"]),
+            ("6", "4 + 2 = ?", "🧮", ["5","6","7","8"]),
+        ]),
+        ("math_add", "Ôn tập phép cộng", "Addition Review", "🔢", 3, [
+            ("3", "1 + 2 = ?", "🧮", ["2","3","4","5"]),
+            ("5", "3 + 2 = ?", "🧮", ["4","5","6","7"]),
+            ("7", "4 + 3 = ?", "🧮", ["5","6","7","8"]),
+            ("9", "6 + 3 = ?", "🧮", ["7","8","9","10"]),
+            ("10","7 + 3 = ?", "🧮", ["8","9","10","11"]),
+        ]),
+        # ── COUNTING ─────────────────────────────────────────────
+        ("math_count", "Đếm 1-5", "Count 1-5", "🔢", 1, [
+            ("Một",   "1", "1️⃣", ["Một","Hai","Ba","Bốn"]),
+            ("Hai",   "2", "2️⃣", ["Một","Hai","Ba","Năm"]),
+            ("Ba",    "3", "3️⃣", ["Hai","Ba","Bốn","Năm"]),
+            ("Bốn",   "4", "4️⃣", ["Ba","Bốn","Năm","Sáu"]),
+            ("Năm",   "5", "5️⃣", ["Ba","Bốn","Năm","Sáu"]),
+        ]),
+        ("math_count", "Đếm 6-10", "Count 6-10", "🔢", 2, [
+            ("Sáu",   "6", "6️⃣", ["Năm","Sáu","Bảy","Tám"]),
+            ("Bảy",   "7", "7️⃣", ["Sáu","Bảy","Tám","Chín"]),
+            ("Tám",   "8", "8️⃣", ["Bảy","Tám","Chín","Mười"]),
+            ("Chín",  "9", "9️⃣", ["Bảy","Tám","Chín","Mười"]),
+            ("Mười", "10", "🔟", ["Tám","Chín","Mười","Mười một"]),
+        ]),
+        ("math_count", "Ôn tập đếm số", "Count Review", "🧮", 3, [
+            ("Hai",   "2", "2️⃣", ["Một","Hai","Ba","Bốn"]),
+            ("Năm",   "5", "5️⃣", ["Ba","Bốn","Năm","Sáu"]),
+            ("Bảy",   "7", "7️⃣", ["Năm","Sáu","Bảy","Tám"]),
+            ("Mười", "10", "🔟", ["Tám","Chín","Mười","Mười một"]),
+            ("Ba",    "3", "3️⃣", ["Một","Hai","Ba","Bốn"]),
+        ]),
+    ]
+
+    SCIENCE_LESSONS = [
+        # ── WEATHER ──────────────────────────────────────────────
+        ("sci_weather", "Thời tiết 1", "Weather", "☀️", 1, [
+            ("Nắng",     "Trời có nắng sáng",        "☀️", ["Nắng","Mưa","Mây","Gió"]),
+            ("Mưa",      "Nước rơi từ trên xuống",   "🌧️", ["Nắng","Mưa","Tuyết","Sương"]),
+            ("Mây",      "Đám bông trắng trên trời", "☁️", ["Mây","Gió","Mưa","Sao"]),
+            ("Cầu vồng", "Xuất hiện sau cơn mưa",    "🌈", ["Cầu vồng","Mây","Nắng","Sao"]),
+            ("Gió",      "Không khí chuyển động",    "🌬️", ["Nắng","Mưa","Gió","Mây"]),
+        ]),
+        ("sci_weather", "Bầu trời", "The Sky", "🌙", 2, [
+            ("Mặt trời", "Ngôi sao sáng ban ngày",          "☀️", ["Mặt trời","Mặt trăng","Ngôi sao","Hành tinh"]),
+            ("Mặt trăng","Sáng lên ban đêm",                "🌙", ["Mặt trời","Mặt trăng","Ngôi sao","Thiên hà"]),
+            ("Ngôi sao", "Lấp lánh trên bầu trời đêm",      "⭐", ["Mặt trời","Mặt trăng","Ngôi sao","Hành tinh"]),
+            ("Trái đất", "Hành tinh chúng ta đang sống",    "🌍", ["Trái đất","Mặt trăng","Sao Hỏa","Hành tinh"]),
+            ("Bầu trời", "Màu xanh vào ban ngày",           "🌤️", ["Bầu trời","Mặt trăng","Biển","Rừng"]),
+        ]),
+        ("sci_weather", "Ôn tập thiên nhiên", "Nature Review", "🌿", 3, [
+            ("Nắng",     "Trời có nắng sáng",        "☀️", ["Nắng","Mưa","Gió","Mây"]),
+            ("Mặt trăng","Sáng lên ban đêm",         "🌙", ["Mặt trời","Mặt trăng","Ngôi sao","Mây"]),
+            ("Cầu vồng", "Xuất hiện sau cơn mưa",    "🌈", ["Mây","Nắng","Cầu vồng","Gió"]),
+            ("Trái đất", "Hành tinh chúng ta sống",  "🌍", ["Mặt trời","Trái đất","Mặt trăng","Ngôi sao"]),
+            ("Mưa",      "Nước rơi từ trên xuống",   "🌧️", ["Nắng","Gió","Mưa","Mây"]),
+        ]),
+        # ── BODY ─────────────────────────────────────────────────
+        ("sci_body", "Bộ phận đầu", "Head Parts", "🧠", 1, [
+            ("Mắt",   "Dùng để nhìn",          "👁️", ["Mắt","Tai","Mũi","Miệng"]),
+            ("Tai",   "Dùng để nghe",          "👂", ["Mắt","Tai","Mũi","Miệng"]),
+            ("Mũi",   "Dùng để ngửi và thở",  "👃", ["Mắt","Tai","Mũi","Miệng"]),
+            ("Miệng", "Dùng để ăn và nói",    "👄", ["Mắt","Tai","Mũi","Miệng"]),
+            ("Tóc",   "Mọc trên đầu",          "💇", ["Tóc","Da","Tai","Mắt"]),
+        ]),
+        ("sci_body", "Tay và chân", "Hands & Feet", "✋", 2, [
+            ("Tay",      "Dùng để cầm nắm",       "✋", ["Tay","Chân","Đầu","Bụng"]),
+            ("Chân",     "Dùng để đi lại",        "🦶", ["Tay","Chân","Đầu","Lưng"]),
+            ("Ngón tay", "Mỗi bàn tay có 5...",  "☝️", ["Ngón tay","Ngón chân","Móng tay","Cổ tay"]),
+            ("Bụng",     "Nơi chứa dạ dày",       "🍽️", ["Bụng","Ngực","Lưng","Vai"]),
+            ("Lưng",     "Phần sau của cơ thể",   "🔙", ["Lưng","Bụng","Ngực","Hông"]),
+        ]),
+        ("sci_body", "Ôn tập cơ thể", "Body Review", "💪", 3, [
+            ("Mắt",   "Dùng để nhìn",          "👁️", ["Tai","Mắt","Miệng","Mũi"]),
+            ("Tay",   "Dùng để cầm nắm",       "✋", ["Chân","Đầu","Tay","Bụng"]),
+            ("Mũi",   "Dùng để ngửi",          "👃", ["Miệng","Tai","Mũi","Mắt"]),
+            ("Chân",  "Dùng để đi lại",        "🦶", ["Tay","Chân","Lưng","Bụng"]),
+            ("Miệng", "Dùng để ăn và nói",    "👄", ["Mắt","Mũi","Tai","Miệng"]),
+        ]),
+        # ── PLANTS ───────────────────────────────────────────────
+        ("sci_plant", "Cây cối", "Plants", "🌱", 1, [
+            ("Rễ",   "Hút nước từ đất",              "🌱", ["Rễ","Thân","Lá","Hoa"]),
+            ("Thân", "Đỡ cành và lá",                "🌳", ["Rễ","Thân","Lá","Hoa"]),
+            ("Lá",   "Quang hợp tạo thức ăn",        "🍃", ["Rễ","Thân","Lá","Quả"]),
+            ("Hoa",  "Nở đẹp và thơm",               "🌸", ["Lá","Hoa","Quả","Hạt"]),
+            ("Quả",  "Mọc ra từ hoa",                "🍎", ["Hoa","Quả","Lá","Hạt"]),
+        ]),
+        ("sci_plant", "Rau và quả", "Vegetables & Fruits", "🥦", 2, [
+            ("Cà rốt",  "Củ màu cam dưới đất",       "🥕", ["Cà rốt","Cà chua","Dưa chuột","Bắp cải"]),
+            ("Cà chua", "Quả đỏ tròn",               "🍅", ["Cà rốt","Cà chua","Táo","Dâu"]),
+            ("Táo",     "Quả đỏ ngọt",               "🍎", ["Táo","Cam","Chuối","Xoài"]),
+            ("Chuối",   "Quả vàng dài cong",          "🍌", ["Táo","Cam","Chuối","Xoài"]),
+            ("Bắp ngô", "Hạt vàng trên lõi",         "🌽", ["Bắp ngô","Cà rốt","Cà chua","Dưa"]),
+        ]),
+        ("sci_plant", "Ôn tập thực vật", "Plant Review", "🌿", 3, [
+            ("Lá",      "Quang hợp tạo thức ăn",     "🍃", ["Rễ","Thân","Lá","Hoa"]),
+            ("Cà chua", "Quả đỏ tròn",               "🍅", ["Cà rốt","Cà chua","Táo","Dưa"]),
+            ("Hoa",     "Nở đẹp và thơm",            "🌸", ["Lá","Hoa","Quả","Rễ"]),
+            ("Chuối",   "Quả vàng dài cong",          "🍌", ["Táo","Cam","Chuối","Xoài"]),
+            ("Rễ",      "Hút nước từ đất",            "🌱", ["Rễ","Thân","Lá","Quả"]),
+        ]),
+    ]
+
+    math_module_order = {"math_shapes": 1, "math_add": 2, "math_count": 3}
+    sci_module_order  = {"sci_weather": 1, "sci_body": 2, "sci_plant": 3}
+
+    for (module, title, title_vi, emoji, lesson_order, items) in MATH_LESSONS:
+        lesson_id = f"vi57_math_{module.split('_')[1]}_{lesson_order}"
+        conn.execute(
+            """INSERT OR IGNORE INTO learning_lessons
+               (lesson_id, language, age_group, module, title, title_vi, emoji, order_index, xp_reward)
+               VALUES (?, 'vi', '5-7', ?, ?, ?, ?, ?, 10)""",
+            (lesson_id, module, title, title_vi, emoji,
+             math_module_order[module] * 100 + lesson_order),
+        )
+        for idx, (word, word_vi, word_emoji, options) in enumerate(items):
+            item_id = f"{lesson_id}_q{idx + 1}"
+            conn.execute(
+                """INSERT OR IGNORE INTO learning_items
+                   (item_id, lesson_id, order_index, question, question_vi, emoji, answer, options_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (item_id, lesson_id, idx, word, word_vi, word_emoji,
+                 word, _json.dumps(options)),
+            )
+
+    for (module, title, title_vi, emoji, lesson_order, items) in SCIENCE_LESSONS:
+        lesson_id = f"vi57_sci_{module.split('_')[1]}_{lesson_order}"
+        conn.execute(
+            """INSERT OR IGNORE INTO learning_lessons
+               (lesson_id, language, age_group, module, title, title_vi, emoji, order_index, xp_reward)
+               VALUES (?, 'vi', '5-7', ?, ?, ?, ?, ?, 10)""",
+            (lesson_id, module, title, title_vi, emoji,
+             sci_module_order[module] * 100 + lesson_order),
+        )
+        for idx, (word, word_vi, word_emoji, options) in enumerate(items):
+            item_id = f"{lesson_id}_q{idx + 1}"
+            conn.execute(
+                """INSERT OR IGNORE INTO learning_items
+                   (item_id, lesson_id, order_index, question, question_vi, emoji, answer, options_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (item_id, lesson_id, idx, word, word_vi, word_emoji,
+                 word, _json.dumps(options)),
+            )
+
     module_order = {"colors": 1, "animals": 2, "numbers": 3, "family": 4}
     for (module, title, title_vi, emoji, lesson_order, items) in LESSONS:
         lesson_id = f"en57_{module}_{lesson_order}"

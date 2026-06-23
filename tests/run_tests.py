@@ -7023,14 +7023,18 @@ def test_78_learning_items_table_exists():
 
 def test_78_seed_content_lessons_count():
     with _get_db_connection() as conn:
-        count = conn.execute("SELECT COUNT(*) FROM learning_lessons WHERE language='en' AND age_group='5-7'").fetchone()[0]
-    assert count == 12, f"Phải có 12 lesson (4 module × 3), thực tế: {count}"
+        count_en = conn.execute("SELECT COUNT(*) FROM learning_lessons WHERE language='en' AND age_group='5-7'").fetchone()[0]
+        count_vi = conn.execute("SELECT COUNT(*) FROM learning_lessons WHERE language='vi' AND age_group='5-7'").fetchone()[0]
+        count_total = conn.execute("SELECT COUNT(*) FROM learning_lessons WHERE age_group='5-7'").fetchone()[0]
+    assert count_en == 12, f"Phải có 12 lesson Tiếng Anh (4 module × 3), thực tế: {count_en}"
+    assert count_vi == 18, f"Phải có 18 lesson VN (Toán 9 + KH 9), thực tế: {count_vi}"
+    assert count_total == 30, f"Tổng phải có 30 lesson, thực tế: {count_total}"
 
 
 def test_78_seed_content_items_count():
     with _get_db_connection() as conn:
         count = conn.execute("SELECT COUNT(*) FROM learning_items").fetchone()[0]
-    assert count == 60, f"Phải có 60 item (12 lesson × 5), thực tế: {count}"
+    assert count == 150, f"Phải có 150 item (30 lesson × 5), thực tế: {count}"
 
 
 def test_78_get_modules_via_testclient():
@@ -7043,8 +7047,15 @@ def test_78_get_modules_via_testclient():
     assert r.status_code == 200, f"status={r.status_code} body={r.text[:200]}"
     body = r.json()
     assert "modules" in body, "missing modules key"
-    assert len(body["modules"]) == 4, f"phải có 4 module, có {len(body['modules'])}"
+    assert len(body["modules"]) == 10, f"phải có 10 module (4 EN + 3 Toán + 3 KH), có {len(body['modules'])}"
     assert "streak" in body
+    # Language filter
+    r2 = client.get("/api/learning/modules?language=en", headers=headers)
+    assert r2.status_code == 200
+    assert len(r2.json()["modules"]) == 4, "filter language=en phải trả 4 module"
+    r3 = client.get("/api/learning/modules?language=vi", headers=headers)
+    assert r3.status_code == 200
+    assert len(r3.json()["modules"]) == 6, "filter language=vi phải trả 6 module (3 Toán + 3 KH)"
 
 
 def test_78_submit_correct_answers():
@@ -7106,9 +7117,9 @@ test("78.3  POST /api/learning/lessons/{id}/submit đăng ký",                 
 test("78.4  GET /api/learning/progress đăng ký",                             test_78_progress_endpoint_registered)
 test("78.5  DB: bảng learning_lessons tồn tại sau init_db",                  test_78_learning_lessons_table_exists)
 test("78.6  DB: bảng learning_items tồn tại sau init_db",                    test_78_learning_items_table_exists)
-test("78.7  Seed: 12 lesson (4 module × 3)",                                 test_78_seed_content_lessons_count)
-test("78.8  Seed: 60 item (12 lesson × 5)",                                  test_78_seed_content_items_count)
-test("78.9  TestClient: GET /api/learning/modules trả về 4 module",          test_78_get_modules_via_testclient)
+test("78.7  Seed: 30 lesson (EN 12 + Toán 9 + KH 9)",                        test_78_seed_content_lessons_count)
+test("78.8  Seed: 150 item (30 lesson × 5)",                                 test_78_seed_content_items_count)
+test("78.9  TestClient: GET /api/learning/modules → 10 module + language filter", test_78_get_modules_via_testclient)
 test("78.10 TestClient: submit 5/5 đúng → score=5, xp>0, completed=True",   test_78_submit_correct_answers)
 test("78.11 TestClient: streak >= 1 sau khi làm bài",                        test_78_streak_increments_on_activity)
 
