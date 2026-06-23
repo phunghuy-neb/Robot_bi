@@ -1,10 +1,12 @@
 """Video call API routes."""
 
-from fastapi import APIRouter, Depends, HTTPException
+import json
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.api.routers.conversation_router import _require_family
 from src.communication.video_call import VideoCallManager
 from src.infrastructure.auth.auth import get_current_user
+from src.infrastructure.database.db import get_db_connection
 
 router = APIRouter()
 _manager = VideoCallManager()
@@ -37,10 +39,36 @@ async def get_contacts(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/api/video/history")
-async def get_call_history(current_user: dict = Depends(get_current_user)):
-    """Return persisted call history placeholder for the current family."""
-    _require_family(current_user)
-    return {"history": []}
+async def get_call_history(
+    limit: int = Query(default=20, ge=1, le=100),
+    current_user: dict = Depends(get_current_user),
+):
+    """Return call history from events table for the current family."""
+    family_id = _require_family(current_user)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT event_id, metadata_json, timestamp
+            FROM events
+            WHERE family_id = ? AND type = 'video_call'
+            ORDER BY timestamp DESC
+            LIMIT ?
+            """,
+            (family_id, limit),
+        ).fetchall()
+    history = []
+    for row in rows:
+        try:
+            meta = json.loads(row["metadata_json"] or "{}")
+        except Exception:
+            meta = {}
+        history.append({
+            "call_id": row["event_id"],
+            "caller": meta.get("caller", ""),
+            "duration_seconds": meta.get("duration_seconds", 0),
+            "ended_at": row["timestamp"],
+        })
+    return {"history": history}
 
 
 @router.post("/api/video/contacts")

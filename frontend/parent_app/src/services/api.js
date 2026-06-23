@@ -370,7 +370,19 @@ export async function getSystemLogs() {
       source: entry.component || entry.source || '',
     }));
   }
-  return mockSystemLogs();
+  return [];
+}
+
+export async function addChildProfile(profileData) {
+  return apiFetch('/api/children', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profileData),
+  });
+}
+
+export async function deleteChildProfile(childId) {
+  return apiFetch(`/api/children/${childId}`, { method: 'DELETE' });
 }
 
 export async function getSleepSchedule() {

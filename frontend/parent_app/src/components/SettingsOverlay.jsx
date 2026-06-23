@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import {
   apiFetch,
   getChildProfiles,
+  addChildProfile,
+  deleteChildProfile,
   getSystemLogs,
   getSleepSchedule,
   saveSleepSchedule,
@@ -20,6 +22,12 @@ import FeatureBadge from './FeatureBadge.jsx';
 export default function SettingsOverlay({ isAdmin, onClose }) {
   const [childProfiles, setChildProfiles] = useState([]);
   const [childLoading, setChildLoading] = useState(true);
+  const [showAddChild, setShowAddChild] = useState(false);
+  const [newChildName, setNewChildName] = useState('');
+  const [newChildAge, setNewChildAge] = useState('');
+  const [newChildGrade, setNewChildGrade] = useState('');
+  const [newChildAvatar, setNewChildAvatar] = useState('👧');
+  const [addingChild, setAddingChild] = useState(false);
   const [persona, setPersona] = useState(null);
   const [personaLoading, setPersonaLoading] = useState(false);
   const [families, setFamilies] = useState([]);
@@ -57,6 +65,39 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
     const data = await getChildProfiles();
     setChildProfiles(data || []);
     setChildLoading(false);
+  }
+
+  async function handleAddChild(e) {
+    e.preventDefault();
+    const name = newChildName.trim();
+    if (!name) return;
+    setAddingChild(true);
+    const result = await addChildProfile({
+      name,
+      age: newChildAge ? parseInt(newChildAge, 10) : undefined,
+      grade: newChildGrade || undefined,
+      avatar: newChildAvatar || '👧',
+    });
+    setAddingChild(false);
+    if (result?.child_id || result?.ok) {
+      showToast(`✅ Đã thêm hồ sơ: ${name}`);
+      setNewChildName(''); setNewChildAge(''); setNewChildGrade(''); setNewChildAvatar('👧');
+      setShowAddChild(false);
+      loadChildProfiles();
+    } else {
+      showToast('❌ Thêm hồ sơ thất bại, thử lại sau');
+    }
+  }
+
+  async function handleDeleteChild(child) {
+    if (!window.confirm(`Xoá hồ sơ "${child.name}"?`)) return;
+    const result = await deleteChildProfile(child.id);
+    if (result?.ok) {
+      showToast(`🗑 Đã xoá: ${child.name}`);
+      loadChildProfiles();
+    } else {
+      showToast('❌ Xoá thất bại');
+    }
   }
 
   async function loadSettingsFromBackend() {
@@ -255,24 +296,84 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
             <SectionState state="empty" emptyText="Chưa có hồ sơ trẻ." emptyIcon="👧" />
           ) : (
             childProfiles.map(child => (
-              <div key={child.id} className="profile-card">
-                <div className="profile-avatar">{child.avatar}</div>
-                <div>
-                  <div className="profile-name">{child.name}</div>
-                  <div className="profile-info">
-                    {child.age} tuổi · {child.grade} · Giới hạn {child.dailyLimit} phút/ngày
+              <div key={child.id} className="profile-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="profile-avatar">{child.avatar}</div>
+                  <div>
+                    <div className="profile-name">{child.name}</div>
+                    <div className="profile-info">
+                      {child.age ? `${child.age} tuổi` : ''}{child.grade ? ` · ${child.grade}` : ''}
+                    </div>
                   </div>
                 </div>
+                <button
+                  className="btn-sm"
+                  style={{ background: 'none', color: 'var(--danger, #e53e3e)', border: '1px solid var(--danger, #e53e3e)', minWidth: 32 }}
+                  onClick={() => handleDeleteChild(child)}
+                  title="Xoá hồ sơ"
+                >
+                  🗑
+                </button>
               </div>
             ))
           )}
           <button
             className="btn-outline"
             style={{ marginTop: 10, width: '100%' }}
-            onClick={() => showToast('Quản lý hồ sơ: Sắp hỗ trợ')}
+            onClick={() => setShowAddChild(v => !v)}
           >
-            ➕ Thêm hồ sơ
+            {showAddChild ? '✖ Đóng' : '➕ Thêm hồ sơ'}
           </button>
+          {showAddChild && (
+            <form onSubmit={handleAddChild} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <input
+                className="form-input"
+                placeholder="Tên bé *"
+                value={newChildName}
+                onChange={e => setNewChildName(e.target.value)}
+                maxLength={80}
+                required
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="form-input"
+                  placeholder="Tuổi"
+                  type="number"
+                  min="1" max="18"
+                  value={newChildAge}
+                  onChange={e => setNewChildAge(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <input
+                  className="form-input"
+                  placeholder="Lớp (vd: 1)"
+                  value={newChildGrade}
+                  onChange={e => setNewChildGrade(e.target.value)}
+                  maxLength={40}
+                  style={{ flex: 1 }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Avatar:</span>
+                {['👧', '👦', '🧒', '👶', '🐱', '🐶'].map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setNewChildAvatar(emoji)}
+                    style={{
+                      fontSize: 22, background: 'none', border: newChildAvatar === emoji ? '2px solid var(--primary)' : '2px solid transparent',
+                      borderRadius: 8, cursor: 'pointer', padding: 2,
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              <button type="submit" className="btn-sm primary" disabled={addingChild || !newChildName.trim()}>
+                {addingChild ? '⏳ Đang thêm...' : '✅ Lưu hồ sơ'}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Section 2: Thông báo & Nhắc nhở */}

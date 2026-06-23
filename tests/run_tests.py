@@ -6902,6 +6902,86 @@ test("76.8  api.js export sendParentChat + getParentChatHistory",          test_
 test("76.9  LearningPage wire Chat với Bi (không có coming-soon)",         test_76_learning_page_wired)
 test("76.10 admin_router có _LOG_BUFFER + _BufferHandler thật",            test_76_admin_router_log_buffer)
 
+# == GROUP 77: Video call history + api.js child CRUD + getSystemLogs fix =====
+print("\n[Group 77] Video history / Child CRUD frontend / SystemLogs fix")
+
+
+def test_77_video_history_reads_events_table():
+    import inspect
+    from src.api.routers import video_call_router
+    src = inspect.getsource(video_call_router)
+    assert "FROM events" in src, "video_call_router GET /api/video/history phải đọc từ bảng events"
+    assert "video_call" in src, "video_call_router phải lọc type='video_call'"
+
+
+def test_77_video_history_endpoint_returns_list():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"vc-hist-{_uuid.uuid4().hex[:6]}"
+    headers = _phase44_headers("vc_hist", fam)
+    client = TestClient(app)
+    r = client.get("/api/video/history", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code}"
+    body = r.json()
+    assert "history" in body, f"missing history: {body}"
+    assert isinstance(body["history"], list)
+
+
+def test_77_api_js_has_add_child_profile():
+    src = open("frontend/parent_app/src/services/api.js", encoding="utf-8").read()
+    assert "export async function addChildProfile" in src, "api.js thiếu addChildProfile"
+    assert "POST" in src, "addChildProfile phải dùng POST"
+
+
+def test_77_api_js_has_delete_child_profile():
+    src = open("frontend/parent_app/src/services/api.js", encoding="utf-8").read()
+    assert "export async function deleteChildProfile" in src, "api.js thiếu deleteChildProfile"
+    assert "/api/children/" in src, "deleteChildProfile phải gọi /api/children/{id}"
+
+
+def test_77_settings_overlay_add_form():
+    src = open("frontend/parent_app/src/components/SettingsOverlay.jsx", encoding="utf-8").read()
+    assert "addChildProfile" in src, "SettingsOverlay phải import addChildProfile"
+    assert "handleAddChild" in src, "SettingsOverlay phải có handleAddChild handler"
+    assert "showAddChild" in src, "SettingsOverlay phải có showAddChild state"
+
+
+def test_77_settings_overlay_delete_button():
+    src = open("frontend/parent_app/src/components/SettingsOverlay.jsx", encoding="utf-8").read()
+    assert "deleteChildProfile" in src, "SettingsOverlay phải import deleteChildProfile"
+    assert "handleDeleteChild" in src, "SettingsOverlay phải có handleDeleteChild handler"
+
+
+def test_77_get_system_logs_returns_empty_not_mock():
+    src = open("frontend/parent_app/src/services/api.js", encoding="utf-8").read()
+    import re
+    # getSystemLogs block phải trả về [] chứ không phải mockSystemLogs()
+    block_match = re.search(
+        r"export async function getSystemLogs\(\)(.*?)^export", src, re.DOTALL | re.MULTILINE
+    )
+    assert block_match, "Không tìm thấy getSystemLogs function"
+    fn_body = block_match.group(1)
+    assert "mockSystemLogs()" not in fn_body, "getSystemLogs không được fallback về mockSystemLogs()"
+    assert "return []" in fn_body, "getSystemLogs phải trả về [] khi API thất bại"
+
+
+def test_77_demo_web_script_exists():
+    import os
+    assert os.path.exists("tests/demo_web.py"), "tests/demo_web.py phải tồn tại"
+    src = open("tests/demo_web.py", encoding="utf-8").read()
+    assert "TestClient" in src, "demo_web.py phải dùng TestClient"
+    assert "SKIP_LLM" in src, "demo_web.py phải hỗ trợ SKIP_LLM flag"
+
+
+test("77.1 video_call_router GET /api/video/history đọc events table",    test_77_video_history_reads_events_table)
+test("77.2 GET /api/video/history trả về list (TestClient)",              test_77_video_history_endpoint_returns_list)
+test("77.3 api.js có addChildProfile POST /api/children",                 test_77_api_js_has_add_child_profile)
+test("77.4 api.js có deleteChildProfile DELETE /api/children/{id}",       test_77_api_js_has_delete_child_profile)
+test("77.5 SettingsOverlay có add-child form + state",                    test_77_settings_overlay_add_form)
+test("77.6 SettingsOverlay có delete button per child",                   test_77_settings_overlay_delete_button)
+test("77.7 getSystemLogs fallback về [] không phải mockSystemLogs",       test_77_get_system_logs_returns_empty_not_mock)
+test("77.8 tests/demo_web.py tồn tại và dùng TestClient",                 test_77_demo_web_script_exists)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
