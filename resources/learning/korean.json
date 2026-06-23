@@ -1,0 +1,203 @@
+{
+  "subject": "korean",
+  "exams": [
+    {
+      "paper_id": "korean_beginner_greet_1",
+      "title": "Tiếng Hàn — Chào hỏi cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "greetings",
+      "questions": [
+        {
+          "question": "안녕하세요 (annyeonghaseyo) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🇰🇷",
+          "options": ["Xin chào", "Tạm biệt", "Cảm ơn", "Xin lỗi"],
+          "answer": "Xin chào",
+          "explanation": "안녕하세요 (annyeonghaseyo) = xin chào (lịch sự).",
+          "difficulty": 1
+        },
+        {
+          "question": "감사합니다 (gamsahamnida) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": ["Cảm ơn", "Xin chào", "Tạm biệt", "Vâng"],
+          "answer": "Cảm ơn",
+          "explanation": "감사합니다 (gamsahamnida) = cảm ơn (lịch sự).",
+          "difficulty": 1
+        },
+        {
+          "question": "네 (ne) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": ["Vâng / Đúng", "Không", "Cảm ơn", "Tạm biệt"],
+          "answer": "Vâng / Đúng",
+          "explanation": "네 (ne) = vâng, đúng.",
+          "difficulty": 1
+        },
+        {
+          "question": "아니요 (aniyo) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❌",
+          "options": ["Không", "Vâng", "Cảm ơn", "Xin chào"],
+          "answer": "Không",
+          "explanation": "아니요 (aniyo) = không.",
+          "difficulty": 2
+        },
+        {
+          "question": "죄송합니다 (joesonghamnida) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "😟",
+          "options": ["Xin lỗi", "Cảm ơn", "Xin chào", "Tạm biệt"],
+          "answer": "Xin lỗi",
+          "explanation": "죄송합니다 (joesonghamnida) = xin lỗi (lịch sự).",
+          "difficulty": 2
+        },
+        {
+          "question": "Muốn nói 'Cảm ơn' lịch sự bằng tiếng Hàn, em nói gì?",
+          "question_vi": "",
+          "emoji": "💬",
+          "options": ["감사합니다", "안녕하세요", "네", "아니요"],
+          "answer": "감사합니다",
+          "explanation": "감사합니다 (gamsahamnida) = cảm ơn.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_beginner_hangul_1",
+      "title": "Tiếng Hàn — Hangul cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "hangul",
+      "questions": [
+        {
+          "question": "Phụ âm ㄱ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["g/k", "n", "m", "b"],
+          "answer": "g/k",
+          "explanation": "ㄱ đọc là 'g' (hoặc 'k').",
+          "difficulty": 2
+        },
+        {
+          "question": "Phụ âm ㄴ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["n", "g", "m", "r/l"],
+          "answer": "n",
+          "explanation": "ㄴ đọc là 'n'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nguyên âm ㅏ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["a", "eo", "o", "u"],
+          "answer": "a",
+          "explanation": "ㅏ đọc là 'a'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nguyên âm ㅗ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["o", "a", "i", "eu"],
+          "answer": "o",
+          "explanation": "ㅗ đọc là 'o'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phụ âm ㅁ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["m", "n", "b", "g"],
+          "answer": "m",
+          "explanation": "ㅁ đọc là 'm'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ 아 (ghép ㅇ + ㅏ) đọc là gì?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": ["a", "ya", "o", "eo"],
+          "answer": "a",
+          "explanation": "ㅇ ở đầu là âm câm, ㅏ là 'a', nên 아 đọc là 'a'.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_beginner_numbers_words_1",
+      "title": "Tiếng Hàn — Số đếm & Từ thông dụng (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "numbers_words",
+      "questions": [
+        {
+          "question": "하나 (hana) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": ["Một", "Hai", "Ba", "Bốn"],
+          "answer": "Một",
+          "explanation": "하나 (hana) = một (số đếm thuần Hàn).",
+          "difficulty": 2
+        },
+        {
+          "question": "둘 (dul) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": ["Hai", "Một", "Ba", "Năm"],
+          "answer": "Hai",
+          "explanation": "둘 (dul) = hai (số đếm thuần Hàn).",
+          "difficulty": 2
+        },
+        {
+          "question": "셋 (set) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "3️⃣",
+          "options": ["Ba", "Hai", "Bốn", "Một"],
+          "answer": "Ba",
+          "explanation": "셋 (set) = ba (số đếm thuần Hàn).",
+          "difficulty": 2
+        },
+        {
+          "question": "물 (mul) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["Nước", "Lửa", "Cơm", "Sữa"],
+          "answer": "Nước",
+          "explanation": "물 (mul) = nước.",
+          "difficulty": 2
+        },
+        {
+          "question": "고양이 (goyangi) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🐱",
+          "options": ["Con mèo", "Con chó", "Con cá", "Con chim"],
+          "answer": "Con mèo",
+          "explanation": "고양이 (goyangi) = con mèo.",
+          "difficulty": 3
+        },
+        {
+          "question": "책 (chaek) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["Quyển sách", "Cái bút", "Cái bàn", "Cái ghế"],
+          "answer": "Quyển sách",
+          "explanation": "책 (chaek) = sách.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

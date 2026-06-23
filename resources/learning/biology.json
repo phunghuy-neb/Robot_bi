@@ -1,0 +1,65 @@
+{
+  "subject": "biology",
+  "exams": [
+    {
+      "paper_id": "biology_thcs_cell_1",
+      "title": "Sinh học THCS — Tế bào (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "cell",
+      "questions": [
+        {"question": "Đơn vị cấu tạo cơ bản của mọi cơ thể sống là gì?", "question_vi": "", "emoji": "🔬", "options": ["Tế bào", "Mô", "Cơ quan", "Phân tử"], "answer": "Tế bào", "explanation": "Tế bào là đơn vị cấu tạo và chức năng cơ bản của sự sống.", "difficulty": 1},
+        {"question": "Bộ phận nào điều khiển mọi hoạt động của tế bào?", "question_vi": "", "emoji": "🧫", "options": ["Nhân tế bào", "Màng tế bào", "Tế bào chất", "Không bào"], "answer": "Nhân tế bào", "explanation": "Nhân chứa vật chất di truyền và điều khiển hoạt động tế bào.", "difficulty": 2},
+        {"question": "Bào quan nào thực hiện quang hợp ở tế bào thực vật?", "question_vi": "", "emoji": "🌿", "options": ["Lục lạp", "Ti thể", "Ribosome", "Lysosome"], "answer": "Lục lạp", "explanation": "Lục lạp chứa diệp lục, thực hiện quang hợp.", "difficulty": 2},
+        {"question": "Bào quan được gọi là 'nhà máy năng lượng' của tế bào là gì?", "question_vi": "", "emoji": "⚡", "options": ["Ti thể", "Lục lạp", "Nhân", "Màng"], "answer": "Ti thể", "explanation": "Ti thể tạo năng lượng (ATP) cho tế bào qua hô hấp.", "difficulty": 3},
+        {"question": "Thành tế bào (vách tế bào) có ở loại tế bào nào?", "question_vi": "", "emoji": "🌱", "options": ["Tế bào thực vật", "Tế bào động vật", "Tế bào thần kinh", "Tế bào máu"], "answer": "Tế bào thực vật", "explanation": "Tế bào thực vật có thành xenlulozơ; tế bào động vật thì không.", "difficulty": 2},
+        {"question": "Quá trình tế bào lớn lên và phân chia thành hai tế bào con gọi là gì?", "question_vi": "", "emoji": "➗", "options": ["Phân bào", "Hô hấp", "Quang hợp", "Bài tiết"], "answer": "Phân bào", "explanation": "Phân bào giúp cơ thể lớn lên và thay thế tế bào cũ.", "difficulty": 2},
+        {"question": "Tế bào nhân sơ khác tế bào nhân thực ở điểm nào?", "question_vi": "", "emoji": "🦠", "options": ["Chưa có nhân hoàn chỉnh", "Có lục lạp", "Có ti thể", "Lớn hơn nhiều"], "answer": "Chưa có nhân hoàn chỉnh", "explanation": "Tế bào nhân sơ (vi khuẩn) chưa có màng nhân bao bọc.", "difficulty": 3},
+        {"question": "Cấp độ tổ chức nào lớn hơn tế bào nhưng nhỏ hơn cơ quan?", "question_vi": "", "emoji": "🧩", "options": ["Mô", "Hệ cơ quan", "Cơ thể", "Phân tử"], "answer": "Mô", "explanation": "Thứ tự: tế bào → mô → cơ quan → hệ cơ quan → cơ thể.", "difficulty": 2}
+      ]
+    },
+    {
+      "paper_id": "biology_thcs_organs_1",
+      "title": "Sinh học THCS — Hệ cơ quan người (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "human_organs",
+      "questions": [
+        {"question": "Cơ quan nào của hệ hô hấp thực hiện trao đổi khí?", "question_vi": "", "emoji": "🫁", "options": ["Phổi", "Tim", "Gan", "Thận"], "answer": "Phổi", "explanation": "Phổi trao đổi O₂ và CO₂ với máu.", "difficulty": 1},
+        {"question": "Cơ quan nào bơm máu đi khắp cơ thể?", "question_vi": "", "emoji": "❤️", "options": ["Tim", "Phổi", "Dạ dày", "Não"], "answer": "Tim", "explanation": "Tim là máy bơm của hệ tuần hoàn.", "difficulty": 1},
+        {"question": "Cơ quan nào lọc máu và tạo nước tiểu?", "question_vi": "", "emoji": "🫘", "options": ["Thận", "Gan", "Lách", "Tụy"], "answer": "Thận", "explanation": "Thận lọc chất thải khỏi máu tạo thành nước tiểu.", "difficulty": 2},
+        {"question": "Quá trình tiêu hóa thức ăn bắt đầu ở đâu?", "question_vi": "", "emoji": "👄", "options": ["Miệng", "Dạ dày", "Ruột non", "Thực quản"], "answer": "Miệng", "explanation": "Tiêu hóa bắt đầu ở miệng nhờ răng nghiền và enzyme nước bọt.", "difficulty": 2},
+        {"question": "Phần lớn chất dinh dưỡng được hấp thụ ở cơ quan nào?", "question_vi": "", "emoji": "🌀", "options": ["Ruột non", "Dạ dày", "Ruột già", "Miệng"], "answer": "Ruột non", "explanation": "Ruột non có lông ruột hấp thụ phần lớn dinh dưỡng.", "difficulty": 3},
+        {"question": "Hệ cơ quan nào điều khiển và phối hợp hoạt động cơ thể?", "question_vi": "", "emoji": "🧠", "options": ["Hệ thần kinh", "Hệ tiêu hóa", "Hệ bài tiết", "Hệ hô hấp"], "answer": "Hệ thần kinh", "explanation": "Hệ thần kinh (não, tủy, dây thần kinh) điều khiển cơ thể.", "difficulty": 2},
+        {"question": "Máu có màu đỏ là nhờ thành phần nào?", "question_vi": "", "emoji": "🩸", "options": ["Hồng cầu (hemoglobin)", "Bạch cầu", "Tiểu cầu", "Huyết tương"], "answer": "Hồng cầu (hemoglobin)", "explanation": "Hemoglobin trong hồng cầu chứa sắt, tạo màu đỏ và vận chuyển O₂.", "difficulty": 3},
+        {"question": "Bộ phận nào của cơ thể giúp nâng đỡ và bảo vệ nội quan?", "question_vi": "", "emoji": "🦴", "options": ["Bộ xương", "Da", "Cơ", "Máu"], "answer": "Bộ xương", "explanation": "Bộ xương nâng đỡ cơ thể và bảo vệ các cơ quan như não, tim, phổi.", "difficulty": 2}
+      ]
+    },
+    {
+      "paper_id": "biology_thcs_genetics_eco_1",
+      "title": "Sinh học THCS — Di truyền & Hệ sinh thái (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "genetics",
+      "questions": [
+        {"question": "Vật chất mang thông tin di truyền trong tế bào là gì?", "question_vi": "", "emoji": "🧬", "options": ["ADN", "ATP", "Protein", "Lipit"], "answer": "ADN", "explanation": "ADN chứa thông tin di truyền dưới dạng gen.", "difficulty": 2},
+        {"question": "Người đặt nền móng cho di truyền học qua thí nghiệm trên cây đậu Hà Lan là ai?", "question_vi": "", "emoji": "🌱", "options": ["Mendel", "Darwin", "Newton", "Pasteur"], "answer": "Mendel", "explanation": "Gregor Mendel là cha đẻ của di truyền học.", "difficulty": 3},
+        {"question": "Một đoạn ADN mang thông tin quy định một tính trạng gọi là gì?", "question_vi": "", "emoji": "🔬", "options": ["Gen", "Nhiễm sắc thể", "Tế bào", "Mô"], "answer": "Gen", "explanation": "Gen là đơn vị di truyền quy định tính trạng.", "difficulty": 2},
+        {"question": "Sinh vật tự tổng hợp chất hữu cơ (như cây xanh) được gọi là gì?", "question_vi": "", "emoji": "🌳", "options": ["Sinh vật sản xuất", "Sinh vật tiêu thụ", "Sinh vật phân giải", "Sinh vật ký sinh"], "answer": "Sinh vật sản xuất", "explanation": "Cây xanh quang hợp tạo chất hữu cơ → sinh vật sản xuất.", "difficulty": 2},
+        {"question": "Trong chuỗi thức ăn 'cỏ → thỏ → cáo', thỏ đóng vai trò gì?", "question_vi": "", "emoji": "🐰", "options": ["Sinh vật tiêu thụ bậc 1", "Sinh vật sản xuất", "Sinh vật phân giải", "Sinh vật tiêu thụ bậc 2"], "answer": "Sinh vật tiêu thụ bậc 1", "explanation": "Thỏ ăn cỏ (sinh vật sản xuất) nên là tiêu thụ bậc 1.", "difficulty": 3},
+        {"question": "Vi khuẩn và nấm phân hủy xác sinh vật được gọi là gì?", "question_vi": "", "emoji": "🍄", "options": ["Sinh vật phân giải", "Sinh vật sản xuất", "Sinh vật tiêu thụ", "Thực vật"], "answer": "Sinh vật phân giải", "explanation": "Chúng phân hủy chất hữu cơ, trả lại chất vô cơ cho môi trường.", "difficulty": 2},
+        {"question": "Tập hợp các sinh vật cùng loài sống trong một khu vực gọi là gì?", "question_vi": "", "emoji": "🦌", "options": ["Quần thể", "Quần xã", "Hệ sinh thái", "Sinh quyển"], "answer": "Quần thể", "explanation": "Quần thể = các cá thể cùng loài, cùng nơi sống, cùng thời điểm.", "difficulty": 3},
+        {"question": "Khí nào do cây xanh thải ra khi quang hợp, cần cho hô hấp?", "question_vi": "", "emoji": "🍃", "options": ["Khí oxi", "Khí cacbonic", "Khí nitơ", "Khí hiđrô"], "answer": "Khí oxi", "explanation": "Quang hợp tạo ra khí oxi cần cho hô hấp của sinh vật.", "difficulty": 1}
+      ]
+    }
+  ]
+}

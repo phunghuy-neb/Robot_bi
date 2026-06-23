@@ -1,0 +1,257 @@
+{
+  "subject": "history",
+  "exams": [
+    {
+      "paper_id": "history_vn_1",
+      "title": "Lịch sử Việt Nam — Anh hùng dân tộc (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "vietnam_history",
+      "questions": [
+        {
+          "question": "Ai là người lãnh đạo cuộc khởi nghĩa Hai Bà Trưng năm 40?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Trưng Trắc và Trưng Nhị", "Lý Thường Kiệt", "Ngô Quyền", "Đinh Bộ Lĩnh"],
+          "answer": "Trưng Trắc và Trưng Nhị",
+          "explanation": "Hai Bà Trưng là Trưng Trắc và Trưng Nhị, lãnh đạo khởi nghĩa chống quân Hán năm 40.",
+          "difficulty": 1
+        },
+        {
+          "question": "Ngô Quyền đã đánh tan quân Nam Hán trên con sông nào năm 938?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": ["Sông Bạch Đằng", "Sông Hồng", "Sông Mã", "Sông Cửu Long"],
+          "answer": "Sông Bạch Đằng",
+          "explanation": "Năm 938, Ngô Quyền chiến thắng quân Nam Hán trên sông Bạch Đằng bằng kế cắm cọc gỗ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Người đã dẹp loạn 12 sứ quân và lập ra nhà Đinh là ai?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": ["Đinh Bộ Lĩnh", "Lê Hoàn", "Lý Công Uẩn", "Trần Hưng Đạo"],
+          "answer": "Đinh Bộ Lĩnh",
+          "explanation": "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân, lên ngôi xưng là Đinh Tiên Hoàng, lập nước Đại Cồ Việt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lý Công Uẩn dời đô từ Hoa Lư về đâu vào năm 1010?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": ["Thăng Long", "Phú Xuân", "Cổ Loa", "Tây Đô"],
+          "answer": "Thăng Long",
+          "explanation": "Năm 1010, vua Lý Công Uẩn (Lý Thái Tổ) dời đô từ Hoa Lư về Thăng Long (Hà Nội ngày nay).",
+          "difficulty": 2
+        },
+        {
+          "question": "Vị tướng nào ba lần lãnh đạo quân dân nhà Trần đánh thắng quân Nguyên - Mông?",
+          "question_vi": "",
+          "emoji": "⚔️",
+          "options": ["Trần Hưng Đạo", "Lý Thường Kiệt", "Nguyễn Huệ", "Lê Lợi"],
+          "answer": "Trần Hưng Đạo",
+          "explanation": "Trần Hưng Đạo (Trần Quốc Tuấn) lãnh đạo nhà Trần ba lần đánh bại quân Nguyên - Mông.",
+          "difficulty": 2
+        },
+        {
+          "question": "Người anh hùng nào lãnh đạo nghĩa quân Lam Sơn đánh đuổi quân Minh?",
+          "question_vi": "",
+          "emoji": "🗡️",
+          "options": ["Lê Lợi", "Quang Trung", "Ngô Quyền", "Đinh Bộ Lĩnh"],
+          "answer": "Lê Lợi",
+          "explanation": "Lê Lợi lãnh đạo khởi nghĩa Lam Sơn, đánh đuổi quân Minh và lập ra nhà Lê.",
+          "difficulty": 2
+        },
+        {
+          "question": "Vua Quang Trung (Nguyễn Huệ) đã đại phá quân Thanh vào dịp nào năm 1789?",
+          "question_vi": "",
+          "emoji": "🎆",
+          "options": ["Tết Kỷ Dậu", "Tết Trung Thu", "Lễ Vu Lan", "Tết Đoan Ngọ"],
+          "answer": "Tết Kỷ Dậu",
+          "explanation": "Năm 1789, vua Quang Trung đại phá 29 vạn quân Thanh trong dịp Tết Kỷ Dậu, giải phóng Thăng Long.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vị vua nào được xem là người lập ra nhà Nguyễn năm 1802?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": ["Gia Long", "Minh Mạng", "Tự Đức", "Hàm Nghi"],
+          "answer": "Gia Long",
+          "explanation": "Nguyễn Ánh lên ngôi năm 1802, lấy niên hiệu Gia Long, lập ra triều Nguyễn, đóng đô ở Phú Xuân (Huế).",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "history_vn_2",
+      "title": "Lịch sử Việt Nam — Cách mạng và kháng chiến (Đề 2)",
+      "track": "exam_thpt",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "vietnam_history",
+      "questions": [
+        {
+          "question": "Cách mạng tháng Tám thành công vào năm nào?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": ["1945", "1930", "1954", "1975"],
+          "answer": "1945",
+          "explanation": "Cách mạng tháng Tám năm 1945 giành chính quyền về tay nhân dân, mở ra kỷ nguyên độc lập.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập tại Quảng trường Ba Đình vào ngày nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["2/9/1945", "30/4/1975", "7/5/1954", "19/8/1945"],
+          "answer": "2/9/1945",
+          "explanation": "Ngày 2/9/1945, Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập, khai sinh nước Việt Nam Dân chủ Cộng hòa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chiến thắng Điện Biên Phủ diễn ra vào năm nào?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": ["1954", "1945", "1968", "1972"],
+          "answer": "1954",
+          "explanation": "Chiến thắng Điện Biên Phủ ngày 7/5/1954 buộc Pháp ký Hiệp định Genève, kết thúc chiến tranh ở Đông Dương.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ai là Tổng chỉ huy chiến dịch Điện Biên Phủ năm 1954?",
+          "question_vi": "",
+          "emoji": "⭐",
+          "options": ["Đại tướng Võ Nguyên Giáp", "Trần Hưng Đạo", "Lê Lợi", "Phạm Văn Đồng"],
+          "answer": "Đại tướng Võ Nguyên Giáp",
+          "explanation": "Đại tướng Võ Nguyên Giáp là Tổng tư lệnh, chỉ huy chiến dịch Điện Biên Phủ giành thắng lợi.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đảng Cộng sản Việt Nam được thành lập vào năm nào?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": ["1930", "1945", "1925", "1954"],
+          "answer": "1930",
+          "explanation": "Đảng Cộng sản Việt Nam được thành lập ngày 3/2/1930 do Nguyễn Ái Quốc chủ trì hợp nhất các tổ chức cộng sản.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chiến dịch Hồ Chí Minh giải phóng miền Nam, thống nhất đất nước kết thúc vào ngày nào?",
+          "question_vi": "",
+          "emoji": "🎉",
+          "options": ["30/4/1975", "2/9/1945", "7/5/1954", "19/5/1890"],
+          "answer": "30/4/1975",
+          "explanation": "Ngày 30/4/1975, miền Nam hoàn toàn giải phóng, đất nước thống nhất.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hiệp định Paris về chấm dứt chiến tranh, lập lại hòa bình ở Việt Nam được ký năm nào?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": ["1973", "1954", "1945", "1975"],
+          "answer": "1973",
+          "explanation": "Hiệp định Paris được ký ngày 27/1/1973, buộc Mỹ rút quân khỏi miền Nam Việt Nam.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tên gọi của nước ta sau khi thống nhất, từ năm 1976, là gì?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": ["Cộng hòa Xã hội Chủ nghĩa Việt Nam", "Việt Nam Dân chủ Cộng hòa", "Đại Việt", "Đại Cồ Việt"],
+          "answer": "Cộng hòa Xã hội Chủ nghĩa Việt Nam",
+          "explanation": "Từ ngày 2/7/1976, nước ta mang tên Cộng hòa Xã hội Chủ nghĩa Việt Nam.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "history_world_1",
+      "title": "Lịch sử Thế giới — Các nền văn minh và sự kiện lớn (Đề 3)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "world_history",
+      "questions": [
+        {
+          "question": "Kim tự tháp Giza nổi tiếng nằm ở quốc gia nào?",
+          "question_vi": "",
+          "emoji": "🔺",
+          "options": ["Ai Cập", "Hy Lạp", "Ấn Độ", "Mexico"],
+          "answer": "Ai Cập",
+          "explanation": "Kim tự tháp Giza là công trình của nền văn minh Ai Cập cổ đại bên bờ sông Nile.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cuộc Cách mạng Pháp bùng nổ vào năm nào?",
+          "question_vi": "",
+          "emoji": "🇫🇷",
+          "options": ["1789", "1776", "1492", "1914"],
+          "answer": "1789",
+          "explanation": "Cách mạng Pháp bùng nổ năm 1789 với sự kiện phá ngục Bastille ngày 14/7.",
+          "difficulty": 2
+        },
+        {
+          "question": "Christopher Columbus tìm ra châu Mỹ vào năm nào?",
+          "question_vi": "",
+          "emoji": "🚢",
+          "options": ["1492", "1789", "1066", "1620"],
+          "answer": "1492",
+          "explanation": "Năm 1492, Christopher Columbus vượt Đại Tây Dương và đặt chân đến châu Mỹ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chiến tranh thế giới thứ hai kết thúc vào năm nào?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": ["1945", "1918", "1939", "1950"],
+          "answer": "1945",
+          "explanation": "Chiến tranh thế giới thứ hai kết thúc năm 1945 với sự đầu hàng của phát xít Đức và Nhật.",
+          "difficulty": 2
+        },
+        {
+          "question": "Vạn Lý Trường Thành là công trình nổi tiếng của quốc gia nào?",
+          "question_vi": "",
+          "emoji": "🧱",
+          "options": ["Trung Quốc", "Nhật Bản", "Ấn Độ", "Hàn Quốc"],
+          "answer": "Trung Quốc",
+          "explanation": "Vạn Lý Trường Thành là công trình phòng thủ khổng lồ của Trung Quốc cổ đại.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cuộc Cách mạng Công nghiệp lần thứ nhất khởi đầu ở quốc gia nào vào thế kỷ 18?",
+          "question_vi": "",
+          "emoji": "⚙️",
+          "options": ["Anh", "Pháp", "Đức", "Mỹ"],
+          "answer": "Anh",
+          "explanation": "Cách mạng Công nghiệp lần thứ nhất bắt đầu ở Anh vào nửa sau thế kỷ 18 với máy hơi nước.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cách mạng tháng Mười Nga thắng lợi vào năm nào?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": ["1917", "1789", "1945", "1991"],
+          "answer": "1917",
+          "explanation": "Cách mạng tháng Mười Nga năm 1917 đưa giai cấp công nhân lên nắm chính quyền, lập nhà nước Xô viết.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nền dân chủ đầu tiên trong lịch sử thường được cho là ra đời ở thành bang nào?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": ["Athens (Hy Lạp)", "Rome (La Mã)", "Babylon", "Sparta"],
+          "answer": "Athens (Hy Lạp)",
+          "explanation": "Nền dân chủ sơ khai ra đời tại thành bang Athens của Hy Lạp cổ đại.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

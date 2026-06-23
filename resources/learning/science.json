@@ -1,0 +1,257 @@
+{
+  "subject": "science",
+  "exams": [
+    {
+      "paper_id": "science_nature_1",
+      "title": "Khoa học — Thiên nhiên & Nước/Không khí (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "nature",
+      "questions": [
+        {
+          "question": "Nước sôi ở nhiệt độ bao nhiêu (ở áp suất thường)?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["100°C", "50°C", "0°C", "200°C"],
+          "answer": "100°C",
+          "explanation": "Ở áp suất khí quyển bình thường, nước sôi ở 100°C.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khí nào con người cần hít vào để sống?",
+          "question_vi": "",
+          "emoji": "🌬️",
+          "options": ["Khí ô-xy (oxygen)", "Khí cac-bô-níc (CO₂)", "Khí ni-tơ", "Khí hy-đrô"],
+          "answer": "Khí ô-xy (oxygen)",
+          "explanation": "Cơ thể cần khí ô-xy để hô hấp và tạo năng lượng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nước đóng băng (hóa rắn) ở nhiệt độ nào?",
+          "question_vi": "",
+          "emoji": "🧊",
+          "options": ["0°C", "10°C", "100°C", "-100°C"],
+          "answer": "0°C",
+          "explanation": "Nước tinh khiết đóng băng ở 0°C.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ba trạng thái thường gặp của nước là gì?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": ["Rắn, lỏng, khí", "Nóng, lạnh, ấm", "Trong, đục, bẩn", "To, nhỏ, vừa"],
+          "answer": "Rắn, lỏng, khí",
+          "explanation": "Nước có ba trạng thái: rắn (băng), lỏng (nước) và khí (hơi nước).",
+          "difficulty": 2
+        },
+        {
+          "question": "Mưa được hình thành chủ yếu từ quá trình nào?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": ["Hơi nước ngưng tụ thành mây rồi rơi xuống", "Cây cối nhả ra nước", "Đất hút nước lên trời", "Gió thổi nước biển lên cao"],
+          "answer": "Hơi nước ngưng tụ thành mây rồi rơi xuống",
+          "explanation": "Hơi nước bốc lên, gặp lạnh ngưng tụ thành mây, rồi rơi xuống thành mưa.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thành phần khí chiếm tỉ lệ lớn nhất trong không khí là gì?",
+          "question_vi": "",
+          "emoji": "💨",
+          "options": ["Khí ni-tơ (nitrogen)", "Khí ô-xy", "Khí cac-bô-níc", "Hơi nước"],
+          "answer": "Khí ni-tơ (nitrogen)",
+          "explanation": "Không khí chứa khoảng 78% ni-tơ, 21% ô-xy.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vì sao chúng ta cần bảo vệ nguồn nước sạch?",
+          "question_vi": "",
+          "emoji": "🚰",
+          "options": ["Vì nước sạch cần cho sự sống và sức khỏe", "Vì nước sạch có màu đẹp", "Vì nước sạch nặng hơn", "Vì nước sạch để bán"],
+          "answer": "Vì nước sạch cần cho sự sống và sức khỏe",
+          "explanation": "Mọi sinh vật đều cần nước sạch để sống và giữ sức khỏe.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi đun nước, hơi nước bay lên gọi là hiện tượng gì?",
+          "question_vi": "",
+          "emoji": "♨️",
+          "options": ["Bay hơi", "Đóng băng", "Ngưng tụ", "Tan chảy"],
+          "answer": "Bay hơi",
+          "explanation": "Nước chuyển từ lỏng sang khí gọi là sự bay hơi.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "science_humanbody_1",
+      "title": "Khoa học — Cơ thể người (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "human_body",
+      "questions": [
+        {
+          "question": "Cơ quan nào bơm máu đi khắp cơ thể?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": ["Tim", "Phổi", "Dạ dày", "Não"],
+          "answer": "Tim",
+          "explanation": "Tim co bóp để bơm máu đi nuôi toàn bộ cơ thể.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cơ quan nào giúp ta thở (trao đổi khí)?",
+          "question_vi": "",
+          "emoji": "🫁",
+          "options": ["Phổi", "Gan", "Thận", "Tim"],
+          "answer": "Phổi",
+          "explanation": "Phổi nhận ô-xy và thải khí cac-bô-níc khi ta hít thở.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cơ quan nào điều khiển suy nghĩ và hoạt động của cơ thể?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": ["Não", "Tim", "Dạ dày", "Da"],
+          "answer": "Não",
+          "explanation": "Não là trung tâm điều khiển mọi hoạt động và suy nghĩ.",
+          "difficulty": 1
+        },
+        {
+          "question": "Răng có chức năng chính là gì?",
+          "question_vi": "",
+          "emoji": "🦷",
+          "options": ["Cắn và nghiền nát thức ăn", "Bơm máu", "Lọc nước tiểu", "Hít thở"],
+          "answer": "Cắn và nghiền nát thức ăn",
+          "explanation": "Răng giúp nghiền nhỏ thức ăn để dễ tiêu hóa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bộ phận nào nâng đỡ và tạo hình dáng cho cơ thể?",
+          "question_vi": "",
+          "emoji": "🦴",
+          "options": ["Bộ xương", "Tóc", "Móng tay", "Mỡ"],
+          "answer": "Bộ xương",
+          "explanation": "Bộ xương tạo khung nâng đỡ và bảo vệ cơ thể.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để cơ thể khỏe mạnh, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🥗",
+          "options": ["Ăn uống đủ chất và tập thể dục", "Chỉ ăn kẹo", "Thức khuya mỗi ngày", "Không bao giờ vận động"],
+          "answer": "Ăn uống đủ chất và tập thể dục",
+          "explanation": "Ăn đủ chất, ngủ đủ giấc và vận động giúp cơ thể khỏe mạnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cơ quan nào lọc máu và tạo ra nước tiểu?",
+          "question_vi": "",
+          "emoji": "🫘",
+          "options": ["Thận", "Phổi", "Tim", "Não"],
+          "answer": "Thận",
+          "explanation": "Thận lọc các chất thải khỏi máu và tạo nước tiểu.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khi ta chạy nhanh, tim đập như thế nào?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": ["Đập nhanh hơn", "Đập chậm hơn", "Ngừng đập", "Không thay đổi"],
+          "answer": "Đập nhanh hơn",
+          "explanation": "Khi vận động mạnh, tim đập nhanh hơn để cung cấp đủ máu và ô-xy.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "science_solar_1",
+      "title": "Khoa học — Hệ Mặt Trời & Động thực vật (Đề 1)",
+      "track": "practice",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "solar_system",
+      "questions": [
+        {
+          "question": "Hành tinh nào chúng ta đang sống?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": ["Trái Đất", "Sao Hỏa", "Sao Kim", "Sao Mộc"],
+          "answer": "Trái Đất",
+          "explanation": "Chúng ta sống trên Trái Đất, hành tinh thứ ba tính từ Mặt Trời.",
+          "difficulty": 1
+        },
+        {
+          "question": "Ngôi sao ở trung tâm Hệ Mặt Trời là gì?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": ["Mặt Trời", "Mặt Trăng", "Sao Bắc Cực", "Sao Hỏa"],
+          "answer": "Mặt Trời",
+          "explanation": "Mặt Trời là ngôi sao ở trung tâm, các hành tinh quay quanh nó.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vật thể nào quay quanh Trái Đất?",
+          "question_vi": "",
+          "emoji": "🌙",
+          "options": ["Mặt Trăng", "Mặt Trời", "Sao Hỏa", "Sao Thổ"],
+          "answer": "Mặt Trăng",
+          "explanation": "Mặt Trăng là vệ tinh tự nhiên quay quanh Trái Đất.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hiện tượng ngày và đêm là do đâu?",
+          "question_vi": "",
+          "emoji": "🌗",
+          "options": ["Trái Đất tự quay quanh trục", "Mặt Trời tắt đi", "Mặt Trăng che Mặt Trời", "Mây che kín bầu trời"],
+          "answer": "Trái Đất tự quay quanh trục",
+          "explanation": "Trái Đất tự quay quanh trục nên có ngày và đêm luân phiên.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hành tinh nào được gọi là 'hành tinh đỏ'?",
+          "question_vi": "",
+          "emoji": "🔴",
+          "options": ["Sao Hỏa", "Sao Kim", "Sao Mộc", "Sao Thổ"],
+          "answer": "Sao Hỏa",
+          "explanation": "Sao Hỏa có màu đỏ do bề mặt chứa nhiều ô-xít sắt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cây xanh tự tạo thức ăn nhờ quá trình nào?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": ["Quang hợp", "Hô hấp", "Tiêu hóa", "Bay hơi"],
+          "answer": "Quang hợp",
+          "explanation": "Cây xanh dùng ánh sáng để quang hợp tạo ra chất dinh dưỡng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhóm động vật nào đẻ trứng?",
+          "question_vi": "",
+          "emoji": "🐔",
+          "options": ["Gà, chim, cá", "Chó, mèo, bò", "Người, khỉ", "Voi, hổ"],
+          "answer": "Gà, chim, cá",
+          "explanation": "Gà, chim và cá là những động vật đẻ trứng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bộ phận nào của cây hút nước và chất dinh dưỡng từ đất?",
+          "question_vi": "",
+          "emoji": "🌿",
+          "options": ["Rễ", "Lá", "Hoa", "Quả"],
+          "answer": "Rễ",
+          "explanation": "Rễ cây hút nước và muối khoáng từ đất nuôi cây.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

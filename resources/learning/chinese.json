@@ -1,0 +1,203 @@
+{
+  "subject": "chinese",
+  "exams": [
+    {
+      "paper_id": "chinese_beginner_greet_1",
+      "title": "Tiếng Trung — Chào hỏi cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "greetings",
+      "questions": [
+        {
+          "question": "你好 (nǐ hǎo) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🀄",
+          "options": ["Xin chào", "Tạm biệt", "Cảm ơn", "Xin lỗi"],
+          "answer": "Xin chào",
+          "explanation": "你好 (nǐ hǎo) = xin chào.",
+          "difficulty": 1
+        },
+        {
+          "question": "谢谢 (xièxie) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": ["Cảm ơn", "Xin chào", "Tạm biệt", "Vâng"],
+          "answer": "Cảm ơn",
+          "explanation": "谢谢 (xièxie) = cảm ơn.",
+          "difficulty": 1
+        },
+        {
+          "question": "再见 (zàijiàn) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": ["Tạm biệt", "Xin chào", "Cảm ơn", "Xin lỗi"],
+          "answer": "Tạm biệt",
+          "explanation": "再见 (zàijiàn) = tạm biệt.",
+          "difficulty": 1
+        },
+        {
+          "question": "对不起 (duìbuqǐ) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "😟",
+          "options": ["Xin lỗi", "Cảm ơn", "Xin chào", "Tạm biệt"],
+          "answer": "Xin lỗi",
+          "explanation": "对不起 (duìbuqǐ) = xin lỗi.",
+          "difficulty": 2
+        },
+        {
+          "question": "谢谢 trong tiếng Trung được phát âm (pinyin) là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["xièxie", "nǐ hǎo", "zàijiàn", "duìbuqǐ"],
+          "answer": "xièxie",
+          "explanation": "谢谢 đọc là xièxie.",
+          "difficulty": 2
+        },
+        {
+          "question": "Muốn nói 'Xin chào' với người Trung Quốc, em nói gì?",
+          "question_vi": "",
+          "emoji": "💬",
+          "options": ["你好", "谢谢", "再见", "对不起"],
+          "answer": "你好",
+          "explanation": "你好 (nǐ hǎo) = xin chào.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_beginner_numbers_1",
+      "title": "Tiếng Trung — Số đếm cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "numbers",
+      "questions": [
+        {
+          "question": "一 (yī) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": ["Một", "Hai", "Ba", "Bốn"],
+          "answer": "Một",
+          "explanation": "一 (yī) = một.",
+          "difficulty": 1
+        },
+        {
+          "question": "二 (èr) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": ["Hai", "Một", "Ba", "Năm"],
+          "answer": "Hai",
+          "explanation": "二 (èr) = hai.",
+          "difficulty": 1
+        },
+        {
+          "question": "三 (sān) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "3️⃣",
+          "options": ["Ba", "Hai", "Bốn", "Một"],
+          "answer": "Ba",
+          "explanation": "三 (sān) = ba.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số 'năm' trong tiếng Trung viết là gì?",
+          "question_vi": "",
+          "emoji": "5️⃣",
+          "options": ["五", "四", "六", "三"],
+          "answer": "五",
+          "explanation": "五 (wǔ) = năm.",
+          "difficulty": 2
+        },
+        {
+          "question": "十 (shí) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "🔟",
+          "options": ["Mười", "Chín", "Tám", "Bảy"],
+          "answer": "Mười",
+          "explanation": "十 (shí) = mười.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ 四 (sì) là số mấy?",
+          "question_vi": "",
+          "emoji": "4️⃣",
+          "options": ["Bốn", "Năm", "Sáu", "Ba"],
+          "answer": "Bốn",
+          "explanation": "四 (sì) = bốn.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_beginner_colors_family_1",
+      "title": "Tiếng Trung — Màu sắc & Gia đình (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "colors_family",
+      "questions": [
+        {
+          "question": "红色 (hóngsè) là màu gì?",
+          "question_vi": "",
+          "emoji": "🔴",
+          "options": ["Màu đỏ", "Màu xanh", "Màu vàng", "Màu đen"],
+          "answer": "Màu đỏ",
+          "explanation": "红色 (hóngsè) = màu đỏ.",
+          "difficulty": 1
+        },
+        {
+          "question": "白色 (báisè) là màu gì?",
+          "question_vi": "",
+          "emoji": "⚪",
+          "options": ["Màu trắng", "Màu đỏ", "Màu xanh", "Màu đen"],
+          "answer": "Màu trắng",
+          "explanation": "白色 (báisè) = màu trắng.",
+          "difficulty": 1
+        },
+        {
+          "question": "黑色 (hēisè) là màu gì?",
+          "question_vi": "",
+          "emoji": "⚫",
+          "options": ["Màu đen", "Màu trắng", "Màu đỏ", "Màu vàng"],
+          "answer": "Màu đen",
+          "explanation": "黑色 (hēisè) = màu đen.",
+          "difficulty": 2
+        },
+        {
+          "question": "妈妈 (māma) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👩",
+          "options": ["Mẹ", "Bố", "Anh", "Chị"],
+          "answer": "Mẹ",
+          "explanation": "妈妈 (māma) = mẹ.",
+          "difficulty": 1
+        },
+        {
+          "question": "爸爸 (bàba) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👨",
+          "options": ["Bố", "Mẹ", "Em", "Ông"],
+          "answer": "Bố",
+          "explanation": "爸爸 (bàba) = bố.",
+          "difficulty": 1
+        },
+        {
+          "question": "书 (shū) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["Quyển sách", "Cái bàn", "Cái ghế", "Cái bút"],
+          "answer": "Quyển sách",
+          "explanation": "书 (shū) = sách.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

@@ -92,6 +92,31 @@ ROADMAP_LEVELS = {
 }
 
 
+# Subject -> topics the AI generation pipeline targets (Phase 2 blueprint).
+# Drives /api/learning/curriculum and the admin batch-generate UI.
+CURRICULUM_BLUEPRINT = {
+    "en":         ["vocabulary", "grammar", "numbers", "family", "verbs", "school"],
+    "math":       ["arithmetic", "fractions", "geometry", "algebra", "equations",
+                   "derivatives", "probability", "logarithm"],
+    "science":    ["nature", "human_body", "solar_system", "water_air", "plants_animals"],
+    "physics":    ["force", "electricity", "optics", "heat", "energy"],
+    "chemistry":  ["elements", "reactions", "acid_base", "compounds"],
+    "biology":    ["cell", "human_organs", "genetics", "ecosystem", "plants"],
+    "vietnamese": ["vocabulary", "word_class", "punctuation", "idioms", "reading"],
+    "literature": ["authors_works", "rhetoric", "genres", "analysis"],
+    "history":    ["vietnam_history", "world_history", "dynasties", "events"],
+    "geography":  ["vietnam_geography", "world_geography", "climate", "capitals"],
+    "civics":     ["rights_duties", "traffic_safety", "ethics", "life_skills"],
+    "informatics":["hardware", "software_internet", "online_safety", "office"],
+    "chinese":    ["greetings", "numbers", "colors", "daily_words"],
+    "japanese":   ["greetings", "hiragana", "numbers", "daily_words"],
+    "korean":     ["greetings", "hangul", "numbers", "daily_words"],
+    "ielts":      ["reading", "listening", "grammar", "vocab"],
+    "toeic_lr":   ["part5_grammar", "part6_text", "part7_reading", "listening"],
+    "toeic_sw":   ["speaking", "writing"],
+}
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -505,6 +530,92 @@ async def admin_generate_questions(
         "offline": skip_llm,
         "questions": inserted,
     }
+
+
+class GenerateBatchRequest(BaseModel):
+    subject: str = Field(..., min_length=1, max_length=40)
+    topics: list[str] = Field(default_factory=list)
+    age_group: str = Field(default="all", max_length=20)
+    track: str = Field(default="practice", max_length=40)
+    skill: str = Field(default="", max_length=40)
+    level: str = Field(default="", max_length=40)
+    difficulty: int = Field(default=2, ge=1, le=5)
+    per_topic: int = Field(default=5, ge=1, le=20)
+    school_year: str = Field(default="2025-2026", max_length=20)
+
+
+@router.post("/api/learning/admin/generate-batch")
+async def admin_generate_batch(
+    body: GenerateBatchRequest,
+    admin: dict = Depends(require_admin),
+):
+    """Generate questions for many topics in one call. Each topic produces
+    `per_topic` questions into the review queue. Honors SKIP_LLM. Bounded so a
+    single batch cannot exceed 200 questions."""
+    family_id = _require_family(admin)
+    topics = [t.strip() for t in (body.topics or [""]) if t is not None] or [""]
+    if len(topics) * body.per_topic > 200:
+        raise HTTPException(status_code=422, detail="Batch too large (max 200 questions)")
+
+    skip_llm = os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes")
+    now = _utc_now()
+    per_topic_results = []
+    total_inserted = 0
+    with get_db_connection() as conn:
+        for topic in topics:
+            req = GenerateRequest(
+                subject=body.subject, topic=topic, age_group=body.age_group,
+                track=body.track, skill=body.skill, level=body.level,
+                difficulty=body.difficulty, count=body.per_topic,
+                school_year=body.school_year,
+            )
+            try:
+                items = _stub_questions(req) if skip_llm else _llm_generate_questions(req)
+            except Exception as e:
+                logger.warning("[exam] batch topic '%s' failed (%s) — stub", topic, e)
+                items = _stub_questions(req)
+            inserted = 0
+            for it in items:
+                options = it.get("options") or []
+                answer = (it.get("answer") or "").strip()
+                question = (it.get("question") or "").strip()
+                if not question or not answer or len(options) < 2:
+                    continue
+                if answer not in [str(o).strip() for o in options]:
+                    continue
+                conn.execute(
+                    """INSERT INTO question_bank
+                       (question_id, subject, topic, age_group, track, skill, level,
+                        difficulty, question_type, question, question_vi, emoji,
+                        options_json, answer, explanation, school_year, source,
+                        is_ai_generated, status, family_id, created_at, updated_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'mcq', ?, ?, '', ?, ?, ?, ?, 'ai', 1, 'review', ?, ?, ?)""",
+                    (uuid4().hex, body.subject, topic, body.age_group, body.track,
+                     body.skill, body.level, body.difficulty, question,
+                     it.get("question_vi", ""),
+                     json.dumps(options, ensure_ascii=False), answer,
+                     it.get("explanation", ""), body.school_year, family_id, now, now),
+                )
+                inserted += 1
+            total_inserted += inserted
+            per_topic_results.append({"topic": topic, "generated": inserted})
+        conn.commit()
+
+    return {
+        "ok": True,
+        "total_generated": total_inserted,
+        "status": "review",
+        "offline": skip_llm,
+        "topics": per_topic_results,
+    }
+
+
+@router.get("/api/learning/curriculum")
+async def get_curriculum(current_user: dict = Depends(get_current_user)):
+    """Curriculum blueprint: the subject → topics map the generation pipeline
+    targets. Drives the admin 'generate content' UI and batch jobs."""
+    _require_family(current_user)
+    return {"curriculum": CURRICULUM_BLUEPRINT}
 
 
 @router.get("/api/learning/admin/review")

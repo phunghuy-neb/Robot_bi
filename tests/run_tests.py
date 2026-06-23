@@ -7180,13 +7180,18 @@ def test_79_list_exams_and_tracks():
     client = TestClient(app)
     r = client.get("/api/learning/exams", headers=headers)
     assert r.status_code == 200, f"status={r.status_code} {r.text[:200]}"
-    assert len(r.json()["exams"]) == 3, f"phải có 3 đề, có {len(r.json()['exams'])}"
+    # >=3 vì có 3 đề starter + nhiều đề từ content packs (Phase 2).
+    paper_ids = {e["paper_id"] for e in r.json()["exams"]}
+    assert len(paper_ids) >= 3, f"phải có >= 3 đề, có {len(paper_ids)}"
+    for starter in ("exam_toeic_lr_starter_1", "exam_ielts_reading_starter_1",
+                    "exam_math_thpt_starter_1"):
+        assert starter in paper_ids, f"thiếu đề starter {starter}"
     rt = client.get("/api/learning/tracks", headers=headers)
     assert rt.status_code == 200
     assert len(rt.json()["tracks"]) == 11, f"phải có 11 track, có {len(rt.json()['tracks'])}"
     rs = client.get("/api/learning/subjects", headers=headers)
     assert rs.status_code == 200
-    assert len(rs.json()["subjects"]) == 3, "3 subject starter (toeic_lr, ielts, math)"
+    assert len(rs.json()["subjects"]) >= 3, "phải có >= 3 môn (starter + packs)"
 
 
 def test_79_exam_detail_hides_answers():
@@ -7292,6 +7297,120 @@ test("79.6  TestClient: GET exam detail KHÔNG lộ đáp án",                 
 test("79.7  Route /exams/sessions không bị {paper_id} che",                  test_79_sessions_route_not_shadowed)
 test("79.8  TestClient: submit chấm điểm + lưu session",                     test_79_submit_grades_and_stores_session)
 test("79.9  Admin: generate (offline) + review + publish + chặn non-admin", test_79_admin_generate_review_and_auth)
+
+
+# == Group 80: Phase 2 — content packs + batch generation ===================
+print("\n[Group 80] Phase 2 — content packs + batch generation")
+
+
+def test_80_packs_loaded():
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        papers = conn.execute(
+            "SELECT COUNT(*) FROM exam_papers WHERE source='pack'").fetchone()[0]
+        questions = conn.execute(
+            "SELECT COUNT(*) FROM question_bank WHERE source='pack'").fetchone()[0]
+    assert papers >= 60, f"phải nạp >= 60 đề từ pack, có {papers}"
+    assert questions >= 480, f"phải nạp >= 480 câu từ pack, có {questions}"
+
+
+def test_80_published_answers_valid():
+    # Data integrity: every published question's answer must be one of its options.
+    import json as _json
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            "SELECT options_json, answer FROM question_bank WHERE status='published'").fetchall()
+    bad = [r for r in rows if r["answer"] not in _json.loads(r["options_json"] or "[]")]
+    assert len(bad) == 0, f"{len(bad)} câu published có đáp án không khớp options"
+
+
+def test_80_subject_coverage():
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        subs = {r[0] for r in conn.execute(
+            "SELECT DISTINCT subject FROM exam_papers WHERE status='published'").fetchall()}
+    assert len(subs) >= 15, f"phải có >= 15 môn, có {len(subs)}"
+    for required in ("en", "math", "ielts", "toeic_lr", "chemistry", "literature", "history"):
+        assert required in subs, f"thiếu môn {required} trong content packs"
+
+
+def test_80_curriculum_endpoint():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    headers = _phase44_headers("curr", f"curr-{_uuid.uuid4().hex[:6]}")
+    client = TestClient(app)
+    r = client.get("/api/learning/curriculum", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code}"
+    cur = r.json()["curriculum"]
+    assert "math" in cur and isinstance(cur["math"], list) and len(cur["math"]) > 0
+
+
+def test_80_pack_exam_submit_end_to_end():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    headers = _phase44_headers("packex", f"pk-{_uuid.uuid4().hex[:6]}")
+    client = TestClient(app)
+    exams = client.get("/api/learning/exams?subject=math", headers=headers).json()["exams"]
+    assert len(exams) >= 1, "phải có ít nhất 1 đề Toán từ pack"
+    pid = exams[0]["paper_id"]
+    detail = client.get(f"/api/learning/exams/{pid}", headers=headers).json()
+    assert len(detail["questions"]) >= 1
+    # Answer everything with option[0] — just verify grading runs and stores a session.
+    answers = {q["question_id"]: q["options"][0] for q in detail["questions"]}
+    res = client.post(f"/api/learning/exams/{pid}/submit",
+                      json={"answers": answers, "time_spent_seconds": 60}, headers=headers)
+    assert res.status_code == 200, f"submit: {res.status_code} {res.text[:200]}"
+    body = res.json()
+    assert body["total_questions"] == len(detail["questions"])
+    assert 0 <= body["percent"] <= 100
+    assert len(body["review"]) == len(detail["questions"])
+
+
+def test_80_batch_generate_and_auth():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    admin_h = _phase44_headers("batch_adm", f"badm-{_uuid.uuid4().hex[:6]}", is_admin=True)
+    user_h = _phase44_headers("batch_usr", f"busr-{_uuid.uuid4().hex[:6]}")
+
+    blocked = client.post("/api/learning/admin/generate-batch",
+                          json={"subject": "math", "topics": ["a"], "per_topic": 2},
+                          headers=user_h)
+    assert blocked.status_code == 403, f"non-admin phải bị chặn, có {blocked.status_code}"
+
+    prev = _os.environ.get("SKIP_LLM")
+    _os.environ["SKIP_LLM"] = "1"
+    try:
+        r = client.post("/api/learning/admin/generate-batch",
+                        json={"subject": "geography", "topics": ["climate", "capitals"],
+                              "age_group": "11-14", "per_topic": 4, "difficulty": 2},
+                        headers=admin_h)
+        assert r.status_code == 200, f"batch: {r.status_code} {r.text[:200]}"
+        body = r.json()
+        assert body["total_generated"] == 8, f"2 topic × 4 = 8, có {body['total_generated']}"
+        assert len(body["topics"]) == 2
+        assert body["offline"] is True
+    finally:
+        if prev is None:
+            _os.environ.pop("SKIP_LLM", None)
+        else:
+            _os.environ["SKIP_LLM"] = prev
+
+    # Batch-size guard: 201 questions rejected.
+    too_big = client.post("/api/learning/admin/generate-batch",
+                          json={"subject": "math", "topics": ["x"] * 11, "per_topic": 20},
+                          headers=admin_h)
+    assert too_big.status_code == 422, "batch quá lớn phải bị từ chối 422"
+
+
+test("80.1  Pack loader: >=60 đề, >=480 câu nạp từ resources/learning",       test_80_packs_loaded)
+test("80.2  Data integrity: mọi câu published có đáp án ∈ options",            test_80_published_answers_valid)
+test("80.3  Coverage: >=15 môn + các môn trọng điểm có mặt",                   test_80_subject_coverage)
+test("80.4  GET /api/learning/curriculum trả blueprint",                       test_80_curriculum_endpoint)
+test("80.5  Pack exam: GET detail + submit chấm điểm end-to-end",              test_80_pack_exam_submit_end_to_end)
+test("80.6  Admin: generate-batch (offline) + chặn non-admin + guard size",   test_80_batch_generate_and_auth)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

@@ -1,0 +1,677 @@
+{
+  "subject": "math",
+  "exams": [
+    {
+      "paper_id": "math_g2_arith_1",
+      "title": "Toán Lớp 2 — Cộng trừ trong phạm vi 100 (Đề 1)",
+      "track": "practice",
+      "level": "grade_2",
+      "age_group": "6-7",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "arithmetic",
+      "questions": [
+        {
+          "question": "Kết quả của 12 + 15 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["27", "26", "25", "28"],
+          "answer": "27",
+          "explanation": "12 + 15 = 27.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của 30 - 14 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➖",
+          "options": ["16", "14", "18", "26"],
+          "answer": "16",
+          "explanation": "30 - 14 = 16.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số liền sau của 49 là số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["50", "48", "59", "40"],
+          "answer": "50",
+          "explanation": "Số liền sau của 49 là 49 + 1 = 50.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của 25 + 25 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["50", "45", "55", "40"],
+          "answer": "50",
+          "explanation": "25 + 25 = 50.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lan có 8 cái kẹo, mẹ cho thêm 7 cái. Lan có tất cả bao nhiêu cái kẹo?",
+          "question_vi": "",
+          "emoji": "🍬",
+          "options": ["15", "14", "16", "13"],
+          "answer": "15",
+          "explanation": "8 + 7 = 15 cái kẹo.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của 60 - 35 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➖",
+          "options": ["25", "35", "15", "30"],
+          "answer": "25",
+          "explanation": "60 - 35 = 25.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số nào lớn nhất trong các số: 45, 54, 35, 53?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": ["54", "53", "45", "35"],
+          "answer": "54",
+          "explanation": "So sánh: 54 > 53 > 45 > 35, nên 54 lớn nhất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một tuần có 7 ngày. Hai tuần có bao nhiêu ngày?",
+          "question_vi": "",
+          "emoji": "📅",
+          "options": ["14", "12", "21", "7"],
+          "answer": "14",
+          "explanation": "7 + 7 = 14 ngày.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g3_multdiv_1",
+      "title": "Toán Lớp 3 — Nhân chia (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "multiplication_division",
+      "questions": [
+        {
+          "question": "Kết quả của 6 × 7 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["42", "36", "48", "40"],
+          "answer": "42",
+          "explanation": "6 × 7 = 42.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của 36 : 4 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": ["9", "8", "6", "7"],
+          "answer": "9",
+          "explanation": "36 : 4 = 9.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của 8 × 9 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["72", "64", "81", "63"],
+          "answer": "72",
+          "explanation": "8 × 9 = 72.",
+          "difficulty": 2
+        },
+        {
+          "question": "Có 24 cái bánh chia đều cho 6 bạn. Mỗi bạn được bao nhiêu cái?",
+          "question_vi": "",
+          "emoji": "🍪",
+          "options": ["4", "3", "5", "6"],
+          "answer": "4",
+          "explanation": "24 : 6 = 4 cái bánh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của 7 × 8 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["56", "54", "64", "48"],
+          "answer": "56",
+          "explanation": "7 × 8 = 56.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của 45 : 5 + 3 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["12", "9", "15", "11"],
+          "answer": "12",
+          "explanation": "45 : 5 = 9, sau đó 9 + 3 = 12.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một hộp có 5 viên bi. Hỏi 9 hộp có bao nhiêu viên bi?",
+          "question_vi": "",
+          "emoji": "🔵",
+          "options": ["45", "40", "50", "54"],
+          "answer": "45",
+          "explanation": "5 × 9 = 45 viên bi.",
+          "difficulty": 3
+        },
+        {
+          "question": "Kết quả của 6 × 4 + 6 × 6 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["60", "54", "66", "48"],
+          "answer": "60",
+          "explanation": "6 × 4 = 24, 6 × 6 = 36, tổng là 24 + 36 = 60.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g4_fraction_geo_1",
+      "title": "Toán Lớp 4 — Phân số và hình học cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "fractions_geometry",
+      "questions": [
+        {
+          "question": "Phân số 1/2 bằng phân số nào sau đây?",
+          "question_vi": "",
+          "emoji": "🍰",
+          "options": ["2/4", "1/4", "3/4", "2/3"],
+          "answer": "2/4",
+          "explanation": "1/2 = 2/4 vì nhân cả tử và mẫu với 2.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của 1/5 + 2/5 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": ["3/5", "3/10", "2/5", "1/5"],
+          "answer": "3/5",
+          "explanation": "Cùng mẫu số: 1/5 + 2/5 = 3/5.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một hình chữ nhật có chiều dài 8 cm, chiều rộng 5 cm. Chu vi của nó là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["26 cm", "40 cm", "13 cm", "20 cm"],
+          "answer": "26 cm",
+          "explanation": "Chu vi = (8 + 5) × 2 = 13 × 2 = 26 cm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một hình chữ nhật có chiều dài 8 cm, chiều rộng 5 cm. Diện tích của nó là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": ["40 cm²", "26 cm²", "13 cm²", "45 cm²"],
+          "answer": "40 cm²",
+          "explanation": "Diện tích = 8 × 5 = 40 cm².",
+          "difficulty": 2
+        },
+        {
+          "question": "Phân số nào lớn hơn: 2/3 hay 1/2?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": ["2/3", "1/2", "Bằng nhau", "Không so sánh được"],
+          "answer": "2/3",
+          "explanation": "Quy đồng: 2/3 = 4/6, 1/2 = 3/6. Vì 4/6 > 3/6 nên 2/3 lớn hơn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một hình vuông có cạnh 6 cm. Diện tích của nó là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟦",
+          "options": ["36 cm²", "24 cm²", "12 cm²", "30 cm²"],
+          "answer": "36 cm²",
+          "explanation": "Diện tích hình vuông = cạnh × cạnh = 6 × 6 = 36 cm².",
+          "difficulty": 3
+        },
+        {
+          "question": "Rút gọn phân số 6/8 được phân số nào?",
+          "question_vi": "",
+          "emoji": "✂️",
+          "options": ["3/4", "2/4", "6/8", "4/6"],
+          "answer": "3/4",
+          "explanation": "Chia cả tử và mẫu cho 2: 6/8 = 3/4.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kết quả của 3/4 - 1/4 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➖",
+          "options": ["1/2", "2/4", "1/4", "1/8"],
+          "answer": "1/2",
+          "explanation": "3/4 - 1/4 = 2/4 = 1/2.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g6_integers_power_1",
+      "title": "Toán Lớp 6 — Số nguyên và lũy thừa (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "integers_powers",
+      "questions": [
+        {
+          "question": "Kết quả của (-5) + 8 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["3", "-3", "13", "-13"],
+          "answer": "3",
+          "explanation": "(-5) + 8 = 8 - 5 = 3.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của (-7) × (-4) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["28", "-28", "11", "-11"],
+          "answer": "28",
+          "explanation": "Tích hai số nguyên âm là số dương: (-7) × (-4) = 28.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của 2³ là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["8", "6", "9", "16"],
+          "answer": "8",
+          "explanation": "2³ = 2 × 2 × 2 = 8.",
+          "difficulty": 1
+        },
+        {
+          "question": "Giá trị của 3² + 4² là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["25", "14", "49", "24"],
+          "answer": "25",
+          "explanation": "3² = 9, 4² = 16, tổng là 9 + 16 = 25.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của (-12) : 4 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": ["-3", "3", "-8", "8"],
+          "answer": "-3",
+          "explanation": "Thương của số âm và số dương là số âm: (-12) : 4 = -3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của 10² là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["100", "20", "1000", "50"],
+          "answer": "100",
+          "explanation": "10² = 10 × 10 = 100.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kết quả của (-3) + (-6) - (-4) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["-5", "-13", "5", "-1"],
+          "answer": "-5",
+          "explanation": "(-3) + (-6) = -9, sau đó -9 - (-4) = -9 + 4 = -5.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tìm số nguyên x biết x² = 49 và x < 0.",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["-7", "7", "-49", "49"],
+          "answer": "-7",
+          "explanation": "x² = 49 nên x = 7 hoặc x = -7. Vì x < 0 nên x = -7.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g7_linear_ratio_1",
+      "title": "Toán Lớp 7 — Phương trình bậc nhất và tỉ lệ (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_7",
+      "age_group": "11-14",
+      "duration_minutes": 35,
+      "pass_percent": 60,
+      "topic": "linear_equation_ratio",
+      "questions": [
+        {
+          "question": "Giải phương trình: x + 7 = 12. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["5", "19", "-5", "7"],
+          "answer": "5",
+          "explanation": "x = 12 - 7 = 5.",
+          "difficulty": 1
+        },
+        {
+          "question": "Giải phương trình: 3x = 21. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["7", "18", "24", "63"],
+          "answer": "7",
+          "explanation": "x = 21 : 3 = 7.",
+          "difficulty": 1
+        },
+        {
+          "question": "Giải phương trình: 2x + 5 = 17. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["6", "11", "12", "5"],
+          "answer": "6",
+          "explanation": "2x = 17 - 5 = 12, nên x = 12 : 2 = 6.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hai đại lượng x và y tỉ lệ thuận. Khi x = 2 thì y = 6. Khi x = 5 thì y bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["15", "9", "10", "12"],
+          "answer": "15",
+          "explanation": "Hệ số tỉ lệ k = 6/2 = 3, nên y = 3 × 5 = 15.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giải phương trình: 5x - 3 = 2x + 9. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["4", "3", "6", "2"],
+          "answer": "4",
+          "explanation": "5x - 2x = 9 + 3, tức 3x = 12, nên x = 4.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chia 60 viên kẹo theo tỉ lệ 2 : 3. Phần lớn hơn có bao nhiêu viên?",
+          "question_vi": "",
+          "emoji": "🍬",
+          "options": ["36", "24", "30", "40"],
+          "answer": "36",
+          "explanation": "Tổng phần = 2 + 3 = 5. Mỗi phần = 60 : 5 = 12. Phần lớn = 3 × 12 = 36.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hai đại lượng x và y tỉ lệ nghịch. Khi x = 4 thì y = 6. Khi x = 8 thì y bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": ["3", "12", "2", "10"],
+          "answer": "3",
+          "explanation": "Tích x × y = 4 × 6 = 24 không đổi, nên y = 24 : 8 = 3.",
+          "difficulty": 4
+        },
+        {
+          "question": "Giải phương trình: (x - 1)/2 = 4. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["9", "7", "8", "3"],
+          "answer": "9",
+          "explanation": "x - 1 = 4 × 2 = 8, nên x = 8 + 1 = 9.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g9_quadratic_system_1",
+      "title": "Toán Lớp 9 — Phương trình bậc hai và hệ phương trình (Ôn thi vào 10)",
+      "track": "exam_grade10",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "topic": "quadratic_system_function",
+      "questions": [
+        {
+          "question": "Phương trình x² - 5x + 6 = 0 có hai nghiệm là gì?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["x = 2 và x = 3", "x = 1 và x = 6", "x = -2 và x = -3", "x = 2 và x = -3"],
+          "answer": "x = 2 và x = 3",
+          "explanation": "Vì 2 + 3 = 5 và 2 × 3 = 6, nên hai nghiệm là x = 2 và x = 3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Biệt thức Δ của phương trình x² - 4x + 4 = 0 bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["0", "16", "8", "-16"],
+          "answer": "0",
+          "explanation": "Δ = b² - 4ac = (-4)² - 4·1·4 = 16 - 16 = 0.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giải hệ: x + y = 7 và x - y = 1. Giá trị của x là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["4", "3", "5", "6"],
+          "answer": "4",
+          "explanation": "Cộng hai phương trình: 2x = 8, nên x = 4 (và y = 3).",
+          "difficulty": 3
+        },
+        {
+          "question": "Phương trình x² - 9 = 0 có nghiệm là gì?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["x = 3 và x = -3", "x = 9 và x = -9", "x = 3", "x = 81"],
+          "answer": "x = 3 và x = -3",
+          "explanation": "x² = 9 nên x = 3 hoặc x = -3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho hàm số y = 2x + 1. Giá trị của y khi x = 3 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["7", "6", "5", "9"],
+          "answer": "7",
+          "explanation": "y = 2 × 3 + 1 = 6 + 1 = 7.",
+          "difficulty": 1
+        },
+        {
+          "question": "Theo hệ thức Vi-ét, với x² - 7x + 10 = 0, tổng hai nghiệm x₁ + x₂ bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": ["7", "10", "-7", "17"],
+          "answer": "7",
+          "explanation": "Theo Vi-ét, x₁ + x₂ = -b/a = -(-7)/1 = 7.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phương trình 2x² - 8 = 0 có nghiệm dương là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["2", "4", "8", "16"],
+          "answer": "2",
+          "explanation": "2x² = 8 nên x² = 4, do đó x = 2 hoặc x = -2. Nghiệm dương là 2.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giải hệ: 2x + y = 5 và x + y = 3. Giá trị của y là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["1", "2", "3", "4"],
+          "answer": "1",
+          "explanation": "Trừ hai phương trình: x = 2, thay vào x + y = 3 được y = 1.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g11_derivative_log_1",
+      "title": "Toán Lớp 11 — Đạo hàm và logarit (THPT)",
+      "track": "exam_thpt",
+      "level": "grade_11",
+      "age_group": "15-18",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "topic": "derivative_logarithm",
+      "questions": [
+        {
+          "question": "Đạo hàm của hàm số y = x² là gì?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["2x", "x", "x²", "2"],
+          "answer": "2x",
+          "explanation": "Theo quy tắc (xⁿ)' = n·xⁿ⁻¹, ta có (x²)' = 2x.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đạo hàm của hàm số y = 3x³ là gì?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["9x²", "3x²", "x³", "9x"],
+          "answer": "9x²",
+          "explanation": "(3x³)' = 3 · 3x² = 9x².",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của log₂(8) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["3", "4", "2", "8"],
+          "answer": "3",
+          "explanation": "log₂(8) = 3 vì 2³ = 8.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của log₁₀(1000) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["3", "2", "10", "100"],
+          "answer": "3",
+          "explanation": "log₁₀(1000) = 3 vì 10³ = 1000.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đạo hàm của hàm số y = 5x + 2 là gì?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["5", "5x", "2", "5x + 2"],
+          "answer": "5",
+          "explanation": "Đạo hàm của hàm bậc nhất y = ax + b là a, nên y' = 5.",
+          "difficulty": 1
+        },
+        {
+          "question": "Đạo hàm của hàm số y = x² + 3x tại x = 1 bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["5", "4", "2", "3"],
+          "answer": "5",
+          "explanation": "y' = 2x + 3, thay x = 1 được 2·1 + 3 = 5.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giá trị của log₃(81) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["4", "3", "27", "9"],
+          "answer": "4",
+          "explanation": "log₃(81) = 4 vì 3⁴ = 81.",
+          "difficulty": 3
+        },
+        {
+          "question": "Rút gọn biểu thức log₂(4) + log₂(8) bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["5", "6", "32", "12"],
+          "answer": "5",
+          "explanation": "log₂(4) = 2 và log₂(8) = 3, tổng là 2 + 3 = 5 (cũng bằng log₂(32) = 5).",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_g12_prob_geometry_1",
+      "title": "Toán Lớp 12 — Xác suất và hình học không gian (THPT)",
+      "track": "exam_thpt",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "topic": "probability_solid_geometry",
+      "questions": [
+        {
+          "question": "Gieo một con xúc xắc cân đối. Xác suất xuất hiện mặt 6 chấm là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🎲",
+          "options": ["1/6", "1/2", "1/3", "6"],
+          "answer": "1/6",
+          "explanation": "Có 6 mặt đồng khả năng, mặt 6 chấm có 1 trường hợp, nên xác suất là 1/6.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tung một đồng xu cân đối. Xác suất xuất hiện mặt ngửa là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🪙",
+          "options": ["1/2", "1/4", "1", "2"],
+          "answer": "1/2",
+          "explanation": "Có 2 kết quả đồng khả năng (ngửa, sấp), nên xác suất mặt ngửa là 1/2.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thể tích hình lập phương có cạnh 3 cm là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧊",
+          "options": ["27 cm³", "9 cm³", "18 cm³", "12 cm³"],
+          "answer": "27 cm³",
+          "explanation": "Thể tích = cạnh³ = 3³ = 27 cm³.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thể tích hình hộp chữ nhật có kích thước 2 × 3 × 4 (cm) là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": ["24 cm³", "9 cm³", "26 cm³", "12 cm³"],
+          "answer": "24 cm³",
+          "explanation": "Thể tích = dài × rộng × cao = 2 × 3 × 4 = 24 cm³.",
+          "difficulty": 2
+        },
+        {
+          "question": "Gieo một con xúc xắc cân đối. Xác suất xuất hiện số chẵn là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🎲",
+          "options": ["1/2", "1/3", "1/6", "2/3"],
+          "answer": "1/2",
+          "explanation": "Số chẵn là 2, 4, 6 (3 trường hợp trên 6), nên xác suất là 3/6 = 1/2.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thể tích khối cầu bán kính R được tính bằng công thức nào?",
+          "question_vi": "",
+          "emoji": "⚽",
+          "options": ["(4/3)πR³", "πR²", "(1/3)πR³", "4πR²"],
+          "answer": "(4/3)πR³",
+          "explanation": "Thể tích khối cầu là V = (4/3)πR³.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một túi có 3 bi đỏ và 2 bi xanh. Lấy ngẫu nhiên 1 bi. Xác suất lấy được bi đỏ là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔴",
+          "options": ["3/5", "2/5", "3/2", "1/2"],
+          "answer": "3/5",
+          "explanation": "Tổng 5 bi, có 3 bi đỏ, nên xác suất là 3/5.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tung hai đồng xu cân đối. Xác suất cả hai cùng ngửa là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🪙",
+          "options": ["1/4", "1/2", "1/3", "2/4"],
+          "answer": "1/4",
+          "explanation": "Có 4 kết quả đồng khả năng (NN, NS, SN, SS), chỉ 1 kết quả cả hai ngửa, nên xác suất là 1/4.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

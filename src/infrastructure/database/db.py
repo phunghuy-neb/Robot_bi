@@ -602,6 +602,120 @@ def _seed_exam_content(conn) -> None:
             )
 
 
+LEARNING_PACKS_DIR = REPO_ROOT / "resources" / "learning"
+
+
+def _seed_learning_packs(conn) -> int:
+    """Load JSON content packs from resources/learning/ into the question bank
+    and assemble their exam papers. Idempotent (INSERT OR IGNORE).
+
+    Pack schema (one file per subject)::
+
+        {
+          "subject": "math",
+          "exams": [
+            {
+              "paper_id": "math_g10_algebra_1",
+              "title": "Toán 10 — Đại số (Đề 1)",
+              "track": "exam_thpt", "comp_level": "", "skill": "",
+              "level": "grade_10", "age_group": "15-18",
+              "duration_minutes": 45, "pass_percent": 60,
+              "school_year": "2025-2026", "topic": "algebra",
+              "questions": [
+                {"question": "...", "question_vi": "...", "emoji": "🧮",
+                 "options": ["a","b","c","d"], "answer": "a",
+                 "explanation": "...", "difficulty": 2}
+              ]
+            }
+          ]
+        }
+
+    A question whose ``answer`` is not one of its ``options`` is skipped (logged),
+    so malformed/AI content can never produce an ungradeable exam.
+    Returns the number of papers seeded.
+    """
+    import json as _json
+
+    if not LEARNING_PACKS_DIR.exists():
+        return 0
+
+    now = _utc_now_iso()
+    papers_seeded = 0
+    for pack_path in sorted(LEARNING_PACKS_DIR.glob("*.json")):
+        try:
+            pack = _json.loads(pack_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            logger.warning("[DB] Bo qua learning pack loi %s: %s", pack_path.name, e)
+            continue
+        subject = (pack.get("subject") or "").strip()
+        exams = pack.get("exams") or []
+        if not subject or not isinstance(exams, list):
+            logger.warning("[DB] Pack %s thieu subject/exams", pack_path.name)
+            continue
+        for exam in exams:
+            paper_id = (exam.get("paper_id") or "").strip()
+            questions = exam.get("questions") or []
+            if not paper_id or not questions:
+                continue
+            # Validate questions first; skip the exam if nothing gradeable remains.
+            valid = []
+            for q in questions:
+                opts = q.get("options") or []
+                ans = (q.get("answer") or "").strip()
+                qtext = (q.get("question") or "").strip()
+                if not qtext or len(opts) < 2:
+                    continue
+                if ans not in [str(o).strip() for o in opts]:
+                    logger.warning("[DB] Pack %s: dap an khong khop options, bo qua 1 cau",
+                                   pack_path.name)
+                    continue
+                valid.append((qtext, q, opts, ans))
+            if not valid:
+                continue
+            conn.execute(
+                """INSERT OR IGNORE INTO exam_papers
+                   (paper_id, title, subject, track, comp_level, skill, level,
+                    age_group, duration_minutes, total_questions, pass_percent,
+                    school_year, source, status, family_id, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pack', 'published', NULL, ?, ?)""",
+                (paper_id, exam.get("title", paper_id), subject,
+                 exam.get("track", "practice"), exam.get("comp_level", ""),
+                 exam.get("skill", ""), exam.get("level", ""),
+                 exam.get("age_group", "all"),
+                 int(exam.get("duration_minutes", 30)), len(valid),
+                 int(exam.get("pass_percent", 60)),
+                 exam.get("school_year", "2025-2026"), now, now),
+            )
+            topic = exam.get("topic", "")
+            for idx, (qtext, q, opts, ans) in enumerate(valid):
+                question_id = f"{paper_id}_q{idx + 1}"
+                conn.execute(
+                    """INSERT OR IGNORE INTO question_bank
+                       (question_id, subject, topic, age_group, track, skill, level,
+                        difficulty, question_type, question, question_vi, emoji,
+                        options_json, answer, explanation, school_year, source,
+                        is_ai_generated, status, family_id, created_at, updated_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'mcq', ?, ?, ?, ?, ?, ?, ?, 'pack', ?, 'published', NULL, ?, ?)""",
+                    (question_id, subject, q.get("topic", topic),
+                     exam.get("age_group", "all"), exam.get("track", "practice"),
+                     exam.get("skill", ""), exam.get("level", ""),
+                     int(q.get("difficulty", 2)), qtext, q.get("question_vi", ""),
+                     q.get("emoji", ""),
+                     _json.dumps([str(o) for o in opts], ensure_ascii=False), ans,
+                     q.get("explanation", ""), exam.get("school_year", "2025-2026"),
+                     int(bool(q.get("is_ai_generated", 0))), now, now),
+                )
+                conn.execute(
+                    """INSERT OR IGNORE INTO exam_paper_questions
+                       (paper_id, question_id, order_index, points) VALUES (?, ?, ?, 1)""",
+                    (paper_id, question_id, idx),
+                )
+            papers_seeded += 1
+    if papers_seeded:
+        logger.info("[DB] Da nap %d de tu learning packs", papers_seeded)
+    return papers_seeded
+
+
 def init_db() -> None:
     """Khoi tao database va migrate du lieu tu JSON cu neu can."""
     global _INITIALIZED
@@ -1487,6 +1601,7 @@ def init_db() -> None:
 
             _seed_learning_content(conn)
             _seed_exam_content(conn)
+            _seed_learning_packs(conn)
 
             _migrate_turns_role_constraint(conn)
 

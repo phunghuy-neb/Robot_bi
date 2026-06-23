@@ -1,0 +1,65 @@
+{
+  "subject": "geography",
+  "exams": [
+    {
+      "paper_id": "geography_vn_1",
+      "title": "Địa lý Việt Nam — Tổng quan (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "vietnam_geography",
+      "questions": [
+        {"question": "Thủ đô của Việt Nam là thành phố nào?", "question_vi": "", "emoji": "🇻🇳", "options": ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Huế"], "answer": "Hà Nội", "explanation": "Hà Nội là thủ đô của Việt Nam.", "difficulty": 1},
+        {"question": "Con sông dài nhất chảy qua miền Nam Việt Nam, đổ ra biển qua nhiều cửa, là sông nào?", "question_vi": "", "emoji": "🌊", "options": ["Sông Mê Kông (Cửu Long)", "Sông Hồng", "Sông Đà", "Sông Mã"], "answer": "Sông Mê Kông (Cửu Long)", "explanation": "Sông Mê Kông đoạn ở Việt Nam gọi là sông Cửu Long.", "difficulty": 2},
+        {"question": "Đỉnh núi cao nhất Việt Nam là gì?", "question_vi": "", "emoji": "⛰️", "options": ["Fansipan", "Bà Đen", "Ngọc Linh", "Tây Côn Lĩnh"], "answer": "Fansipan", "explanation": "Fansipan (3.143 m) ở Lào Cai là 'nóc nhà Đông Dương'.", "difficulty": 2},
+        {"question": "Việt Nam giáp với Biển Đông ở phía nào?", "question_vi": "", "emoji": "🧭", "options": ["Phía Đông", "Phía Tây", "Phía Bắc", "Phía Tây Bắc"], "answer": "Phía Đông", "explanation": "Biển Đông nằm ở phía Đông và Nam đất nước.", "difficulty": 2},
+        {"question": "Vịnh nào của Việt Nam được UNESCO công nhận là Di sản thiên nhiên thế giới?", "question_vi": "", "emoji": "🏝️", "options": ["Vịnh Hạ Long", "Vịnh Cam Ranh", "Vịnh Vân Phong", "Vịnh Xuân Đài"], "answer": "Vịnh Hạ Long", "explanation": "Vịnh Hạ Long (Quảng Ninh) là Di sản thiên nhiên thế giới.", "difficulty": 2},
+        {"question": "Thành phố nào là trung tâm kinh tế lớn nhất miền Nam Việt Nam?", "question_vi": "", "emoji": "🏙️", "options": ["TP. Hồ Chí Minh", "Cần Thơ", "Biên Hòa", "Vũng Tàu"], "answer": "TP. Hồ Chí Minh", "explanation": "TP. Hồ Chí Minh là trung tâm kinh tế lớn nhất cả nước.", "difficulty": 1},
+        {"question": "Đồng bằng nào là vựa lúa lớn nhất Việt Nam?", "question_vi": "", "emoji": "🌾", "options": ["Đồng bằng sông Cửu Long", "Đồng bằng sông Hồng", "Đồng bằng Thanh - Nghệ", "Tây Nguyên"], "answer": "Đồng bằng sông Cửu Long", "explanation": "Đồng bằng sông Cửu Long là vựa lúa lớn nhất nước ta.", "difficulty": 3},
+        {"question": "Nước ta có khí hậu đặc trưng là gì?", "question_vi": "", "emoji": "🌦️", "options": ["Nhiệt đới gió mùa", "Ôn đới", "Hàn đới", "Sa mạc"], "answer": "Nhiệt đới gió mùa", "explanation": "Việt Nam có khí hậu nhiệt đới ẩm gió mùa.", "difficulty": 2}
+      ]
+    },
+    {
+      "paper_id": "geography_world_1",
+      "title": "Địa lý thế giới — Châu lục & Đại dương (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_7",
+      "age_group": "11-14",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "world_geography",
+      "questions": [
+        {"question": "Trái Đất có bao nhiêu châu lục?", "question_vi": "", "emoji": "🌍", "options": ["6", "5", "7", "4"], "answer": "6", "explanation": "Theo cách chia phổ biến ở VN: Á, Âu, Phi, Mỹ, Đại Dương, Nam Cực = 6 châu.", "difficulty": 2},
+        {"question": "Đại dương lớn nhất thế giới là gì?", "question_vi": "", "emoji": "🌊", "options": ["Thái Bình Dương", "Đại Tây Dương", "Ấn Độ Dương", "Bắc Băng Dương"], "answer": "Thái Bình Dương", "explanation": "Thái Bình Dương là đại dương rộng và sâu nhất.", "difficulty": 1},
+        {"question": "Châu lục nào lớn nhất về diện tích?", "question_vi": "", "emoji": "🗺️", "options": ["Châu Á", "Châu Phi", "Châu Mỹ", "Châu Âu"], "answer": "Châu Á", "explanation": "Châu Á là châu lục lớn nhất và đông dân nhất.", "difficulty": 2},
+        {"question": "Sa mạc lớn nhất thế giới (sa mạc nóng) nằm ở châu Phi, tên là gì?", "question_vi": "", "emoji": "🏜️", "options": ["Sahara", "Gobi", "Kalahari", "Atacama"], "answer": "Sahara", "explanation": "Sahara ở Bắc Phi là sa mạc nóng lớn nhất thế giới.", "difficulty": 3},
+        {"question": "Thủ đô của Nhật Bản là thành phố nào?", "question_vi": "", "emoji": "🗾", "options": ["Tokyo", "Osaka", "Kyoto", "Seoul"], "answer": "Tokyo", "explanation": "Tokyo là thủ đô của Nhật Bản.", "difficulty": 1},
+        {"question": "Thủ đô của nước Pháp là thành phố nào?", "question_vi": "", "emoji": "🇫🇷", "options": ["Paris", "Lyon", "Marseille", "Nice"], "answer": "Paris", "explanation": "Paris là thủ đô nước Pháp.", "difficulty": 1},
+        {"question": "Ngọn núi cao nhất thế giới là gì?", "question_vi": "", "emoji": "🏔️", "options": ["Everest", "K2", "Phú Sĩ", "Mont Blanc"], "answer": "Everest", "explanation": "Đỉnh Everest (8.849 m) ở dãy Himalaya cao nhất thế giới.", "difficulty": 2},
+        {"question": "Con sông dài nhất thế giới là sông nào?", "question_vi": "", "emoji": "🏞️", "options": ["Sông Nin (Nile)", "Sông Amazon", "Sông Trường Giang", "Sông Mê Kông"], "answer": "Sông Nin (Nile)", "explanation": "Sông Nin ở châu Phi thường được coi là dài nhất thế giới.", "difficulty": 3}
+      ]
+    },
+    {
+      "paper_id": "geography_climate_capitals_1",
+      "title": "Địa lý — Khí hậu & Thủ đô (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "climate",
+      "questions": [
+        {"question": "Đới khí hậu nóng quanh năm nằm gần đường nào?", "question_vi": "", "emoji": "🌡️", "options": ["Xích đạo", "Cực Bắc", "Cực Nam", "Chí tuyến Nam"], "answer": "Xích đạo", "explanation": "Vùng quanh xích đạo nhận nhiều nắng nên nóng quanh năm.", "difficulty": 2},
+        {"question": "Hiện tượng Trái Đất nóng lên do khí thải gây ra gọi là gì?", "question_vi": "", "emoji": "🔥", "options": ["Hiệu ứng nhà kính", "Mưa axit", "Thủy triều", "Nhật thực"], "answer": "Hiệu ứng nhà kính", "explanation": "Khí CO₂ giữ nhiệt gây hiệu ứng nhà kính, làm Trái Đất nóng lên.", "difficulty": 3},
+        {"question": "Thủ đô của Hàn Quốc là thành phố nào?", "question_vi": "", "emoji": "🇰🇷", "options": ["Seoul", "Busan", "Tokyo", "Bắc Kinh"], "answer": "Seoul", "explanation": "Seoul là thủ đô Hàn Quốc.", "difficulty": 1},
+        {"question": "Thủ đô của Trung Quốc là thành phố nào?", "question_vi": "", "emoji": "🇨🇳", "options": ["Bắc Kinh", "Thượng Hải", "Quảng Châu", "Hồng Kông"], "answer": "Bắc Kinh", "explanation": "Bắc Kinh là thủ đô của Trung Quốc.", "difficulty": 1},
+        {"question": "Thủ đô của nước Anh là thành phố nào?", "question_vi": "", "emoji": "🇬🇧", "options": ["Luân Đôn (London)", "Manchester", "Liverpool", "Edinburgh"], "answer": "Luân Đôn (London)", "explanation": "London là thủ đô của Vương quốc Anh.", "difficulty": 1},
+        {"question": "Thủ đô của nước Mỹ là thành phố nào?", "question_vi": "", "emoji": "🇺🇸", "options": ["Washington, D.C.", "New York", "Los Angeles", "Chicago"], "answer": "Washington, D.C.", "explanation": "Washington, D.C. là thủ đô của Hoa Kỳ.", "difficulty": 2},
+        {"question": "Lục địa lạnh nhất, băng phủ quanh năm là châu nào?", "question_vi": "", "emoji": "🧊", "options": ["Châu Nam Cực", "Châu Âu", "Châu Á", "Châu Phi"], "answer": "Châu Nam Cực", "explanation": "Nam Cực là nơi lạnh nhất, băng tuyết bao phủ quanh năm.", "difficulty": 2},
+        {"question": "Gió mùa ảnh hưởng mạnh nhất đến khu vực nào?", "question_vi": "", "emoji": "🌬️", "options": ["Đông Nam Á", "Bắc Âu", "Bắc Mỹ", "Nam Cực"], "answer": "Đông Nam Á", "explanation": "Đông Nam Á (gồm Việt Nam) chịu ảnh hưởng rõ rệt của gió mùa.", "difficulty": 3}
+      ]
+    }
+  ]
+}

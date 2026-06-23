@@ -1,0 +1,203 @@
+{
+  "subject": "japanese",
+  "exams": [
+    {
+      "paper_id": "japanese_beginner_greet_1",
+      "title": "Tiếng Nhật — Chào hỏi cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "greetings",
+      "questions": [
+        {
+          "question": "こんにちは (konnichiwa) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🌸",
+          "options": ["Xin chào (ban ngày)", "Tạm biệt", "Cảm ơn", "Chúc ngủ ngon"],
+          "answer": "Xin chào (ban ngày)",
+          "explanation": "こんにちは (konnichiwa) = xin chào, dùng vào ban ngày.",
+          "difficulty": 1
+        },
+        {
+          "question": "ありがとう (arigatō) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": ["Cảm ơn", "Xin chào", "Tạm biệt", "Xin lỗi"],
+          "answer": "Cảm ơn",
+          "explanation": "ありがとう (arigatō) = cảm ơn.",
+          "difficulty": 1
+        },
+        {
+          "question": "さようなら (sayōnara) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": ["Tạm biệt", "Xin chào", "Cảm ơn", "Vâng"],
+          "answer": "Tạm biệt",
+          "explanation": "さようなら (sayōnara) = tạm biệt.",
+          "difficulty": 1
+        },
+        {
+          "question": "おはよう (ohayō) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🌅",
+          "options": ["Chào buổi sáng", "Chào buổi tối", "Cảm ơn", "Tạm biệt"],
+          "answer": "Chào buổi sáng",
+          "explanation": "おはよう (ohayō) = chào buổi sáng.",
+          "difficulty": 2
+        },
+        {
+          "question": "すみません (sumimasen) thường dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "😅",
+          "options": ["Xin lỗi / Làm phiền", "Chào buổi sáng", "Cảm ơn", "Tạm biệt"],
+          "answer": "Xin lỗi / Làm phiền",
+          "explanation": "すみません (sumimasen) = xin lỗi, làm phiền.",
+          "difficulty": 2
+        },
+        {
+          "question": "はい (hai) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": ["Vâng / Đúng", "Không", "Cảm ơn", "Xin chào"],
+          "answer": "Vâng / Đúng",
+          "explanation": "はい (hai) = vâng, đúng.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_beginner_hiragana_1",
+      "title": "Tiếng Nhật — Hiragana cơ bản (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "hiragana",
+      "questions": [
+        {
+          "question": "Chữ hiragana あ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["a", "i", "u", "e"],
+          "answer": "a",
+          "explanation": "あ đọc là 'a'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ hiragana い đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["i", "a", "o", "u"],
+          "answer": "i",
+          "explanation": "い đọc là 'i'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ hiragana う đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["u", "e", "a", "o"],
+          "answer": "u",
+          "explanation": "う đọc là 'u'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Âm 'ka' viết bằng hiragana là chữ nào?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": ["か", "き", "く", "こ"],
+          "answer": "か",
+          "explanation": "か đọc là 'ka'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ hiragana さ đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["sa", "shi", "su", "ta"],
+          "answer": "sa",
+          "explanation": "さ đọc là 'sa'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ hiragana の đọc là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": ["no", "na", "ne", "nu"],
+          "answer": "no",
+          "explanation": "の đọc là 'no'.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_beginner_numbers_words_1",
+      "title": "Tiếng Nhật — Số đếm & Từ thông dụng (Đề 1)",
+      "track": "practice",
+      "level": "beginner",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "numbers_words",
+      "questions": [
+        {
+          "question": "いち (ichi) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": ["Một", "Hai", "Ba", "Bốn"],
+          "answer": "Một",
+          "explanation": "いち (ichi) = một.",
+          "difficulty": 1
+        },
+        {
+          "question": "に (ni) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": ["Hai", "Một", "Ba", "Năm"],
+          "answer": "Hai",
+          "explanation": "に (ni) = hai.",
+          "difficulty": 1
+        },
+        {
+          "question": "さん (san) nghĩa là số mấy?",
+          "question_vi": "",
+          "emoji": "3️⃣",
+          "options": ["Ba", "Hai", "Bốn", "Một"],
+          "answer": "Ba",
+          "explanation": "さん (san) = ba.",
+          "difficulty": 1
+        },
+        {
+          "question": "ねこ (neko) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🐱",
+          "options": ["Con mèo", "Con chó", "Con cá", "Con chim"],
+          "answer": "Con mèo",
+          "explanation": "ねこ (neko) = con mèo.",
+          "difficulty": 2
+        },
+        {
+          "question": "いぬ (inu) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🐶",
+          "options": ["Con chó", "Con mèo", "Con chim", "Con cá"],
+          "answer": "Con chó",
+          "explanation": "いぬ (inu) = con chó.",
+          "difficulty": 2
+        },
+        {
+          "question": "みず (mizu) nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["Nước", "Lửa", "Cơm", "Trà"],
+          "answer": "Nước",
+          "explanation": "みず (mizu) = nước.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}
