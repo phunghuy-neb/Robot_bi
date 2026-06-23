@@ -1,0 +1,683 @@
+{
+  "subject": "literature",
+  "exams": [
+    {
+      "paper_id": "literature_exam_grade6_1",
+      "title": "Ngữ văn — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_tieu_hoc",
+      "questions": [
+        {
+          "question": "Truyện “Thánh Gióng” thuộc thể loại nào?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": [
+            "truyền thuyết",
+            "truyện cổ tích",
+            "truyện cười",
+            "truyện ngụ ngôn"
+          ],
+          "answer": "truyền thuyết",
+          "explanation": "“Thánh Gióng” kể về nhân vật anh hùng gắn với lịch sử dựng nước nên là truyền thuyết.",
+          "difficulty": 1
+        },
+        {
+          "question": "Truyện “Tấm Cám” thuộc thể loại truyện dân gian nào?",
+          "question_vi": "",
+          "emoji": "👠",
+          "options": [
+            "truyện cổ tích",
+            "truyền thuyết",
+            "truyện cười",
+            "thần thoại"
+          ],
+          "answer": "truyện cổ tích",
+          "explanation": "“Tấm Cám” kể về số phận, ước mơ thiện thắng ác — đặc trưng của truyện cổ tích.",
+          "difficulty": 1
+        },
+        {
+          "question": "Ca dao, tục ngữ thuộc bộ phận văn học nào?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "văn học dân gian",
+            "văn học viết",
+            "văn học hiện đại",
+            "văn học nước ngoài"
+          ],
+          "answer": "văn học dân gian",
+          "explanation": "Ca dao, tục ngữ do nhân dân sáng tác, truyền miệng nên thuộc văn học dân gian.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trong truyện cổ tích “Cây khế”, nhân vật người em có tính cách như thế nào?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "hiền lành, thật thà",
+            "tham lam, độc ác",
+            "lười biếng",
+            "kiêu căng"
+          ],
+          "answer": "hiền lành, thật thà",
+          "explanation": "Người em hiền lành, thật thà nên được chim trả ơn; người anh tham lam bị trừng phạt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bài thơ “Lượm” là của nhà thơ nào?",
+          "question_vi": "",
+          "emoji": "📯",
+          "options": [
+            "Tố Hữu",
+            "Trần Đăng Khoa",
+            "Xuân Quỳnh",
+            "Nguyễn Du"
+          ],
+          "answer": "Tố Hữu",
+          "explanation": "“Lượm” là bài thơ nổi tiếng của Tố Hữu viết về chú bé liên lạc.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Dế Mèn phiêu lưu kí” là tác phẩm của nhà văn nào?",
+          "question_vi": "",
+          "emoji": "🐜",
+          "options": [
+            "Tô Hoài",
+            "Nguyễn Nhật Ánh",
+            "Nam Cao",
+            "Thạch Lam"
+          ],
+          "answer": "Tô Hoài",
+          "explanation": "“Dế Mèn phiêu lưu kí” là tác phẩm nổi tiếng của nhà văn Tô Hoài.",
+          "difficulty": 2
+        },
+        {
+          "question": "Truyện ngụ ngôn “Ếch ngồi đáy giếng” khuyên ta điều gì?",
+          "question_vi": "",
+          "emoji": "🐸",
+          "options": [
+            "không nên kiêu ngạo, chủ quan, coi thường người khác",
+            "phải chăm chỉ làm việc",
+            "cần yêu thương loài vật",
+            "nên biết tiết kiệm"
+          ],
+          "answer": "không nên kiêu ngạo, chủ quan, coi thường người khác",
+          "explanation": "Truyện phê phán thói chủ quan, kiêu ngạo, hiểu biết hạn hẹp mà coi thường xung quanh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thể loại văn học nào thường có vần, nhịp và được viết thành các dòng?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "thơ",
+            "truyện",
+            "kịch",
+            "kí"
+          ],
+          "answer": "thơ",
+          "explanation": "Thơ là thể loại giàu nhạc tính, có vần, nhịp, chia thành các dòng (câu thơ).",
+          "difficulty": 1
+        },
+        {
+          "question": "Trong truyện cổ tích “Sọ Dừa”, nhân vật Sọ Dừa lúc mới sinh ra có hình dạng thế nào?",
+          "question_vi": "",
+          "emoji": "🥥",
+          "options": [
+            "tròn như quả dừa, không có chân tay",
+            "khôi ngô tuấn tú",
+            "cao lớn khỏe mạnh",
+            "gầy gò ốm yếu"
+          ],
+          "answer": "tròn như quả dừa, không có chân tay",
+          "explanation": "Sọ Dừa lúc đầu là một đứa bé tròn như quả dừa, không chân tay, sau hóa thành chàng trai khôi ngô.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_exam_grade10_1",
+      "title": "Ngữ văn — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_thcs",
+      "questions": [
+        {
+          "question": "Bài thơ “Đồng chí” là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🎖️",
+          "options": [
+            "Chính Hữu",
+            "Phạm Tiến Duật",
+            "Huy Cận",
+            "Tố Hữu"
+          ],
+          "answer": "Chính Hữu",
+          "explanation": "“Đồng chí” là bài thơ tiêu biểu của Chính Hữu viết về tình đồng đội thời kháng chiến.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Bài thơ về tiểu đội xe không kính” là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🚚",
+          "options": [
+            "Phạm Tiến Duật",
+            "Chính Hữu",
+            "Nguyễn Khoa Điềm",
+            "Bằng Việt"
+          ],
+          "answer": "Phạm Tiến Duật",
+          "explanation": "Đây là bài thơ nổi tiếng của Phạm Tiến Duật về người lính lái xe Trường Sơn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Truyện ngắn “Làng” của Kim Lân xây dựng nhân vật chính là ai?",
+          "question_vi": "",
+          "emoji": "🏘️",
+          "options": [
+            "ông Hai",
+            "lão Hạc",
+            "chị Dậu",
+            "anh thanh niên"
+          ],
+          "answer": "ông Hai",
+          "explanation": "Nhân vật ông Hai với tình yêu làng quê gắn liền tình yêu nước là trung tâm truyện “Làng”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Lặng lẽ Sa Pa” của Nguyễn Thành Long ca ngợi nhân vật chính nào?",
+          "question_vi": "",
+          "emoji": "⛰️",
+          "options": [
+            "anh thanh niên làm công tác khí tượng",
+            "ông họa sĩ",
+            "cô kĩ sư",
+            "bác lái xe"
+          ],
+          "answer": "anh thanh niên làm công tác khí tượng",
+          "explanation": "Nhân vật anh thanh niên thầm lặng cống hiến trên đỉnh Yên Sơn là trung tâm tác phẩm.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Truyện Kiều” của Nguyễn Du được viết bằng thể thơ nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "lục bát",
+            "song thất lục bát",
+            "thất ngôn bát cú",
+            "thơ tự do"
+          ],
+          "answer": "lục bát",
+          "explanation": "Toàn bộ “Truyện Kiều” gồm 3254 câu thơ lục bát.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Chuyện người con gái Nam Xương” (trích “Truyền kì mạn lục”) là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🪔",
+          "options": [
+            "Nguyễn Dữ",
+            "Nguyễn Du",
+            "Nguyễn Trãi",
+            "Ngô Tất Tố"
+          ],
+          "answer": "Nguyễn Dữ",
+          "explanation": "“Truyền kì mạn lục” là tác phẩm của Nguyễn Dữ, trong đó có “Chuyện người con gái Nam Xương”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhân vật Vũ Nương trong “Chuyện người con gái Nam Xương” tiêu biểu cho điều gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "số phận oan nghiệt của người phụ nữ trong xã hội phong kiến",
+            "người phụ nữ hiện đại tự lập",
+            "người anh hùng dân tộc",
+            "người nông dân nghèo khổ"
+          ],
+          "answer": "số phận oan nghiệt của người phụ nữ trong xã hội phong kiến",
+          "explanation": "Vũ Nương đẹp người đẹp nết nhưng chịu oan khuất, tiêu biểu cho bi kịch người phụ nữ xưa.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bài thơ “Ánh trăng” của Nguyễn Duy nhắc nhở con người về điều gì?",
+          "question_vi": "",
+          "emoji": "🌕",
+          "options": [
+            "lối sống ân nghĩa, thủy chung với quá khứ",
+            "tình yêu thiên nhiên",
+            "khát vọng tự do",
+            "tình mẫu tử thiêng liêng"
+          ],
+          "answer": "lối sống ân nghĩa, thủy chung với quá khứ",
+          "explanation": "“Ánh trăng” gợi nhắc đạo lí “uống nước nhớ nguồn”, sống ân nghĩa thủy chung với quá khứ.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_exam_thpt_1",
+      "title": "Ngữ văn — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_thpt",
+      "questions": [
+        {
+          "question": "“Truyện Kiều” của Nguyễn Du còn có tên gọi khác là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": [
+            "Đoạn trường tân thanh",
+            "Bình Ngô đại cáo",
+            "Chinh phụ ngâm",
+            "Cung oán ngâm khúc"
+          ],
+          "answer": "Đoạn trường tân thanh",
+          "explanation": "Tên chữ Hán của “Truyện Kiều” là “Đoạn trường tân thanh”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tác phẩm “Bình Ngô đại cáo” là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "⚔️",
+          "options": [
+            "Nguyễn Trãi",
+            "Nguyễn Du",
+            "Nguyễn Bỉnh Khiêm",
+            "Lý Thường Kiệt"
+          ],
+          "answer": "Nguyễn Trãi",
+          "explanation": "“Bình Ngô đại cáo” do Nguyễn Trãi soạn, được coi là bản tuyên ngôn độc lập thứ hai.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bài thơ “Tây Tiến” là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": [
+            "Quang Dũng",
+            "Tố Hữu",
+            "Xuân Diệu",
+            "Hàn Mặc Tử"
+          ],
+          "answer": "Quang Dũng",
+          "explanation": "“Tây Tiến” là bài thơ nổi tiếng của Quang Dũng về đoàn quân Tây Tiến.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Vợ nhặt” là truyện ngắn của nhà văn nào?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": [
+            "Kim Lân",
+            "Nam Cao",
+            "Tô Hoài",
+            "Nguyễn Tuân"
+          ],
+          "answer": "Kim Lân",
+          "explanation": "“Vợ nhặt” là truyện ngắn xuất sắc của Kim Lân viết về nạn đói năm 1945.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tùy bút “Người lái đò Sông Đà” là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🛶",
+          "options": [
+            "Nguyễn Tuân",
+            "Hoàng Phủ Ngọc Tường",
+            "Nguyễn Minh Châu",
+            "Thạch Lam"
+          ],
+          "answer": "Nguyễn Tuân",
+          "explanation": "“Người lái đò Sông Đà” là tùy bút tiêu biểu cho phong cách tài hoa, uyên bác của Nguyễn Tuân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bài thơ “Sóng” của Xuân Quỳnh thể hiện chủ đề gì?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "tình yêu của người phụ nữ",
+            "lòng yêu nước",
+            "tình mẫu tử",
+            "tình bạn"
+          ],
+          "answer": "tình yêu của người phụ nữ",
+          "explanation": "“Sóng” mượn hình tượng sóng để bộc lộ tâm hồn và khát vọng tình yêu của người phụ nữ.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Chí Phèo” của Nam Cao phản ánh bi kịch nào của người nông dân?",
+          "question_vi": "",
+          "emoji": "😢",
+          "options": [
+            "bị tha hóa và bị cự tuyệt quyền làm người",
+            "nghèo đói vì mất mùa",
+            "li tán vì chiến tranh",
+            "thất học, mù chữ"
+          ],
+          "answer": "bị tha hóa và bị cự tuyệt quyền làm người",
+          "explanation": "Chí Phèo bị xã hội đẩy vào con đường tha hóa rồi bị cự tuyệt quyền làm người — bi kịch đau đớn nhất.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_hsg_school_1",
+      "title": "Ngữ văn — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "“Truyện Kiều” của Nguyễn Du gồm bao nhiêu câu thơ lục bát?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "3254 câu",
+            "1800 câu",
+            "2000 câu",
+            "4000 câu"
+          ],
+          "answer": "3254 câu",
+          "explanation": "“Truyện Kiều” gồm 3254 câu thơ lục bát.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hai câu “Long lanh đáy nước in trời / Thành xây khói biếc non phơi bóng vàng” (Truyện Kiều) tả cảnh mùa nào?",
+          "question_vi": "",
+          "emoji": "🍂",
+          "options": [
+            "mùa thu",
+            "mùa xuân",
+            "mùa hạ",
+            "mùa đông"
+          ],
+          "answer": "mùa thu",
+          "explanation": "Đây là bức tranh mùa thu trong “Truyện Kiều” với khói biếc, bóng vàng đặc trưng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bút pháp đặc sắc Nguyễn Du dùng để tả vẻ đẹp chị em Thúy Kiều là gì?",
+          "question_vi": "",
+          "emoji": "🌸",
+          "options": [
+            "bút pháp ước lệ tượng trưng",
+            "tả thực chi tiết",
+            "liệt kê",
+            "phóng đại"
+          ],
+          "answer": "bút pháp ước lệ tượng trưng",
+          "explanation": "Nguyễn Du dùng bút pháp ước lệ tượng trưng (lấy vẻ đẹp thiên nhiên gợi tả con người).",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhân vật Huấn Cao trong “Chữ người tử tù” (Nguyễn Tuân) tiêu biểu cho vẻ đẹp nào?",
+          "question_vi": "",
+          "emoji": "🖋️",
+          "options": [
+            "tài hoa, khí phách và thiên lương trong sáng",
+            "sự nhẫn nhục chịu đựng",
+            "lòng tham lam",
+            "sự nhút nhát"
+          ],
+          "answer": "tài hoa, khí phách và thiên lương trong sáng",
+          "explanation": "Huấn Cao hội tụ ba vẻ đẹp: tài hoa, khí phách hiên ngang và thiên lương trong sáng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tác phẩm “Chinh phụ ngâm” (bản diễn Nôm) được viết theo thể thơ nào?",
+          "question_vi": "",
+          "emoji": "🎐",
+          "options": [
+            "song thất lục bát",
+            "lục bát",
+            "thất ngôn tứ tuyệt",
+            "thơ tự do"
+          ],
+          "answer": "song thất lục bát",
+          "explanation": "Bản diễn Nôm “Chinh phụ ngâm” được viết theo thể song thất lục bát.",
+          "difficulty": 4
+        },
+        {
+          "question": "Giá trị nhân đạo của một tác phẩm văn học chủ yếu thể hiện ở điều gì?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "sự cảm thông, trân trọng và bênh vực con người",
+            "miêu tả thiên nhiên đẹp",
+            "cốt truyện li kì hấp dẫn",
+            "ngôn ngữ trau chuốt"
+          ],
+          "answer": "sự cảm thông, trân trọng và bênh vực con người",
+          "explanation": "Giá trị nhân đạo là tiếng nói cảm thông, trân trọng, bênh vực con người và lên án cái ác.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_hsg_district_1",
+      "title": "Ngữ văn — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Trong văn học trung đại, “điển cố” là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "sự việc, câu chữ trong sách xưa được dẫn lại một cách cô đúc",
+            "cách gieo vần trong thơ",
+            "một biện pháp tu từ so sánh",
+            "một thể thơ Đường luật"
+          ],
+          "answer": "sự việc, câu chữ trong sách xưa được dẫn lại một cách cô đúc",
+          "explanation": "Điển cố là việc dẫn lại sự tích, câu chữ trong sách xưa một cách cô đúc để tăng sức gợi.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Hịch tướng sĩ” của Trần Quốc Tuấn thuộc thể loại văn học trung đại nào?",
+          "question_vi": "",
+          "emoji": "⚔️",
+          "options": [
+            "hịch",
+            "cáo",
+            "chiếu",
+            "biểu"
+          ],
+          "answer": "hịch",
+          "explanation": "“Hịch tướng sĩ” thuộc thể hịch — dùng để cổ vũ, kêu gọi, khích lệ tướng sĩ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhân vật người đàn bà hàng chài trong “Chiếc thuyền ngoài xa” (Nguyễn Minh Châu) thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🚣",
+          "options": [
+            "vẻ đẹp khuất lấp và tình mẫu tử sâu sắc của người phụ nữ",
+            "sự yếu đuối đáng thương",
+            "lòng tham vật chất",
+            "sự vô tâm với con cái"
+          ],
+          "answer": "vẻ đẹp khuất lấp và tình mẫu tử sâu sắc của người phụ nữ",
+          "explanation": "Sau vẻ ngoài lam lũ, cam chịu là vẻ đẹp khuất lấp: sự thấu hiểu lẽ đời và tình thương con vô bờ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bài thơ “Vội vàng” của Xuân Diệu thể hiện quan niệm sống nào?",
+          "question_vi": "",
+          "emoji": "⏳",
+          "options": [
+            "sống vội vàng, tận hưởng và trân quý từng phút giây của tuổi trẻ",
+            "sống ẩn dật, xa lánh cuộc đời",
+            "sống vì danh lợi",
+            "sống an phận, cam chịu"
+          ],
+          "answer": "sống vội vàng, tận hưởng và trân quý từng phút giây của tuổi trẻ",
+          "explanation": "“Vội vàng” thể hiện khát vọng sống mãnh liệt, tận hưởng vẻ đẹp cuộc đời ngay khi còn trẻ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phong trào Thơ mới (1932–1945) gắn với khuynh hướng văn học nào?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "chủ nghĩa lãng mạn",
+            "chủ nghĩa hiện thực",
+            "chủ nghĩa cổ điển",
+            "văn học cách mạng"
+          ],
+          "answer": "chủ nghĩa lãng mạn",
+          "explanation": "Thơ mới đề cao cái tôi cá nhân, cảm xúc chủ quan — thuộc khuynh hướng lãng mạn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đặc trưng cơ bản của thể loại truyện ngắn là gì?",
+          "question_vi": "",
+          "emoji": "✒️",
+          "options": [
+            "dung lượng nhỏ, thường tập trung vào một tình huống, một lát cắt của đời sống",
+            "có nhiều tuyến nhân vật và cốt truyện đồ sộ",
+            "viết bằng văn vần",
+            "luôn có yếu tố kì ảo"
+          ],
+          "answer": "dung lượng nhỏ, thường tập trung vào một tình huống, một lát cắt của đời sống",
+          "explanation": "Truyện ngắn có dung lượng nhỏ, thường khắc họa một tình huống, một khoảnh khắc của đời sống.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_hsg_province_1",
+      "title": "Ngữ văn — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "van_hoc_chuyen_sau",
+      "questions": [
+        {
+          "question": "“Tuyên ngôn Độc lập” của Hồ Chí Minh mở đầu bằng việc trích dẫn những bản tuyên ngôn nào?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "Tuyên ngôn Độc lập của Mỹ và Tuyên ngôn Nhân quyền và Dân quyền của Pháp",
+            "Đại Việt sử ký toàn thư",
+            "Bình Ngô đại cáo",
+            "Hịch tướng sĩ"
+          ],
+          "answer": "Tuyên ngôn Độc lập của Mỹ và Tuyên ngôn Nhân quyền và Dân quyền của Pháp",
+          "explanation": "Bác trích Tuyên ngôn Độc lập (Mỹ, 1776) và Tuyên ngôn Nhân quyền và Dân quyền (Pháp, 1791) làm cơ sở pháp lí.",
+          "difficulty": 4
+        },
+        {
+          "question": "Phong cách nghệ thuật của Nguyễn Tuân nổi bật ở điểm nào?",
+          "question_vi": "",
+          "emoji": "🎩",
+          "options": [
+            "tài hoa, uyên bác, tiếp cận sự vật ở phương diện văn hóa - thẩm mĩ",
+            "giản dị, mộc mạc, gần gũi đời thường",
+            "trữ tình chính trị",
+            "hài hước, châm biếm"
+          ],
+          "answer": "tài hoa, uyên bác, tiếp cận sự vật ở phương diện văn hóa - thẩm mĩ",
+          "explanation": "Nguyễn Tuân là nhà văn tài hoa uyên bác, luôn nhìn sự vật ở góc độ văn hóa, thẩm mĩ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đoạn trích “Đất Nước” (trích trường ca “Mặt đường khát vọng”) là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": [
+            "Nguyễn Khoa Điềm",
+            "Nguyễn Đình Thi",
+            "Chế Lan Viên",
+            "Tố Hữu"
+          ],
+          "answer": "Nguyễn Khoa Điềm",
+          "explanation": "“Đất Nước” trích trường ca “Mặt đường khát vọng” của Nguyễn Khoa Điềm.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tư tưởng cốt lõi trong đoạn trích “Đất Nước” của Nguyễn Khoa Điềm là gì?",
+          "question_vi": "",
+          "emoji": "🌾",
+          "options": [
+            "tư tưởng “Đất Nước của Nhân dân”",
+            "ca ngợi vẻ đẹp thiên nhiên",
+            "tình yêu đôi lứa",
+            "khát vọng cá nhân"
+          ],
+          "answer": "tư tưởng “Đất Nước của Nhân dân”",
+          "explanation": "Đoạn trích kết tinh ở tư tưởng “Đất Nước của Nhân dân, Đất Nước của ca dao thần thoại”.",
+          "difficulty": 4
+        },
+        {
+          "question": "Cảm hứng chủ đạo xuyên suốt thơ Tố Hữu là gì?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": [
+            "cảm hứng trữ tình chính trị",
+            "cảm hứng thế sự đời tư",
+            "cảm hứng lãng mạn cá nhân",
+            "cảm hứng triết lí siêu hình"
+          ],
+          "answer": "cảm hứng trữ tình chính trị",
+          "explanation": "Thơ Tố Hữu là thơ trữ tình chính trị — gắn lí tưởng cách mạng với cảm xúc trữ tình.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong “Ai đã đặt tên cho dòng sông?” (Hoàng Phủ Ngọc Tường), sông Hương ở thượng nguồn được ví như điều gì?",
+          "question_vi": "",
+          "emoji": "🏞️",
+          "options": [
+            "bản trường ca của rừng già và cô gái Di-gan phóng khoáng, man dại",
+            "người mẹ phù sa hiền hòa",
+            "nàng thơ dịu dàng",
+            "tấm gương phẳng lặng"
+          ],
+          "answer": "bản trường ca của rừng già và cô gái Di-gan phóng khoáng, man dại",
+          "explanation": "Ở thượng nguồn, sông Hương được ví như “bản trường ca của rừng già”, như “cô gái Di-gan phóng khoáng và man dại”.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
