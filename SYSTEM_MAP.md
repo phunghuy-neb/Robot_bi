@@ -10,7 +10,7 @@
 
 ## 1. Project Summary
 
-Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation loop, Parent App web UI, Robot Display web UI, SQLite runtime storage, ChromaDB memory storage, and optional ESP32 motor firmware. The current source root is `src/`; static frontend files live under `frontend/`; firmware lives under `firmware/Robot_BI/`. Some modules are implemented and some placeholder files exist; verify a specific file before treating a capability as runtime-complete.
+Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation loop, Parent App web UI, Robot Display web UI, SQLite runtime storage, ChromaDB memory storage, and optional ESP32 firmware. The current local hardware profile is one speaker and two INMP441 microphones connected to an ESP32-S3, with no camera connected. The current source root is `src/`; static frontend files live under `frontend/`; firmware lives under `firmware/`.
 
 ## 2. Source of Truth Files
 
@@ -30,7 +30,9 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | API server module | `src/api/server.py` |
 | Parent App | `frontend/parent_app/` (React+Vite SPA — Vite shell at `index.html`, source in `src/`, build in `dist/`) |
 | Robot Display | `frontend/robot_display/index.html` |
-| Firmware | `firmware/Robot_BI/Robot_BI.ino` |
+| Motor firmware | `firmware/Robot_BI/Robot_BI.ino` |
+| ESP32-S3 audio hardware test | `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino` |
+| ESP32-S3 speaker-only test | `firmware/ESP32S3_Speaker_Test/ESP32S3_Speaker_Test.ino` |
 | Test command | `python tests/run_tests.py` |
 | Sync generated agent docs | `python sync.py` |
 
@@ -40,7 +42,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 |---|---|
 | `src/ai/` | LLM streaming/fallback, prompts, and family persona settings; `language_detector.py` exists as a small placeholder file. |
 | `src/api/` | FastAPI app assembly in `server.py` and route modules in `src/api/routers/`. |
-| `src/audio/` | STT input, wake-word hook, speaker heuristics, TTS output, music state, cry detection, and pronunciation scoring; several small placeholder files exist. |
+| `src/audio/` | STT input, callback/native-rate microphone utilities, wake-word hook, TTS output, music state, separate-mic cry detection, and pronunciation scoring. |
 | `src/communication/` | In-memory video call manager and simulated robot-to-robot communication helpers. |
 | `src/config/` | Placeholder config module files exist; runtime completeness not verified. |
 | `src/display/` | Robot face state events and flashcard renderer; reward/sleep files exist as placeholders. |
@@ -48,11 +50,11 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/emotion/` | Emotion analyzer, emotion journal, and emotion alert state. |
 | `src/entertainment/` | Story engine, music library, word quiz, and voice quiz logic backed by local resources. |
 | `src/infrastructure/` | Auth/JWT helpers, SQLite database helpers, logging setup, notifier, session state/naming, and task manager. |
-| `src/living/` | Runtime-only Stage 1 living layer: `living_state.py` state machine, `micro_moments.py` spontaneous idle behaviors, and `proactive_behaviors.py` child-present idle prompts; integrated into `src/main.py` text/voice loops and passed to LLM through internal `system_context` where needed. |
+| `src/living/` | Runtime-only Stage 1 living layer: state machine, micro moments, and audio-first proactive prompts. A recognized interaction creates a short recent-presence window; optional camera events may extend it. |
 | `src/memory/` | ChromaDB RAG manager plus smaller memory/progress placeholder or support files. |
 | `src/motion/` | Motor controller with simulation/serial/WebSocket paths plus navigation, follow-me, and dock helper modules. |
 | `src/safety/` | Safety filter for LLM/puppet text before TTS. |
-| `src/vision/` | Camera stream module; face/fall/motion/smoke detector files exist as placeholders. |
+| `src/vision/` | Optional camera stream module, disabled by default with `CAMERA_ENABLED=false`; current machine has no camera. |
 
 ## 5. API Router Map
 
@@ -118,6 +120,8 @@ src/
 | File | Current responsibility |
 |---|---|
 | `firmware/Robot_BI/Robot_BI.ino` | ESP32 Arduino firmware for L298N motor pins, WiFi setup/persistence, WebSocket motor commands, server registration, and watchdog stop behavior. |
+| `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino` | Standalone ESP32-S3 N16R8 hardware test for two INMP441 microphones and a MAX98357A speaker. Uses beep cues, records 5 seconds of stereo audio to PSRAM, then plays the left and right channels separately without live loopback. |
+| `firmware/ESP32S3_Speaker_Test/ESP32S3_Speaker_Test.ino` | Standalone MAX98357A test with no microphones or PSRAM. Repeats counted tones and a rising frequency sweep on BCLK GPIO4, LRC GPIO5, and DIN GPIO7. |
 
 Specific firmware behavior should be verified in the `.ino` file before changes.
 

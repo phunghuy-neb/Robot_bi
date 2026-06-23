@@ -411,13 +411,11 @@ class BiAI:
             system_context: Context nội bộ inject vào system prompt.
             role: Ép buộc vai trò. Nếu None thì RoleManager tự quyết định.
         """
-        # Xác định role — ưu tiên: tham số ngoài → RoleManager → mặc định friend
+        # Xác định role — ưu tiên: tham số ngoài → RoleManager current state
         if role is not None:
             active_role = role
         elif self.role_manager is not None:
-            self.role_manager.process_message(user_input)
             active_role = self.role_manager.current_role
-            # Merge role context (task goal, timer) vào system_context
             role_ctx = self.role_manager.get_system_context()
             if role_ctx:
                 system_context = "\n".join(filter(None, [system_context, role_ctx]))
@@ -446,6 +444,15 @@ class BiAI:
     def reset_history(self) -> None:
         """Xóa toàn bộ lịch sử hội thoại."""
         self.history.clear()
+
+    def check_role_transition(self, user_text: str) -> str | None:
+        """
+        Xử lý lời bé qua RoleManager, trả về transition event.
+        Gọi TRƯỚC stream_chat() để biết có chuyển vai không.
+        """
+        if self.role_manager is None:
+            return None
+        return self.role_manager.process_message(user_text)
 
     def set_role(self, role: str, task_goal: str | None = None,
                  time_limit_seconds: int | None = None) -> None:

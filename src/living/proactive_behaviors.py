@@ -1,9 +1,9 @@
 """
 Proactive Behaviors Engine - gentle child-present idle prompts.
 
-Runtime-only: no DB, no threads. Caller owns presence detection and TTS.
-Guardrails: requires recent child presence, rate-limited, blocked during
-homework sessions and sleep hours (22:00-07:00).
+Runtime-only: no DB, no threads. Voice interaction marks recent presence;
+camera events may extend it when optional camera hardware is enabled.
+Guardrails: rate-limited, blocked during homework and sleep hours (22:00-07:00).
 """
 import datetime
 import logging
@@ -16,11 +16,12 @@ logger = logging.getLogger(__name__)
 
 _SILENCE_TRIGGER_SECS = 10 * 60
 _RATE_LIMIT_SECS = 30 * 60
+_PRESENCE_WINDOW_SECS = 12 * 60
 
 _TEXTS: tuple[str, ...] = (
-    "Be oi, hom nay co chuyen gi hay khong?",
-    "Bi thay be dang yen lang. Minh noi chuyen mot chut khong?",
-    "Be muon choi nhe mot tro, hay nghi tiep cung duoc nha.",
+    "Bé ơi, hôm nay có chuyện gì hay không?",
+    "Bi thấy bé đang yên lặng. Mình nói chuyện một chút không?",
+    "Bé muốn chơi nhẹ một trò, hay nghỉ tiếp cũng được nha.",
 )
 
 
@@ -33,37 +34,53 @@ class ProactiveBehaviorsEngine:
     Runtime-only proactive prompt gate.
 
     The engine tracks the last user interaction and last proactive prompt.
-    It never detects presence by itself; main.py passes child_present=True
-    based on camera/vision signals.
+    A recognized interaction marks recent presence and resets silence.
+    Optional camera/vision signals may extend presence without resetting silence.
     """
 
     def __init__(
         self,
         silence_secs: int = _SILENCE_TRIGGER_SECS,
         rate_limit_secs: int = _RATE_LIMIT_SECS,
+        presence_secs: int = _PRESENCE_WINDOW_SECS,
     ):
         self._silence_secs = silence_secs
         self._rate_limit_secs = rate_limit_secs
+        self._presence_secs = presence_secs
         now = time.time()
         self._last_interaction_at: float = now
-        self._last_fired_at: float = now - rate_limit_secs
+        self._last_fired_at: float = float("-inf")
+        self._present_until: float = 0.0
 
     def on_interaction(self, *, now: float | None = None) -> None:
-        """Record a child/user interaction and reset the silence timer."""
-        self._last_interaction_at = time.time() if now is None else now
+        """Record an interaction, reset silence, and mark recent presence."""
+        current = time.time() if now is None else now
+        self._last_interaction_at = current
+        self.on_presence(now=current)
+
+    def on_presence(self, *, now: float | None = None) -> None:
+        """Extend the recent-presence window without resetting silence."""
+        current = time.time() if now is None else now
+        self._present_until = max(
+            self._present_until,
+            current + self._presence_secs,
+        )
+
+    def is_recently_present(self, *, now: float | None = None) -> bool:
+        current = time.time() if now is None else now
+        return current <= self._present_until
 
     def maybe_trigger(
         self,
         state: BiState,
         *,
-        child_present: bool,
         is_homework: bool = False,
         hour: int | None = None,
         now: float | None = None,
     ) -> str | None:
         """Return a proactive phrase if all guardrails pass, else None."""
         current = time.time() if now is None else now
-        if not child_present:
+        if not self.is_recently_present(now=current):
             return None
         if is_homework:
             return None
@@ -94,3 +111,7 @@ class ProactiveBehaviorsEngine:
         """Remaining proactive cooldown seconds (0.0 if ready)."""
         current = time.time() if now is None else now
         return max(0.0, self._rate_limit_secs - (current - self._last_fired_at))
+
+    def seconds_until_presence_expires(self, *, now: float | None = None) -> float:
+        current = time.time() if now is None else now
+        return max(0.0, self._present_until - current)

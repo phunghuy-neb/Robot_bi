@@ -10,24 +10,26 @@
 
 | Field | Value |
 |---|---|
-| **Task name** | Sprint 1.4 — Proactive Behaviors + Stage 1 Polish |
+| **Task name** | Sprint 1.4 — Audio-Only Hardware Hardening |
 | **Sprint** | Sprint 1.4 (Stage 1 — Bi Có Hồn) |
 | **Branch** | `002-parent-app-backend-integration` |
-| **Commit hash** | _(this commit)_ |
-| **Commit range** | `6be68d8..HEAD` |
-| **Files changed** | `config.json`, `src/ai/ai_engine.py`, `src/living/proactive_behaviors.py`, `src/living/__init__.py`, `src/main.py`, `tests/run_tests.py`, `PROJECT.md`, generated `CLAUDE.md`/`AGENTS.md`, setup/status docs |
-| **Short summary** | Updated Cerebras primary config to `primary_api=cerebras` + `gpt-oss-120b`; added runtime-only `ProactiveBehaviorsEngine`; wired child-present idle prompt before micro moments; added same-tick pouting guard; updated docs/status; full suite PASS 545/545. |
+| **Commit hash** | uncommitted follow-up after `f2d4738` |
+| **Commit range** | `f2d4738..working tree` |
+| **Files changed** | proactive engine, `main.py`, AI cooldown, microphone utility, STT, wake word listener, CryDetector, tests, config and current-state docs |
+| **Short summary** | Removed camera dependency from proactive behavior, hardened Windows microphone capture and dual-mic ownership, removed decorative provider config, added Cerebras quota cooldown, and expanded the suite to 560 tests. |
 
 ---
 
 ## SECTION 2 — REVIEW TARGET
 
 **Changed runtime files**:
-- `src/ai/ai_engine.py` — Cerebras model now comes from `config.json` (`cerebras_model`, default `gpt-oss-120b`) instead of deprecated hardcoded Qwen model; Cloudflare fallback had a no-op guard removed.
-- `src/living/proactive_behaviors.py` — new runtime-only proactive prompt gate with silence threshold, child-present requirement, 30-minute rate limit, homework guard, sleep-hour guard, and active-state guard.
-- `src/living/__init__.py` — exports `ProactiveBehaviorsEngine`.
-- `src/main.py` — tracks recent child presence from vision events, resets proactive timer on interaction, checks proactive before micro moments, and prevents proactive/pouting overlap.
-- `tests/run_tests.py` — Group 71 added (13 tests).
+- `src/living/proactive_behaviors.py` — recognized speech marks a 12-minute recent-presence window; optional vision may extend it; Vietnamese TTS phrases now contain proper accents.
+- `src/audio/input/microphone_utils.py` — ranks real inputs above virtual sources, verifies callback frames, captures at native rate, and resamples to 16 kHz.
+- `src/audio/input/ear_stt.py` and `src/wakeword/audio_listener.py` — callback capture supports Windows devices that do not provide blocking 16 kHz streams.
+- `src/audio/analysis/cry_detector.py` — uses a separate microphone from STT.
+- `src/main.py` — camera is optional and disabled by default; proactive works with audio-only hardware.
+- `src/ai/ai_engine.py` — fixed provider order is explicit and Cerebras quota responses start a cooldown.
+- `tests/run_tests.py` — Group 71 expanded and Group 72 added.
 
 **Changed docs/config**:
 - `config.json`, `.env.example`, `HUONG_DAN_CHAY.md`, `PROJECT.md`, `docs/ARCHITECTURE.md`, `docs/STATUS_MAP.md`, `docs/BACKLOG_Robot_Bi_v2.md`, `SYSTEM_MAP.md`.
@@ -44,7 +46,7 @@
 ## SECTION 3 — REVIEW CHECKLIST
 
 - [x] Cerebras no longer references deprecated `qwen-3-235b-a22b-instruct-2507`.
-- [x] `config.json` marks `primary_api` as `cerebras`.
+- [x] Decorative `primary_api` config removed; protected provider order remains explicit in code.
 - [x] Proactive prompts require child presence and 10-minute silence.
 - [x] Proactive prompts are rate-limited and blocked during homework/sleep hours.
 - [x] Proactive prompts do not fire in active engaged/thinking states.
@@ -53,7 +55,9 @@
 - [x] Same idle tick cannot fire both proactive and pouting.
 - [x] Idle phrase thread sets `_micro_speaking` before thread scheduling to avoid overlap races.
 - [x] Stage/status docs reflect Stage 1 software reality without overclaiming motor/face work.
-- [x] Full verification run completed.
+- [x] Camera is optional and disabled by default.
+- [x] STT microphone is not shared with CryDetector.
+- [x] Full verification run completed: 560/560.
 
 ---
 
@@ -85,11 +89,11 @@
 
 | Check | Result |
 |---|---|
-| `python -m py_compile src\ai\ai_engine.py src\main.py src\living\proactive_behaviors.py tests\run_tests.py` | PASS |
-| Cerebras model probe with configured API key | PASS with `gpt-oss-120b` |
-| `python tests/run_tests.py` | PASS 545/545 |
+| `python -m py_compile ...` for changed Python files | PASS |
+| Microphone enumeration/probe | Endpoints listed; no device returned callback frames, so runtime correctly falls back to silent mode |
+| `python tests/run_tests.py` | PASS 560/560 |
 
-Note: during the full stress test, Cerebras and Groq both returned quota 429 warnings on some calls, and the fallback chain continued successfully. This is expected quota behavior, not a test failure.
+Note: provider quota 429 warnings continued, but Cerebras/Groq cooldowns reduced repeated calls and the fallback chain completed the suite.
 
 ---
 
@@ -100,4 +104,5 @@ Note: during the full stress test, Cerebras and Groq both returned quota 429 war
 | Sprint 1.1 | Living State Engine | `a4c4978` | 0 | 4 fixed | ✅ Committed — 497/497 PASS |
 | Sprint 1.2 | Micro Moments Engine | `cb83b91` | 0 | 0 | ✅ Committed — 517/517 PASS |
 | Sprint 1.3 | Adaptive Persona + Giận Dỗi Mode | `6be68d8` | 0 | 3 fixed | ✅ Committed — 532/532 PASS |
-| Sprint 1.4 | Proactive Behaviors + Stage 1 Polish | _(this commit)_ | 0 | 2 fixed | ✅ Committed — 545/545 PASS |
+| Sprint 1.4 | Proactive Behaviors + Stage 1 Polish | `f2d4738` | 0 | 2 fixed | ✅ Committed — 545/545 PASS |
+| Sprint 1.4 hardening | Audio-only + dual-mic runtime | uncommitted | 0 | 4 fixed | ✅ 560/560 PASS; hardware mic access pending |

@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Bi — AI Eval Tool</title>
+<style>
+  /* ── Token system ─────────────────────────────────────────── */
+  :root {
+    --ground:      #0F1923;
+    --surface:     #162030;
+    --surface-2:   #1D2C3F;
+    --border:      #243348;
+    --text:        #E8EDF2;
+    --text-muted:  #5C7A96;
+    --text-dim:    #3A5470;
+
+    --role-friend:   #F0A832;
+    --role-teacher:  #2EC4B6;
+    --role-parent:   #F06E6E;
+    --role-advisor:  #9B8FC8;
+
+    --accent:      var(--role-friend);
+    --radius:      6px;
+    --font-ui:     system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:   'SF Mono', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    --transition:  180ms ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .logo span { color: var(--accent); transition: color var(--transition); }
+
+  .auth-bar {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .auth-bar input {
+    background: var(--ground);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    width: 160px;
+  }
+  .auth-bar input::placeholder { color: var(--text-dim); }
+  .auth-bar input:focus { outline: none; border-color: var(--accent); }
+
+  .btn-sm {
+    padding: 5px 12px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity var(--transition);
+  }
+  .btn-sm:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: #000; transition: background var(--transition), opacity var(--transition); }
+  .btn-ghost { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: background var(--transition);
+  }
+  .status-dot.ok { background: var(--role-teacher); box-shadow: 0 0 6px var(--role-teacher); }
+  #status-label { font-size: 12px; color: var(--text-muted); }
+
+  /* ── Main layout ─────────────────────────────────────────── */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    overflow: hidden;
+    height: calc(100vh - 53px);
+  }
+
+  /* ── Left panel ──────────────────────────────────────────── */
+  .panel-left {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  /* Role selector */
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .role-btn {
+    padding: 10px 8px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    background: var(--ground);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    transition: border-color var(--transition), color var(--transition), background var(--transition);
+  }
+  .role-btn .role-icon { font-size: 18px; }
+  .role-btn .role-name { font-size: 11px; font-weight: 700; }
+  .role-btn .role-desc { font-size: 10px; color: var(--text-dim); font-weight: 400; line-height: 1.3; }
+
+  .role-btn[data-role="friend"]        { --r: var(--role-friend); }
+  .role-btn[data-role="teacher"]       { --r: var(--role-teacher); }
+  .role-btn[data-role="parent_child"]  { --r: var(--role-parent); }
+  .role-btn[data-role="parent_advisor"]{ --r: var(--role-advisor); }
+
+  .role-btn.active {
+    border-color: var(--r);
+    background: color-mix(in srgb, var(--r) 10%, var(--ground));
+    color: var(--r);
+  }
+  .role-btn.active .role-desc { color: color-mix(in srgb, var(--r) 60%, var(--text-dim)); }
+
+  /* Context */
+  .ctx-grid {
+    display: grid;
+    grid-template-columns: 1fr 60px;
+    gap: 8px;
+  }
+  .ctx-grid .full { grid-column: 1 / -1; }
+
+  label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+
+  input[type="text"], input[type="number"], input[type="password"], textarea, select {
+    width: 100%;
+    background: var(--ground);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    resize: none;
+    transition: border-color var(--transition);
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { min-height: 90px; }
+
+  .msg-textarea { min-height: 110px; font-size: 14px; line-height: 1.5; }
+
+  .send-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn-send {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    border: none;
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background var(--transition), opacity var(--transition), transform 80ms;
+  }
+  .btn-send:hover { opacity: 0.88; }
+  .btn-send:active { transform: scale(0.98); }
+  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-send .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,.3); border-top-color: #000; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  .btn-send.loading .spinner { display: block; }
+  .btn-send.loading .send-label { display: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Prompt version badge */
+  .pv-badge {
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 20px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  /* ── Right panel ─────────────────────────────────────────── */
+  .panel-right {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .response-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .response-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+  .response-box.has-response { border-color: var(--accent); }
+
+  .response-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .role-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: background var(--transition), color var(--transition);
+  }
+  .meta-chips {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .chip {
+    font-size: 10px;
+    color: var(--text-dim);
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .chip.latency { color: var(--role-teacher); border-color: color-mix(in srgb, var(--role-teacher) 40%, transparent); }
+
+  .response-content {
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 80px;
+  }
+  .response-placeholder {
+    color: var(--text-dim);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* Rating + comment */
+  .rating-row {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .rating-label { font-size: 11px; color: var(--text-muted); }
+  .rating-btns { display: flex; gap: 4px; }
+  .rating-btn {
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--ground);
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .rating-btn.selected-good { background: color-mix(in srgb, var(--role-teacher) 20%, var(--ground)); border-color: var(--role-teacher); }
+  .rating-btn.selected-bad  { background: color-mix(in srgb, var(--role-parent) 20%, var(--ground)); border-color: var(--role-parent); }
+
+  .comment-save-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 0 14px 12px;
+  }
+  .comment-input {
+    flex: 1;
+    min-height: 52px;
+    font-size: 13px;
+    background: var(--ground);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    resize: none;
+    font-family: var(--font-ui);
+    transition: border-color var(--transition);
+  }
+  .comment-input:focus { outline: none; border-color: var(--accent); }
+  .comment-input::placeholder { color: var(--text-dim); }
+
+  /* History panel */
+  .history-panel {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .history-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+  .history-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+  .history-actions { margin-left: auto; display: flex; gap: 6px; }
+
+  .history-list { display: flex; flex-direction: column; }
+  .history-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 60px 28px;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background var(--transition);
+    font-size: 12px;
+  }
+  .history-item:hover { background: var(--surface-2); }
+  .history-item .h-role { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .history-item .h-msg { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-item .h-resp { color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-mono); font-size: 11px; }
+  .history-item .h-rating { font-size: 14px; text-align: center; }
+  .history-item .h-del { color: var(--text-dim); font-size: 14px; text-align: center; cursor: pointer; border: none; background: none; }
+  .history-item .h-del:hover { color: var(--role-parent); }
+  .empty-history { padding: 16px; text-align: center; color: var(--text-dim); font-size: 12px; font-style: italic; }
+
+  /* Error toast */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a0f0f;
+    border: 1px solid var(--role-parent);
+    color: var(--role-parent);
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* Focus ring */
+  *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    .panel-left { max-height: 55vh; }
+    header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Robot Bi <span>Eval</span></div>
+  <div class="auth-bar">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-label">Chưa đăng nhập</span>
+    <input type="text" id="input-user" placeholder="username" autocomplete="username" style="width:110px">
+    <input type="password" id="input-pass" placeholder="password" autocomplete="current-password" style="width:110px">
+    <button class="btn-sm btn-primary" id="btn-login" onclick="doLogin()">Đăng nhập</button>
+    <button class="btn-sm btn-ghost" id="btn-logout" onclick="doLogout()" style="display:none">Thoát</button>
+  </div>
+</header>
+
+<main>
+  <!-- ── Left panel ── -->
+  <div class="panel-left">
+
+    <!-- Role selector -->
+    <div>
+      <div class="section-label">Vai trò</div>
+      <div class="role-grid">
+        <button class="role-btn active" data-role="friend" onclick="selectRole(this)">
+          <span class="role-icon">🤝</span>
+          <span class="role-name">Bạn</span>
+          <span class="role-desc">Nói chuyện với bé như bạn bè</span>
+        </button>
+        <button class="role-btn" data-role="teacher" onclick="selectRole(this)">
+          <span class="role-icon">📚</span>
+          <span class="role-name">Giáo viên</span>
+          <span class="role-desc">Dạy học theo từng bước</span>
+        </button>
+        <button class="role-btn" data-role="parent_child" onclick="selectRole(this)">
+          <span class="role-icon">💝</span>
+          <span class="role-name">Con</span>
+          <span class="role-desc">Nói chuyện với phụ huynh qua voice</span>
+        </button>
+        <button class="role-btn" data-role="parent_advisor" onclick="selectRole(this)">
+          <span class="role-icon">🎯</span>
+          <span class="role-name">Cố vấn</span>
+          <span class="role-desc">Phân tích chuyên sâu cho phụ huynh</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Context -->
+    <div>
+      <div class="section-label">Ngữ cảnh bé <span style="font-weight:400;text-transform:none;letter-spacing:0">(tùy chọn)</span></div>
+      <div class="ctx-grid">
+        <div>
+          <label for="ctx-name">Tên bé</label>
+          <input type="text" id="ctx-name" placeholder="vd: Minh">
+        </div>
+        <div>
+          <label for="ctx-age">Tuổi</label>
+          <input type="number" id="ctx-age" placeholder="8" min="1" max="18">
+        </div>
+        <div class="full">
+          <label for="ctx-subject">Đang học môn</label>
+          <input type="text" id="ctx-subject" placeholder="vd: Toán nhân lớp 3">
+        </div>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <div>
+      <div class="section-label">Câu test</div>
+      <textarea class="msg-textarea" id="msg-input" placeholder="Nhập câu bé hoặc phụ huynh nói..."></textarea>
+    </div>
+
+    <!-- Server URL -->
+    <div>
+      <label for="server-url">Backend URL</label>
+      <input type="text" id="server-url" value="https://localhost:8443" placeholder="https://localhost:8443">
+    </div>
+
+    <!-- Send -->
+    <div class="send-row">
+      <button class="btn-send" id="btn-send" onclick="sendEval()">
+        <div class="spinner"></div>
+        <span class="send-label">▶ Gửi test</span>
+      </button>
+      <span class="pv-badge" id="pv-badge">v?</span>
+    </div>
+
+  </div>
+
+  <!-- ── Right panel ── -->
+  <div class="panel-right">
+    <div class="response-area" id="response-area">
+      <!-- Response box -->
+      <div class="response-box" id="response-box">
+        <div class="response-header">
+          <span class="role-pill" id="role-pill">FRIEND</span>
+          <div class="meta-chips">
+            <span class="chip" id="chip-version">—</span>
+            <span class="chip latency" id="chip-latency">—</span>
+          </div>
+        </div>
+        <div class="response-content" id="response-content">
+          <span class="response-placeholder">Response sẽ xuất hiện ở đây sau khi gửi test.</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">Đánh giá:</span>
+          <div class="rating-btns">
+            <button class="rating-btn" id="btn-good" onclick="rate('good')" title="Tốt">👍</button>
+            <button class="rating-btn" id="btn-bad"  onclick="rate('bad')"  title="Cần fix">👎</button>
+          </div>
+          <span style="font-size:11px;color:var(--text-dim);margin-left:4px" id="rating-hint">Chấm điểm để lưu vào lịch sử</span>
+        </div>
+        <div class="comment-save-row">
+          <textarea class="comment-input" id="comment-input" placeholder="Nhận xét cụ thể: câu nào sai, giọng không phù hợp, thiếu gì... Claude sẽ đọc và fix."></textarea>
+          <button class="btn-sm btn-primary" onclick="saveTest()" id="btn-save" style="margin-top:2px;flex-shrink:0">Lưu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="history-panel">
+      <div class="history-header">
+        <span class="history-title">Lịch sử test (<span id="history-count">0</span>)</span>
+        <div class="history-actions">
+          <button class="btn-sm btn-ghost" onclick="exportJSON()">Export JSON</button>
+          <button class="btn-sm btn-ghost" onclick="exportCSV()">Export CSV</button>
+          <button class="btn-sm btn-ghost" onclick="clearHistory()">Xóa hết</button>
+        </div>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="empty-history">Chưa có test nào được lưu.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+let token    = localStorage.getItem('eval_token') || '';
+let history  = JSON.parse(localStorage.getItem('eval_history') || '[]');
+let curRole  = 'friend';
+let curResp  = null; // last response object
+let curRating = null;
+
+const ROLE_COLORS = {
+  friend:          'var(--role-friend)',
+  teacher:         'var(--role-teacher)',
+  parent_child:    'var(--role-parent)',
+  parent_advisor:  'var(--role-advisor)',
+};
+const ROLE_LABELS = {
+  friend: 'FRIEND', teacher: 'TEACHER',
+  parent_child: 'CON', parent_advisor: 'CỐ VẤN',
+};
+
+// ── Auth ────────────────────────────────────────────────────────────
+function getBase() {
+  return (document.getElementById('server-url').value || 'https://localhost:8443').replace(/\/$/, '');
+}
+
+async function doLogin() {
+  const u = document.getElementById('input-user').value.trim();
+  const p = document.getElementById('input-pass').value.trim();
+  if (!u || !p) { showToast('Nhập username và password.'); return; }
+  try {
+    const r = await fetchAPI('/api/auth/login', 'POST', { username: u, password: p }, false);
+    token = r.access_token;
+    localStorage.setItem('eval_token', token);
+    setAuthOK(u);
+  } catch(e) { showToast('Đăng nhập thất bại: ' + e.message); }
+}
+
+function doLogout() {
+  token = ''; localStorage.removeItem('eval_token');
+  document.getElementById('status-dot').className = 'status-dot';
+  document.getElementById('status-label').textContent = 'Chưa đăng nhập';
+  document.getElementById('btn-login').style.display = '';
+  document.getElementById('btn-logout').style.display = 'none';
+}
+
+function setAuthOK(user) {
+  document.getElementById('status-dot').className = 'status-dot ok';
+  document.getElementById('status-label').textContent = user || 'Đã đăng nhập';
+  document.getElementById('btn-login').style.display = 'none';
+  document.getElementById('btn-logout').style.display = '';
+}
+
+// ── Role selection ──────────────────────────────────────────────────
+function selectRole(btn) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  curRole = btn.dataset.role;
+  const color = ROLE_COLORS[curRole];
+  document.documentElement.style.setProperty('--accent', color);
+  document.getElementById('role-pill').textContent = ROLE_LABELS[curRole];
+  curRating = null;
+  document.getElementById('btn-good').className = 'rating-btn';
+  document.getElementById('btn-bad').className  = 'rating-btn';
+  document.getElementById('rating-hint').textContent = 'Chấm điểm để lưu vào lịch sử';
+}
+
+// ── Send eval ───────────────────────────────────────────────────────
+async function sendEval() {
+  if (!token) { showToast('Đăng nhập trước.'); return; }
+  const msg = document.getElementById('msg-input').value.trim();
+  if (!msg) { showToast('Nhập câu test trước.'); return; }
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true; btn.classList.add('loading');
+
+  const body = {
+    role: curRole,
+    message: msg,
+    child_context: buildContext(),
+  };
+
+  try {
+    const res = await fetchAPI('/api/eval/chat', 'POST', body);
+    showResponse(res);
+    curResp = { ...res, message: msg, role: curRole };
+    document.getElementById('pv-badge').textContent = res.prompt_version || 'v?';
+  } catch(e) {
+    showToast(e.message);
+  } finally {
+    btn.disabled = false; btn.classList.remove('loading');
+  }
+}
+
+function buildContext() {
+  const name    = document.getElementById('ctx-name').value.trim();
+  const age     = parseInt(document.getElementById('ctx-age').value) || null;
+  const subject = document.getElementById('ctx-subject').value.trim();
+  if (!name && !age && !subject) return null;
+  return { name: name || null, age, subject: subject || null };
+}
+
+function showResponse(res) {
+  const box = document.getElementById('response-box');
+  document.getElementById('response-content').textContent = res.response || '(empty)';
+  document.getElementById('chip-version').textContent = res.prompt_version || '—';
+  document.getElementById('chip-latency').textContent = res.latency_ms ? res.latency_ms + 'ms' : '—';
+  box.classList.add('has-response');
+  curRating = null;
+  document.getElementById('btn-good').className = 'rating-btn';
+  document.getElementById('btn-bad').className  = 'rating-btn';
+  document.getElementById('comment-input').value = '';
+  document.getElementById('rating-hint').textContent = 'Chấm điểm để lưu vào lịch sử';
+}
+
+// ── Rating ──────────────────────────────────────────────────────────
+function rate(val) {
+  curRating = val;
+  document.getElementById('btn-good').className = 'rating-btn' + (val === 'good' ? ' selected-good' : '');
+  document.getElementById('btn-bad').className  = 'rating-btn' + (val === 'bad'  ? ' selected-bad'  : '');
+  document.getElementById('rating-hint').textContent = val === 'good' ? '👍 Đánh dấu tốt' : '👎 Cần fix — thêm nhận xét bên dưới';
+}
+
+// ── Save ────────────────────────────────────────────────────────────
+function saveTest() {
+  if (!curResp) { showToast('Chưa có response để lưu.'); return; }
+  const comment = document.getElementById('comment-input').value.trim();
+  const entry = {
+    id:        Date.now(),
+    ts:        new Date().toISOString(),
+    role:      curResp.role,
+    message:   curResp.message,
+    response:  curResp.response,
+    rating:    curRating,
+    comment:   comment,
+    latency_ms: curResp.latency_ms,
+    prompt_version: curResp.prompt_version,
+  };
+  history.unshift(entry);
+  localStorage.setItem('eval_history', JSON.stringify(history));
+  renderHistory();
+  showToast('Đã lưu ✓', true);
+}
+
+// ── History render ──────────────────────────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  document.getElementById('history-count').textContent = history.length;
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-history">Chưa có test nào được lưu.</div>';
+    return;
+  }
+  list.innerHTML = history.map((e, i) => `
+    <div class="history-item" onclick="loadEntry(${i})">
+      <span class="h-role" style="color:${ROLE_COLORS[e.role]||'var(--text-muted)'}">${ROLE_LABELS[e.role]||e.role}</span>
+      <span class="h-msg">${esc(e.message)}</span>
+      <span class="h-resp">${esc(e.response||'')}</span>
+      <span class="h-rating">${e.rating === 'good' ? '👍' : e.rating === 'bad' ? '👎' : '—'}</span>
+      <button class="h-del" onclick="event.stopPropagation();deleteEntry(${i})" title="Xóa">×</button>
+    </div>
+  `).join('');
+}
+
+function loadEntry(i) {
+  const e = history[i];
+  if (!e) return;
+  document.getElementById('msg-input').value = e.message;
+  // Select role
+  document.querySelectorAll('.role-btn').forEach(b => {
+    if (b.dataset.role === e.role) selectRole(b);
+  });
+  showResponse(e);
+  curResp = e;
+  document.getElementById('comment-input').value = e.comment || '';
+  if (e.rating) rate(e.rating);
+}
+
+function deleteEntry(i) {
+  history.splice(i, 1);
+  localStorage.setItem('eval_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function clearHistory() {
+  if (!confirm('Xóa toàn bộ ' + history.length + ' test?')) return;
+  history = [];
+  localStorage.setItem('eval_history', JSON.stringify(history));
+  renderHistory();
+}
+
+// ── Export ──────────────────────────────────────────────────────────
+function exportJSON() {
+  if (!history.length) { showToast('Chưa có test nào.'); return; }
+  const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+  download(blob, `robot_bi_eval_${datestamp()}.json`);
+}
+
+function exportCSV() {
+  if (!history.length) { showToast('Chưa có test nào.'); return; }
+  const cols = ['id','ts','role','message','response','rating','comment','latency_ms','prompt_version'];
+  const rows = history.map(e => cols.map(c => csvCell(e[c])).join(','));
+  const csv = [cols.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  download(blob, `robot_bi_eval_${datestamp()}.csv`);
+}
+
+function csvCell(v) {
+  if (v == null) return '';
+  const s = String(v).replace(/"/g, '""');
+  return /[,"\n]/.test(s) ? `"${s}"` : s;
+}
+
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function datestamp() {
+  return new Date().toISOString().slice(0,10);
+}
+
+// ── API helper ──────────────────────────────────────────────────────
+async function fetchAPI(path, method, body, auth = true) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth && token) headers['Authorization'] = 'Bearer ' + token;
+  const r = await fetch(getBase() + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { const j = await r.json(); msg = j.detail || msg; } catch(_) {}
+    throw new Error(`${r.status}: ${msg}`);
+  }
+  return r.json();
+}
+
+// ── Toast ───────────────────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg, ok = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = ok ? 'var(--role-teacher)' : 'var(--role-parent)';
+  t.style.color        = ok ? 'var(--role-teacher)' : 'var(--role-parent)';
+  t.style.background   = ok ? '#0a1a18' : '#1a0f0f';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── Keyboard shortcut: Ctrl+Enter → send ────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') sendEval();
+});
+
+// ── Helpers ─────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+(function init() {
+  if (token) setAuthOK('(token cached)');
+  renderHistory();
+  // Load saved server URL
+  const saved = localStorage.getItem('eval_server');
+  if (saved) document.getElementById('server-url').value = saved;
+  document.getElementById('server-url').addEventListener('change', e => {
+    localStorage.setItem('eval_server', e.target.value);
+  });
+})();
+</script>
+</body>
+</html>

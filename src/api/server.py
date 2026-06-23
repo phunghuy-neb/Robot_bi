@@ -53,6 +53,7 @@ from src.api.routers.persona_router import router as persona_router
 from src.api.routers.story_router import router as story_router
 from src.api.routers.video_call_router import router as video_call_router
 from src.api.routers import webrtc_router
+from src.api.routers.eval_router import router as eval_router
 
 logger = logging.getLogger("api_server")
 
@@ -107,6 +108,7 @@ app.include_router(music_router)
 app.include_router(motor_router)
 app.include_router(wifi_router)
 app.include_router(ops_router)
+app.include_router(eval_router)
 app.include_router(persona_router)
 app.include_router(story_router)
 app.include_router(video_call_router)

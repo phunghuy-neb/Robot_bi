@@ -23,6 +23,11 @@ from typing import Callable, Optional
 
 import numpy as np
 
+from src.audio.input.microphone_utils import (
+    CallbackMicrophoneStream,
+    probe_input_device,
+    resample_audio,
+)
 from src.wakeword.config import SAMPLE_RATE, CHUNK_FRAMES, CHANNELS
 
 logger = logging.getLogger(__name__)
@@ -77,33 +82,43 @@ class AudioListener:
 
     def _capture_loop(self) -> None:
         """Open mic stream, feed chunks to callback, close on stop or detection."""
-        try:
-            import sounddevice as sd
-        except ImportError:
-            logger.warning("[WakeWord/AudioListener] sounddevice not available — listener disabled")
-            return
-
         stream = None
         try:
-            stream = sd.InputStream(
-                samplerate=SAMPLE_RATE,
-                channels=self._mic_channels,
-                dtype="float32",
-                blocksize=CHUNK_FRAMES,
-                device=self._mic_device,
+            config = probe_input_device(
+                preferred_index=self._mic_device,
+                target_rate=SAMPLE_RATE,
+            )
+            if config is None:
+                logger.warning(
+                    "[WakeWord/AudioListener] No usable microphone (preferred=%s)",
+                    self._mic_device,
+                )
+                return
+            stream = CallbackMicrophoneStream(
+                config,
+                chunk_ms=CHUNK_FRAMES * 1000 // SAMPLE_RATE,
             )
             stream.start()
         except Exception as e:
             logger.warning("[WakeWord/AudioListener] Cannot open mic (device=%s): %s", self._mic_device, e)
             return
 
-        logger.debug("[WakeWord/AudioListener] Started (device=%s, %dms chunks)", self._mic_device, CHUNK_FRAMES * 1000 // SAMPLE_RATE)
+        logger.debug(
+            "[WakeWord/AudioListener] Started (device=%s, rate=%s, %dms chunks)",
+            config.device_index,
+            config.sample_rate,
+            CHUNK_FRAMES * 1000 // SAMPLE_RATE,
+        )
 
         try:
             while not self._stop_event.is_set():
                 try:
-                    chunk, _ = stream.read(CHUNK_FRAMES)
-                    audio = np.asarray(chunk, dtype=np.float32).flatten()
+                    chunk = stream.read(timeout=2.0)
+                    audio = resample_audio(
+                        np.asarray(chunk, dtype=np.float32),
+                        config.sample_rate,
+                        SAMPLE_RATE,
+                    )
                     should_stop = self._on_chunk(audio)
                     if should_stop:
                         logger.debug("[WakeWord/AudioListener] Callback requested stop")
@@ -114,7 +129,6 @@ class AudioListener:
         finally:
             try:
                 stream.stop()
-                stream.close()
             except Exception:
                 pass
             logger.debug("[WakeWord/AudioListener] Stopped")

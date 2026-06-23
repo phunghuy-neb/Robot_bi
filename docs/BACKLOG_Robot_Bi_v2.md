@@ -28,7 +28,7 @@
 | Status | Feature | Ghi chú |
 |---|---|---|
 | ✅ | LLM: 5-provider fallback chain | Cerebras → Groq → Sambanova → Gemini → Cloudflare AI; config trong `config.json` |
-| ✅ | STT: faster-whisper GPU/CPU auto-detect | `large-v2` GPU, `medium` CPU |
+| ✅ | STT: faster-whisper GPU/CPU auto-detect | Callback/native-rate mic capture → resample 16 kHz; `large-v2` GPU, `medium` CPU |
 | ✅ | TTS: edge-tts + pyttsx3 fallback | Chunked streaming; **edge-tts yêu cầu internet** (Microsoft cloud TTS) |
 | ✅ | Safety filter post-LLM pre-TTS | Không bao giờ bỏ qua |
 | ✅ | RAG memory với threshold 0.62 | Deduplication, family-scoped; max 500 memories/family |
@@ -178,7 +178,7 @@
 | Status | Feature | Ghi chú |
 |---|---|---|
 | ✅ | Camera stream MJPEG | Phụ huynh xem live trên app |
-| ✅ | Cry detection | YAMNet TFLite + fallback |
+| ✅ | Cry detection | YAMNet TFLite + fallback; separate microphone from STT |
 | ✅ | Event notifications | WebSocket real-time |
 | ✅ | Motion detection cơ bản | `src/vision/` |
 | ✅ | **PII filter** (Sprint 0.2) | `src/safety/pii_filter.py` — 8 loại PII, gentle redirect, dual-pattern (có/không dấu) |
@@ -268,7 +268,7 @@
 | ✅ | Trạng thái đang nhớ bé | `POUTING`/`MISSING_KID` + giận dỗi nhẹ, không guilt-trip |
 | ✅ | Trạng thái chuẩn bị bất ngờ | `PREPARE_SURPRISE` micro moment |
 | ✅ | Trạng thái ảnh hưởng đến hội thoại và học tập | Living hint + context persona modifier đi vào `system_context` |
-| ✅ | Chủ động hỏi thăm khi bé im lặng lâu | Sprint 1.4 `ProactiveBehaviorsEngine`; cần child-present signal từ vision event |
+| ✅ | Chủ động hỏi thăm khi bé im lặng lâu | Audio interaction marks recent presence for the 10-minute trigger; camera is optional |
 
 ---
 

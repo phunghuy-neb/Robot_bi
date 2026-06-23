@@ -6211,7 +6211,6 @@ def test_71_no_trigger_before_silence_threshold():
     eng.on_interaction(now=now)
     result = eng.maybe_trigger(
         BiState.IDLE_CURIOUS,
-        child_present=True,
         hour=10,
         now=now + 599,
     )
@@ -6224,7 +6223,6 @@ def test_71_triggers_after_silence_when_child_present():
     eng.on_interaction(now=now)
     result = eng.maybe_trigger(
         BiState.IDLE_CURIOUS,
-        child_present=True,
         hour=10,
         now=now + 601,
     )
@@ -6234,10 +6232,9 @@ def test_71_triggers_after_silence_when_child_present():
 def test_71_requires_child_presence():
     eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
     now = _time71.time()
-    eng.on_interaction(now=now)
+    eng._last_interaction_at = now
     result = eng.maybe_trigger(
         BiState.IDLE_CURIOUS,
-        child_present=False,
         hour=10,
         now=now + 601,
     )
@@ -6248,8 +6245,8 @@ def test_71_rate_limit_blocks_second_prompt():
     eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
     now = _time71.time()
     eng.on_interaction(now=now)
-    first = eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=10, now=now + 601)
-    second = eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=10, now=now + 700)
+    first = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10, now=now + 601)
+    second = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10, now=now + 700)
     assert first in _PROACTIVE_TEXTS
     assert second is None
 
@@ -6260,7 +6257,6 @@ def test_71_homework_blocks_prompt():
     eng.on_interaction(now=now)
     result = eng.maybe_trigger(
         BiState.IDLE_CURIOUS,
-        child_present=True,
         is_homework=True,
         hour=10,
         now=now + 601,
@@ -6272,16 +6268,16 @@ def test_71_sleep_hours_block_prompt():
     eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
     now = _time71.time()
     eng.on_interaction(now=now)
-    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=22, now=now + 601) is None
-    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, child_present=True, hour=6, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=22, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=6, now=now + 601) is None
 
 
 def test_71_active_states_block_prompt():
     eng = ProactiveBehaviorsEngine(silence_secs=600, rate_limit_secs=1800)
     now = _time71.time()
     eng.on_interaction(now=now)
-    assert eng.maybe_trigger(BiState.ACTIVE_ENGAGED, child_present=True, hour=10, now=now + 601) is None
-    assert eng.maybe_trigger(BiState.THINKING, child_present=True, hour=10, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.ACTIVE_ENGAGED, hour=10, now=now + 601) is None
+    assert eng.maybe_trigger(BiState.THINKING, hour=10, now=now + 601) is None
 
 
 def test_71_phrases_pass_manipulation_guard():
@@ -6303,7 +6299,7 @@ def test_71_main_wires_proactive_idle_path():
     assert "def _fire_proactive_if_ready" in src
     assert "_fire_proactive_if_ready()" in src
     assert "self._start_idle_phrase_thread(text)" in src
-    assert "_child_present_until" in src
+    assert "self._proactive.on_interaction()" in src
     proactive_idx = src.index("_fire_proactive_if_ready()")
     micro_idx = src.index("_fire_micro_moment_if_ready()")
     assert proactive_idx < micro_idx, "proactive prompt should be checked before micro moments"
@@ -6324,10 +6320,95 @@ def test_71_cerebras_model_config_not_deprecated_qwen():
     import json as _json
     from pathlib import Path as _P
     cfg = _json.loads(_P("config.json").read_text(encoding="utf-8"))
-    assert cfg.get("primary_api") == "cerebras"
     assert cfg.get("cerebras_model") == "gpt-oss-120b"
+    assert "primary_api" not in cfg, "Provider order is fixed in code; primary_api must not be decorative config"
     engine_src = _P("src/ai/ai_engine.py").read_text(encoding="utf-8")
     assert "qwen-3-235b-a22b-instruct-2507" not in engine_src
+    assert '_PROVIDER_ORDER = ("cerebras", "groq", "sambanova", "gemini", "cloudflare")' in engine_src
+
+
+def test_71_audio_interaction_marks_recent_presence():
+    eng = ProactiveBehaviorsEngine(
+        silence_secs=600,
+        rate_limit_secs=1800,
+        presence_secs=720,
+    )
+    eng.on_interaction(now=1000.0)
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10, now=1601.0)
+    assert result in _PROACTIVE_TEXTS
+
+
+def test_71_audio_presence_expires_after_grace_window():
+    eng = ProactiveBehaviorsEngine(
+        silence_secs=600,
+        rate_limit_secs=1800,
+        presence_secs=720,
+    )
+    eng.on_interaction(now=1000.0)
+    assert eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10, now=1721.0) is None
+
+
+def test_71_vision_presence_is_optional_supplement():
+    eng = ProactiveBehaviorsEngine(
+        silence_secs=600,
+        rate_limit_secs=1800,
+        presence_secs=720,
+    )
+    eng.on_interaction(now=1000.0)
+    eng.on_presence(now=1500.0)
+    result = eng.maybe_trigger(BiState.IDLE_CURIOUS, hour=10, now=1721.0)
+    assert result in _PROACTIVE_TEXTS
+
+
+def test_71_proactive_phrases_are_natural_vietnamese():
+    assert all(any(ord(char) > 127 for char in phrase) for phrase in _PROACTIVE_TEXTS)
+    assert any("Bé" in phrase for phrase in _PROACTIVE_TEXTS)
+
+
+def test_71_main_uses_engine_owned_presence():
+    from pathlib import Path as _P
+    src = _P("src/main.py").read_text(encoding="utf-8")
+    assert "_child_present_until" not in src
+    assert "self._proactive.on_presence()" in src
+    assert "self._proactive.on_interaction()" in src
+    assert "child_present=" not in src
+
+
+def test_71_camera_is_optional_and_disabled_by_default():
+    import src.main as _main
+    assert _main._env_flag("__ROBOT_BI_TEST_MISSING_CAMERA_FLAG__", False) is False
+    src = __import__("pathlib").Path("src/main.py").read_text(encoding="utf-8")
+    assert 'CAMERA_ENABLED = _env_flag("CAMERA_ENABLED", False)' in src
+    assert "if CAMERA_ENABLED:" in src
+
+
+def test_71_cerebras_quota_cooldown_skips_repeated_call():
+    import src.ai.ai_engine as _ai
+    original_cerebras = _ai._stream_cerebras
+    original_groq = _ai._stream_groq
+    original_cerebras_until = _ai._cerebras_cooldown_until
+    original_groq_until = _ai._groq_cooldown_until
+    original_groq_fail_streak = _ai._groq_fail_streak
+    try:
+        _ai._cerebras_cooldown_until = _time71.time() + 60
+        _ai._groq_cooldown_until = 0.0
+        _ai._groq_fail_streak = 0
+
+        def _must_not_call(*_args, **_kwargs):
+            raise AssertionError("Cerebras should be skipped during cooldown")
+
+        def _groq_ok(*_args, **_kwargs):
+            yield "ok"
+
+        _ai._stream_cerebras = _must_not_call
+        _ai._stream_groq = _groq_ok
+        assert "".join(_ai.stream_chat([{"role": "user", "content": "test"}])) == "ok"
+    finally:
+        _ai._stream_cerebras = original_cerebras
+        _ai._stream_groq = original_groq
+        _ai._cerebras_cooldown_until = original_cerebras_until
+        _ai._groq_cooldown_until = original_groq_until
+        _ai._groq_fail_streak = original_groq_fail_streak
 
 
 test("71.1  Import: ProactiveBehaviorsEngine importable",                 test_71_import)
@@ -6343,6 +6424,198 @@ test("71.10 Package: src.living exports ProactiveBehaviorsEngine",        test_7
 test("71.11 Main: proactive is wired before micro moments in idle path",  test_71_main_wires_proactive_idle_path)
 test("71.12 Guard: proactive blocks same-tick pouting",                   test_71_proactive_blocks_same_tick_pouting)
 test("71.13 LLM: Cerebras model configured as gpt-oss-120b",              test_71_cerebras_model_config_not_deprecated_qwen)
+test("71.14 Audio-only: interaction marks recent presence",               test_71_audio_interaction_marks_recent_presence)
+test("71.15 Audio-only: recent presence expires after grace window",       test_71_audio_presence_expires_after_grace_window)
+test("71.16 Vision: presence event is optional supplement",               test_71_vision_presence_is_optional_supplement)
+test("71.17 TTS: proactive phrases use natural Vietnamese",               test_71_proactive_phrases_are_natural_vietnamese)
+test("71.18 Main: presence lifecycle owned by proactive engine",           test_71_main_uses_engine_owned_presence)
+test("71.19 Hardware: camera is optional and disabled by default",         test_71_camera_is_optional_and_disabled_by_default)
+test("71.20 LLM: Cerebras quota cooldown skips repeated call",             test_71_cerebras_quota_cooldown_skips_repeated_call)
+
+# == GROUP 72 — Audio Hardware Hardening ===================================
+print("\n[Group 72] Audio Hardware — device selection, native-rate capture, dual-mic isolation")
+
+from src.audio.input.microphone_utils import (
+    candidate_sample_rates as _candidate_sample_rates72,
+    diagnose_input_devices as _diagnose_input_devices72,
+    rank_input_device_indexes as _rank_input_device_indexes72,
+    resample_audio as _resample_audio72,
+)
+
+
+def test_72_rank_prefers_real_microphone_over_virtual_inputs():
+    devices = [
+        {"name": "Stereo Mix (Realtek)", "max_input_channels": 2, "default_samplerate": 44100},
+        {"name": "Line In (Realtek)", "max_input_channels": 2, "default_samplerate": 44100},
+        {"name": "USB Microphone", "max_input_channels": 1, "default_samplerate": 48000},
+        {"name": "Headset Hands-Free", "max_input_channels": 1, "default_samplerate": 16000},
+    ]
+    ranked = _rank_input_device_indexes72(devices)
+    assert ranked[:2] == [2, 3]
+    assert ranked[-2:] == [0, 1]
+
+
+def test_72_explicit_microphone_index_wins():
+    devices = [
+        {"name": "USB Microphone A", "max_input_channels": 1, "default_samplerate": 48000},
+        {"name": "USB Microphone B", "max_input_channels": 1, "default_samplerate": 48000},
+    ]
+    assert _rank_input_device_indexes72(devices, preferred_index=1)[0] == 1
+
+
+def test_72_excluded_stt_microphone_not_reused():
+    devices = [
+        {"name": "USB Microphone A", "max_input_channels": 1, "default_samplerate": 48000},
+        {"name": "USB Microphone B", "max_input_channels": 1, "default_samplerate": 48000},
+    ]
+    assert _rank_input_device_indexes72(devices, excluded_indexes={0}) == [1]
+
+
+def test_72_native_sample_rate_is_valid_fallback():
+    info = {"default_samplerate": 44100}
+    assert _candidate_sample_rates72(info, target_rate=16000) == [16000, 44100]
+
+
+def test_72_resample_44100_to_whisper_16000():
+    import numpy as _np72
+    source = _np72.zeros(44100, dtype=_np72.float32)
+    result = _resample_audio72(source, 44100, 16000)
+    assert result.dtype == _np72.float32
+    assert abs(len(result) - 16000) <= 1
+
+
+def test_72_ear_stt_uses_callback_capture_and_native_rate():
+    from pathlib import Path as _P
+    src = _P("src/audio/input/ear_stt.py").read_text(encoding="utf-8")
+    assert "CallbackMicrophoneStream" in src
+    assert "resample_audio" in src
+    assert "self.mic_sample_rate" in src
+
+
+def test_72_cry_detector_uses_separate_callback_microphone():
+    from pathlib import Path as _P
+    src = _P("src/audio/analysis/cry_detector.py").read_text(encoding="utf-8")
+    assert "excluded_mic_indexes" in src
+    assert "CallbackMicrophoneStream" in src
+    assert "resample_audio" in src
+
+
+def test_72_audio_diagnostic_command_exists():
+    assert callable(_diagnose_input_devices72)
+
+
+test("72.1 Device selection: prefer real microphone over virtual inputs", test_72_rank_prefers_real_microphone_over_virtual_inputs)
+test("72.2 Device selection: explicit MIC_DEVICE wins",                  test_72_explicit_microphone_index_wins)
+test("72.3 Dual mic: CryDetector excludes STT microphone",               test_72_excluded_stt_microphone_not_reused)
+test("72.4 Capture: native sample rate is fallback after 16 kHz",         test_72_native_sample_rate_is_valid_fallback)
+test("72.5 Resample: 44.1 kHz input becomes Whisper 16 kHz",              test_72_resample_44100_to_whisper_16000)
+test("72.6 EarSTT: callback capture supports native device rate",         test_72_ear_stt_uses_callback_capture_and_native_rate)
+test("72.7 CryDetector: separate callback microphone path",              test_72_cry_detector_uses_separate_callback_microphone)
+test("72.8 Diagnostic: python -m microphone_utils entry exists",          test_72_audio_diagnostic_command_exists)
+
+# ── Group 73: WebSearchEngine ──────────────────────────────────────────────
+
+def test_73_import():
+    from src.web_search.search_engine import WebSearchEngine
+    assert WebSearchEngine is not None
+
+def test_73_package_export():
+    from src.web_search import WebSearchEngine
+    assert WebSearchEngine is not None
+
+def test_73_needs_search_vi_keywords():
+    from src.web_search.search_engine import WebSearchEngine
+    engine = WebSearchEngine()
+    assert engine.needs_search("hôm nay thời tiết thế nào")
+    assert engine.needs_search("tin tức mới nhất về AI")
+    assert engine.needs_search("giá bitcoin bây giờ là bao nhiêu")
+
+def test_73_needs_search_en_keywords():
+    from src.web_search.search_engine import WebSearchEngine
+    engine = WebSearchEngine()
+    assert engine.needs_search("what is the latest news today")
+    assert engine.needs_search("current weather in hanoi")
+    assert engine.needs_search("bitcoin price right now")
+
+def test_73_needs_search_false_for_general():
+    from src.web_search.search_engine import WebSearchEngine
+    engine = WebSearchEngine()
+    assert not engine.needs_search("2 cộng 2 bằng mấy")
+    assert not engine.needs_search("kể cho tôi nghe về khủng long")
+    assert not engine.needs_search("học bài toán nhân")
+
+def test_73_needs_search_false_for_short_query():
+    from src.web_search.search_engine import WebSearchEngine
+    engine = WebSearchEngine()
+    assert not engine.needs_search("")
+    assert not engine.needs_search("hi")
+
+def test_73_enabled_false_without_keys(monkeypatch=None):
+    import os
+    from src.web_search.search_engine import WebSearchEngine
+    orig_tavily = os.environ.pop("TAVILY_API_KEY", None)
+    orig_brave = os.environ.pop("BRAVE_API_KEY", None)
+    try:
+        engine = WebSearchEngine()
+        assert not engine.enabled
+        assert engine.search_if_needed("hôm nay thời tiết thế nào") == ""
+    finally:
+        if orig_tavily is not None:
+            os.environ["TAVILY_API_KEY"] = orig_tavily
+        if orig_brave is not None:
+            os.environ["BRAVE_API_KEY"] = orig_brave
+
+def test_73_search_if_needed_skips_non_search_query():
+    import os
+    from src.web_search.search_engine import WebSearchEngine
+    os.environ["TAVILY_API_KEY"] = "fake_key"
+    try:
+        engine = WebSearchEngine()
+        result = engine.search_if_needed("bầu trời màu xanh vì sao")
+        assert result == ""
+    finally:
+        del os.environ["TAVILY_API_KEY"]
+
+def test_73_context_string_format():
+    from src.web_search.search_engine import WebSearchEngine
+    engine = WebSearchEngine.__new__(WebSearchEngine)
+    engine._has_tavily = False
+    engine._has_brave = False
+    engine._tavily_key = ""
+    engine._brave_key = ""
+    assert engine.search_if_needed("tin tức") == ""
+
+def test_73_main_imports_web_search():
+    import ast, os
+    path = os.path.join(os.path.dirname(__file__), "..", "src", "main.py")
+    with open(path, "r", encoding="utf-8") as f:
+        tree = ast.parse(f.read())
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            imports.append((node.module or "", [a.name for a in node.names]))
+    found = any("web_search" in mod for mod, _ in imports)
+    assert found, "main.py phải import WebSearchEngine từ src.web_search"
+
+def test_73_main_wires_web_search_in_text_mode():
+    import ast, os
+    path = os.path.join(os.path.dirname(__file__), "..", "src", "main.py")
+    with open(path, "r", encoding="utf-8") as f:
+        src = f.read()
+    assert "_web_search" in src and "search_if_needed" in src, \
+        "main.py phải dùng _web_search.search_if_needed()"
+
+test("73.1  WebSearchEngine: import trực tiếp",                          test_73_import)
+test("73.2  WebSearchEngine: export từ package",                         test_73_package_export)
+test("73.3  needs_search: nhận diện từ khoá tiếng Việt",                 test_73_needs_search_vi_keywords)
+test("73.4  needs_search: nhận diện từ khoá tiếng Anh",                  test_73_needs_search_en_keywords)
+test("73.5  needs_search: trả False cho câu hỏi thông thường",            test_73_needs_search_false_for_general)
+test("73.6  needs_search: trả False cho query quá ngắn",                  test_73_needs_search_false_for_short_query)
+test("73.7  search_if_needed: trả '' khi không có API key",               test_73_enabled_false_without_keys)
+test("73.8  search_if_needed: skip khi query không cần search",           test_73_search_if_needed_skips_non_search_query)
+test("73.9  search_if_needed: trả '' khi disabled",                       test_73_context_string_format)
+test("73.10 main.py: import WebSearchEngine",                             test_73_main_imports_web_search)
+test("73.11 main.py: dùng _web_search.search_if_needed()",                test_73_main_wires_web_search_in_text_mode)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

@@ -25,7 +25,7 @@ Do not install packages, download tools, edit `.env`, or run global installers w
 
 # PROJECT.md - Robot Bi Single Source of Truth
 
-> Updated: 2026-05-20
+> Updated: 2026-06-13
 > Robot Bi is an AI tutor robot project for children ages 5-12.
 > This file is the single source of truth for rules, workflow, protected fixes, technical constraints, and AI context policy.
 
@@ -47,9 +47,12 @@ Do not install packages, download tools, edit `.env`, or run global installers w
 - API server: `src/api/server.py`
 - Parent App: `frontend/parent_app/`
 - Robot Display: `frontend/robot_display/`
-- Firmware: `firmware/Robot_BI/Robot_BI.ino`
+- Motor firmware: `firmware/Robot_BI/Robot_BI.ino`
+- ESP32-S3 audio hardware test: `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino`
+- ESP32-S3 speaker-only test: `firmware/ESP32S3_Speaker_Test/ESP32S3_Speaker_Test.ino`
 - Runtime DB: `runtime/robot_bi.db`
 - Current test command: `python tests/run_tests.py`
+- Current local hardware profile: speaker + 2 microphones; no camera connected.
 - Historical `src_brain/` references are deprecated and must not be used.
 
 ## Source Of Truth Hierarchy
@@ -132,18 +135,18 @@ AI backend: 5-provider fallback chain — Cerebras → Groq → Sambanova → Ge
 
 | Layer | Current technology | Constraint |
 |---|---|---|
-| LLM | 5-provider fallback chain: Cerebras `gpt-oss-120b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.0-flash` → Cloudflare Workers AI | All through `src/ai/ai_engine.py`; Cerebras/Groq/Gemini models are configured via `config.json`; Groq has `_groq_cooldown_until` mechanism |
-| STT | `faster-whisper` | GPU path keeps `large-v2`; CPU uses `WHISPER_CPU_MODEL`, current default `medium` |
+| LLM | 5-provider fallback chain: Cerebras `gpt-oss-120b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.0-flash` → Cloudflare Workers AI | Fixed provider order in `src/ai/ai_engine.py`; models are configured via `config.json`; Cerebras and Groq have quota cooldowns |
+| STT | `faster-whisper` | Callback microphone capture supports native device rates and resamples to 16 kHz; GPU keeps `large-v2`, CPU uses `WHISPER_CPU_MODEL` default `medium` |
 | TTS | `edge-tts` + `pygame` | **Requires internet** (edge-tts is cloud Microsoft TTS). Fallback to `pyttsx3` (local). |
 | Wake word | `faster-whisper tiny` fuzzy match | **Disabled by default** (`WAKEWORD_ENABLED=false` in `.env`). Not a trained custom model. |
 | Safety | Regex/pattern filter | `src/safety/safety_filter.py`, post-LLM and pre-TTS. 3 layers: topic classifier (5 patterns) + blacklist (11 words) + sentence cap |
 | RAG | `chromadb` + `sentence-transformers` | Family-scoped queries required; similarity threshold `0.62`; model `paraphrase-multilingual-MiniLM-L12-v2`; max 500 memories/family |
-| Vision | `opencv-python` | Camera capture in background thread. follow_me.py and face_recognizer.py are **stubs only** |
-| Cry detection | YAMNet TFLite + fallback | Optional TensorFlow Lite runtime |
+| Vision | `opencv-python` | Optional and disabled by default (`CAMERA_ENABLED=false`); no camera is connected on the current machine |
+| Cry detection | YAMNet TFLite + fallback | Uses a microphone separate from STT; optional TensorFlow Lite runtime |
 | API | `fastapi`, `uvicorn`, WebSocket routes | Main module `src/api/server.py` |
 | Storage | SQLite | Fixed runtime path `runtime/robot_bi.db` |
 | Auth | `argon2-cffi`, `python-jose` | JWT access/refresh and legacy PIN auth |
-| Firmware | ESP32 Arduino (motor only) | `firmware/Robot_BI/Robot_BI.ino` — motor + L298N + WebSocket only. ESP32-S3 audio firmware does **not exist yet** |
+| Firmware | ESP32 Arduino | Motor firmware exists at `firmware/Robot_BI/Robot_BI.ino`; standalone MAX98357A speaker-only and dual-INMP441 record/playback hardware tests exist under `firmware/ESP32S3_*_Test/`. Production ESP32-S3 network audio firmware does **not exist yet** |
 
 ## Protected Fixes
 
@@ -160,6 +163,8 @@ Do not regress these behaviors without explicit user approval and full verificat
 - Audio queue and chunked TTS streaming for low time-to-first-audio.
 - PIN auth, username/password auth, TaskManager, and star rewards.
 - Microphone fallback to silent mode when no microphone is available.
+- Microphone selection must prefer real microphone/headset inputs over `Stereo Mix`/`Line In`, verify that callbacks return frames, capture at the device-native rate, and resample to 16 kHz.
+- CryDetector must not reuse the active STT microphone.
 - CryDetector must log missing microphone only once.
 - `/api/auth/login` rate limiting: 5 wrong attempts locks for 15 minutes through SQLite `login_attempts`.
 - `AUTH_PIN`, `JWT_SECRET_KEY`, and API keys must come from `.env`; no hardcoded secrets.
@@ -189,7 +194,9 @@ Do not regress these behaviors without explicit user approval and full verificat
 - Auth: `src/infrastructure/auth/auth.py`
 - Parent App: `frontend/parent_app/src/` (React+Vite SPA; `index.html` is Vite template)
 - Robot Display: `frontend/robot_display/index.html`
-- Firmware: `firmware/Robot_BI/Robot_BI.ino`
+- Motor firmware: `firmware/Robot_BI/Robot_BI.ino`
+- ESP32-S3 audio hardware test: `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino`
+- ESP32-S3 speaker-only test: `firmware/ESP32S3_Speaker_Test/ESP32S3_Speaker_Test.ino`
 - System map: `SYSTEM_MAP.md`
 
 ## Current Database Schema Targets
@@ -250,13 +257,14 @@ start_robot.bat
 ## Known Current Gaps
 
 - Wake word is **disabled by default** (`WAKEWORD_ENABLED=false`). When enabled, it uses `faster-whisper tiny` fuzzy match — not a trained custom wake word model.
+- The Windows microphone diagnostic applies only to PC-connected development microphones. The intended robot microphones are two INMP441 modules connected to the ESP32-S3 and do not depend on Windows microphone permissions.
 - `edge-tts` (primary TTS) **requires internet** — Microsoft cloud TTS. Robot Bi is not fully offline-capable with default TTS.
-- ESP32-S3 (audio + display board) has **no firmware** — hardware exists but INMP441 mic and MAX98357 speaker are not integrated yet.
+- ESP32-S3 has a compile-verified autonomous dual-INMP441 + MAX98357A record/playback test, but production network audio transport, echo control, and display firmware are not integrated yet.
 - `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are **stub placeholders** — no actual CV or motion logic.
 - Motor firmware has **hardcoded IP** `192.168.40.107:8443` — must be changed per deployment. Not configurable via OTA.
 - Cloudflare quick tunnel URLs can change after restart unless a named tunnel is configured.
 - YAMNet TFLite cry detection depends on optional TensorFlow Lite support and falls back when unavailable.
-- Camera, browser audio, mobile behavior, and motor hardware require real-device verification.
+- No camera is connected; camera startup is disabled by default. Browser audio, microphone capture, mobile behavior, and motor hardware require real-device verification.
 - Parent App migrated to React+Vite; `frontend/parent_app/src/` is the real source. Some API calls use mock fallbacks (radio, videos, games, system logs).
 
 ## Historical Notes

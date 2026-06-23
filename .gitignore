@@ -26,6 +26,7 @@ runtime/_family_*_test_db/
 
 # Temporary & log files
 logs/
+.claude-review/
 *.log
 *.log.*
 tmp_*
@@ -50,6 +51,10 @@ Thumbs.db
 !.claude/skills/robot-bi-dev/SKILL.md
 !.claude/hooks/
 !.claude/hooks/block-dangerous-git.sh
+
+# Codex desktop local skill mirror; authoritative tracked copies live in .claude/skills/
+.agents/
+
 # Runtime directory (DB, chroma, logs, caches)
 runtime/
 !runtime/.gitkeep

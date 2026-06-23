@@ -11,13 +11,13 @@
 | Field | Value |
 |---|---|
 | **Current Stage** | Stage 1 — Bi Có Hồn (Living Engine) |
-| **Current Sprint** | Stage 1 software complete; next recommended task is Stage 1.5 — Body Expression |
-| **Current Status** | Sprint 1.4 Proactive Behaviors + Stage 1 Polish implemented and reviewed. `python tests/run_tests.py` PASS 545/545. |
+| **Current Sprint** | Stage 1.4 hardening complete in code; microphone hardware validation remains before Stage 1.5 |
+| **Current Status** | Audio-only proactive presence, optional camera startup, native-rate mic capture, dual-mic isolation, and Cerebras cooldown implemented. `python tests/run_tests.py` PASS 560/560. |
 | **Project Mode** | Software-First. Hardware/body movement remains separate. |
 | **Active Branch** | `002-parent-app-backend-integration` |
 | **Test command** | `python tests/run_tests.py` |
-| **Last commit** | `6be68d8` — fix: Sprint 1.3 review fixes |
-| **Working tree** | Sprint 1.4 committed; unrelated local files may still be dirty |
+| **Last commit** | `f2d4738` — feat: complete Sprint 1.4 proactive behaviors |
+| **Working tree** | Sprint 1.4 hardening is implemented but not committed; unrelated local files remain |
 
 ---
 
@@ -35,7 +35,7 @@
 - **Sprint 1.1 — Living State Engine**: `src/living/living_state.py` runtime-only 7-state machine, text/voice integration, `system_context` hints, 497/497 PASS. Commit: `a4c4978`.
 - **Sprint 1.2 — Micro Moments Engine**: `src/living/micro_moments.py` with 8 idle moments, 15-minute rate limit, homework/sleep guards, idle TTS overlap guard, 517/517 PASS. Commit: `cb83b91`.
 - **Sprint 1.3 — Adaptive Persona + Giận Dỗi Mode**: context detection/modifiers, pouting and welcome-back flow, review fixes for prompt routing/safety/guards, 532/532 PASS. Commit: `6be68d8`.
-- **Sprint 1.4 — Proactive Behaviors + Stage 1 Polish**: `src/living/proactive_behaviors.py`, child-present idle prompt after 10 minutes silence, 30-minute anti-spam, homework/sleep/active-state guards, same-tick pouting guard, Cerebras model updated to `gpt-oss-120b`, 545/545 PASS. Commit: this commit.
+- **Sprint 1.4 — Proactive Behaviors + Stage 1 Polish**: initial implementation committed as `f2d4738`; follow-up hardening changed presence to audio-first, made camera optional, added native-rate callback mic capture/resampling, separated CryDetector from STT mic, added Cerebras quota cooldown, and reached 560/560 PASS.
 
 ---
 
@@ -54,9 +54,9 @@
 
 | Field | Detail |
 |---|---|
-| **Status** | Pending human/device validation |
-| **Reason** | Requires real microphone/camera/child-present signals and observation over time |
-| **Suggested check** | 1–3 day home test: idle moments not annoying, proactive prompt fires only when child is present and silent, no homework/sleep interruptions |
+| **Status** | Blocked on microphone access, then pending 1–3 day observation |
+| **Reason** | Current machine has no camera and Windows lists microphone endpoints but returned no callback audio frames on 2026-06-13 |
+| **Suggested check** | Fix Windows microphone privacy/driver/device access, verify STT receives speech, then run 1–3 day home test for prompt frequency and homework/sleep guards |
 
 ### Provider Quota
 
@@ -70,9 +70,11 @@
 
 ## SECTION 4 — NEXT TASK
 
-### Stage 1.5 — Body Expression
+### Stage 1 Hardware Validation, Then Stage 1.5 — Body Expression
 
-**Why next**: Stage 1 software illusion-of-life is complete. The remaining "feels alive" gap is physical expression: motor movement mapped to living state, micro moments, and giận dỗi.
+**Gate before Stage 1.5**: microphone callback capture must work on both intended devices and Stage 1 must pass a short real-room observation. No camera is required.
+
+**Why Stage 1.5 after that**: the remaining "feels alive" gap is physical expression: motor movement mapped to living state, micro moments, and giận dỗi.
 
 **Scope**:
 - `src/motion/movement_emotion.py` wire layer.
@@ -112,4 +114,5 @@
 | 2026-05-23 | Sprint 1.1: Living State Engine + review fixes; 497/497 PASS | `a4c4978` | Sprint 1.2 |
 | 2026-05-23 | Sprint 1.2: Micro Moments Engine; 517/517 PASS | `cb83b91` | Sprint 1.3 |
 | 2026-05-23 | Sprint 1.3: Adaptive Persona + Giận Dỗi Mode review fixes; 532/532 PASS | `6be68d8` | Sprint 1.4 |
-| 2026-06-13 | Sprint 1.4: Proactive Behaviors + Stage 1 Polish; 545/545 PASS | _(this commit)_ | Stage 1.5 |
+| 2026-06-13 | Sprint 1.4 initial implementation; 545/545 PASS | `f2d4738` | Audio-only hardening |
+| 2026-06-13 | Audio-only presence, mic hardening, optional camera, provider cooldown; 560/560 PASS | uncommitted | Fix Windows mic access, manual validation |

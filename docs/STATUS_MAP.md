@@ -18,7 +18,7 @@
 |---|---|---|---|
 | Main conversation loop | 🟢 | `src/main.py` | Hoạt động |
 | FastAPI + WebSocket server | 🟢 | `src/api/server.py` | Production-ready |
-| LLM 5-provider chain | 🟢 | `src/ai/ai_engine.py` | Cerebras `gpt-oss-120b` → Groq → Sambanova → Gemini → Cloudflare; cooldown mechanism |
+| LLM 5-provider chain | 🟢 | `src/ai/ai_engine.py` | Fixed order: Cerebras `gpt-oss-120b` → Groq → Sambanova → Gemini → Cloudflare; Cerebras/Groq quota cooldowns |
 | System prompt / persona | 🟢 | `src/ai/prompts.py` | Personality rules đầy đủ |
 | RAG memory (ChromaDB) | 🟢 | `src/memory/rag_manager.py` | threshold 0.62, 12 fact types, max 500/family |
 | Session naming tự động | 🟢 | `src/ai/session_namer.py` | Groq non-streaming, fallback text[:30] |
@@ -26,10 +26,10 @@
 | PII filter | 🟢 | `src/safety/pii_filter.py` | 8 types: phone/email/CCCD/address/school/password/financial/fullname; gentle redirect; dual-pattern (có/không dấu) |
 | Emotion risk detector | 🟢 | `src/safety/emotion_risk_detector.py` | HIGH/MEDIUM/LOW; escalation HIGH→override; log_event flag; dual-pattern |
 | Manipulation guard | 🟢 | `src/safety/manipulation_guard.py` | LLM output + user input; blocks grooming signals + secret-keeping + parent replacement |
-| STT faster-whisper | 🟢 | `src/audio/input/ear_stt.py` | GPU large-v2, CPU medium; mic fallback to silent |
+| STT faster-whisper | 🟢 | `src/audio/input/ear_stt.py` | Callback capture at native mic rate, resample to 16 kHz; GPU large-v2, CPU medium; verified-frame fallback to silent |
 | TTS edge-tts chunked | 🟢 | `src/audio/output/mouth_tts.py` | **Yêu cầu internet**; fallback pyttsx3 local |
 | Mom talk audio | 🟢 | `src/audio/output/mouth_tts.py` | `pygame.Channel(7)`, 16k→44.1k resample; **Protected Fix** |
-| Cry detection YAMNet | 🟢 | `src/audio/input/cry_detector.py` | Optional TFLite runtime; fallback RMS/ZCR |
+| Cry detection YAMNet | 🟢 | `src/audio/analysis/cry_detector.py` | Separate mic from STT; optional TFLite runtime; fallback RMS/ZCR |
 | Wake word | 🟡 | `src/wakeword/` | Sprint 0.4: synthetic dataset pipeline + MFCC+SVM classifier (custom_mfcc backend); train: `scripts/train_wakeword.py`; test: `scripts/test_wakeword.py`; target 75–85% accuracy; **model file needs training run** |
 | Persona manager | 🟡 | `src/ai/persona_manager.py` | Static persona + Sprint 1.3 context modifiers đã có; long-term behavioral profile chưa có |
 | Emotion analyzer | 🟡 | `src/emotion/emotion_analyzer.py` | Basic sentiment; không phải ML model thật |
@@ -37,7 +37,7 @@
 | Emotion alerts | 🟡 | `src/emotion/emotion_alert.py` | Rule-based; threshold check |
 | Living State System | 🟢 | `src/living/living_state.py` | Sprint 1.1: runtime-only 7-state engine integrated into text/voice loop |
 | Micro Moments Engine | 🟢 | `src/living/micro_moments.py` | Sprint 1.2: 8 idle moments, rate limit, homework + sleep-hour guards |
-| Proactive Behaviors Engine | 🟢 | `src/living/proactive_behaviors.py` | Sprint 1.4: child-present idle prompt after silence; anti-spam, homework + sleep-hour guards |
+| Proactive Behaviors Engine | 🟢 | `src/living/proactive_behaviors.py` | Audio-first recent-presence window; optional camera supplement; 10-minute silence, anti-spam, homework + sleep guards |
 
 ---
 
@@ -100,7 +100,8 @@
 | Auto-dock / charging dock | 🔴 | `src/motion/dock_charger.py` | **Stub placeholder only** |
 | Navigation | 🔴 | `src/motion/navigation.py` | Stub |
 | Obstacle avoidance | ⚪ | — | Không có code |
-| ESP32-S3 audio firmware | ⚪ | — | Hardware có (INMP441+MAX98357) nhưng **firmware chưa viết** |
+| ESP32-S3 audio hardware test | 🟡 | `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino` | Compile-verified autonomous record/playback test for 2x INMP441 + MAX98357A; hardware upload/test pending |
+| ESP32-S3 production audio firmware | ⚪ | — | WebSocket transport and echo control not implemented |
 | ESP32-S3 display firmware | ⚪ | — | Hardware chưa mua (TFT SPI); firmware chưa viết |
 
 ---
@@ -183,7 +184,7 @@
 
 | Gap | Mức độ | Ghi chú |
 |---|---|---|
-| ESP32-S3 audio firmware không tồn tại | 🔴 Hardware blocked | Phần cứng có sẵn, nhưng robot câm điếc trên hardware |
+| ESP32-S3 production audio firmware không tồn tại | 🔴 Hardware blocked | Hardware record/playback test đã có; robot network audio transport vẫn chưa tích hợp |
 | edge-tts yêu cầu internet | 🟡 Product claim | Docs nói "local-first" nhưng TTS chính phụ thuộc cloud |
 | Follow me / dock / navigation: stubs | 🟡 Expectation | Được nhắc nhiều nhưng 0% code thật |
 | Wake word disabled by default | 🟡 Usability | "Bi ơi" không hoạt động trừ khi bật thủ công |

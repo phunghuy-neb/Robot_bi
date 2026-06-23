@@ -26,6 +26,34 @@ python src/main.py
 - Firmware: `firmware/Robot_BI/Robot_BI.ino`
 - DB runtime: `runtime/robot_bi.db`
 
+## Cau Hinh Phan Cung Hien Tai
+
+May hien tai co loa va 2 microphone, khong co camera.
+
+Trong `.env`:
+
+```env
+# De trong de Robot Bi tu chon mic that va bo qua Stereo Mix/Line In.
+MIC_DEVICE=
+
+# CryDetector dung mic thu hai, khong dung chung mic STT.
+CRY_DETECTION_ENABLED=true
+CRY_MIC_DEVICE=
+
+# Khong khoi dong EyeVision khi chua gan camera.
+CAMERA_ENABLED=false
+CAMERA_INDEX=0
+```
+
+Lenh sau chi dung cho microphone cam truc tiep vao may tinh:
+
+```bash
+python -m src.audio.input.microphone_utils
+```
+
+Hai microphone INMP441 tren robot ket noi vao ESP32-S3, khong phu thuoc quyen
+microphone cua Windows.
+
 ## Truy Cap Parent App
 
 1. Chay robot bang `python src/main.py` hoac `start_robot.bat`.
@@ -82,9 +110,15 @@ Firmware hien tai nam tai:
 
 ```text
 firmware/Robot_BI/Robot_BI.ino
+firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino
 ```
 
 ESP32 firmware dang xu ly motor pins, WiFi setup/persistence, WebSocket motor commands, server registration, va watchdog stop behavior. Kiem tra file `.ino` truoc khi sua firmware.
+
+Sketch `ESP32S3_Mic_Test` kiem tra 2 microphone INMP441 va loa MAX98357A tren
+ESP32-S3 N16R8 ma khong can Serial Monitor. Mot beep dai bao bat dau noi; firmware
+thu 5 giay vao PSRAM, sau do phat lai mic trai va mic phai rieng. Firmware khong
+phat truc tiep mic ra loa trong luc thu, nen tranh vong lap gay hu rit.
 
 ## Deprecated
 

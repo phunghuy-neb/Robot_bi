@@ -59,6 +59,7 @@ from src.wakeword.wakeword_router import WakeWordRouter
 from src.living.living_state import LivingStateEngine, BiState
 from src.living.micro_moments import MicroMomentsEngine
 from src.living.proactive_behaviors import ProactiveBehaviorsEngine
+from src.web_search.search_engine import WebSearchEngine
 
 FAMILY_ID = os.getenv("FAMILY_ID", "default")
 
@@ -122,6 +123,9 @@ class RobotBiApp:
 
         # Notifier (Sprint 5: WebSocket thật)
         self.notifier = get_notifier()
+
+        # Web Search Engine (Tavily → Brave fallback)
+        self._web_search = WebSearchEngine()
 
         # Living State Engine (Sprint 1.1) + idle behavior engines
         self._living = LivingStateEngine()
@@ -558,10 +562,12 @@ class RobotBiApp:
                     update_session_title(sid, _generate_session_title(ut))
                 threading.Thread(target=_name, daemon=True).start()
 
-                # RAG context
-                rag_context = self.rag.retrieve(user_text, family_id=FAMILY_ID)
-                if rag_context:
-                    user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
+                # RAG + Web search context
+                rag_context = self.rag.retrieve(user_text_goc, family_id=FAMILY_ID)
+                web_context = self._web_search.search_if_needed(user_text_goc)
+                _ctx_parts = [c for c in [rag_context, web_context] if c]
+                if _ctx_parts:
+                    user_text = "\n\n".join(_ctx_parts) + f"\n\nBé hỏi: {user_text}"
 
                 # Persona + context modifier — passed via system_context, not injected into user_text
                 persona_system_ctx: str | None = None
@@ -615,11 +621,26 @@ class RobotBiApp:
                 living_context = self._living_thinking_context()
                 system_ctx = "\n".join(filter(None, [persona_system_ctx, living_context])) or None
 
+                # ── Role transition ───────────────────────────────────────────
+                from src.ai.role_manager import TRANSITION_LINES, TEACHER_HOLD, TEACHER_HOLD_FINAL
+                _role_event = self.brain.check_role_transition(user_text_goc)
+                if _role_event in (TEACHER_HOLD, TEACHER_HOLD_FINAL):
+                    _nudge = TRANSITION_LINES.get(_role_event, "")
+                    print(f"Bi: {_nudge}\n")
+                    add_turn(self._current_session_id, "assistant", _nudge)
+                    self._close_current_session()
+                    continue
+                _role_pre_line = TRANSITION_LINES.get(_role_event, "") if _role_event else ""
+
                 # Stream LLM → safety filter → in ra terminal
                 print("Bi: ", end="", flush=True)
+                if _role_pre_line:
+                    print(_role_pre_line + " ", end="", flush=True)
                 buffer = ""
                 full_reply_parts = []
                 sanitized_reply_parts = []
+                if _role_pre_line:
+                    sanitized_reply_parts.append(_role_pre_line)
 
                 for token in self.brain.stream_chat(user_text, system_context=system_ctx):
                     buffer += token
@@ -829,11 +850,16 @@ class RobotBiApp:
 
                         threading.Thread(target=_name_session, daemon=True).start()
                         is_first_turn_of_session = False
-                    rag_context = self.rag.retrieve(user_text, family_id=FAMILY_ID)
+                    rag_context = self.rag.retrieve(user_text_goc, family_id=FAMILY_ID)
+                    web_context = self._web_search.search_if_needed(user_text_goc)
+                    _ctx_parts = [c for c in [rag_context, web_context] if c]
+                    if _ctx_parts:
+                        user_text = "\n\n".join(_ctx_parts) + f"\n\nBé hỏi: {user_text}"
                     if rag_context:
-                        user_text = f"{rag_context}\n\nBé hỏi: {user_text}"
                         # DEBUG: chứa PII - tắt trong production.
                         logger.debug("[Bi - Trí nhớ] %s", rag_context)
+                    if web_context:
+                        logger.debug("[WebSearch] Context injected len=%d", len(web_context))
 
                     if self._face:
                         try:
@@ -856,9 +882,36 @@ class RobotBiApp:
                     living_context = self._living_thinking_context()
                     system_ctx = "\n".join(filter(None, [persona_system_ctx, living_context])) or None
 
-                    # Stream tokens từ LLM, tách câu theo . ? ! \n
+                    # ── Role transition ───────────────────────────────────────
+                    from src.ai.role_manager import TRANSITION_LINES, TEACHER_HOLD, TEACHER_HOLD_FINAL
+                    _role_event = self.brain.check_role_transition(user_text_goc)
+                    if _role_event in (TEACHER_HOLD, TEACHER_HOLD_FINAL):
+                        _nudge = TRANSITION_LINES.get(_role_event, "")
+                        add_turn(self._current_session_id, "assistant", _nudge)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_nudge, chunk_index=self._next_chunk_idx())
+                        )
+                        if _af:
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        self._complete_direct_response_turn()
+                        continue
+                    _role_pre_line = TRANSITION_LINES.get(_role_event, "") if _role_event else ""
+
+                    # TTS câu chuyển vai trước khi LLM stream (nếu có)
                     full_reply_parts = []
                     sanitized_reply_parts = []
+                    if _role_pre_line:
+                        sanitized_reply_parts.append(_role_pre_line)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(
+                                _role_pre_line, chunk_index=self._next_chunk_idx()
+                            )
+                        )
+                        if _af:
+                            self.audio_queue.put(_af)
+
+                    # Stream tokens từ LLM, tách câu theo . ? ! \n
                     for token in self.brain.stream_chat(user_text, system_context=system_ctx):
                         buffer += token
                         full_reply_parts.append(token)

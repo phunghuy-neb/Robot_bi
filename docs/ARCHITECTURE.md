@@ -167,6 +167,8 @@ Input (voice)
     │
     ▼
 faster-whisper (STT)
+    Microphone callback capture at native device rate
+    Resample to 16 kHz before Whisper
     GPU: large-v2
     CPU fallback: WHISPER_CPU_MODEL (default: medium)
     │
@@ -295,6 +297,9 @@ Màn hình TFT hiển thị UI
 - Show reward animation
 
 ### 3.3 Camera
+
+**Current runtime**: camera is optional and disabled by default
+(`CAMERA_ENABLED=false`). The current machine has no connected camera.
 
 **Prototype**: USB webcam gắn ngoài PC, đủ để test nhanh các tính năng vision.
 
