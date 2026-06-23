@@ -458,9 +458,16 @@ export async function getRobotLocation() {
   return apiFetch('/api/robot/location');
 }
 
-export async function getParentChatHistory() {
-  // BLOCKED: no component renders this data yet
-  return null;
+export async function getParentChatHistory(limit = 20) {
+  return apiFetch(`/api/parent-chat?limit=${limit}`);
+}
+
+export async function sendParentChat(message) {
+  return apiFetch('/api/parent-chat/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
 }
 
 // Camera stop signal — dispatches event so MonitorPage can set camOn=false

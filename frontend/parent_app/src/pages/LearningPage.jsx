@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { apiFetch, showToast } from '../services/api.js';
+import { useState, useEffect, useRef } from 'react';
+import { apiFetch, showToast, getParentChatHistory, sendParentChat } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
-import FeatureBadge from '../components/FeatureBadge.jsx';
 
 export default function LearningPage({ activeChild }) {
   const [vocabState, setVocabState] = useState('loading');
@@ -11,11 +10,16 @@ export default function LearningPage({ activeChild }) {
   const [tasks, setTasks] = useState([]);
   const [storiesState, setStoriesState] = useState('loading');
   const [stories, setStories] = useState([]);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatSending, setChatSending] = useState(false);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     loadVocab();
     loadTasks();
     loadStories();
+    loadChatHistory();
   }, []);
 
   async function loadVocab() {
@@ -42,6 +46,38 @@ export default function LearningPage({ activeChild }) {
     if (Array.isArray(list) && list.length > 0) { setStories(list); setStoriesState('data'); }
     else if (data) setStoriesState('empty');
     else setStoriesState('error');
+  }
+
+  async function loadChatHistory() {
+    const data = await getParentChatHistory(30);
+    if (data?.chats) {
+      // API returns newest-first; reverse so oldest is at top
+      setChatHistory([...data.chats].reverse());
+    }
+  }
+
+  async function handleSendChat(e) {
+    e.preventDefault();
+    const msg = chatInput.trim();
+    if (!msg || chatSending) return;
+    setChatSending(true);
+    setChatInput('');
+    // Optimistically add user message
+    setChatHistory(prev => [...prev, { chat_id: 'pending', parent: msg, bi: '…', created_at: new Date().toISOString() }]);
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    const result = await sendParentChat(msg);
+    if (result?.ok) {
+      // Replace pending with real entry
+      setChatHistory(prev => [
+        ...prev.slice(0, -1),
+        { chat_id: result.chat_id, parent: msg, bi: result.reply, created_at: new Date().toISOString() },
+      ]);
+    } else {
+      setChatHistory(prev => prev.slice(0, -1));
+      showToast('⚠️ Gửi tin thất bại — thử lại sau');
+    }
+    setChatSending(false);
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }
 
   async function completeTask(id) {
@@ -246,15 +282,53 @@ export default function LearningPage({ activeChild }) {
           )}
         </div>
 
-        {/* Chat với Bi — coming soon */}
+        {/* Chat với Bi */}
         <div className="card">
           <div className="card-header">
             <span className="card-title">💬 Chat với Bi</span>
-            <FeatureBadge type="coming-soon" />
+            <button className="btn-sm secondary" onClick={loadChatHistory} style={{ minHeight: 36 }}>↻</button>
           </div>
-          <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-            Lịch sử chat phụ huynh ↔ Bi — Sắp hỗ trợ.
-          </p>
+
+          {/* Chat history */}
+          <div className="chat-bubble-wrap" style={{ maxHeight: 320, overflowY: 'auto', marginBottom: 12 }}>
+            {chatHistory.length === 0 ? (
+              <p style={{ color: 'var(--muted)', fontSize: 14, textAlign: 'center', padding: '16px 0' }}>
+                Chưa có tin nhắn nào. Hãy hỏi Bi điều gì đó!
+              </p>
+            ) : (
+              chatHistory.map((entry, i) => (
+                <div key={entry.chat_id + i} className="chat-entry">
+                  <div className="chat-who">👨‍👩‍👧 Phụ huynh</div>
+                  <div className="bubble user">{entry.parent}</div>
+                  <div className="chat-who" style={{ marginTop: 6 }}>🤖 Bi</div>
+                  <div className="bubble bi">{entry.bi}</div>
+                </div>
+              ))
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <form onSubmit={handleSendChat} style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="text"
+              className="form-input"
+              style={{ flex: 1 }}
+              placeholder="Hỏi Bi điều gì đó..."
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              disabled={chatSending}
+              maxLength={1000}
+            />
+            <button
+              type="submit"
+              className="btn-sm primary"
+              disabled={chatSending || !chatInput.trim()}
+              style={{ minWidth: 64, minHeight: 40 }}
+            >
+              {chatSending ? '⏳' : '➤ Gửi'}
+            </button>
+          </form>
         </div>
       </div>
     </div>

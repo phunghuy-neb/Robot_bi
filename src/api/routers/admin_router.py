@@ -2,6 +2,7 @@
 admin_router.py - Admin-only family management endpoints.
 """
 
+import collections
 import logging
 import re
 from datetime import datetime, timezone
@@ -21,6 +22,31 @@ import src.infrastructure.sessions.state as _state
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# ── In-memory log buffer ──────────────────────────────────────────────────────
+_LOG_BUFFER: collections.deque = collections.deque(maxlen=500)
+
+
+class _BufferHandler(logging.Handler):
+    """Captures log records into _LOG_BUFFER without touching the root handler chain."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            _LOG_BUFFER.append({
+                "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+                "level": record.levelname,
+                "component": record.name.split(".")[0] if record.name else "root",
+                "message": self.format(record),
+                "source": "application",
+            })
+        except Exception:
+            pass
+
+
+_buffer_handler = _BufferHandler()
+_buffer_handler.setLevel(logging.DEBUG)
+_buffer_handler.setFormatter(logging.Formatter("%(message)s"))
+logging.root.addHandler(_buffer_handler)
 
 _LEVELS = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
 _SECRET_RE = re.compile(
@@ -61,33 +87,10 @@ def _sanitize_log_message(message: str) -> str:
 
 
 def _system_log_entries() -> list[dict]:
-    now = _utc_now_iso()
-    raw_entries = [
-        {
-            "timestamp": now,
-            "level": "INFO",
-            "component": "api_server",
-            "message": "FastAPI admin log endpoint ready",
-            "source": "application",
-        },
-        {
-            "timestamp": now,
-            "level": "INFO",
-            "component": "database",
-            "message": "SQLite schema initialized",
-            "source": "application",
-        },
-        {
-            "timestamp": now,
-            "level": "WARNING",
-            "component": "logs",
-            "message": "Raw log file access disabled for safety",
-            "source": "application",
-        },
-    ]
+    entries = list(_LOG_BUFFER)
     return [
         {**entry, "message": _sanitize_log_message(entry["message"])}
-        for entry in raw_entries
+        for entry in entries
     ]
 
 

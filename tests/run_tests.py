@@ -6818,6 +6818,90 @@ test("75.6  DeepSeek đứng sau Cloudflare trong stream_chat()",              t
 test("75.7  config.json có deepseek_model='deepseek-chat'",                 test_75_config_deepseek_model)
 test("75.8  .env.example có DEEPSEEK_API_KEY",                              test_75_env_example_has_deepseek)
 
+# ── Group 76: Parent Chat ───────────────────────────────────────────────────
+
+def test_76_parent_chat_router_exists():
+    import importlib
+    mod = importlib.import_module("src.api.routers.parent_chat_router")
+    assert hasattr(mod, "router"), "parent_chat_router must export router"
+
+def test_76_parent_chat_router_registered():
+    src = open("src/api/server.py").read()
+    assert "parent_chat_router" in src, "server.py must import parent_chat_router"
+    assert "app.include_router(parent_chat_router)" in src, "server.py must include parent_chat_router"
+
+def test_76_get_endpoint_exists():
+    import importlib
+    mod = importlib.import_module("src.api.routers.parent_chat_router")
+    routes = [r.path for r in mod.router.routes]
+    assert "/api/parent-chat" in routes, "GET /api/parent-chat must be registered"
+
+def test_76_post_endpoint_exists():
+    import importlib
+    mod = importlib.import_module("src.api.routers.parent_chat_router")
+    routes = [r.path for r in mod.router.routes]
+    assert "/api/parent-chat/send" in routes, "POST /api/parent-chat/send must be registered"
+
+def test_76_store_and_fetch_chat_event():
+    from src.api.routers.parent_chat_router import _store_chat_event, _fetch_chat_history
+    _store_chat_event("test_family", "chatid_abc", "Hello Bi", "Chào bạn!")
+    history = _fetch_chat_history("test_family", 10)
+    assert any(h["chat_id"] == "chatid_abc" for h in history), "stored chat event must be retrievable"
+
+def test_76_fetch_returns_newest_first():
+    from src.api.routers.parent_chat_router import _store_chat_event, _fetch_chat_history
+    import time
+    _store_chat_event("test_family2", "first_msg", "Msg 1", "Reply 1")
+    time.sleep(0.01)
+    _store_chat_event("test_family2", "second_msg", "Msg 2", "Reply 2")
+    history = _fetch_chat_history("test_family2", 10)
+    assert history[0]["chat_id"] == "second_msg", "newest entry must be first"
+
+def test_76_send_schema_validates():
+    from src.api.routers.parent_chat_router import ParentChatSend
+    from pydantic import ValidationError
+    try:
+        ParentChatSend(message="")
+        assert False, "empty message must fail validation"
+    except (ValidationError, ValueError):
+        pass
+    msg = ParentChatSend(message="Bi ơi, hôm nay bé học gì?")
+    assert msg.message == "Bi ơi, hôm nay bé học gì?"
+
+def test_76_api_js_has_send_parent_chat():
+    src = open("frontend/parent_app/src/services/api.js").read()
+    assert "sendParentChat" in src, "api.js must export sendParentChat"
+    assert "getParentChatHistory" in src, "api.js must export getParentChatHistory"
+    assert "/api/parent-chat/send" in src, "api.js must call /api/parent-chat/send"
+
+def test_76_learning_page_wired():
+    src = open("frontend/parent_app/src/pages/LearningPage.jsx").read()
+    assert "sendParentChat" in src, "LearningPage must import and use sendParentChat"
+    assert "getParentChatHistory" in src, "LearningPage must import and use getParentChatHistory"
+    assert "coming-soon" not in src or "Chat với Bi" not in src.split("coming-soon")[0].split("\n")[-1], \
+        "Chat với Bi section must not have coming-soon badge"
+
+def test_76_admin_router_log_buffer():
+    import importlib
+    mod = importlib.import_module("src.api.routers.admin_router")
+    assert hasattr(mod, "_LOG_BUFFER"), "admin_router must have _LOG_BUFFER deque"
+    assert hasattr(mod, "_BufferHandler"), "admin_router must have _BufferHandler class"
+    import logging
+    logging.getLogger("test_76_logger").info("test log entry for buffer")
+    entries = mod._system_log_entries()
+    assert isinstance(entries, list), "_system_log_entries must return a list"
+
+test("76.1  parent_chat_router module tồn tại với router",                 test_76_parent_chat_router_exists)
+test("76.2  parent_chat_router đăng ký trong server.py",                   test_76_parent_chat_router_registered)
+test("76.3  GET /api/parent-chat đăng ký",                                 test_76_get_endpoint_exists)
+test("76.4  POST /api/parent-chat/send đăng ký",                           test_76_post_endpoint_exists)
+test("76.5  _store_chat_event + _fetch_chat_history hoạt động",            test_76_store_and_fetch_chat_event)
+test("76.6  _fetch_chat_history trả về newest-first",                      test_76_fetch_returns_newest_first)
+test("76.7  ParentChatSend schema validate đúng",                          test_76_send_schema_validates)
+test("76.8  api.js export sendParentChat + getParentChatHistory",          test_76_api_js_has_send_parent_chat)
+test("76.9  LearningPage wire Chat với Bi (không có coming-soon)",         test_76_learning_page_wired)
+test("76.10 admin_router có _LOG_BUFFER + _BufferHandler thật",            test_76_admin_router_log_buffer)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
