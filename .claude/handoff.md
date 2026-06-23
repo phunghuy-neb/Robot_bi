@@ -116,6 +116,7 @@ python tests/run_tests.py
 - `.claude/skills/taste-skill/` (new, `design-taste-frontend`)
 - `.claude/skills/pdf/`, `.claude/skills/xlsx/` (new, from anthropics/skills — proprietary license; scripts need Python deps NOT yet installed)
 - `.mcp.json` (new, codegraph MCP server), `.gitignore` (+`.codegraph/`)
+- `.claude/settings.json` (new) + `.claude/hooks/handoff-reminder.sh` (new) — Stop hook enforcing Rule 9: reminds to update handoff when src/frontend/resources/firmware changed but handoff.md wasn't. Read-only, self-clearing. **Needs `/hooks` reload or restart to activate** (project settings.json didn't exist at session start).
 - `PROJECT.md` (UI-skill routing rule) → regenerated `CLAUDE.md` / `AGENTS.md` via `python3 sync.py`
 - `changelog/2026-06-24-handoff-archive.md` (new) — committed `0cc1c18`
 - `.claude/handoff.md`
