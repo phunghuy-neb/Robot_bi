@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getConversations, getConversation, getMonthlyEmotions, showToast } from '../services/api.js';
+import { getConversations, getConversation, getMonthlyEmotions, exportReport, showToast } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
 import FeatureBadge from '../components/FeatureBadge.jsx';
 
@@ -21,6 +21,7 @@ export default function JournalPage() {
   const [threadLoading, setThreadLoading] = useState(false);
   const [emotionData, setEmotionData] = useState([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadThreads();
@@ -40,6 +41,30 @@ export default function JournalPage() {
       setThreadsState('empty');
     } else {
       setThreadsState('error');
+    }
+  }
+
+  async function handleExport(format = 'csv') {
+    setExporting(true);
+    try {
+      const result = await exportReport(format);
+      if (!result?.blob) {
+        showToast('❌ Xuất báo cáo thất bại');
+        return;
+      }
+      const url = URL.createObjectURL(result.blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('✅ Đã tải báo cáo ' + format.toUpperCase());
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -108,9 +133,19 @@ export default function JournalPage() {
           {/* Export button */}
           <button
             className="btn-sm primary"
-            onClick={() => showToast('Xuất báo cáo: Tính năng đang phát triển')}
+            onClick={() => handleExport('csv')}
+            disabled={exporting}
+            title="Xuất báo cáo 30 ngày gần nhất"
           >
-            📤 Xuất PDF/CSV <FeatureBadge type="coming-soon" />
+            {exporting ? '⏳ Đang xuất...' : '📤 Xuất CSV'}
+          </button>
+          <button
+            className="btn-sm secondary"
+            onClick={() => handleExport('pdf')}
+            disabled={exporting}
+            title="Xuất báo cáo PDF"
+          >
+            {exporting ? '⏳' : '📄 PDF'}
           </button>
 
           <button
@@ -203,7 +238,6 @@ export default function JournalPage() {
         <div className="card">
           <div className="card-header">
             <span className="card-title">📊 Cảm xúc theo tháng</span>
-            <FeatureBadge type="mock-data" />
           </div>
           {emotionData.length > 0 ? (
             <>

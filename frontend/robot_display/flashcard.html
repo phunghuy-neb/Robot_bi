@@ -1,5 +1,366 @@
 <!DOCTYPE html>
-<html>
-<head><title>flashcard — Placeholder</title></head>
-<body><p>Chưa implement.</p></body>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Bi — Flashcard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: #e8eaf6;
+    padding: 24px;
+    user-select: none;
+  }
+
+  /* ── Card flip container ──────────────────────────────────── */
+  .card-scene {
+    perspective: 900px;
+    width: min(480px, 92vw);
+    height: min(300px, 55vw);
+    cursor: pointer;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 24px;
+  }
+
+  .card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 32px;
+    text-align: center;
+  }
+
+  /* Front — question */
+  .card-front {
+    background: linear-gradient(135deg, #1e2a6e 0%, #0d1540 100%);
+    border: 2px solid rgba(100, 140, 255, 0.3);
+    box-shadow: 0 8px 40px rgba(60, 100, 255, 0.2), 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  /* Back — answer */
+  .card-back {
+    background: linear-gradient(135deg, #0e3a25 0%, #071d12 100%);
+    border: 2px solid rgba(80, 200, 130, 0.3);
+    box-shadow: 0 8px 40px rgba(60, 200, 130, 0.18), 0 2px 8px rgba(0,0,0,0.5);
+    transform: rotateY(180deg);
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 16px;
+  }
+
+  .card-front .card-label { color: #9ca3f0; }
+  .card-back .card-label { color: #6ee7b7; }
+
+  .card-text {
+    font-size: clamp(22px, 5vw, 34px);
+    font-weight: 700;
+    line-height: 1.3;
+    color: #f0f4ff;
+  }
+
+  .card-back .card-text { color: #d1fae5; }
+
+  .card-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    opacity: 0.45;
+    color: #c4caf8;
+  }
+
+  .card-emoji {
+    font-size: 44px;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+
+  /* ── Progress bar ────────────────────────────────────────── */
+  .progress-wrap {
+    width: min(480px, 92vw);
+    margin-bottom: 16px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(140, 160, 255, 0.6);
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4a6cf7, #7eb3ff);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── Controls ────────────────────────────────────────────── */
+  .controls {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    outline: none;
+  }
+
+  .btn:active { transform: scale(0.95); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-prev { background: rgba(255,255,255,0.08); color: #c4caf8; border: 1.5px solid rgba(255,255,255,0.12); }
+  .btn-flip { background: linear-gradient(135deg, #4a6cf7, #6b8af7); color: #fff; box-shadow: 0 4px 16px rgba(74,108,247,0.35); }
+  .btn-next { background: rgba(80,200,130,0.12); color: #6ee7b7; border: 1.5px solid rgba(80,200,130,0.25); }
+
+  /* ── Status label ────────────────────────────────────────── */
+  .status-label {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: rgba(140, 160, 255, 0.4);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────── */
+  .empty {
+    text-align: center;
+    color: rgba(140, 160, 255, 0.5);
+    font-size: 16px;
+    padding: 40px;
+  }
+
+  .empty .big { font-size: 48px; display: block; margin-bottom: 14px; }
+
+  /* ── Transition helpers ─────────────────────────────────── */
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card-scene.entering { animation: card-in 0.3s ease forwards; }
+</style>
+</head>
+<body>
+
+<div id="root">
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-label">
+      <span id="prog-current">1 / 1</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card-scene" id="card-scene" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="card-face card-front">
+        <div class="card-emoji" id="front-emoji">🃏</div>
+        <div class="card-label">Câu hỏi</div>
+        <div class="card-text" id="front-text">Đang tải flashcard...</div>
+        <div class="card-hint" id="front-hint">Chạm để lật xem đáp án</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-emoji" id="back-emoji">✅</div>
+        <div class="card-label">Đáp án</div>
+        <div class="card-text" id="back-text">—</div>
+        <div class="card-hint">Chạm để tiếp tục</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-prev" id="btn-prev" onclick="prevCard()">← Trước</button>
+    <button class="btn btn-flip" onclick="flipCard()">🔄 Lật</button>
+    <button class="btn btn-next" id="btn-next" onclick="nextCard()">Tiếp →</button>
+  </div>
+</div>
+
+<div class="status-label" id="status-label">Robot Bi Flashcard</div>
+
+<script>
+// ── Card data ────────────────────────────────────────────────
+// Default demo deck — overwritten by WebSocket push or URL param ?deck=
+const DEFAULT_DECK = [
+  { q: 'Con mèo tiếng Anh là gì?', a: 'Cat 🐱', emoji: '🐱' },
+  { q: 'Con chó tiếng Anh là gì?', a: 'Dog 🐶', emoji: '🐶' },
+  { q: '3 × 4 = ?', a: '12', emoji: '✖️' },
+  { q: 'Thủ đô của Việt Nam?', a: 'Hà Nội 🏙️', emoji: '🇻🇳' },
+  { q: 'Mặt trời mọc hướng nào?', a: 'Hướng Đông ☀️', emoji: '🌅' },
+  { q: 'Số hành tinh trong Hệ Mặt Trời?', a: '8 hành tinh 🪐', emoji: '🪐' },
+  { q: 'Nước đóng băng ở bao nhiêu độ C?', a: '0°C ❄️', emoji: '🌡️' },
+];
+
+let deck = DEFAULT_DECK.slice();
+let idx = 0;
+let isFlipped = false;
+
+const cardEl = document.getElementById('card');
+const frontEmoji = document.getElementById('front-emoji');
+const frontText = document.getElementById('front-text');
+const frontHint = document.getElementById('front-hint');
+const backEmoji = document.getElementById('back-emoji');
+const backText = document.getElementById('back-text');
+const cardScene = document.getElementById('card-scene');
+const progWrap = document.getElementById('progress-wrap');
+const progCurrent = document.getElementById('prog-current');
+const progPct = document.getElementById('prog-pct');
+const progFill = document.getElementById('prog-fill');
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+
+function render() {
+  if (!deck.length) return;
+  const c = deck[idx];
+  isFlipped = false;
+  cardEl.classList.remove('flipped');
+  frontEmoji.textContent = c.emoji || '🃏';
+  frontText.textContent = c.q || c.question || '';
+  frontHint.textContent = 'Chạm để lật xem đáp án';
+  backEmoji.textContent = '✅';
+  backText.textContent = c.a || c.answer || '';
+
+  progWrap.style.display = deck.length > 1 ? '' : 'none';
+  progCurrent.textContent = `${idx + 1} / ${deck.length}`;
+  const pct = Math.round(((idx + 1) / deck.length) * 100);
+  progPct.textContent = pct + '%';
+  progFill.style.width = pct + '%';
+
+  btnPrev.disabled = idx === 0;
+  btnNext.disabled = idx === deck.length - 1;
+
+  cardScene.classList.remove('entering');
+  void cardScene.offsetWidth;
+  cardScene.classList.add('entering');
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  cardEl.classList.toggle('flipped', isFlipped);
+  if (isFlipped) frontHint.textContent = 'Chạm để lật lại';
+  else frontHint.textContent = 'Chạm để lật xem đáp án';
+}
+
+function prevCard() {
+  if (idx > 0) { idx--; render(); }
+}
+
+function nextCard() {
+  if (idx < deck.length - 1) { idx++; render(); }
+}
+
+function loadDeck(cards) {
+  if (!Array.isArray(cards) || !cards.length) return;
+  deck = cards;
+  idx = 0;
+  render();
+}
+
+// ── Keyboard shortcuts ───────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'a') prevCard();
+  else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === ' ') {
+    e.preventDefault();
+    if (!isFlipped) flipCard(); else nextCard();
+  } else if (e.key === 'f' || e.key === 'Enter') flipCard();
+});
+
+// ── WebSocket connection ─────────────────────────────────────
+let ws = null;
+let wsDelay = 1500;
+
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token') || localStorage.getItem('bi_token') || '';
+  const url = token
+    ? `${proto}//${location.host}/ws?token=${encodeURIComponent(token)}`
+    : `${proto}//${location.host}/ws/display`;
+
+  try { ws = new WebSocket(url); } catch (_) { scheduleReconnect(); return; }
+
+  ws.onmessage = e => {
+    try {
+      const msg = JSON.parse(e.data);
+      const type = (msg.type || '').toLowerCase();
+      if (type === 'flashcard' || type === 'flashcard_deck') {
+        loadDeck(msg.cards || msg.deck || []);
+      } else if (type === 'flashcard_show') {
+        const c = msg.card || msg.data;
+        if (c) { loadDeck([c]); }
+      } else if (type === 'flashcard_next') {
+        nextCard();
+      } else if (type === 'flashcard_prev') {
+        prevCard();
+      } else if (type === 'flashcard_flip') {
+        flipCard();
+      }
+    } catch (_) {}
+  };
+
+  ws.onclose = () => scheduleReconnect();
+  ws.onerror = () => ws && ws.close();
+}
+
+function scheduleReconnect() {
+  setTimeout(connectWS, Math.min(wsDelay, 12000));
+  wsDelay = Math.min(wsDelay * 1.5, 12000);
+}
+
+// ── URL param: ?deck=base64json ──────────────────────────────
+const deckParam = new URLSearchParams(location.search).get('deck');
+if (deckParam) {
+  try { loadDeck(JSON.parse(atob(deckParam))); } catch (_) { render(); }
+} else {
+  render();
+}
+
+connectWS();
+</script>
+</body>
 </html>

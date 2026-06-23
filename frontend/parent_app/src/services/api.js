@@ -264,20 +264,26 @@ export async function getChildProfiles() {
   return mockChildProfiles();
 }
 
-export async function exportReport(fmt = 'json', options = {}) {
+export async function exportReport(fmt = 'csv', options = {}) {
   const today = new Date().toISOString().slice(0, 10);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86400_000).toISOString().slice(0, 10);
-  return apiFetch('/api/reports/export', {
+  const format = (fmt === 'pdf') ? 'pdf' : 'csv';
+  const r = await fetch('/api/reports/export', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
     body: JSON.stringify({
-      format: fmt,
+      format,
       start_date: options.start_date || thirtyDaysAgo,
       end_date: options.end_date || today,
       sections: options.sections || ['events', 'conversations', 'emotions', 'education', 'tasks'],
       child_id: options.child_id || null,
     }),
   });
+  if (!r.ok) return null;
+  const blob = await r.blob();
+  const start = options.start_date || thirtyDaysAgo;
+  const end = options.end_date || today;
+  return { blob, filename: `robot-bi-${start}--${end}.${format}` };
 }
 
 export async function getMonthlyEmotions(month) {
@@ -315,6 +321,7 @@ export async function getRadioChannels() {
       icon: '📻',
       genre: ch.tags?.[0] || ch.description || '',
       frequency: '',
+      url: ch.source_url || '',
     }));
   }
   return mockRadioChannels();
@@ -331,6 +338,7 @@ export async function getVideoLessons() {
       subject: v.tags?.[0] || '',
       duration: '',
       age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
+      url: v.source_url || '',
     }));
   }
   return mockVideoLessons();

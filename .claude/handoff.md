@@ -19,6 +19,13 @@
 
 ## Last Completed Task
 
+- 2026-06-23: **Frontend polish + Robot display animation** (branch `003-web-search-integration`):
+  - `frontend/parent_app/src/services/api.js`: Fixed `exportReport` to do raw `fetch` + blob download (CSV/PDF, not JSON); added `url` field to `getRadioChannels` + `getVideoLessons` maps from `source_url`.
+  - `frontend/parent_app/src/pages/JournalPage.jsx`: Wired export buttons (CSV + PDF) with blob download + toast feedback; removed stale `mock-data` badge from emotion chart.
+  - `frontend/parent_app/src/pages/MorePage.jsx`: Removed stale `mock-data` badges from Radio/Video; ▶ buttons now open `source_url` in new tab (YouTube/VOV links from DB); video thumbnails render as `<img>` when URL available.
+  - `frontend/robot_display/face.html`: Full animated robot face — CSS eyes with blink, iris tracking mouse/touch, mouth per expression, cheek blush, antenna pulse, 7 expression states (idle/happy/thinking/sleeping/pouting/curious/surprised), WebSocket listener for BiState events, demo loop when offline.
+  - `frontend/robot_display/flashcard.html`: Full flashcard display — 3D flip animation, progress bar, keyboard shortcuts (←→ Space F), WebSocket listener for flashcard_deck/flashcard_show/next/prev/flip events, demo deck, URL ?deck=base64json param.
+
 - 2026-06-23: **DeepSeek V3 + Frontend settings wiring + DB seed fix** (branch `003-web-search-integration`):
   - `src/ai/ai_engine.py`: Added DeepSeek V3 as 6th provider (after Cloudflare). `_stream_deepseek()` uses OpenAI-compatible endpoint `https://api.deepseek.com/v1/chat/completions`, model `deepseek-chat`. `_PROVIDER_ORDER` updated to 6 members. Protected original provider order unchanged.
   - `config.json`: Added `"deepseek_model": "deepseek-chat"`.

@@ -163,11 +163,10 @@ export default function MorePage() {
           )}
         </div>
 
-        {/* Radio — mock data */}
+        {/* Radio */}
         <div className="card">
           <div className="card-header">
             <span className="card-title">📻 Radio</span>
-            <FeatureBadge type="mock-data" />
           </div>
           {radioChannels.length === 0 ? (
             <SectionState state="loading" loadingText="Đang tải kênh radio..." />
@@ -177,11 +176,11 @@ export default function MorePage() {
                 <div className="media-thumb">{ch.icon}</div>
                 <div className="media-body">
                   <div className="media-title">{ch.name}</div>
-                  <div className="media-meta">{ch.genre} · {ch.frequency}</div>
+                  <div className="media-meta">{ch.genre}{ch.frequency ? ` · ${ch.frequency}` : ''}</div>
                 </div>
                 <button
                   className="btn-sm primary media-action"
-                  onClick={() => showToast('Radio: Sắp hỗ trợ')}
+                  onClick={() => ch.url ? window.open(ch.url, '_blank', 'noopener') : showToast('Kênh này chưa có URL')}
                 >
                   ▶ Nghe
                 </button>
@@ -190,25 +189,27 @@ export default function MorePage() {
           )}
         </div>
 
-        {/* Video học — mock data */}
+        {/* Video học */}
         <div className="card">
           <div className="card-header">
             <span className="card-title">🎬 Video học</span>
-            <FeatureBadge type="mock-data" />
           </div>
           {videoLessons.length === 0 ? (
             <SectionState state="loading" loadingText="Đang tải video..." />
           ) : (
             videoLessons.map(v => (
               <div key={v.id} className="media-card">
-                <div className="media-thumb">{v.thumbnail}</div>
+                <div className="media-thumb">{typeof v.thumbnail === 'string' && v.thumbnail.startsWith('http')
+                  ? <img src={v.thumbnail} alt={v.title} style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 6 }} />
+                  : v.thumbnail}
+                </div>
                 <div className="media-body">
                   <div className="media-title">{v.title}</div>
-                  <div className="media-meta">{v.subject} · {v.duration} · {v.age}</div>
+                  <div className="media-meta">{[v.subject, v.age ? `${v.age} tuổi` : ''].filter(Boolean).join(' · ')}</div>
                 </div>
                 <button
                   className="btn-sm primary media-action"
-                  onClick={() => showToast('Video: Sắp hỗ trợ')}
+                  onClick={() => v.url ? window.open(v.url, '_blank', 'noopener') : showToast('Video này chưa có URL')}
                 >
                   ▶ Xem
                 </button>
