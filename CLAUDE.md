@@ -40,6 +40,7 @@ Khong tu cai package, download tool, sua `.env`, hoac chay global installer khi 
 6. Docs/audit-only sessions do not require full tests unless code was changed.
 7. Do not read or edit `.env`, runtime databases, logs, cache/model/media files, or generated artifacts by default.
 8. Keep generated docs, context files, and session notes current without turning them into changelogs.
+9. After completing each distinct task (not only at session end), update the **"In Progress / Stopped Here"** section of `.claude/handoff.md` so it always reflects the true current state: what just finished (with commit id if committed), and the next step. A stale "In Progress" is a defect — fix it before moving on. Do this without being asked.
 
 ## Current Status
 
@@ -252,7 +253,7 @@ start_robot.bat
 
 ## Session End Checklist
 
-- Update `.claude/handoff.md` after a coding session.
+- Update `.claude/handoff.md` **after each completed task** and again at session end (see Mandatory Rule 9); keep "In Progress / Stopped Here" accurate.
 - Add a changelog only when appropriate.
 - Run `python sync.py` after changing `PROJECT.md`.
 - Do not manually edit `CLAUDE.md` or `AGENTS.md`.
