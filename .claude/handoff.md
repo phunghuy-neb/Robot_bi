@@ -15,6 +15,21 @@
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
+- **Admin UI riêng (đang làm theo phase) — Phase 1 ✅ DONE + committed phiên này:**
+  Kiến trúc đã chốt với user: cùng web; đăng nhập tài khoản `is_admin` (admin trong `.env`)
+  → render **AdminApp** riêng; tài khoản thường → Parent App như cũ. API key: chỉ xem/sửa
+  key PUBLIC (YouTube/NASA/Tavily/Brave), **KHÔNG hiển thị key LLM**. Đề/kênh: admin thêm =
+  global (mọi tài khoản thấy), parent thêm = chỉ gia đình mình. "Quản lý gia đình" gộp thành
+  cột trong trang tài khoản (không làm module riêng trừ khi cần multi-tenant).
+  - **Phase 1 (DONE)**: `admin_router.py` thêm `/api/admin/users` (list, lock/unlock,
+    grant/revoke admin, reset-password, delete — `require_admin`, chặn tự-thao-tác chính mình).
+    FE: `pages/admin/AdminApp.jsx` (shell sidebar 8 mục, 7 mục "sắp có") + `UsersAdminPage.jsx`;
+    `App.jsx` rẽ nhánh `if user.isAdmin`; `api.js` thêm admin* helper. Test **Group 84** (5).
+    Suite **658/658 PASS**, build OK.
+  - **Phase còn lại (chưa làm)**: P2 API key public (xem/sửa, ghi .env) + công tắc tính năng +
+    trạng thái key (sống/chết). P3 Đề thi (admin global + parent cá nhân). P4 Kênh YouTube
+    (admin global + parent gia đình). P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
+    P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
   User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:
   - `src/knowledge/knowledge_client.py` (MỚI): HTTP+timeout+cache TTL dùng chung, lọc text

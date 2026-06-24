@@ -590,3 +590,34 @@ export function stopCamera() {
 
 // Audio monitor cleanup alias
 export function stopAudioMonitor() { stopMomMic(); }
+
+// —— Admin: user account management (is_admin only) ——
+export async function adminListUsers() {
+  const data = await apiFetch('/api/admin/users');
+  return data?.users || [];
+}
+
+export async function adminSetUserActive(userId, active) {
+  return apiFetch(`/api/admin/users/${userId}/active`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ active }),
+  });
+}
+
+export async function adminSetUserAdmin(userId, isAdmin) {
+  return apiFetch(`/api/admin/users/${userId}/admin`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_admin: isAdmin }),
+  });
+}
+
+export async function adminResetPassword(userId, newPassword) {
+  return apiFetch(`/api/admin/users/${userId}/reset-password`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ new_password: newPassword }),
+  });
+}
+
+export async function adminDeleteUser(userId) {
+  return apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+}

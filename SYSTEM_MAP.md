@@ -61,7 +61,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 | Router file | Current responsibility |
 |---|---|
-| `admin_router.py` | Admin family create/list/delete endpoints under `/api/admin/families` and sanitized admin system logs under `/api/admin/logs`. |
+| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards). |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
 | `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
@@ -106,6 +106,9 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 src/
   main.jsx           — React entry point
   App.jsx            — Auth gate + tab routing + layout + WebSocket
+                       (is_admin login → Admin UI instead of the parent tabs)
+  pages/admin/       — AdminApp (sidebar shell, admin-only) + UsersAdminPage
+                       (account management); further sections added per phase
   styles.css         — Design tokens, base styles, responsive layout
   services/api.js    — All API/WebSocket/auth behavior (Tier 1 real + Tier 2 mock)
   data/mockData.js   — Vietnamese mock data for Tier 2 features

@@ -11,10 +11,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from src.infrastructure.auth.auth import get_current_user
+from src.infrastructure.auth.auth import get_current_user, hash_password
 from src.infrastructure.database.db import (
     create_family_record,
     delete_family_record,
+    get_db_connection,
     is_user_admin,
     list_families,
 )
@@ -171,3 +172,100 @@ async def delete_family(family_id: str, admin: dict = Depends(require_admin)):
                 family_id,
             )
     return {"ok": True, "family_id": family_id}
+
+
+# ── User account management (admin) ───────────────────────────────────────────
+class SetActive(BaseModel):
+    active: bool
+
+
+class SetAdmin(BaseModel):
+    is_admin: bool
+
+
+class ResetPassword(BaseModel):
+    new_password: str = Field(..., min_length=6, max_length=128)
+
+
+def _fetch_user(conn, user_id: str):
+    return conn.execute(
+        "SELECT user_id, username, family_name, is_active, is_admin, created_at "
+        "FROM users WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+
+
+def _guard_not_self(admin: dict, user_id: str, action: str) -> None:
+    if str(admin.get("user_id", "")) == str(user_id):
+        raise HTTPException(status_code=400, detail=f"Không thể tự {action} tài khoản đang đăng nhập")
+
+
+@router.get("/api/admin/users")
+async def list_users(_admin: dict = Depends(require_admin)):
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            "SELECT user_id, username, family_name, is_active, is_admin, created_at "
+            "FROM users ORDER BY created_at ASC"
+        ).fetchall()
+    return {"users": [
+        {
+            "user_id": r["user_id"],
+            "username": r["username"],
+            "family_name": r["family_name"],
+            "is_active": bool(r["is_active"]),
+            "is_admin": bool(r["is_admin"]),
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]}
+
+
+@router.post("/api/admin/users/{user_id}/active")
+async def set_user_active(user_id: str, body: SetActive, admin: dict = Depends(require_admin)):
+    if not body.active:
+        _guard_not_self(admin, user_id, "khóa")
+    with get_db_connection() as conn:
+        if not _fetch_user(conn, user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        conn.execute("UPDATE users SET is_active = ? WHERE user_id = ?",
+                     (1 if body.active else 0, user_id))
+        conn.commit()
+    return {"ok": True, "user_id": user_id, "is_active": body.active}
+
+
+@router.post("/api/admin/users/{user_id}/admin")
+async def set_user_admin(user_id: str, body: SetAdmin, admin: dict = Depends(require_admin)):
+    if not body.is_admin:
+        _guard_not_self(admin, user_id, "bỏ quyền admin của")
+    with get_db_connection() as conn:
+        if not _fetch_user(conn, user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        conn.execute("UPDATE users SET is_admin = ? WHERE user_id = ?",
+                     (1 if body.is_admin else 0, user_id))
+        conn.commit()
+    return {"ok": True, "user_id": user_id, "is_admin": body.is_admin}
+
+
+@router.post("/api/admin/users/{user_id}/reset-password")
+async def reset_user_password(user_id: str, body: ResetPassword, _admin: dict = Depends(require_admin)):
+    with get_db_connection() as conn:
+        if not _fetch_user(conn, user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        conn.execute("UPDATE users SET password_hash = ? WHERE user_id = ?",
+                     (hash_password(body.new_password), user_id))
+        # Thu hồi refresh token cũ để buộc đăng nhập lại.
+        conn.execute("DELETE FROM auth_tokens WHERE user_id = ?", (user_id,))
+        conn.commit()
+    return {"ok": True, "user_id": user_id}
+
+
+@router.delete("/api/admin/users/{user_id}")
+async def delete_user(user_id: str, admin: dict = Depends(require_admin)):
+    _guard_not_self(admin, user_id, "xóa")
+    with get_db_connection() as conn:
+        if not _fetch_user(conn, user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        conn.execute("DELETE FROM auth_tokens WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+        conn.commit()
+    return {"ok": True, "user_id": user_id}

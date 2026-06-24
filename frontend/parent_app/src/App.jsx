@@ -15,6 +15,7 @@ import BottomNav from './components/BottomNav.jsx';
 import Toast from './components/Toast.jsx';
 import SettingsOverlay from './components/SettingsOverlay.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import AdminApp from './pages/admin/AdminApp.jsx';
 import HomePage from './pages/HomePage.jsx';
 import MonitorPage from './pages/MonitorPage.jsx';
 import LearningPage from './pages/LearningPage.jsx';
@@ -96,6 +97,12 @@ export default function App() {
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Tài khoản admin (is_admin trong .env) → giao diện Admin riêng.
+  // Tài khoản thường → Parent App như cũ.
+  if (user.isAdmin) {
+    return <AdminApp user={user} onLogout={handleLogout} />;
   }
 
   const tabComponents = {

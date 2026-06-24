@@ -7772,6 +7772,103 @@ test("83.4  Graceful: nguồn lỗi trả ok:false (không 500)",               
 test("83.5  Math (MathJS) eval trả kết quả",                                   test_83_math_eval_text)
 test("83.6  Knowledge endpoints yêu cầu đăng nhập",                            test_83_requires_auth)
 
+# == GROUP 84: Admin — user account management =============================
+print("\n[Group 84] Admin — quản lý tài khoản người dùng")
+
+
+def _admin_mk_user(prefix, family_id, is_admin=False):
+    from src.infrastructure.auth.auth import create_user, create_access_token
+    from src.infrastructure.database.db import get_db_connection
+    user = create_user(f"{prefix}_{_uuid.uuid4().hex[:8]}", "Password1!", family_id)
+    if is_admin:
+        with get_db_connection() as conn:
+            conn.execute("UPDATE users SET is_admin = 1 WHERE user_id = ?", (str(user["user_id"]),))
+            conn.commit()
+    token = create_access_token(str(user["user_id"]), user["family_name"])
+    return user, {"Authorization": f"Bearer {token}"}
+
+
+def test_84_list_and_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    admin, ah = _admin_mk_user("admlist", fam, True)
+    _, nh = _admin_mk_user("normlist", fam, False)
+    client = TestClient(app)
+    r = client.get("/api/admin/users", headers=ah)
+    assert r.status_code == 200, f"admin list: {r.status_code}"
+    assert admin["username"] in [u["username"] for u in r.json()["users"]]
+    assert client.get("/api/admin/users", headers=nh).status_code == 403, "non-admin phải bị chặn 403"
+
+
+def test_84_lock_blocks_login():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.auth.auth import authenticate_user
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admlock", fam, True)
+    tgt, _ = _admin_mk_user("tgtlock", fam, False)
+    client = TestClient(app)
+    assert client.post(f"/api/admin/users/{tgt['user_id']}/active",
+                       json={"active": False}, headers=ah).status_code == 200
+    assert authenticate_user(tgt["username"], "Password1!") is None, "khóa rồi phải không đăng nhập được"
+    client.post(f"/api/admin/users/{tgt['user_id']}/active", json={"active": True}, headers=ah)
+    assert authenticate_user(tgt["username"], "Password1!") is not None, "mở khóa phải đăng nhập lại được"
+
+
+def test_84_set_admin_and_reset_password():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.auth.auth import authenticate_user
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admset", fam, True)
+    tgt, _ = _admin_mk_user("tgtset", fam, False)
+    client = TestClient(app)
+    # cấp admin
+    assert client.post(f"/api/admin/users/{tgt['user_id']}/admin",
+                       json={"is_admin": True}, headers=ah).status_code == 200
+    row = next(u for u in client.get("/api/admin/users", headers=ah).json()["users"]
+               if str(u["user_id"]) == str(tgt["user_id"]))
+    assert row["is_admin"] is True
+    # đặt lại mật khẩu
+    assert client.post(f"/api/admin/users/{tgt['user_id']}/reset-password",
+                       json={"new_password": "NewPass1!"}, headers=ah).status_code == 200
+    assert authenticate_user(tgt["username"], "NewPass1!") is not None, "mật khẩu mới phải dùng được"
+    assert authenticate_user(tgt["username"], "Password1!") is None, "mật khẩu cũ phải hết hiệu lực"
+
+
+def test_84_self_guard():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    admin, ah = _admin_mk_user("admself", fam, True)
+    client = TestClient(app)
+    uid = admin["user_id"]
+    assert client.post(f"/api/admin/users/{uid}/active", json={"active": False}, headers=ah).status_code == 400
+    assert client.post(f"/api/admin/users/{uid}/admin", json={"is_admin": False}, headers=ah).status_code == 400
+    assert client.request("DELETE", f"/api/admin/users/{uid}", headers=ah).status_code == 400
+
+
+def test_84_delete_user():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.auth.auth import authenticate_user
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admdel", fam, True)
+    tgt, _ = _admin_mk_user("tgtdel", fam, False)
+    client = TestClient(app)
+    assert client.request("DELETE", f"/api/admin/users/{tgt['user_id']}", headers=ah).status_code == 200
+    assert str(tgt["user_id"]) not in [str(u["user_id"]) for u in
+                                       client.get("/api/admin/users", headers=ah).json()["users"]]
+    assert authenticate_user(tgt["username"], "Password1!") is None
+
+
+test("84.1  Admin list users + chặn non-admin 403",                            test_84_list_and_rbac)
+test("84.2  Khóa tài khoản chặn đăng nhập, mở khóa khôi phục",                 test_84_lock_blocks_login)
+test("84.3  Cấp/bỏ admin + đặt lại mật khẩu",                                  test_84_set_admin_and_reset_password)
+test("84.4  Tự khóa/bỏ-admin/xóa chính mình bị chặn 400",                      test_84_self_guard)
+test("84.5  Xóa tài khoản",                                                    test_84_delete_user)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
