@@ -13,14 +13,14 @@
 
 - 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: **Admin UI ĐÃ XONG TOÀN BỘ 6 PHASE** —
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
-  **Phase 6 Nội dung/Nhật ký/Thống kê + công tắc tri thức = ✅ DONE phiên này (UNCOMMITTED — sắp commit)**.
+  **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
   = **685/685 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
   (b) hoàn tất TOEIC S&W audio thật (multipart STT); (c) track phần cứng ESP32-S3.
-- **Phase 6 (Nội dung + Nhật ký + Thống kê + công tắc tri thức) — ✅ DONE (UNCOMMITTED phiên này):**
+- **Phase 6 (Nội dung + Nhật ký + Thống kê + công tắc tri thức) — ✅ DONE + committed `27994b3`:**
   - **Nội dung GLOBAL** (`admin_router`): `/api/admin/content` GET(list, lọc type)/POST(tạo global
     family_id NULL)/`/{id}` POST(sửa)/DELETE — radio/video/game trên bảng `content_items`, validate
     type∈{radio,video,game} & age_min≤age_max. Nội dung global enabled hiện cho MỌI gia đình qua
@@ -111,7 +111,7 @@
     xem bullet "Phase 4 (Kênh YouTube)" ở trên.
   - **Phase 5 (DONE + committed `0dcba21`)**: An toàn trẻ (admin global blocklist/topics/policy/stats)
     — xem bullet "Phase 5 (An toàn trẻ)" ở trên.
-  - **Phase 6 (DONE — UNCOMMITTED phiên này)**: Nội dung global + Nhật ký + Thống kê + công tắc tri
+  - **Phase 6 (DONE + committed `27994b3`)**: Nội dung global + Nhật ký + Thống kê + công tắc tri
     thức — xem bullet "Phase 6" ở trên. Persona/Role admin-global DEFER có chủ đích.
   - **✅ HẾT PHASE Admin UI**: cả 6 phase đã hoàn tất, 8 mục sidebar đều ready.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
