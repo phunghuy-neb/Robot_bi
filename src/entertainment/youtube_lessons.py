@@ -34,6 +34,25 @@ logger = logging.getLogger(__name__)
 
 _TIMEOUT = 6  # giây
 _API_BASE = "https://www.googleapis.com/youtube/v3"
+
+# SafetyFilter dùng để lọc TIÊU ĐỀ video (lazy — không bắt buộc khi import).
+_safety = None
+
+
+def _title_is_safe(title: str) -> bool:
+    """True nếu tiêu đề an toàn cho trẻ (qua SafetyFilter topic classifier).
+    Lỗi/không tải được filter → coi như an toàn (không chặn nhầm)."""
+    global _safety
+    if not title:
+        return True
+    try:
+        if _safety is None:
+            from src.safety.safety_filter import SafetyFilter
+            _safety = SafetyFilter()
+        is_safe, _clean = _safety.check(title)
+        return is_safe
+    except Exception:
+        return True
 _CHANNELS_PATH = Path(__file__).resolve().parents[2] / "resources" / "youtube_channels.json"
 _PLACEHOLDER_KEYS = {"your_youtube_api_key_here", ""}
 _ISO8601_DURATION = re.compile(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?")
@@ -282,6 +301,8 @@ class YouTubeLessons:
             vid = r.get("contentDetails", {}).get("videoId")
             if not vid or not sn.get("title"):
                 continue
+            if not _title_is_safe(sn.get("title", "")):
+                continue  # bỏ video có tiêu đề bị SafetyFilter chặn
             thumbs = sn.get("thumbnails", {})
             thumb = (thumbs.get("high") or thumbs.get("medium") or thumbs.get("default") or {}).get("url", "")
             items.append({

@@ -60,6 +60,10 @@ _VALID_GENDERS = {"male", "female", "neutral"}
 _VALID_LANGUAGES = {"vi", "en", "ja", "ko", "zh", "fr", "de", "es"}
 _PERSONALITY_KEYS = {"playfulness", "extraversion", "energy"}
 
+# Persona MẶC ĐỊNH GLOBAL do admin đặt: gia đình CHƯA tự cấu hình sẽ kế thừa.
+# (Family này không phải gia đình thật — chỉ là khóa lưu template.)
+GLOBAL_PERSONA_FAMILY = "__global__"
+
 
 class PersonaManager:
     """Quan ly persona cua robot Bi theo tung family."""
@@ -96,6 +100,12 @@ class PersonaManager:
                     "SELECT data FROM persona WHERE family_id = ?",
                     (self.family_id,),
                 ).fetchone()
+                # Gia đình chưa cấu hình → kế thừa persona mặc định GLOBAL của admin (nếu có).
+                if not row and self.family_id != GLOBAL_PERSONA_FAMILY:
+                    row = conn.execute(
+                        "SELECT data FROM persona WHERE family_id = ?",
+                        (GLOBAL_PERSONA_FAMILY,),
+                    ).fetchone()
             if not row:
                 return
 

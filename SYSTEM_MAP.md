@@ -48,7 +48,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/display/` | Robot face state events and flashcard renderer; reward/sleep files exist as placeholders. |
 | `src/education/` | Curriculum schedule, flashcard sessions, progress tracking, homework classification, and basic language tutor; grammar checker is a placeholder. |
 | `src/emotion/` | Emotion analyzer, emotion journal, and emotion alert state. |
-| `src/entertainment/` | Story engine, music library, word quiz, and voice quiz logic backed by local resources. `youtube_lessons.py` fetches video lessons from a GLOBAL allowlist of educational YouTube channels (`resources/youtube_channels.json`, admin-editable) PLUS per-family channels (`youtube_channels` table, parent-managed) via YouTube Data API; off unless `YOUTUBE_API_KEY` is set, degrades to DB/mock content. `available` (has key) is decoupled from `enabled` (has global channels) so family channels still work when the global allowlist is empty. |
+| `src/entertainment/` | Story engine, music library, word quiz, and voice quiz logic backed by local resources. `youtube_lessons.py` fetches video lessons from a GLOBAL allowlist of educational YouTube channels (`resources/youtube_channels.json`, admin-editable) PLUS per-family channels (`youtube_channels` table, parent-managed) via YouTube Data API; off unless `YOUTUBE_API_KEY` is set, degrades to DB content. `available` (has key) is decoupled from `enabled` (has global channels) so family channels still work when the global allowlist is empty. Video titles are filtered through SafetyFilter — clips with a blocked title are dropped. |
 | `src/knowledge/` | `knowledge_client.py` — shared client for kid-safe external public APIs (no-key except NASA APOD which falls back to DEMO_KEY). Shared HTTP+timeout, TTL cache, and SafetyFilter on text output; never raises (errors → `ok:false`). Backs `knowledge_router.py`. |
 | `src/infrastructure/` | Auth/JWT helpers, SQLite database helpers, logging setup, notifier, session state/naming, and task manager. |
 | `src/living/` | Runtime-only Stage 1 living layer: state machine, micro moments, and audio-first proactive prompts. A recognized interaction creates a short recent-presence window; optional camera events may extend it. |
@@ -61,7 +61,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 | Router file | Current responsibility |
 |---|---|
-| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets — the GLOBAL YouTube allowlist under `/api/admin/youtube/channels` (list/add/delete; writes `resources/youtube_channels.json` + reloads singleton), GLOBAL child-safety under `/api/admin/safety/*` (config/blocklist/topics/policy/stats[/reset] — writes `resources/safety_config.json` + live-reloads SafetyFilter), GLOBAL content metadata under `/api/admin/content` (radio/video/game CRUD on `content_items`, family_id NULL = visible to all), and an overview dashboard under `/api/admin/stats` (user/family/exam/content/channel/safety counts); all `require_admin`. |
+| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets — the GLOBAL YouTube allowlist under `/api/admin/youtube/channels` (list/add/delete; writes `resources/youtube_channels.json` + reloads singleton), GLOBAL child-safety under `/api/admin/safety/*` (config/blocklist/topics/policy/stats[/reset] — writes `resources/safety_config.json` + live-reloads SafetyFilter), GLOBAL content metadata under `/api/admin/content` (radio/video/game CRUD on `content_items`, family_id NULL = visible to all), an overview dashboard under `/api/admin/stats` (user/family/exam/content/channel/safety counts), and the GLOBAL default persona under `/api/admin/persona` (name/gender/voice/language/personality that unconfigured families inherit); all `require_admin`. |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
 | `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings (age filter / time limits / sleep — their defaults for unconfigured families come from the admin GLOBAL safety policy), chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
@@ -74,7 +74,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `motor_router.py` | Motor movement, joystick, dock/home, spin, and status routes. |
 | `music_router.py` | Music play/stop/pause/next/previous/shuffle/repeat/volume/status/playlist/lullaby routes. |
 | `ops_router.py` | Health check, Parent App root page, MJPEG camera stream, and tunnel helper code. |
-| `persona_router.py` | Persona read/update routes. |
+| `persona_router.py` | Per-family persona read/update routes. Families without their own persona inherit the admin GLOBAL default (`PersonaManager` family key `__global__`). |
 | `story_router.py` | Story list/tell/personalized/bedtime routes. |
 | `streaming_router.py` | Event WebSocket, browser audio WebSocket, mom-talk start/stop/status, and mom audio WebSocket. |
 | `video_call_router.py` | Video call start/end, contacts, and history routes. |
@@ -111,8 +111,8 @@ src/
   pages/admin/       — AdminApp (sidebar shell, admin-only) + UsersAdminPage
                        (account management); further sections added per phase
   styles.css         — Design tokens, base styles, responsive layout
-  services/api.js    — All API/WebSocket/auth behavior (Tier 1 real + Tier 2 mock)
-  data/mockData.js   — Vietnamese mock data for Tier 2 features
+  services/api.js    — All API/WebSocket/auth behavior; radio/video/games/emotions return real backend data (empty when none) — no mock fallback. Knowledge explorer via knowledgeQuery().
+  data/mockData.js   — legacy Vietnamese mock data (no longer used as a runtime fallback)
   components/        — Sidebar, BottomNav, RobotStatusCard, UserCard,
                        SettingsOverlay, FeatureBadge, SectionState, Toast
   pages/             — LoginPage, HomePage, MonitorPage, LearningPage,

@@ -601,3 +601,32 @@ async def admin_overview_stats(_admin: dict = Depends(require_admin)):
         "youtube": {"global": len(youtube_lessons.list_global_channels()), "family": yt_family},
         "safety": safety,
     }
+
+
+# ── Persona MẶC ĐỊNH GLOBAL của Bi (admin) ────────────────────────────────────
+class GlobalPersonaIn(BaseModel):
+    name: str | None = Field(default=None, max_length=40)
+    gender: str | None = Field(default=None, max_length=10)
+    voice: str | None = Field(default=None, max_length=60)
+    language: str | None = Field(default=None, max_length=5)
+    personality: dict | None = None
+
+
+@router.get("/api/admin/persona")
+async def get_global_persona(_admin: dict = Depends(require_admin)):
+    """Persona mặc định GLOBAL — gia đình chưa tự cấu hình sẽ kế thừa.
+    (Role/vai trò là contextual theo hội thoại, không có cấu hình global.)"""
+    from src.ai.persona_manager import GLOBAL_PERSONA_FAMILY, PersonaManager
+    return {"persona": PersonaManager(GLOBAL_PERSONA_FAMILY).get_persona()}
+
+
+@router.post("/api/admin/persona")
+async def set_global_persona(body: GlobalPersonaIn, _admin: dict = Depends(require_admin)):
+    from src.ai.persona_manager import GLOBAL_PERSONA_FAMILY, PersonaManager
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not updates:
+        raise HTTPException(status_code=422, detail="Không có trường nào để cập nhật")
+    manager = PersonaManager(GLOBAL_PERSONA_FAMILY)
+    if not manager.save(updates):
+        raise HTTPException(status_code=422, detail="Persona không hợp lệ")
+    return {"ok": True, "persona": manager.get_persona()}

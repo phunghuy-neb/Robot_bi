@@ -1,14 +1,6 @@
 // Robot Bi Parent App — API Service Layer
 // Tier 1: Real backend (preserved behavior from legacy index.html)
-// Tier 2: Wired to backend with mock fallback when backend returns no data
-
-import {
-  mockRadioChannels,
-  mockVideoLessons,
-  mockMonthlyEmotions,
-  mockInteractiveGames,
-  mockSystemLogs,
-} from '../data/mockData.js';
+// Tier 2: Wired to backend; trả dữ liệu THẬT (rỗng nếu chưa có) — KHÔNG dùng mock giả.
 
 // —— Auth Storage ——
 let _token = localStorage.getItem('bi_token') || '';
@@ -288,21 +280,18 @@ export async function exportReport(fmt = 'csv', options = {}) {
 export async function getMonthlyEmotions(month) {
   const query = month ? `?month=${encodeURIComponent(month)}` : '';
   const data = await apiFetch(`/api/emotions/monthly${query}`);
-  const weeks = data?.weeks;
-  if (weeks?.length) {
-    return weeks.map((w, i) => {
-      const total = w.count || (w.happy + w.neutral + w.sad + w.stressed) || 1;
-      const pct = v => Math.round((v / total) * 100);
-      return {
-        week: `Tuần ${i + 1}`,
-        happy: pct(w.happy || 0),
-        neutral: pct(w.neutral || 0),
-        sad: pct(w.sad || 0),
-        stressed: pct(w.stressed || 0),
-      };
-    });
-  }
-  return mockMonthlyEmotions(month);
+  const weeks = data?.weeks || [];
+  return weeks.map((w, i) => {
+    const total = w.count || (w.happy + w.neutral + w.sad + w.stressed) || 1;
+    const pct = v => Math.round((v / total) * 100);
+    return {
+      week: `Tuần ${i + 1}`,
+      happy: pct(w.happy || 0),
+      neutral: pct(w.neutral || 0),
+      sad: pct(w.sad || 0),
+      stressed: pct(w.stressed || 0),
+    };
+  });
 }
 
 export async function getRoomLocation() {
@@ -313,50 +302,41 @@ export async function getRoomLocation() {
 export async function getRadioChannels() {
   const data = await apiFetch('/api/entertainment/radio');
   const items = data?.channels || data?.items || [];
-  if (items.length) {
-    return items.map(ch => ({
-      id: ch.content_id,
-      name: ch.title,
-      icon: '📻',
-      genre: ch.tags?.[0] || ch.description || '',
-      frequency: '',
-      url: ch.source_url || '',
-    }));
-  }
-  return mockRadioChannels();
+  return items.map(ch => ({
+    id: ch.content_id,
+    name: ch.title,
+    icon: '📻',
+    genre: ch.tags?.[0] || ch.description || '',
+    frequency: '',
+    url: ch.source_url || '',
+  }));
 }
 
 export async function getVideoLessons() {
   const data = await apiFetch('/api/entertainment/videos');
   const items = data?.videos || data?.items || [];
-  if (items.length) {
-    return items.map(v => ({
-      id: v.content_id,
-      title: v.title,
-      thumbnail: v.thumbnail_url || '🎬',
-      subject: v.tags?.[0] || '',
-      duration: v.duration || '',
-      age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
-      url: v.source_url || '',
-    }));
-  }
-  return mockVideoLessons();
+  return items.map(v => ({
+    id: v.content_id,
+    title: v.title,
+    thumbnail: v.thumbnail_url || '🎬',
+    subject: v.tags?.[0] || '',
+    duration: v.duration || '',
+    age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
+    url: v.source_url || '',
+  }));
 }
 
 export async function getInteractiveGames() {
   const data = await apiFetch('/api/games/interactive');
   const items = data?.games || data?.items || [];
-  if (items.length) {
-    return items.map(g => ({
-      id: g.content_id,
-      name: g.title,
-      icon: '🎮',
-      description: g.description || '',
-      difficulty: 'Trung bình',
-      age: (g.age_min != null && g.age_max != null) ? `${g.age_min}-${g.age_max}` : '',
-    }));
-  }
-  return mockInteractiveGames();
+  return items.map(g => ({
+    id: g.content_id,
+    name: g.title,
+    icon: '🎮',
+    description: g.description || '',
+    difficulty: 'Trung bình',
+    age: (g.age_min != null && g.age_max != null) ? `${g.age_min}-${g.age_max}` : '',
+  }));
 }
 
 export async function getSystemLogs() {
@@ -788,6 +768,19 @@ export async function adminDeleteContent(contentId) {
 // —— Thống kê tổng quan (admin) ——
 export async function adminGetStats() {
   return apiFetch('/api/admin/stats');
+}
+
+// —— Persona mặc định GLOBAL của Bi (admin) ——
+export async function adminGetPersona() {
+  const data = await apiFetch('/api/admin/persona');
+  return data?.persona || null;
+}
+
+export async function adminSetPersona(updates) {
+  return apiFetch('/api/admin/persona', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
 }
 
 // —— Nhật ký hệ thống (admin) với bộ lọc ——

@@ -7,6 +7,7 @@ import SafetyAdminPage from './SafetyAdminPage.jsx';
 import ContentAdminPage from './ContentAdminPage.jsx';
 import LogsAdminPage from './LogsAdminPage.jsx';
 import StatsAdminPage from './StatsAdminPage.jsx';
+import PersonaAdminPage from './PersonaAdminPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
@@ -17,6 +18,7 @@ const SECTIONS = [
   { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: true },
   { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: true },
   { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: true },
+  { key: 'persona',   label: 'Tính cách Bi',  icon: '🤖', ready: true },
   { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: true },
   { key: 'logs',      label: 'Nhật ký',       icon: '📋', ready: true },
   { key: 'stats',     label: 'Thống kê',      icon: '📊', ready: true },
@@ -74,6 +76,7 @@ export default function AdminApp({ user, onLogout }) {
         {section === 'content' && <ContentAdminPage />}
         {section === 'logs' && <LogsAdminPage />}
         {section === 'stats' && <StatsAdminPage />}
+        {section === 'persona' && <PersonaAdminPage />}
       </main>
 
       <Toast />

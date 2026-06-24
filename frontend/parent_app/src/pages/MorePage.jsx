@@ -22,6 +22,7 @@ export default function MorePage() {
   const [radioChannels, setRadioChannels] = useState([]);
   const [videoLessons, setVideoLessons] = useState([]);
   const [games, setGames] = useState([]);
+  const [loaded, setLoaded] = useState({ radio: false, video: false, games: false });
   const [showYtManager, setShowYtManager] = useState(false);
   const [showKnowledge, setShowKnowledge] = useState(false);
 
@@ -41,16 +42,19 @@ export default function MorePage() {
   async function loadRadio() {
     const data = await getRadioChannels();
     if (data) setRadioChannels(data);
+    setLoaded(s => ({ ...s, radio: true }));
   }
 
   async function loadVideos() {
     const data = await getVideoLessons();
     if (data) setVideoLessons(data);
+    setLoaded(s => ({ ...s, video: true }));
   }
 
   async function loadGames() {
     const data = await getInteractiveGames();
     if (data) setGames(data);
+    setLoaded(s => ({ ...s, games: true }));
   }
 
   function toggleMusicPlay() {
@@ -188,7 +192,8 @@ export default function MorePage() {
             <span className="card-title">📻 Radio</span>
           </div>
           {radioChannels.length === 0 ? (
-            <SectionState state="loading" loadingText="Đang tải kênh radio..." />
+            <SectionState state={loaded.radio ? 'empty' : 'loading'}
+              loadingText="Đang tải kênh radio..." emptyText="Chưa có kênh radio." emptyIcon="📻" />
           ) : (
             radioChannels.map(ch => (
               <div key={ch.id} className="media-card">
@@ -214,7 +219,8 @@ export default function MorePage() {
             <span className="card-title">🎬 Video học</span>
           </div>
           {videoLessons.length === 0 ? (
-            <SectionState state="loading" loadingText="Đang tải video..." />
+            <SectionState state={loaded.video ? 'empty' : 'loading'}
+              loadingText="Đang tải video..." emptyText="Chưa có video học." emptyIcon="🎬" />
           ) : (
             videoLessons.map(v => (
               <div key={v.id} className="media-card">
@@ -266,7 +272,8 @@ export default function MorePage() {
             <FeatureBadge type="coming-soon" />
           </div>
           {games.length === 0 ? (
-            <SectionState state="loading" loadingText="Đang tải trò chơi..." />
+            <SectionState state={loaded.games ? 'empty' : 'loading'}
+              loadingText="Đang tải trò chơi..." emptyText="Chưa có trò chơi." emptyIcon="🎮" />
           ) : (
             games.map(g => (
               <div key={g.id} className="media-card">

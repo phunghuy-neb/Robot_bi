@@ -7651,6 +7651,41 @@ def test_82_fetch_videos_real_path_cached():
 test("82.4  HTTP: /entertainment/videos merge video YouTube + dedup",          test_82_videos_endpoint_merges_youtube)
 test("82.5  fetch_videos: đường thật + cache (regression _get_cached)",        test_82_fetch_videos_real_path_cached)
 
+
+def test_82_title_safety_filter():
+    from src.entertainment import youtube_lessons as ytmod
+    # _title_is_safe: chủ đề nhạy cảm bị chặn, tiêu đề thường thì OK.
+    assert ytmod._title_is_safe("Học đếm số cùng bé") is True
+    assert ytmod._title_is_safe("chiến tranh và vũ khí") is False
+    # _fetch_channel: bỏ video có tiêu đề không an toàn (stub requests).
+    class _Resp:
+        def __init__(self, payload): self._p = payload; self.status_code = 200
+        def json(self): return self._p
+    calls = {"n": 0}
+    def fake_get(url, params=None, timeout=None):
+        calls["n"] += 1
+        if "playlistItems" in url:
+            return _Resp({"items": [
+                {"snippet": {"title": "Bài hát chữ cái ABC", "thumbnails": {}},
+                 "contentDetails": {"videoId": "SAFE1"}},
+                {"snippet": {"title": "phim chiến tranh bắn súng", "thumbnails": {}},
+                 "contentDetails": {"videoId": "BAD1"}},
+            ]})
+        return _Resp({"items": [{"id": "SAFE1", "contentDetails": {"duration": "PT5M"}}]})
+    saved = ytmod.requests.get
+    ytmod.requests.get = fake_get
+    try:
+        ch = {"channel_id": "UC" + "z" * 12, "label": "t", "language": "vi",
+              "age_min": 5, "age_max": 12, "tags": []}
+        items = ytmod.YouTubeLessons()._fetch_channel(ch)
+    finally:
+        ytmod.requests.get = saved
+    ids = [it["content_id"] for it in items]
+    assert ids == ["yt-SAFE1"], f"chỉ giữ video tiêu đề an toàn, có {ids}"
+
+
+test("82.6  Lọc tiêu đề video qua SafetyFilter",                              test_82_title_safety_filter)
+
 # == GROUP 83: Knowledge APIs (no-key, safe, graceful) =====================
 print("\n[Group 83] Knowledge APIs — external sources, safe + graceful")
 
@@ -8505,6 +8540,72 @@ test("90.1  Multipart audio → STT (stub) → chấm có estimated_200",       
 test("90.2  Số file ≠ số question_id → 422",                                 test_90_count_mismatch_422)
 test("90.3  STT rỗng → 422",                                                 test_90_empty_transcript_422)
 test("90.4  Đề không phải toeic_sw → 422",                                   test_90_non_sw_paper_422)
+
+# == GROUP 91: Admin persona mặc định GLOBAL ================================
+print("\n[Group 91] Admin — persona mặc định GLOBAL + kế thừa")
+
+
+def _clear_global_persona():
+    from src.infrastructure.database.db import get_db_connection
+    from src.ai.persona_manager import GLOBAL_PERSONA_FAMILY
+    try:
+        with get_db_connection() as conn:
+            conn.execute("DELETE FROM persona WHERE family_id = ?", (GLOBAL_PERSONA_FAMILY,))
+            conn.commit()
+    except Exception:
+        pass
+
+
+def test_91_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, hn = _admin_mk_user("pgusr", f"pgusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/admin/persona", headers=hn).status_code == 403
+    assert client.post("/api/admin/persona", json={"name": "X"}, headers=hn).status_code == 403
+
+
+def test_91_set_and_inherit():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.ai.persona_manager import PersonaManager
+    _, ha = _admin_mk_user("pgadm", f"pgadm-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        r = client.post("/api/admin/persona",
+                        json={"name": "Robi", "personality": {"playfulness": 90}}, headers=ha)
+        assert r.status_code == 200 and r.json()["persona"]["name"] == "Robi", r.text
+        assert client.get("/api/admin/persona", headers=ha).json()["persona"]["name"] == "Robi"
+        # Gia đình CHƯA cấu hình → kế thừa default global.
+        fresh = PersonaManager(f"freshfam-{_uuid.uuid4().hex[:6]}").get_persona()
+        assert fresh["name"] == "Robi", f"gia đình mới phải kế thừa, có {fresh['name']}"
+        assert fresh["personality"]["playfulness"] == 90
+        # Gia đình ĐÃ tự cấu hình → giữ của mình, không bị global đè.
+        own_fam = f"ownfam-{_uuid.uuid4().hex[:6]}"
+        own = PersonaManager(own_fam); own.save({"name": "Beo"})
+        assert PersonaManager(own_fam).get_persona()["name"] == "Beo"
+    finally:
+        _clear_global_persona()
+
+
+def test_91_invalid_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("pgbad", f"pgbad-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        # gender không hợp lệ → PersonaManager.save() từ chối → 422
+        r = client.post("/api/admin/persona", json={"gender": "alien"}, headers=ha)
+        assert r.status_code == 422, f"gender sai phải 422, có {r.status_code}"
+        # body rỗng → 422
+        assert client.post("/api/admin/persona", json={}, headers=ha).status_code == 422
+    finally:
+        _clear_global_persona()
+
+
+test("91.1  RBAC: non-admin bị chặn persona admin",                          test_91_rbac)
+test("91.2  Set persona global + gia đình mới kế thừa, gia đình cũ giữ riêng", test_91_set_and_inherit)
+test("91.3  Persona không hợp lệ / rỗng → 422",                              test_91_invalid_422)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
