@@ -1,0 +1,683 @@
+{
+  "subject": "life_skills",
+  "exams": [
+    {
+      "paper_id": "life_skills_exam_grade6_1",
+      "title": "Kỹ năng sống — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_co_ban",
+      "questions": [
+        {
+          "question": "Khi bị lạc ở nơi công cộng, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🧭",
+          "options": [
+            "tìm bảo vệ hoặc nhân viên nhờ giúp đỡ",
+            "đi theo người lạ",
+            "khóc và chạy lung tung",
+            "trốn vào góc khuất"
+          ],
+          "answer": "tìm bảo vệ hoặc nhân viên nhờ giúp đỡ",
+          "explanation": "Khi bị lạc nên tìm bảo vệ/nhân viên để nhờ giúp liên lạc với bố mẹ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi có người lạ rủ đi chơi hoặc cho quà, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "từ chối và báo cho bố mẹ, thầy cô",
+            "đi theo ngay",
+            "nhận quà rồi giấu",
+            "làm theo lời người lạ"
+          ],
+          "answer": "từ chối và báo cho bố mẹ, thầy cô",
+          "explanation": "Nên từ chối và báo người lớn tin cậy để bảo đảm an toàn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số điện thoại khẩn cấp của cảnh sát ở Việt Nam là số nào?",
+          "question_vi": "",
+          "emoji": "🚓",
+          "options": [
+            "113",
+            "114",
+            "115",
+            "116"
+          ],
+          "answer": "113",
+          "explanation": "Cảnh sát: 113.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số điện thoại gọi cứu hỏa ở Việt Nam là số nào?",
+          "question_vi": "",
+          "emoji": "🚒",
+          "options": [
+            "114",
+            "113",
+            "115",
+            "911"
+          ],
+          "answer": "114",
+          "explanation": "Cứu hỏa: 114.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số điện thoại gọi cấp cứu y tế ở Việt Nam là số nào?",
+          "question_vi": "",
+          "emoji": "🚑",
+          "options": [
+            "115",
+            "113",
+            "114",
+            "112"
+          ],
+          "answer": "115",
+          "explanation": "Cấp cứu y tế: 115.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi qua đường, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🚸",
+          "options": [
+            "quan sát kỹ và đi trên vạch kẻ dành cho người đi bộ",
+            "chạy thật nhanh qua đường",
+            "vừa đi vừa nhìn điện thoại",
+            "băng qua giữa dòng xe"
+          ],
+          "answer": "quan sát kỹ và đi trên vạch kẻ dành cho người đi bộ",
+          "explanation": "Qua đường an toàn cần quan sát kỹ và đi đúng vạch kẻ dành cho người đi bộ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi gặp đám cháy nhỏ trong nhà, việc đầu tiên nên làm là gì?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "báo người lớn và thoát ra nơi an toàn",
+            "trốn dưới gầm giường",
+            "quay lại lấy đồ chơi",
+            "mở hết cửa cho gió vào"
+          ],
+          "answer": "báo người lớn và thoát ra nơi an toàn",
+          "explanation": "Khi có cháy cần báo người lớn và thoát ra nơi an toàn, gọi 114.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để giữ lời hứa, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "cố gắng thực hiện điều mình đã hứa",
+            "hứa cho vui rồi quên",
+            "hứa nhiều mà không làm",
+            "đổ lỗi cho người khác"
+          ],
+          "answer": "cố gắng thực hiện điều mình đã hứa",
+          "explanation": "Giữ lời hứa nghĩa là cố gắng thực hiện điều mình đã hứa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi mắc lỗi với bạn, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "xin lỗi chân thành và sửa lỗi",
+            "đổ lỗi cho bạn",
+            "làm ngơ",
+            "giận dỗi"
+          ],
+          "answer": "xin lỗi chân thành và sửa lỗi",
+          "explanation": "Khi mắc lỗi nên xin lỗi chân thành và sửa lỗi.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_exam_grade10_1",
+      "title": "Kỹ năng sống — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_thcs",
+      "questions": [
+        {
+          "question": "Kỹ năng quản lý thời gian giúp em điều gì?",
+          "question_vi": "",
+          "emoji": "⏰",
+          "options": [
+            "sắp xếp công việc hợp lý, hoàn thành đúng hạn",
+            "lãng phí thời gian",
+            "luôn trễ giờ",
+            "làm việc lộn xộn"
+          ],
+          "answer": "sắp xếp công việc hợp lý, hoàn thành đúng hạn",
+          "explanation": "Quản lý thời gian giúp sắp xếp công việc và hoàn thành đúng hạn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi gặp một vấn đề khó, bước đầu tiên để giải quyết là gì?",
+          "question_vi": "",
+          "emoji": "🧩",
+          "options": [
+            "xác định rõ vấn đề là gì",
+            "bỏ cuộc ngay",
+            "đổ lỗi cho hoàn cảnh",
+            "làm bừa cho xong"
+          ],
+          "answer": "xác định rõ vấn đề là gì",
+          "explanation": "Giải quyết vấn đề bắt đầu bằng việc xác định rõ vấn đề.",
+          "difficulty": 3
+        },
+        {
+          "question": "Lắng nghe tích cực trong giao tiếp nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👂",
+          "options": [
+            "chú ý lắng nghe và phản hồi để hiểu đúng người nói",
+            "ngắt lời liên tục",
+            "vừa nghe vừa làm việc khác",
+            "phớt lờ người nói"
+          ],
+          "answer": "chú ý lắng nghe và phản hồi để hiểu đúng người nói",
+          "explanation": "Lắng nghe tích cực là tập trung nghe và phản hồi để hiểu đúng ý người nói.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khi bị căng thẳng (stress), cách lành mạnh để giải tỏa là gì?",
+          "question_vi": "",
+          "emoji": "😌",
+          "options": [
+            "tập thể dục, nghỉ ngơi, chia sẻ với người tin cậy",
+            "nhịn ăn",
+            "thức trắng đêm",
+            "trút giận lên người khác"
+          ],
+          "answer": "tập thể dục, nghỉ ngơi, chia sẻ với người tin cậy",
+          "explanation": "Cách lành mạnh giải tỏa stress: vận động, nghỉ ngơi, chia sẻ với người tin cậy.",
+          "difficulty": 3
+        },
+        {
+          "question": "Lập kế hoạch chi tiêu cá nhân giúp ích gì?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": [
+            "kiểm soát tiền bạc, tránh tiêu xài quá mức",
+            "luôn hết tiền sớm",
+            "không cần tiết kiệm",
+            "tiêu tùy hứng"
+          ],
+          "answer": "kiểm soát tiền bạc, tránh tiêu xài quá mức",
+          "explanation": "Kế hoạch chi tiêu giúp kiểm soát tiền bạc, tránh tiêu quá mức.",
+          "difficulty": 3
+        },
+        {
+          "question": "Làm việc nhóm hiệu quả đòi hỏi điều gì?",
+          "question_vi": "",
+          "emoji": "👥",
+          "options": [
+            "hợp tác, lắng nghe và tôn trọng ý kiến của nhau",
+            "ai cũng làm theo ý riêng",
+            "tranh cãi liên tục",
+            "một người làm hết"
+          ],
+          "answer": "hợp tác, lắng nghe và tôn trọng ý kiến của nhau",
+          "explanation": "Làm việc nhóm hiệu quả cần hợp tác, lắng nghe, tôn trọng lẫn nhau.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi không đồng ý với ý kiến của người khác, cách ứng xử văn minh là gì?",
+          "question_vi": "",
+          "emoji": "💬",
+          "options": [
+            "trình bày quan điểm một cách lịch sự, tôn trọng",
+            "công kích cá nhân",
+            "la hét",
+            "im lặng bỏ đi"
+          ],
+          "answer": "trình bày quan điểm một cách lịch sự, tôn trọng",
+          "explanation": "Ứng xử văn minh là trình bày quan điểm lịch sự, tôn trọng người khác.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đặt mục tiêu theo nguyên tắc SMART nghĩa là mục tiêu cần như thế nào?",
+          "question_vi": "",
+          "emoji": "🎯",
+          "options": [
+            "cụ thể, đo lường được, khả thi, thực tế và có thời hạn",
+            "mơ hồ",
+            "không có thời hạn",
+            "viển vông"
+          ],
+          "answer": "cụ thể, đo lường được, khả thi, thực tế và có thời hạn",
+          "explanation": "SMART: Specific, Measurable, Achievable, Realistic, Time-bound.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_exam_thpt_1",
+      "title": "Kỹ năng sống — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_thpt",
+      "questions": [
+        {
+          "question": "Kỹ năng tư duy phản biện (critical thinking) là gì?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": [
+            "khả năng phân tích, đánh giá thông tin khách quan trước khi kết luận",
+            "tin ngay mọi điều nghe được",
+            "luôn phản đối mọi ý kiến",
+            "không suy nghĩ gì"
+          ],
+          "answer": "khả năng phân tích, đánh giá thông tin khách quan trước khi kết luận",
+          "explanation": "Tư duy phản biện là phân tích, đánh giá thông tin một cách khách quan trước khi kết luận.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi nhận được một tin trên mạng xã hội, trước khi chia sẻ em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": [
+            "kiểm tra nguồn và tính xác thực của thông tin",
+            "chia sẻ ngay lập tức",
+            "tin tuyệt đối",
+            "thêm thắt cho hấp dẫn"
+          ],
+          "answer": "kiểm tra nguồn và tính xác thực của thông tin",
+          "explanation": "Nên kiểm chứng nguồn và độ tin cậy trước khi chia sẻ để tránh lan tin giả.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quản lý cảm xúc (EQ) tốt thể hiện ở điều gì?",
+          "question_vi": "",
+          "emoji": "😊",
+          "options": [
+            "nhận biết và điều tiết cảm xúc phù hợp với hoàn cảnh",
+            "luôn che giấu mọi cảm xúc",
+            "bùng nổ khi tức giận",
+            "vô cảm với người khác"
+          ],
+          "answer": "nhận biết và điều tiết cảm xúc phù hợp với hoàn cảnh",
+          "explanation": "EQ tốt là nhận biết và điều tiết cảm xúc bản thân phù hợp với hoàn cảnh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để xây dựng mối quan hệ tốt, yếu tố quan trọng nhất là gì?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "sự chân thành, tôn trọng và tin tưởng lẫn nhau",
+            "lợi dụng nhau",
+            "ganh đua",
+            "nói xấu sau lưng"
+          ],
+          "answer": "sự chân thành, tôn trọng và tin tưởng lẫn nhau",
+          "explanation": "Quan hệ tốt dựa trên chân thành, tôn trọng và tin tưởng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khi đặt mục tiêu nghề nghiệp, điều nên làm là gì?",
+          "question_vi": "",
+          "emoji": "💼",
+          "options": [
+            "tìm hiểu năng lực, sở thích bản thân và nhu cầu xã hội",
+            "chọn đại theo bạn bè",
+            "chỉ chạy theo trào lưu",
+            "không cần kế hoạch"
+          ],
+          "answer": "tìm hiểu năng lực, sở thích bản thân và nhu cầu xã hội",
+          "explanation": "Định hướng nghề nghiệp nên dựa trên năng lực, sở thích và nhu cầu xã hội.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kỹ năng thuyết trình hiệu quả cần điều gì?",
+          "question_vi": "",
+          "emoji": "🎤",
+          "options": [
+            "chuẩn bị nội dung, luyện tập và giao tiếp tự tin với người nghe",
+            "đọc nguyên văn không nhìn ai",
+            "nói thật nhanh cho xong",
+            "lờ người nghe"
+          ],
+          "answer": "chuẩn bị nội dung, luyện tập và giao tiếp tự tin với người nghe",
+          "explanation": "Thuyết trình hiệu quả cần chuẩn bị, luyện tập và tương tác tự tin với người nghe.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tinh thần tự học (self-learning) quan trọng vì sao?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "giúp con người chủ động tiếp thu kiến thức suốt đời",
+            "chỉ cần học khi bị ép",
+            "học xong là dừng hẳn",
+            "không cần thiết trong thời đại số"
+          ],
+          "answer": "giúp con người chủ động tiếp thu kiến thức suốt đời",
+          "explanation": "Tự học giúp ta chủ động tiếp thu kiến thức và phát triển suốt đời.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_hsg_school_1",
+      "title": "Kỹ năng sống — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_nang_cao",
+      "questions": [
+        {
+          "question": "Khi xảy ra động đất, kỹ năng an toàn cơ bản là gì?",
+          "question_vi": "",
+          "emoji": "🏚️",
+          "options": [
+            "cúi thấp, núp dưới bàn chắc chắn và che đầu",
+            "chạy ra thang máy",
+            "đứng cạnh cửa kính",
+            "đứng yên giữa phòng"
+          ],
+          "answer": "cúi thấp, núp dưới bàn chắc chắn và che đầu",
+          "explanation": "Khi động đất: cúi thấp, núp dưới bàn vững chắc và che đầu, tránh cửa kính/thang máy.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để tránh bị lừa đảo qua mạng, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": [
+            "không cung cấp thông tin cá nhân, mật khẩu, mã OTP cho người lạ",
+            "gửi mã OTP cho người gọi điện",
+            "bấm vào mọi đường link",
+            "tin vào “trúng thưởng” dễ dàng"
+          ],
+          "answer": "không cung cấp thông tin cá nhân, mật khẩu, mã OTP cho người lạ",
+          "explanation": "Tuyệt đối không cung cấp thông tin cá nhân, mật khẩu, OTP cho người lạ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi thấy bạn có dấu hiệu buồn bã, tuyệt vọng kéo dài, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "💙",
+          "options": [
+            "quan tâm, lắng nghe và báo người lớn tin cậy để giúp đỡ",
+            "mặc kệ",
+            "chê cười",
+            "kể cho nhiều người để trêu"
+          ],
+          "answer": "quan tâm, lắng nghe và báo người lớn tin cậy để giúp đỡ",
+          "explanation": "Nên quan tâm, lắng nghe và báo người lớn tin cậy để kịp thời giúp đỡ bạn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kỹ năng ra quyết định đúng đắn cần dựa trên điều gì?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "cân nhắc các lựa chọn và hậu quả của chúng",
+            "làm theo cảm tính nhất thời",
+            "để người khác quyết hết",
+            "tung đồng xu"
+          ],
+          "answer": "cân nhắc các lựa chọn và hậu quả của chúng",
+          "explanation": "Ra quyết định tốt cần cân nhắc các lựa chọn và hậu quả của chúng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi gặp thất bại, thái độ tích cực là gì?",
+          "question_vi": "",
+          "emoji": "💪",
+          "options": [
+            "xem đó là bài học để cố gắng và làm tốt hơn",
+            "bỏ cuộc hoàn toàn",
+            "đổ lỗi cho người khác",
+            "tự ti mãi"
+          ],
+          "answer": "xem đó là bài học để cố gắng và làm tốt hơn",
+          "explanation": "Thái độ tích cực là coi thất bại là bài học để tiến bộ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Để bảo vệ bản thân khỏi xâm hại, trẻ em cần nhớ quy tắc nào?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "không cho người khác chạm vào vùng kín và biết nói “Không”, “Đi khỏi”, “Kể lại”",
+            "luôn nghe lời mọi người lớn",
+            "giữ bí mật mọi điều",
+            "đi theo người lạ khi được cho quà"
+          ],
+          "answer": "không cho người khác chạm vào vùng kín và biết nói “Không”, “Đi khỏi”, “Kể lại”",
+          "explanation": "Quy tắc bảo vệ bản thân: không để người khác chạm vùng kín, biết nói Không, Đi khỏi và Kể lại với người tin cậy.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_hsg_district_1",
+      "title": "Kỹ năng sống — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_nang_cao",
+      "questions": [
+        {
+          "question": "Kỹ năng giải quyết xung đột hiệu quả nhất là gì?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "bình tĩnh đối thoại, tìm giải pháp đôi bên cùng chấp nhận",
+            "dùng bạo lực",
+            "im lặng thù dai",
+            "lôi kéo người khác về phe mình"
+          ],
+          "answer": "bình tĩnh đối thoại, tìm giải pháp đôi bên cùng chấp nhận",
+          "explanation": "Giải quyết xung đột tốt là bình tĩnh đối thoại, tìm giải pháp đôi bên cùng chấp nhận.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi dùng mạng xã hội, hành vi nào là văn minh và an toàn?",
+          "question_vi": "",
+          "emoji": "📱",
+          "options": [
+            "tôn trọng người khác và bảo vệ thông tin cá nhân",
+            "đăng tin chưa kiểm chứng",
+            "bình luận xúc phạm",
+            "công khai địa chỉ nhà"
+          ],
+          "answer": "tôn trọng người khác và bảo vệ thông tin cá nhân",
+          "explanation": "Ứng xử mạng văn minh: tôn trọng người khác, bảo vệ thông tin cá nhân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đồng cảm (empathy) là gì?",
+          "question_vi": "",
+          "emoji": "💞",
+          "options": [
+            "khả năng đặt mình vào vị trí và thấu hiểu cảm xúc của người khác",
+            "thờ ơ với người khác",
+            "chỉ nghĩ cho bản thân",
+            "phán xét vội vàng"
+          ],
+          "answer": "khả năng đặt mình vào vị trí và thấu hiểu cảm xúc của người khác",
+          "explanation": "Đồng cảm là khả năng thấu hiểu cảm xúc của người khác như đặt mình vào vị trí họ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kỹ năng quản lý tài chính cá nhân cơ bản gồm những việc nào?",
+          "question_vi": "",
+          "emoji": "💵",
+          "options": [
+            "lập ngân sách, tiết kiệm và chi tiêu hợp lý",
+            "tiêu hết ngay khi có tiền",
+            "vay mượn tùy tiện",
+            "không ghi chép gì"
+          ],
+          "answer": "lập ngân sách, tiết kiệm và chi tiêu hợp lý",
+          "explanation": "Quản lý tài chính cá nhân gồm lập ngân sách, tiết kiệm và chi tiêu hợp lý.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi tham gia giao thông, hành vi thể hiện văn hóa và an toàn là gì?",
+          "question_vi": "",
+          "emoji": "🚦",
+          "options": [
+            "tuân thủ luật, nhường đường, đội mũ bảo hiểm",
+            "vượt đèn đỏ khi vắng",
+            "lạng lách",
+            "bấm còi inh ỏi"
+          ],
+          "answer": "tuân thủ luật, nhường đường, đội mũ bảo hiểm",
+          "explanation": "Văn hóa giao thông an toàn: tuân thủ luật, nhường đường, đội mũ bảo hiểm.",
+          "difficulty": 3
+        },
+        {
+          "question": "Để rèn tính kiên trì, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🧗",
+          "options": [
+            "chia mục tiêu lớn thành các bước nhỏ và thực hiện đều đặn",
+            "bỏ cuộc khi gặp khó",
+            "đổi mục tiêu liên tục",
+            "chỉ làm khi có hứng"
+          ],
+          "answer": "chia mục tiêu lớn thành các bước nhỏ và thực hiện đều đặn",
+          "explanation": "Rèn kiên trì bằng cách chia mục tiêu lớn thành bước nhỏ và làm đều đặn.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_hsg_province_1",
+      "title": "Kỹ năng sống — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "ky_nang_chuyen_sau",
+      "questions": [
+        {
+          "question": "Kỹ năng lãnh đạo nhóm thể hiện rõ nhất qua điều gì?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "biết truyền cảm hứng, phân công hợp lý và lắng nghe thành viên",
+            "ra lệnh độc đoán",
+            "làm hết mọi việc một mình",
+            "đùn đẩy trách nhiệm"
+          ],
+          "answer": "biết truyền cảm hứng, phân công hợp lý và lắng nghe thành viên",
+          "explanation": "Lãnh đạo tốt biết truyền cảm hứng, phân công hợp lý và lắng nghe thành viên.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Vùng an toàn” (comfort zone) là gì và vì sao nên bước ra khỏi nó?",
+          "question_vi": "",
+          "emoji": "🚀",
+          "options": [
+            "là phạm vi quen thuộc, dễ chịu; bước ra giúp ta phát triển và trưởng thành hơn",
+            "là nơi nguy hiểm cần tránh tuyệt đối",
+            "là nơi không bao giờ nên rời",
+            "không liên quan đến phát triển bản thân"
+          ],
+          "answer": "là phạm vi quen thuộc, dễ chịu; bước ra giúp ta phát triển và trưởng thành hơn",
+          "explanation": "Vùng an toàn là phạm vi quen thuộc; bước ra khỏi nó (hợp lý) giúp ta phát triển.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi đối mặt với áp lực thi cử lớn, cách ứng phó lành mạnh là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": [
+            "lập kế hoạch ôn tập, nghỉ ngơi hợp lý và giữ tinh thần tích cực",
+            "thức trắng nhiều đêm liền",
+            "bỏ ăn để học",
+            "gian lận"
+          ],
+          "answer": "lập kế hoạch ôn tập, nghỉ ngơi hợp lý và giữ tinh thần tích cực",
+          "explanation": "Ứng phó áp lực thi cử lành mạnh: lập kế hoạch, nghỉ ngơi hợp lý, giữ tinh thần tích cực.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tư duy phát triển (growth mindset) là niềm tin rằng điều gì?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": [
+            "năng lực có thể cải thiện qua nỗ lực và rèn luyện",
+            "tài năng là bẩm sinh, không thể thay đổi",
+            "cố gắng là vô ích",
+            "thất bại là dấu chấm hết"
+          ],
+          "answer": "năng lực có thể cải thiện qua nỗ lực và rèn luyện",
+          "explanation": "Growth mindset tin rằng năng lực có thể phát triển qua nỗ lực và rèn luyện.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi làm việc nhóm mà có thành viên không hợp tác, cách xử lý khéo léo là gì?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "trao đổi thẳng thắn, tìm hiểu nguyên nhân và cùng tìm giải pháp",
+            "loại bỏ ngay thành viên đó",
+            "nói xấu sau lưng",
+            "làm thay toàn bộ"
+          ],
+          "answer": "trao đổi thẳng thắn, tìm hiểu nguyên nhân và cùng tìm giải pháp",
+          "explanation": "Nên trao đổi thẳng thắn, tìm hiểu nguyên nhân và cùng tìm giải pháp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để trở thành người tiêu dùng thông minh, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🛍️",
+          "options": [
+            "so sánh giá, chất lượng và chỉ mua thứ thực sự cần",
+            "mua theo cảm xúc tức thời",
+            "tin mọi quảng cáo",
+            "mua vì thấy người khác mua"
+          ],
+          "answer": "so sánh giá, chất lượng và chỉ mua thứ thực sự cần",
+          "explanation": "Người tiêu dùng thông minh so sánh giá, chất lượng và chỉ mua thứ thực sự cần.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
