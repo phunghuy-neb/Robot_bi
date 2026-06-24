@@ -37,6 +37,22 @@ from src.api.routers.conversation_router import _require_family
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+TOEIC_SW_SUBJECT = "toeic_sw"
+TOEIC_SPEAKING_TYPE = "toeic_speaking"
+TOEIC_WRITING_TYPE = "toeic_writing"
+TOEIC_SW_QUESTION_TYPES = {TOEIC_SPEAKING_TYPE, TOEIC_WRITING_TYPE}
+TOEIC_ESTIMATE_DISCLAIMER = "điểm Robot Bi ước tính, không phải điểm ETS chính thức"
+TOEIC_TASK_MAX_SCORES = {
+    "read_aloud": 3,
+    "email": 5,
+    "respond_to_questions": 3,
+    "describe_picture": 3,
+    "express_opinion": 5,
+    "opinion_essay": 5,
+    "speaking": 3,
+    "writing": 5,
+}
+
 
 # ── Display metadata (labels only; the available set is derived from the DB) ──
 SUBJECT_LABELS = {
@@ -346,6 +362,170 @@ class SubmitExam(BaseModel):
     time_spent_seconds: int = Field(default=0, ge=0)
 
 
+class SubmitToeicSW(BaseModel):
+    responses: dict[str, str] = Field(default_factory=dict)
+    transcripts: dict[str, str] = Field(default_factory=dict)
+    time_spent_seconds: int = Field(default=0, ge=0)
+    test_mode: bool = False
+
+
+def _rubric_max_for(item, skill: str) -> int:
+    topic = (item["topic"] or "").strip().lower()
+    qtype = (item["question_type"] or "").strip().lower()
+    if topic in TOEIC_TASK_MAX_SCORES:
+        return TOEIC_TASK_MAX_SCORES[topic]
+    if qtype == TOEIC_WRITING_TYPE or skill == "writing":
+        return TOEIC_TASK_MAX_SCORES["writing"]
+    return TOEIC_TASK_MAX_SCORES["speaking"]
+
+
+def _safe_json_object(raw: str) -> dict:
+    text = _FENCE_RE.sub("", raw or "").strip()
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        text = text[start:end + 1]
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError("grader did not return JSON object")
+    return data
+
+
+def _estimate_200(score: float, max_score: float) -> int:
+    if max_score <= 0:
+        return 0
+    return max(0, min(200, int(round((score / max_score) * 200))))
+
+
+def _offline_toeic_grade(text: str, max_score: int, skill: str) -> dict:
+    clean = (text or "").strip()
+    if not clean:
+        return {
+            "score": 0,
+            "max_score": max_score,
+            "feedback": "Chưa có câu trả lời để chấm. Hãy thử nói hoặc viết một câu ngắn trước nhé.",
+            "tips": ["Trả lời đủ ý chính.", "Dùng câu ngắn, rõ ràng."],
+        }
+    words = len(clean.split())
+    if skill == "writing":
+        score = min(max_score, max(1, round(words / 18)))
+    else:
+        score = min(max_score, max(1, round(words / 10)))
+    return {
+        "score": float(score),
+        "max_score": max_score,
+        "feedback": "Bài làm đã có nội dung rõ. Đây là chấm điểm offline để luyện tập.",
+        "tips": ["Nói/viết đủ ý hơn.", "Kiểm tra phát âm hoặc ngữ pháp ở câu chính."],
+    }
+
+
+def _llm_toeic_grade(prompt: str, answer_text: str, max_score: int, skill: str) -> dict:
+    if os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes"):
+        return _offline_toeic_grade(answer_text, max_score, skill)
+    if not answer_text.strip():
+        return _offline_toeic_grade(answer_text, max_score, skill)
+    try:
+        from src.ai.ai_engine import stream_chat
+
+        sys_ctx = (
+            "Bạn là giám khảo TOEIC Speaking & Writing cho luyện tập. "
+            "Chỉ trả về JSON hợp lệ, không markdown. "
+            f"Điểm tối đa của task là {max_score}."
+        )
+        user_prompt = (
+            f"Skill: {skill}. Prompt: {prompt}\n"
+            f"Learner answer/transcript: {answer_text}\n"
+            "Trả về JSON object dạng: "
+            '{"score": number, "max_score": number, "feedback": "...", "tips": ["..."]}. '
+            "score phải nằm trong 0..max_score."
+        )
+        raw = "".join(stream_chat([{"role": "user", "content": user_prompt}], system_context=sys_ctx, role="teacher"))
+        data = _safe_json_object(raw)
+        score = float(data.get("score", 0))
+        score = max(0.0, min(float(max_score), score))
+        tips = data.get("tips") if isinstance(data.get("tips"), list) else []
+        return {
+            "score": score,
+            "max_score": max_score,
+            "feedback": str(data.get("feedback") or "Bi đã chấm xong bài luyện tập."),
+            "tips": [str(t)[:200] for t in tips[:3]],
+        }
+    except Exception as e:
+        logger.warning("[toeic_sw] grader fallback: %s", e)
+        return _offline_toeic_grade(answer_text, max_score, skill)
+
+
+def _load_paper_items(conn, paper_id: str):
+    paper = conn.execute(
+        "SELECT * FROM exam_papers WHERE paper_id = ? AND status = 'published'",
+        (paper_id,),
+    ).fetchone()
+    if not paper:
+        raise HTTPException(status_code=404, detail="Exam paper not found")
+    items = conn.execute(
+        """SELECT q.question_id, q.answer, q.explanation, q.question_type,
+                  q.question, q.question_vi, q.topic, pq.points, pq.order_index
+           FROM exam_paper_questions pq
+           JOIN question_bank q ON q.question_id = pq.question_id
+           WHERE pq.paper_id = ? ORDER BY pq.order_index""",
+        (paper_id,),
+    ).fetchall()
+    return paper, items
+
+
+def _grade_toeic_sw_attempt(paper, items, body: SubmitToeicSW, skill: str) -> dict:
+    review = []
+    score = 0.0
+    max_score = 0.0
+    responses = body.responses or {}
+    transcripts = body.transcripts or {}
+    for it in items:
+        qid = it["question_id"]
+        qtype = (it["question_type"] or "").strip().lower()
+        if qtype not in TOEIC_SW_QUESTION_TYPES:
+            continue
+        answer_text = (transcripts.get(qid) if skill == "speaking" else responses.get(qid)) or ""
+        answer_text = answer_text.strip()
+        task_max = _rubric_max_for(it, skill)
+        prompt_text = it["question_vi"] or it["question"] or ""
+        grade = _llm_toeic_grade(prompt_text, answer_text, task_max, skill)
+        q_score = float(grade["score"])
+        q_max = float(grade["max_score"])
+        score += q_score
+        max_score += q_max
+        review.append({
+            "question_id": qid,
+            "order_index": it["order_index"],
+            "question_type": qtype,
+            "skill": skill,
+            "given": answer_text,
+            "score": q_score,
+            "max_score": q_max,
+            "estimated_200": _estimate_200(q_score, q_max),
+            "feedback": grade["feedback"],
+            "tips": grade.get("tips", []),
+            "auto_graded": True,
+        })
+    percent = round(score * 100.0 / max_score, 1) if max_score > 0 else 0.0
+    return {
+        "score": score,
+        "max_score": max_score,
+        "percent": percent,
+        "passed": percent >= paper["pass_percent"] if max_score > 0 else False,
+        "review": review,
+        "estimated_200": _estimate_200(score, max_score),
+        "disclaimer": TOEIC_ESTIMATE_DISCLAIMER,
+        "answers_payload": {
+            "responses": responses,
+            "transcripts": transcripts,
+            "rubric": {r["question_id"]: r for r in review},
+            "estimated_200": _estimate_200(score, max_score),
+            "disclaimer": TOEIC_ESTIMATE_DISCLAIMER,
+            "grader": {"mode": "offline" if os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes") else "llm_or_fallback"},
+        },
+    }
+
+
 @router.post("/api/learning/exams/{paper_id}/submit")
 async def submit_exam(
     paper_id: str,
@@ -430,6 +610,75 @@ async def submit_exam(
         "pass_percent": paper["pass_percent"],
         "review": review,
     }
+
+
+@router.post("/api/learning/exams/{paper_id}/submit-toeic-sw")
+async def submit_toeic_sw(
+    paper_id: str,
+    body: SubmitToeicSW,
+    current_user: dict = Depends(get_current_user),
+):
+    family_id = _require_family(current_user)
+    with get_db_connection() as conn:
+        paper, items = _load_paper_items(conn, paper_id)
+        if paper["subject"] != TOEIC_SW_SUBJECT:
+            raise HTTPException(status_code=422, detail="Paper is not TOEIC S&W")
+        skill = (paper["skill"] or "writing").strip().lower()
+        if skill not in {"speaking", "writing"}:
+            skill = "speaking" if any((it["question_type"] or "") == TOEIC_SPEAKING_TYPE for it in items) else "writing"
+        graded = _grade_toeic_sw_attempt(paper, items, body, skill)
+        if not graded["review"]:
+            raise HTTPException(status_code=422, detail="No TOEIC S&W questions to grade")
+        session_id = uuid4().hex
+        now = _utc_now()
+        conn.execute(
+            """INSERT INTO exam_sessions
+               (session_id, family_id, paper_id, started_at, completed_at,
+                score, max_score, correct_count, total_questions,
+                time_spent_seconds, answers_json, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed')""",
+            (
+                session_id,
+                family_id,
+                paper_id,
+                now,
+                now,
+                graded["score"],
+                graded["max_score"],
+                0,
+                len(graded["review"]),
+                int(body.time_spent_seconds),
+                json.dumps(graded["answers_payload"], ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+    return {
+        "ok": True,
+        "session_id": session_id,
+        "score": graded["score"],
+        "max_score": graded["max_score"],
+        "percent": graded["percent"],
+        "correct_count": 0,
+        "total_questions": len(graded["review"]),
+        "passed": graded["passed"],
+        "pass_percent": paper["pass_percent"],
+        "estimated_200": graded["estimated_200"],
+        "disclaimer": graded["disclaimer"],
+        "review": graded["review"],
+    }
+
+
+@router.post("/api/learning/exams/{paper_id}/submit-speaking")
+async def submit_toeic_speaking(
+    paper_id: str,
+    body: SubmitToeicSW,
+    current_user: dict = Depends(get_current_user),
+):
+    # MVP testable path: callers provide transcripts. Browser multipart upload is
+    # intentionally deferred until python-multipart is added to the dependency set.
+    if not body.transcripts:
+        raise HTTPException(status_code=422, detail="Transcript is required for speaking submission")
+    return await submit_toeic_sw(paper_id, body, current_user)
 
 
 # ── Admin: AI generation + review pipeline ────────────────────────────────────
