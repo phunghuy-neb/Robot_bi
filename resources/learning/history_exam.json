@@ -1,0 +1,683 @@
+{
+  "subject": "history",
+  "exams": [
+    {
+      "paper_id": "history_exam_grade6_1",
+      "title": "Lịch sử — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "lich_su_co_ban",
+      "questions": [
+        {
+          "question": "Các Vua Hùng đã dựng nên nước ta với tên gọi đầu tiên là gì?",
+          "question_vi": "",
+          "emoji": "🏯",
+          "options": [
+            "Văn Lang",
+            "Âu Lạc",
+            "Đại Việt",
+            "Việt Nam"
+          ],
+          "answer": "Văn Lang",
+          "explanation": "Nhà nước đầu tiên của người Việt là Văn Lang, do các Vua Hùng đứng đầu.",
+          "difficulty": 1
+        },
+        {
+          "question": "Ai lãnh đạo cuộc khởi nghĩa chống quân Hán năm 40?",
+          "question_vi": "",
+          "emoji": "🐘",
+          "options": [
+            "Trưng Trắc và Trưng Nhị",
+            "Bà Triệu",
+            "Lý Bí",
+            "Ngô Quyền"
+          ],
+          "answer": "Trưng Trắc và Trưng Nhị",
+          "explanation": "Hai Bà Trưng (Trưng Trắc, Trưng Nhị) lãnh đạo khởi nghĩa năm 40.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chiến thắng Bạch Đằng năm 938 chấm dứt hơn 1000 năm Bắc thuộc do ai lãnh đạo?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "Ngô Quyền",
+            "Lý Thường Kiệt",
+            "Trần Hưng Đạo",
+            "Lê Lợi"
+          ],
+          "answer": "Ngô Quyền",
+          "explanation": "Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng năm 938.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ai là vị vua sáng lập nhà Lý, dời đô về Thăng Long?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "Lý Công Uẩn (Lý Thái Tổ)",
+            "Lý Thường Kiệt",
+            "Trần Thái Tông",
+            "Lê Lợi"
+          ],
+          "answer": "Lý Công Uẩn (Lý Thái Tổ)",
+          "explanation": "Lý Công Uẩn lập nhà Lý và dời đô về Thăng Long năm 1010.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kinh đô Thăng Long xưa nay là thành phố nào?",
+          "question_vi": "",
+          "emoji": "🏙️",
+          "options": [
+            "Hà Nội",
+            "Huế",
+            "TP. Hồ Chí Minh",
+            "Đà Nẵng"
+          ],
+          "answer": "Hà Nội",
+          "explanation": "Thăng Long chính là Hà Nội ngày nay.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vị anh hùng ba lần lãnh đạo đánh thắng quân Mông – Nguyên là ai?",
+          "question_vi": "",
+          "emoji": "⚔️",
+          "options": [
+            "Trần Hưng Đạo",
+            "Lý Thường Kiệt",
+            "Quang Trung",
+            "Lê Lợi"
+          ],
+          "answer": "Trần Hưng Đạo",
+          "explanation": "Trần Hưng Đạo (Trần Quốc Tuấn) lãnh đạo ba lần kháng chiến chống Mông – Nguyên.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ai lãnh đạo cuộc khởi nghĩa Lam Sơn đánh đuổi quân Minh?",
+          "question_vi": "",
+          "emoji": "🗡️",
+          "options": [
+            "Lê Lợi",
+            "Nguyễn Trãi",
+            "Quang Trung",
+            "Đinh Bộ Lĩnh"
+          ],
+          "answer": "Lê Lợi",
+          "explanation": "Lê Lợi lãnh đạo khởi nghĩa Lam Sơn; Nguyễn Trãi là quân sư.",
+          "difficulty": 2
+        },
+        {
+          "question": "Người dẹp loạn 12 sứ quân, thống nhất đất nước và lập ra nhà Đinh là ai?",
+          "question_vi": "",
+          "emoji": "🏰",
+          "options": [
+            "Đinh Bộ Lĩnh",
+            "Ngô Quyền",
+            "Lý Công Uẩn",
+            "Lê Hoàn"
+          ],
+          "answer": "Đinh Bộ Lĩnh",
+          "explanation": "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân, lập nước Đại Cồ Việt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ngày Quốc khánh nước ta là ngày nào?",
+          "question_vi": "",
+          "emoji": "🎉",
+          "options": [
+            "2 tháng 9",
+            "30 tháng 4",
+            "1 tháng 5",
+            "20 tháng 11"
+          ],
+          "answer": "2 tháng 9",
+          "explanation": "Ngày 2/9/1945, Bác Hồ đọc Tuyên ngôn Độc lập, khai sinh nước Việt Nam Dân chủ Cộng hòa.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "history_exam_grade10_1",
+      "title": "Lịch sử — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "lich_su_thcs",
+      "questions": [
+        {
+          "question": "Vua Quang Trung (Nguyễn Huệ) đại phá quân Thanh vào mùa xuân năm nào?",
+          "question_vi": "",
+          "emoji": "🐎",
+          "options": [
+            "năm 1789 (Kỷ Dậu)",
+            "năm 1288",
+            "năm 1428",
+            "năm 1858"
+          ],
+          "answer": "năm 1789 (Kỷ Dậu)",
+          "explanation": "Quang Trung đại phá quân Thanh trong Tết Kỷ Dậu 1789.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhà Nguyễn thành lập năm 1802 do ai sáng lập?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "Nguyễn Ánh (Gia Long)",
+            "Quang Trung",
+            "Lê Lợi",
+            "Trịnh Kiểm"
+          ],
+          "answer": "Nguyễn Ánh (Gia Long)",
+          "explanation": "Nguyễn Ánh lên ngôi năm 1802, lấy niên hiệu Gia Long, lập nhà Nguyễn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thực dân Pháp nổ súng xâm lược Việt Nam đầu tiên (1858) ở đâu?",
+          "question_vi": "",
+          "emoji": "💥",
+          "options": [
+            "Đà Nẵng",
+            "Gia Định",
+            "Hà Nội",
+            "Huế"
+          ],
+          "answer": "Đà Nẵng",
+          "explanation": "Ngày 1/9/1858, liên quân Pháp – Tây Ban Nha nổ súng tấn công Đà Nẵng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đảng Cộng sản Việt Nam được thành lập vào năm nào?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": [
+            "năm 1930",
+            "năm 1945",
+            "năm 1954",
+            "năm 1975"
+          ],
+          "answer": "năm 1930",
+          "explanation": "Đảng Cộng sản Việt Nam được thành lập ngày 3/2/1930.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cách mạng Tháng Tám thành công vào năm nào?",
+          "question_vi": "",
+          "emoji": "✊",
+          "options": [
+            "năm 1945",
+            "năm 1930",
+            "năm 1954",
+            "năm 1975"
+          ],
+          "answer": "năm 1945",
+          "explanation": "Cách mạng Tháng Tám thành công năm 1945.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chiến thắng Điện Biên Phủ “lừng lẫy năm châu, chấn động địa cầu” diễn ra năm nào?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": [
+            "năm 1954",
+            "năm 1945",
+            "năm 1968",
+            "năm 1975"
+          ],
+          "answer": "năm 1954",
+          "explanation": "Chiến thắng Điện Biên Phủ diễn ra năm 1954.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đất nước Việt Nam thống nhất sau chiến thắng ngày 30/4 năm nào?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "năm 1975",
+            "năm 1954",
+            "năm 1945",
+            "năm 1973"
+          ],
+          "answer": "năm 1975",
+          "explanation": "Ngày 30/4/1975, miền Nam được giải phóng, đất nước thống nhất.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bản Tuyên ngôn Độc lập khai sinh nước Việt Nam Dân chủ Cộng hòa do ai đọc?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "Chủ tịch Hồ Chí Minh",
+            "Đại tướng Võ Nguyên Giáp",
+            "Tôn Đức Thắng",
+            "Trường Chinh"
+          ],
+          "answer": "Chủ tịch Hồ Chí Minh",
+          "explanation": "Ngày 2/9/1945, Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập tại Quảng trường Ba Đình.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "history_exam_thpt_1",
+      "title": "Lịch sử — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lich_su_thpt",
+      "questions": [
+        {
+          "question": "Hiệp định Giơ-ne-vơ (Geneva) về Đông Dương được ký năm nào?",
+          "question_vi": "",
+          "emoji": "✍️",
+          "options": [
+            "năm 1954",
+            "năm 1945",
+            "năm 1973",
+            "năm 1975"
+          ],
+          "answer": "năm 1954",
+          "explanation": "Hiệp định Giơ-ne-vơ được ký năm 1954, sau chiến thắng Điện Biên Phủ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiệp định Pa-ri về chấm dứt chiến tranh, lập lại hòa bình ở Việt Nam ký năm nào?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "năm 1973",
+            "năm 1954",
+            "năm 1968",
+            "năm 1975"
+          ],
+          "answer": "năm 1973",
+          "explanation": "Hiệp định Pa-ri được ký ngày 27/1/1973.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cuộc Tổng tiến công và nổi dậy Tết Mậu Thân diễn ra năm nào?",
+          "question_vi": "",
+          "emoji": "🎆",
+          "options": [
+            "năm 1968",
+            "năm 1954",
+            "năm 1972",
+            "năm 1975"
+          ],
+          "answer": "năm 1968",
+          "explanation": "Tổng tiến công và nổi dậy Tết Mậu Thân diễn ra năm 1968.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chiến dịch giải phóng Sài Gòn, kết thúc cuộc kháng chiến năm 1975 mang tên gì?",
+          "question_vi": "",
+          "emoji": "🎖️",
+          "options": [
+            "Chiến dịch Hồ Chí Minh",
+            "Chiến dịch Điện Biên Phủ",
+            "Chiến dịch Biên giới",
+            "Chiến dịch Tây Nguyên"
+          ],
+          "answer": "Chiến dịch Hồ Chí Minh",
+          "explanation": "Chiến dịch Hồ Chí Minh (4/1975) giải phóng Sài Gòn, kết thúc chiến tranh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Công cuộc Đổi mới ở Việt Nam được khởi xướng từ Đại hội Đảng VI năm nào?",
+          "question_vi": "",
+          "emoji": "🔄",
+          "options": [
+            "năm 1986",
+            "năm 1976",
+            "năm 1996",
+            "năm 2006"
+          ],
+          "answer": "năm 1986",
+          "explanation": "Đại hội VI (1986) khởi xướng công cuộc Đổi mới.",
+          "difficulty": 3
+        },
+        {
+          "question": "Việt Nam gia nhập Hiệp hội các quốc gia Đông Nam Á (ASEAN) năm nào?",
+          "question_vi": "",
+          "emoji": "🌏",
+          "options": [
+            "năm 1995",
+            "năm 1986",
+            "năm 2007",
+            "năm 1977"
+          ],
+          "answer": "năm 1995",
+          "explanation": "Việt Nam gia nhập ASEAN năm 1995.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chiến tranh thế giới thứ hai kết thúc vào năm nào?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "năm 1945",
+            "năm 1918",
+            "năm 1939",
+            "năm 1954"
+          ],
+          "answer": "năm 1945",
+          "explanation": "Chiến tranh thế giới thứ hai kết thúc năm 1945.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "history_hsg_school_1",
+      "title": "Lịch sử — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lich_su_nang_cao",
+      "questions": [
+        {
+          "question": "Bộ luật thành văn đầu tiên của nước ta (thời Lý) có tên là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": [
+            "Hình thư",
+            "Quốc triều hình luật",
+            "Luật Hồng Đức",
+            "Hoàng Việt luật lệ"
+          ],
+          "answer": "Hình thư",
+          "explanation": "Bộ Hình thư (1042) là bộ luật thành văn đầu tiên của nước ta, ban hành thời Lý.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Nam quốc sơn hà” – được xem là bản tuyên ngôn độc lập đầu tiên – tương truyền của ai?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "Lý Thường Kiệt",
+            "Trần Hưng Đạo",
+            "Nguyễn Trãi",
+            "Lê Lợi"
+          ],
+          "answer": "Lý Thường Kiệt",
+          "explanation": "Bài thơ “Nam quốc sơn hà” tương truyền gắn với Lý Thường Kiệt trong kháng chiến chống Tống.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lý Thường Kiệt đánh bại quân Tống trên phòng tuyến sông nào?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "sông Như Nguyệt (sông Cầu)",
+            "sông Bạch Đằng",
+            "sông Hồng",
+            "sông Mã"
+          ],
+          "answer": "sông Như Nguyệt (sông Cầu)",
+          "explanation": "Phòng tuyến sông Như Nguyệt (sông Cầu) là nơi quân Lý chặn đánh quân Tống.",
+          "difficulty": 4
+        },
+        {
+          "question": "Triều đại nào tổ chức Hội nghị Diên Hồng để hỏi ý dân về việc đánh quân Mông – Nguyên?",
+          "question_vi": "",
+          "emoji": "👴",
+          "options": [
+            "nhà Trần",
+            "nhà Lý",
+            "nhà Lê",
+            "nhà Nguyễn"
+          ],
+          "answer": "nhà Trần",
+          "explanation": "Hội nghị Diên Hồng do nhà Trần tổ chức để hỏi ý các bậc phụ lão.",
+          "difficulty": 4
+        },
+        {
+          "question": "Người biên soạn bộ “Đại Việt sử ký” – bộ quốc sử đầu tiên của nước ta – là ai?",
+          "question_vi": "",
+          "emoji": "✒️",
+          "options": [
+            "Lê Văn Hưu",
+            "Ngô Sĩ Liên",
+            "Nguyễn Trãi",
+            "Phan Bội Châu"
+          ],
+          "answer": "Lê Văn Hưu",
+          "explanation": "Lê Văn Hưu (thời Trần) soạn “Đại Việt sử ký”, bộ quốc sử đầu tiên.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Bình Ngô đại cáo” của Nguyễn Trãi tổng kết cuộc kháng chiến chống quân xâm lược nào?",
+          "question_vi": "",
+          "emoji": "🗡️",
+          "options": [
+            "quân Minh",
+            "quân Thanh",
+            "quân Tống",
+            "quân Mông – Nguyên"
+          ],
+          "answer": "quân Minh",
+          "explanation": "“Bình Ngô đại cáo” tổng kết thắng lợi cuộc kháng chiến chống quân Minh.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "history_hsg_district_1",
+      "title": "Lịch sử — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lich_su_nang_cao",
+      "questions": [
+        {
+          "question": "Phong trào Cần Vương cuối thế kỷ XIX gắn với vị vua nào?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "vua Hàm Nghi",
+            "vua Tự Đức",
+            "vua Gia Long",
+            "vua Bảo Đại"
+          ],
+          "answer": "vua Hàm Nghi",
+          "explanation": "Phong trào Cần Vương gắn với chiếu Cần Vương của vua Hàm Nghi (1885).",
+          "difficulty": 4
+        },
+        {
+          "question": "Nguyễn Tất Thành ra đi tìm đường cứu nước năm 1911 từ bến cảng nào?",
+          "question_vi": "",
+          "emoji": "🚢",
+          "options": [
+            "bến cảng Nhà Rồng (Sài Gòn)",
+            "cảng Hải Phòng",
+            "cảng Đà Nẵng",
+            "cảng Cam Ranh"
+          ],
+          "answer": "bến cảng Nhà Rồng (Sài Gòn)",
+          "explanation": "Ngày 5/6/1911, Nguyễn Tất Thành ra đi từ bến cảng Nhà Rồng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tổ chức tiền thân của Đảng do Nguyễn Ái Quốc sáng lập năm 1925 ở Quảng Châu là gì?",
+          "question_vi": "",
+          "emoji": "📕",
+          "options": [
+            "Hội Việt Nam Cách mạng Thanh niên",
+            "Việt Nam Quốc dân Đảng",
+            "Tân Việt Cách mạng Đảng",
+            "Mặt trận Việt Minh"
+          ],
+          "answer": "Hội Việt Nam Cách mạng Thanh niên",
+          "explanation": "Hội Việt Nam Cách mạng Thanh niên (1925) là tổ chức tiền thân của Đảng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Mặt trận Việt Minh được thành lập (1941) tại đâu, do ai chủ trì?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": [
+            "Pác Bó (Cao Bằng), do Nguyễn Ái Quốc chủ trì",
+            "Hà Nội, do Trường Chinh chủ trì",
+            "Sài Gòn, do Tôn Đức Thắng chủ trì",
+            "Huế, do Phan Bội Châu chủ trì"
+          ],
+          "answer": "Pác Bó (Cao Bằng), do Nguyễn Ái Quốc chủ trì",
+          "explanation": "Mặt trận Việt Minh ra đời tại Hội nghị Trung ương 8 (5/1941) ở Pác Bó, do Nguyễn Ái Quốc chủ trì.",
+          "difficulty": 4
+        },
+        {
+          "question": "Chiến dịch Biên giới thu – đông năm 1950 nhằm mục đích chính nào?",
+          "question_vi": "",
+          "emoji": "🗺️",
+          "options": [
+            "khai thông biên giới Việt – Trung, mở rộng căn cứ địa",
+            "giải phóng Thủ đô Hà Nội",
+            "kết thúc chiến tranh ngay lập tức",
+            "đánh úp Sài Gòn"
+          ],
+          "answer": "khai thông biên giới Việt – Trung, mở rộng căn cứ địa",
+          "explanation": "Chiến dịch Biên giới 1950 nhằm khai thông biên giới Việt – Trung, mở rộng và củng cố căn cứ địa Việt Bắc.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Chiếu dời đô” được Lý Công Uẩn ban hành năm nào, dời đô từ Hoa Lư về Thăng Long?",
+          "question_vi": "",
+          "emoji": "🏯",
+          "options": [
+            "năm 1010",
+            "năm 938",
+            "năm 1075",
+            "năm 1428"
+          ],
+          "answer": "năm 1010",
+          "explanation": "Năm 1010, Lý Công Uẩn ban Chiếu dời đô, dời từ Hoa Lư về Thăng Long.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "history_hsg_province_1",
+      "title": "Lịch sử — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lich_su_chuyen_sau",
+      "questions": [
+        {
+          "question": "Nhà nước Âu Lạc do ai lập ra, với thành Cổ Loa nổi tiếng?",
+          "question_vi": "",
+          "emoji": "🏰",
+          "options": [
+            "An Dương Vương (Thục Phán)",
+            "Hùng Vương",
+            "Triệu Đà",
+            "Hai Bà Trưng"
+          ],
+          "answer": "An Dương Vương (Thục Phán)",
+          "explanation": "An Dương Vương (Thục Phán) lập nước Âu Lạc, xây thành Cổ Loa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khoa thi Nho học đầu tiên để chọn nhân tài ở nước ta (1075) tổ chức dưới triều đại nào?",
+          "question_vi": "",
+          "emoji": "🎓",
+          "options": [
+            "nhà Lý",
+            "nhà Trần",
+            "nhà Lê",
+            "nhà Đinh"
+          ],
+          "answer": "nhà Lý",
+          "explanation": "Khoa thi đầu tiên năm 1075 được tổ chức dưới triều Lý (Lý Nhân Tông).",
+          "difficulty": 4
+        },
+        {
+          "question": "Văn Miếu – Quốc Tử Giám, được coi là trường đại học đầu tiên của nước ta, xây dưới triều nào?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "nhà Lý",
+            "nhà Nguyễn",
+            "nhà Hồ",
+            "nhà Mạc"
+          ],
+          "answer": "nhà Lý",
+          "explanation": "Văn Miếu (1070) và Quốc Tử Giám (1076) được xây dựng dưới triều Lý.",
+          "difficulty": 4
+        },
+        {
+          "question": "Cải cách của Hồ Quý Ly cuối thế kỷ XIV – đầu XV có nội dung nổi bật nào về tiền tệ?",
+          "question_vi": "",
+          "emoji": "💵",
+          "options": [
+            "phát hành tiền giấy",
+            "bãi bỏ mọi loại thuế",
+            "chia lại ruộng đất cho quý tộc",
+            "mở cảng tự do cho thương nhân nước ngoài"
+          ],
+          "answer": "phát hành tiền giấy",
+          "explanation": "Hồ Quý Ly cho phát hành tiền giấy (“Thông bảo hội sao”) thay tiền đồng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hội nghị Trung ương Đảng tháng 5/1941 xác định nhiệm vụ hàng đầu của cách mạng lúc đó là gì?",
+          "question_vi": "",
+          "emoji": "🚩",
+          "options": [
+            "giải phóng dân tộc",
+            "cải cách ruộng đất ngay lập tức",
+            "công nghiệp hóa đất nước",
+            "hội nhập kinh tế quốc tế"
+          ],
+          "answer": "giải phóng dân tộc",
+          "explanation": "Hội nghị Trung ương 8 (5/1941) đặt nhiệm vụ giải phóng dân tộc lên hàng đầu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sự kiện nào đánh dấu Việt Nam trở thành thành viên thứ 150 của Tổ chức Thương mại Thế giới?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "Việt Nam gia nhập WTO năm 2007",
+            "gia nhập ASEAN năm 1995",
+            "bình thường hóa quan hệ với Mỹ năm 1995",
+            "gia nhập Liên Hợp Quốc năm 1977"
+          ],
+          "answer": "Việt Nam gia nhập WTO năm 2007",
+          "explanation": "Năm 2007, Việt Nam chính thức trở thành thành viên thứ 150 của WTO.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
