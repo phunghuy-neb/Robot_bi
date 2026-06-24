@@ -15,6 +15,24 @@
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
+- **Video lessons qua YouTube (allowlist kênh) — ✅ DONE (UNCOMMITTED phiên này):**
+  Thay mock `mockVideoLessons` bằng nguồn thật từ YouTube nhưng AN TOÀN: chỉ lấy video từ
+  DANH SÁCH KÊNH ĐÃ DUYỆT, không search mở.
+  - `src/entertainment/youtube_lessons.py` (MỚI): class `YouTubeLessons` + singleton. Đọc
+    `YOUTUBE_API_KEY` từ `.env` + allowlist `resources/youtube_channels.json`. Lấy video qua
+    playlist "uploads" của kênh (UC…→UU…, rẻ quota 1 unit/kênh) + `videos.list` lấy duration.
+    Cache TTL (mặc định 6h), graceful: thiếu key/allowlist/lỗi → trả `[]` (no-op). Không raise.
+  - `resources/youtube_channels.json` (MỚI): allowlist `channels: []` + schema/ví dụ. **Cần user
+    điền channel_id (UC…) các kênh giáo dục tin cậy + đặt `YOUTUBE_API_KEY` trong `.env` để bật.**
+  - `src/api/routers/game_router.py`: `/api/entertainment/videos` gọi `_augment_with_youtube`
+    merge video YouTube vào kết quả DB (dedup theo source_url, áp cùng bộ lọc chủ đề
+    blocked/allowed + family scope). Tắt YouTube → endpoint giữ nguyên hành vi cũ.
+  - `frontend/.../api.js`: `getVideoLessons` map `duration` từ YouTube.
+  - Test **Group 82** (4 test, không cần mạng — dùng stub): `_fmt_duration`, tắt-mặc-định,
+    allowlist chỉ nhận UC…, và HTTP merge+dedup. Suite **646/646 PASS**. FE build OK.
+  - SYSTEM_MAP.md cập nhật (entertainment + game_router rows).
+  - **CÒN LẠI**: user cấu hình key + channel_id thật; (tùy chọn) hiển thị tên kênh/`channel`
+    field trên UI; (tùy chọn) lọc thêm tiêu đề qua SafetyFilter.
 - **Learning Hub Phase 3 — TOEIC Speaking & Writing (đang làm, 2026-06-24):**
   - opencode đã làm + COMMIT backend chấm điểm (`1952a4e feat(learning): add toeic sw backend grading`):
     `src/api/routers/exam_router.py` — model `SubmitToeicSW`, rubric `TOEIC_TASK_MAX_SCORES`,

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from src.api.routers.conversation_router import _require_family
 from src.entertainment.game_voice_quiz import VoiceQuizGame
 from src.entertainment.game_word_quiz import WordQuizGame
+from src.entertainment.youtube_lessons import youtube_lessons
 from src.infrastructure.auth.auth import get_current_user
 from src.infrastructure.database.db import get_db_connection
 
@@ -159,6 +160,35 @@ def _content_response(alias: str, items: list[dict]) -> dict:
     return {"items": items, alias: items, "total": len(items)}
 
 
+def _augment_with_youtube(
+    family_id: str,
+    child_id: Optional[str],
+    language: Optional[str],
+    min_age: Optional[int],
+    max_age: Optional[int],
+    items: list[dict],
+) -> list[dict]:
+    """Merge live video từ allowlist kênh YouTube vào danh sách video DB.
+    No-op khi YouTube tắt/không cấu hình; dedup theo source_url; áp cùng
+    bộ lọc chủ đề (blocked/allowed) như nội dung DB."""
+    if not youtube_lessons.enabled:
+        return items
+    yt = youtube_lessons.fetch_videos(language=language, min_age=min_age, max_age=max_age)
+    if not yt:
+        return items
+    child_key = _validate_child_for_family(family_id, child_id)
+    settings = _family_content_settings(family_id, child_key)
+    seen = {it.get("source_url") for it in items}
+    for v in yt:
+        if v.get("source_url") in seen:
+            continue
+        if not _topic_allowed(v, settings):
+            continue
+        items.append(v)
+        seen.add(v.get("source_url"))
+    return items
+
+
 @router.get("/api/entertainment/radio")
 async def list_radio_metadata(
     language: Optional[str] = Query(default=None, max_length=20),
@@ -184,6 +214,7 @@ async def list_video_metadata(
 ):
     family_id = _require_family(current_user)
     items = _list_content_items(family_id, "video", language, min_age, max_age, enabled_only, child_id)
+    items = _augment_with_youtube(family_id, child_id, language, min_age, max_age, items)
     return _content_response("videos", items)
 
 

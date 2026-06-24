@@ -7534,6 +7534,88 @@ test("81.3  HTTP: submit-toeic-sw writing chấm + có disclaimer/est200",      
 test("81.4  HTTP: submit-toeic-sw speaking + submit-speaking rỗng = 422",       test_81_submit_speaking_http)
 test("81.5  HTTP: đề không phải toeic_sw bị từ chối 422",                       test_81_non_sw_paper_rejected)
 
+# == GROUP 82: YouTube video lessons (allowlist) ===========================
+print("\n[Group 82] YouTube video lessons — allowlist + graceful merge")
+
+
+def test_82_fmt_duration():
+    from src.entertainment.youtube_lessons import _fmt_duration
+    assert _fmt_duration("PT12M") == "12 phút"
+    assert _fmt_duration("PT1H5M") == "1 giờ 5 phút"
+    assert _fmt_duration("PT45S") == "1 phút", "45s phải làm tròn lên 1 phút"
+    assert _fmt_duration("") == ""
+    assert _fmt_duration("rác") == ""
+
+
+def test_82_disabled_by_default():
+    # Không có YOUTUBE_API_KEY trong env test => tắt, endpoint không đổi.
+    from src.entertainment.youtube_lessons import youtube_lessons
+    assert youtube_lessons.enabled is False
+    assert youtube_lessons.fetch_videos() == []
+
+
+def test_82_allowlist_validation():
+    import json as _json
+    import tempfile
+    from pathlib import Path
+    from src.entertainment import youtube_lessons as ytmod
+    tmp = Path(tempfile.mkdtemp()) / "ch.json"
+    tmp.write_text(_json.dumps({"channels": [
+        {"channel_id": "UC1234567890", "label": "ok", "language": "vi", "tags": ["Math"]},
+        {"channel_id": "BADID", "label": "bad"},
+        {"channel_id": "", "label": "empty"},
+    ]}), encoding="utf-8")
+    saved = ytmod._CHANNELS_PATH
+    ytmod._CHANNELS_PATH = tmp
+    try:
+        chans = ytmod.YouTubeLessons()._load_channels()
+    finally:
+        ytmod._CHANNELS_PATH = saved
+    assert len(chans) == 1, f"chỉ 1 channel UC… hợp lệ, có {len(chans)}"
+    assert chans[0]["channel_id"] == "UC1234567890"
+    assert chans[0]["tags"] == ["math"], "tags phải lowercase"
+
+
+def test_82_videos_endpoint_merges_youtube():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.entertainment.youtube_lessons import youtube_lessons
+    headers = _phase44_headers("ytuser", f"yt-{_uuid.uuid4().hex[:6]}")
+    client = TestClient(app)
+    base = client.get("/api/entertainment/videos", headers=headers).json()["videos"]
+    assert all(not v["content_id"].startswith("yt-") for v in base), "baseline không có video yt-"
+    fake = [{
+        "content_id": "yt-FAKE123", "type": "video", "title": "Phonics for kids",
+        "description": "abc", "source_url": "https://www.youtube.com/watch?v=FAKE123",
+        "thumbnail_url": "https://img/x.jpg", "age_min": 5, "age_max": 9,
+        "language": "vi", "tags": ["english"], "duration": "8 phút",
+        "channel": "Demo", "enabled": True, "source": "youtube",
+    }]
+    saved = (youtube_lessons._explicitly_disabled, youtube_lessons._has_key,
+             youtube_lessons._channels, youtube_lessons.fetch_videos)
+    youtube_lessons._explicitly_disabled = False
+    youtube_lessons._has_key = True
+    youtube_lessons._channels = [{"channel_id": "UC0123456789", "language": "vi",
+                                  "age_min": 5, "age_max": 9, "tags": ["english"], "label": "Demo"}]
+    youtube_lessons.fetch_videos = lambda **kw: [dict(x) for x in fake]
+    try:
+        r = client.get("/api/entertainment/videos", headers=headers).json()["videos"]
+    finally:
+        (youtube_lessons._explicitly_disabled, youtube_lessons._has_key,
+         youtube_lessons._channels, youtube_lessons.fetch_videos) = saved
+    yt = [v for v in r if v["content_id"] == "yt-FAKE123"]
+    assert len(yt) == 1, "video YouTube phải được merge vào response"
+    assert yt[0]["duration"] == "8 phút"
+    assert len(r) > len(base), "merge phải thêm ít nhất 1 video"
+    same_url = sum(1 for v in r if v["source_url"] == "https://www.youtube.com/watch?v=FAKE123")
+    assert same_url == 1, "không được trùng lặp source_url"
+
+
+test("82.1  _fmt_duration: parse ISO8601 + làm tròn giây",                     test_82_fmt_duration)
+test("82.2  Tắt mặc định khi thiếu YOUTUBE_API_KEY (fetch trả [])",            test_82_disabled_by_default)
+test("82.3  Allowlist: chỉ nhận channel_id UC… hợp lệ, tags lowercase",        test_82_allowlist_validation)
+test("82.4  HTTP: /entertainment/videos merge video YouTube + dedup",          test_82_videos_endpoint_merges_youtube)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

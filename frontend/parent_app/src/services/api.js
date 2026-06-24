@@ -335,7 +335,7 @@ export async function getVideoLessons() {
       title: v.title,
       thumbnail: v.thumbnail_url || '🎬',
       subject: v.tags?.[0] || '',
-      duration: '',
+      duration: v.duration || '',
       age: (v.age_min != null && v.age_max != null) ? `${v.age_min}-${v.age_max}` : '',
       url: v.source_url || '',
     }));

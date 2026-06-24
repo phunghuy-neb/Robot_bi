@@ -1,0 +1,22 @@
+{
+  "_doc": "Allowlist kênh YouTube giáo dục cho video bài học của Robot Bi. CHỈ video từ các kênh ở đây mới được hiển thị (không search mở YouTube) — đây là ranh giới an toàn cho trẻ. Cần YOUTUBE_API_KEY trong .env để kích hoạt. Lấy channel_id (dạng UC...): mở kênh trên YouTube → ... → Share channel → Copy channel ID, hoặc xem source trang kênh tìm 'externalId'.",
+  "_schema": {
+    "channel_id": "UC... (bắt buộc, phải bắt đầu bằng UC)",
+    "label": "Tên hiển thị nguồn",
+    "language": "vi | en | ...",
+    "age_min": 5,
+    "age_max": 12,
+    "tags": ["english", "math", ...]
+  },
+  "_examples": [
+    {
+      "channel_id": "UCxxxxxxxxxxxxxxxxxxxxxx",
+      "label": "Ví dụ: Kênh học Tiếng Anh cho bé",
+      "language": "vi",
+      "age_min": 5,
+      "age_max": 9,
+      "tags": ["english", "vocabulary"]
+    }
+  ],
+  "channels": []
+}
