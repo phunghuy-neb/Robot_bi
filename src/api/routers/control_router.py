@@ -581,12 +581,20 @@ def _report_rows(family_id: str, start_date: str, end_date: str, sections: list[
     return rows
 
 
+def _csv_safe(value):
+    """Chống CSV formula injection (L-NEW-8): ô bắt đầu bằng = + - @ (hoặc tab/CR)
+    có thể bị Excel/Sheets thực thi → thêm dấu nháy đơn dẫn đầu để vô hiệu."""
+    if isinstance(value, str) and value and value[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + value
+    return value
+
+
 def _render_report_csv(rows: list[dict]) -> str:
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=["section", "timestamp", "title", "detail"])
     writer.writeheader()
     for row in rows:
-        writer.writerow(row)
+        writer.writerow({k: _csv_safe(v) for k, v in row.items()})
     return output.getvalue()
 
 
@@ -1498,10 +1506,31 @@ _SPECIAL_KIND_LABELS = {
 }
 
 
+_DATE_PAIR_RE = re.compile(r"(\d{1,2})\s*[/\-.]\s*(\d{1,2})")
+
+
+def _memory_due_today(memory_date: str, day: int, month: int) -> bool:
+    """True nếu `memory_date` (free-text) khớp ngày/tháng hôm nay.
+    Hỗ trợ 'D/M', 'DD/MM', 'DD/MM/YYYY', 'DD-MM', 'DD.MM' (ngày trước, tháng sau)."""
+    if not memory_date:
+        return False
+    for d_str, m_str in _DATE_PAIR_RE.findall(memory_date):
+        try:
+            if int(d_str) == day and int(m_str) == month:
+                return True
+        except ValueError:
+            continue
+    return False
+
+
 @router.get("/api/memories/special")
 async def list_special(current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
-    return {"memories": list_special_memories(family_id)}
+    now = datetime.now()
+    memories = list_special_memories(family_id)
+    for m in memories:
+        m["due_today"] = _memory_due_today(m.get("memory_date", ""), now.day, now.month)
+    return {"memories": memories, "due_today": [m for m in memories if m["due_today"]]}
 
 
 @router.post("/api/memories/special")

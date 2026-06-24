@@ -400,6 +400,25 @@ def _estimate_200(score: float, max_score: float) -> int:
     return max(0, min(200, int(round((score / max_score) * 200))))
 
 
+_exam_safety = None
+
+
+def _safe_child_text(text: str, fallback: str) -> str:
+    """Lọc free-text LLM trước khi hiển thị cho trẻ. Không an toàn → fallback.
+    Lỗi/không tải được filter → trả nguyên (không chặn nhầm điểm số)."""
+    global _exam_safety
+    if not text or not text.strip():
+        return fallback
+    try:
+        if _exam_safety is None:
+            from src.safety.safety_filter import SafetyFilter
+            _exam_safety = SafetyFilter()
+        is_safe, clean = _exam_safety.check(text)
+        return clean if is_safe else fallback
+    except Exception:
+        return text
+
+
 def _offline_toeic_grade(text: str, max_score: int, skill: str) -> dict:
     clean = (text or "").strip()
     if not clean:
@@ -447,11 +466,14 @@ def _llm_toeic_grade(prompt: str, answer_text: str, max_score: int, skill: str) 
         score = float(data.get("score", 0))
         score = max(0.0, min(float(max_score), score))
         tips = data.get("tips") if isinstance(data.get("tips"), list) else []
+        # Feedback/tips là free-text LLM hiển thị cho trẻ → lọc qua SafetyFilter (M-NEW-10).
+        feedback = _safe_child_text(str(data.get("feedback") or "Bi đã chấm xong bài luyện tập."),
+                                    "Bi đã chấm xong bài luyện tập.")
         return {
             "score": score,
             "max_score": max_score,
-            "feedback": str(data.get("feedback") or "Bi đã chấm xong bài luyện tập."),
-            "tips": [str(t)[:200] for t in tips[:3]],
+            "feedback": feedback,
+            "tips": [t for t in (_safe_child_text(str(x)[:200], "") for x in tips[:3]) if t],
         }
     except Exception as e:
         logger.warning("[toeic_sw] grader fallback: %s", e)

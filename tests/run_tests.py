@@ -8646,8 +8646,35 @@ def test_92_kind_normalized_and_validation():
     assert client.post("/api/memories/special", json={"kind": "other"}, headers=ha).status_code == 422
 
 
+def test_92_due_today():
+    import datetime as _dt
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.api.routers.control_router import _memory_due_today
+    # helper thuần
+    assert _memory_due_today("12/03", 12, 3) is True
+    assert _memory_due_today("12/03/2020", 12, 3) is True
+    assert _memory_due_today("12-03", 12, 3) is True
+    assert _memory_due_today("12/03", 13, 3) is False
+    assert _memory_due_today("", 1, 1) is False
+    # endpoint: kỷ niệm trùng hôm nay → due_today True + có trong due_today list
+    _, ha = _admin_mk_user("smd", f"smd-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    today = _dt.date.today()
+    client.post("/api/memories/special",
+                json={"title": "SN hôm nay", "kind": "birthday", "memory_date": f"{today.day}/{today.month}"}, headers=ha)
+    client.post("/api/memories/special",
+                json={"title": "Ngày khác", "memory_date": "01/01" if today.month != 1 or today.day != 1 else "02/02"}, headers=ha)
+    data = client.get("/api/memories/special", headers=ha).json()
+    due_titles = [m["title"] for m in data["due_today"]]
+    assert "SN hôm nay" in due_titles and "Ngày khác" not in due_titles, data["due_today"]
+    by_id = {m["title"]: m["due_today"] for m in data["memories"]}
+    assert by_id["SN hôm nay"] is True and by_id["Ngày khác"] is False
+
+
 test("92.1  CRUD kỷ niệm + cô lập gia đình",                                  test_92_crud_and_isolation)
 test("92.2  kind chuẩn hóa về 'other' + thiếu title 422",                    test_92_kind_normalized_and_validation)
+test("92.3  due_today: nhắc kỷ niệm trùng ngày hôm nay",                     test_92_due_today)
 
 # == GROUP 93: Radio Browser search + TTS offline ===========================
 print("\n[Group 93] Radio Browser (admin) + TTS offline switch")
@@ -8706,6 +8733,64 @@ def test_93_tts_offline_switch():
 test("93.1  radio_search: SafetyFilter bỏ tên xấu/đài thiếu URL",            test_93_radio_search_safe)
 test("93.2  /api/admin/radio/search RBAC (non-admin 403)",                   test_93_radio_search_rbac)
 test("93.3  TTS_OFFLINE/TTS_ENGINE → dùng pyttsx3 (short-circuit edge-tts)",  test_93_tts_offline_switch)
+
+# == GROUP 94: Review fixes (round 34/35/36) ================================
+print("\n[Group 94] Fix theo review loop — child-safety + privacy")
+
+
+def test_94_crisis_before_pii_order():
+    # H-NEW-4: EmotionRiskDetector (khủng hoảng) phải chạy TRƯỚC PIIFilter ở CẢ 2 path.
+    import inspect, src.main as _m
+    src = inspect.getsource(_m)
+    # Lấy đoạn run_text_mode và đoạn vòng lặp voice — kiểm tra thứ tự trong từng đoạn.
+    assert src.count("self._risk.check(user_text_goc)") >= 2, "phải có risk.check ở cả 2 path"
+    assert src.count("self._pii.check(user_text_goc)") >= 2, "phải có pii.check ở cả 2 path"
+    # Trong mỗi cặp, risk phải xuất hiện trước pii.
+    risk_idxs = [i for i in range(len(src)) if src.startswith("self._risk.check(user_text_goc)", i)]
+    pii_idxs = [i for i in range(len(src)) if src.startswith("self._pii.check(user_text_goc)", i)]
+    assert risk_idxs[0] < pii_idxs[0] and risk_idxs[1] < pii_idxs[1], "risk.check phải đứng TRƯỚC pii.check ở mỗi path"
+
+
+def test_94_websearch_after_pii_text_mode():
+    # L-NEW-10: web search trong text mode phải đứng SAU pii.check (không egress PII).
+    import inspect, src.main as _m
+    src = inspect.getsource(_m)
+    first_pii = src.index("self._pii.check(user_text_goc)")
+    # web search call đầu tiên (text mode) phải nằm sau pii gate đầu tiên
+    first_web = src.index("self._web_search.search_if_needed(user_text_goc)")
+    assert first_web > first_pii, "web search (text mode) phải chạy SAU PII gate"
+
+
+def test_94_eval_admin_only():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, hn = _admin_mk_user("evu", f"evu-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    r = client.post("/api/eval/chat", json={"role": "friend", "message": "hi"}, headers=hn)
+    assert r.status_code == 403, f"non-admin gọi eval phải 403, có {r.status_code}"
+
+
+def test_94_exam_feedback_safetyfiltered():
+    from src.api.routers.exam_router import _safe_child_text
+    assert _safe_child_text("Bài làm tốt, cố lên nhé!", "fb") != "fb"  # an toàn → giữ
+    assert _safe_child_text("chiến tranh và vũ khí", "FALLBACK") == "FALLBACK"  # nhạy cảm → fallback
+    assert _safe_child_text("", "FB") == "FB"
+
+
+def test_94_csv_formula_injection():
+    from src.api.routers.control_router import _csv_safe
+    assert _csv_safe("=SUM(A1)") == "'=SUM(A1)"
+    assert _csv_safe("+1+2") == "'+1+2"
+    assert _csv_safe("@cmd") == "'@cmd"
+    assert _csv_safe("Bình thường") == "Bình thường"
+    assert _csv_safe(123) == 123
+
+
+test("94.1  H-NEW-4: khủng hoảng (risk) chạy trước PII ở cả 2 path",          test_94_crisis_before_pii_order)
+test("94.2  L-NEW-10: web search text-mode sau PII gate",                    test_94_websearch_after_pii_text_mode)
+test("94.3  M-NEW-9: /api/eval/chat chỉ admin (non-admin 403)",              test_94_eval_admin_only)
+test("94.4  M-NEW-10: feedback TOEIC qua SafetyFilter",                      test_94_exam_feedback_safetyfiltered)
+test("94.5  L-NEW-8: CSV chống formula injection",                           test_94_csv_formula_injection)
 
 # == RESULTS ================================================================
 print("\n" + "=" * 60)

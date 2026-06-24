@@ -72,16 +72,22 @@ export default function SpecialMemories() {
         </form>
       )}
 
+      {loaded && items.some(m => m.due_today) && (
+        <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', fontSize: 14, margin: '0 4px 10px' }}>
+          🔔 Hôm nay có kỷ niệm: <b>{items.filter(m => m.due_today).map(m => m.title).join(', ')}</b> — nhắc bé nhé!
+        </div>
+      )}
+
       {!loaded ? (
         <SectionLoading />
       ) : items.length === 0 ? (
         <div style={{ padding: 18, textAlign: 'center', color: 'var(--muted,#64748b)' }}>Chưa có kỷ niệm nào.</div>
       ) : (
         items.map(m => (
-          <div key={m.memory_id} className="media-card">
-            <div className="media-thumb">{KIND_ICON[m.kind] || '🌟'}</div>
+          <div key={m.memory_id} className="media-card" style={m.due_today ? { background: '#feffd6', borderRadius: 10 } : undefined}>
+            <div className="media-thumb">{m.due_today ? '🔔' : (KIND_ICON[m.kind] || '🌟')}</div>
             <div className="media-body">
-              <div className="media-title">{m.title}</div>
+              <div className="media-title">{m.title}{m.due_today ? ' · hôm nay' : ''}</div>
               <div className="media-meta">{[m.memory_date, m.note].filter(Boolean).join(' · ')}</div>
             </div>
             <button className="btn-sm" onClick={() => del(m)}

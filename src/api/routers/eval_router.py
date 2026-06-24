@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 from src.infrastructure.auth.auth import get_current_user
+from src.infrastructure.database.db import is_user_admin
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -37,6 +38,9 @@ async def eval_chat(
     body: EvalChatRequest,
     current_user: dict = Depends(get_current_user),
 ):
+    # Công cụ eval raw LLM (không qua SafetyFilter trẻ) → chỉ admin (M-NEW-9).
+    if not is_user_admin(str(current_user.get("user_id", ""))):
+        raise HTTPException(status_code=403, detail="Eval chỉ dành cho admin")
     if body.role not in VALID_ROLES:
         raise HTTPException(status_code=400, detail=f"role phải là một trong: {', '.join(VALID_ROLES)}")
 

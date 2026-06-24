@@ -569,12 +569,9 @@ class RobotBiApp:
                     update_session_title(sid, _generate_session_title(ut))
                 threading.Thread(target=_name, daemon=True).start()
 
-                # RAG + Web search context
+                # RAG context (local, family-scoped — an toàn chạy trước PII gate).
+                # Web search dời xuống SAU PII gate (L-NEW-10) để không egress PII của bé.
                 rag_context = self.rag.retrieve(user_text_goc, family_id=FAMILY_ID)
-                web_context = self._web_search.search_if_needed(user_text_goc)
-                _ctx_parts = [c for c in [rag_context, web_context] if c]
-                if _ctx_parts:
-                    user_text = "\n\n".join(_ctx_parts) + f"\n\nBé hỏi: {user_text}"
 
                 # Persona + context modifier — passed via system_context, not injected into user_text
                 persona_system_ctx: str | None = None
@@ -598,12 +595,9 @@ class RobotBiApp:
                         pass
 
                 # ── Child Safety Checks (user input) ─────────────────────────
-                _pii_found, _pii_resp = self._pii.check(user_text_goc)
-                if _pii_found and _pii_resp:
-                    print(f"Bi: {_pii_resp}\n")
-                    add_turn(self._current_session_id, "assistant", _pii_resp)
-                    self._complete_direct_response_turn()
-                    continue
+                # Khủng hoảng/tự hại (EmotionRiskDetector) PHẢI chạy TRƯỚC PII advisory:
+                # luôn cảnh báo phụ huynh + override khủng hoảng, không để PII redirect
+                # (mức thấp) nuốt mất tín hiệu nguy hiểm (H-NEW-4).
                 _risk = self._risk.check(user_text_goc)
                 if _risk["log_event"]:
                     _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
@@ -618,12 +612,25 @@ class RobotBiApp:
                     add_turn(self._current_session_id, "assistant", _risk["response"])
                     self._complete_direct_response_turn()
                     continue
+                _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                if _pii_found and _pii_resp:
+                    print(f"Bi: {_pii_resp}\n")
+                    add_turn(self._current_session_id, "assistant", _pii_resp)
+                    self._complete_direct_response_turn()
+                    continue
                 _manip_input, _manip_input_resp = self._manip.check_user_input(user_text_goc)
                 if _manip_input and _manip_input_resp:
                     print(f"Bi: {_manip_input_resp}\n")
                     add_turn(self._current_session_id, "assistant", _manip_input_resp)
                     self._complete_direct_response_turn()
                     continue
+
+                # Web search SAU PII gate (L-NEW-10): chỉ chạy khi input đã qua kiểm tra
+                # an toàn → không gửi PII của bé ra Tavily/Brave.
+                web_context = self._web_search.search_if_needed(user_text_goc)
+                _ctx_parts = [c for c in [rag_context, web_context] if c]
+                if _ctx_parts:
+                    user_text = "\n\n".join(_ctx_parts) + f"\n\nBé hỏi: {user_text}"
 
                 living_context = self._living_thinking_context()
                 system_ctx = "\n".join(filter(None, [persona_system_ctx, living_context])) or None
@@ -795,17 +802,8 @@ class RobotBiApp:
                     self._living_interaction_start()
 
                     # ── Child Safety Checks (user input) ────────────────────────
-                    _pii_found, _pii_resp = self._pii.check(user_text_goc)
-                    if _pii_found and _pii_resp:
-                        add_turn(self._current_session_id, "assistant", _pii_resp)
-                        _af = self._loop.run_until_complete(
-                            self.mouth._generate_audio(_pii_resp, chunk_index=self._next_chunk_idx())
-                        )
-                        if _af:
-                            self.audio_queue.put(_af)
-                            self.audio_queue.join()
-                        self._complete_direct_response_turn()
-                        continue
+                    # Khủng hoảng/tự hại chạy TRƯỚC PII advisory (H-NEW-4): cảnh báo
+                    # phụ huynh + override khủng hoảng không được để PII redirect nuốt mất.
                     _risk = self._risk.check(user_text_goc)
                     if _risk["log_event"]:
                         _risk_msg = f"Safety risk [{_risk['level']}]: {', '.join(_risk['triggers'])}"
@@ -819,6 +817,17 @@ class RobotBiApp:
                         add_turn(self._current_session_id, "assistant", _risk["response"])
                         _af = self._loop.run_until_complete(
                             self.mouth._generate_audio(_risk["response"], chunk_index=self._next_chunk_idx())
+                        )
+                        if _af:
+                            self.audio_queue.put(_af)
+                            self.audio_queue.join()
+                        self._complete_direct_response_turn()
+                        continue
+                    _pii_found, _pii_resp = self._pii.check(user_text_goc)
+                    if _pii_found and _pii_resp:
+                        add_turn(self._current_session_id, "assistant", _pii_resp)
+                        _af = self._loop.run_until_complete(
+                            self.mouth._generate_audio(_pii_resp, chunk_index=self._next_chunk_idx())
                         )
                         if _af:
                             self.audio_queue.put(_af)
@@ -863,8 +872,8 @@ class RobotBiApp:
                     if _ctx_parts:
                         user_text = "\n\n".join(_ctx_parts) + f"\n\nBé hỏi: {user_text}"
                     if rag_context:
-                        # DEBUG: chứa PII - tắt trong production.
-                        logger.debug("[Bi - Trí nhớ] %s", rag_context)
+                        # Chỉ log ĐỘ DÀI, không log nội dung trí nhớ (PII trẻ) — L-NEW-9.
+                        logger.debug("[Bi - Trí nhớ] context injected len=%d", len(rag_context))
                     if web_context:
                         logger.debug("[WebSearch] Context injected len=%d", len(web_context))
 
