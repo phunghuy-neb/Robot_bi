@@ -1,0 +1,683 @@
+{
+  "subject": "physics",
+  "exams": [
+    {
+      "paper_id": "physics_exam_grade6_1",
+      "title": "Vật lý — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_co_ban",
+      "questions": [
+        {
+          "question": "Đơn vị đo độ dài hợp pháp ở Việt Nam là gì?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "mét (m)",
+            "lít (l)",
+            "ki-lô-gam (kg)",
+            "giây (s)"
+          ],
+          "answer": "mét (m)",
+          "explanation": "Mét (m) là đơn vị đo độ dài; lít đo thể tích, kg đo khối lượng, giây đo thời gian.",
+          "difficulty": 1
+        },
+        {
+          "question": "Dụng cụ nào dùng để đo nhiệt độ?",
+          "question_vi": "",
+          "emoji": "🌡️",
+          "options": [
+            "nhiệt kế",
+            "cân",
+            "thước",
+            "đồng hồ"
+          ],
+          "answer": "nhiệt kế",
+          "explanation": "Nhiệt kế dùng để đo nhiệt độ.",
+          "difficulty": 1
+        },
+        {
+          "question": "Ta nhìn thấy một vật khi nào?",
+          "question_vi": "",
+          "emoji": "👁️",
+          "options": [
+            "khi có ánh sáng từ vật truyền vào mắt ta",
+            "khi vật phát ra âm thanh",
+            "khi vật nóng lên",
+            "khi ta nhắm mắt lại"
+          ],
+          "answer": "khi có ánh sáng từ vật truyền vào mắt ta",
+          "explanation": "Mắt nhìn thấy vật khi có ánh sáng từ vật truyền tới mắt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Âm thanh truyền được trong những môi trường nào?",
+          "question_vi": "",
+          "emoji": "🔊",
+          "options": [
+            "chất rắn, chất lỏng và chất khí",
+            "chỉ trong chân không",
+            "chỉ trong chất rắn",
+            "không truyền được trong nước"
+          ],
+          "answer": "chất rắn, chất lỏng và chất khí",
+          "explanation": "Âm truyền được trong rắn, lỏng, khí nhưng không truyền trong chân không.",
+          "difficulty": 2
+        },
+        {
+          "question": "Vật nào sau đây là nguồn sáng (tự phát ra ánh sáng)?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": [
+            "Mặt Trời",
+            "Mặt Trăng",
+            "cái gương",
+            "quyển sách"
+          ],
+          "answer": "Mặt Trời",
+          "explanation": "Mặt Trời tự phát sáng; Mặt Trăng, gương, sách chỉ hắt lại ánh sáng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dụng cụ nào dùng để đo khối lượng?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "cân",
+            "thước",
+            "nhiệt kế",
+            "đồng hồ"
+          ],
+          "answer": "cân",
+          "explanation": "Cân dùng để đo khối lượng của vật.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nam châm hút được vật làm bằng chất nào sau đây?",
+          "question_vi": "",
+          "emoji": "🧲",
+          "options": [
+            "sắt",
+            "gỗ",
+            "nhựa",
+            "thủy tinh"
+          ],
+          "answer": "sắt",
+          "explanation": "Nam châm hút được sắt và một số kim loại từ tính; không hút gỗ, nhựa, thủy tinh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Xoa hai bàn tay vào nhau thấy ấm lên là do nguyên nhân nào?",
+          "question_vi": "",
+          "emoji": "🙌",
+          "options": [
+            "ma sát giữa hai tay sinh ra nhiệt",
+            "có dòng điện chạy qua tay",
+            "có ánh sáng phát ra",
+            "tay tự phát nhiệt vô cớ"
+          ],
+          "answer": "ma sát giữa hai tay sinh ra nhiệt",
+          "explanation": "Lực ma sát giữa hai bàn tay sinh ra nhiệt làm tay ấm lên.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bóng đèn dây tóc khi sáng biến điện năng chủ yếu thành những dạng năng lượng nào?",
+          "question_vi": "",
+          "emoji": "💡",
+          "options": [
+            "nhiệt năng và quang năng",
+            "chỉ hóa năng",
+            "chỉ cơ năng",
+            "chỉ điện năng"
+          ],
+          "answer": "nhiệt năng và quang năng",
+          "explanation": "Đèn dây tóc tỏa nhiệt (nhiệt năng) và phát sáng (quang năng).",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_exam_grade10_1",
+      "title": "Vật lý — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_thcs",
+      "questions": [
+        {
+          "question": "Công thức tính vận tốc của chuyển động đều là gì?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "v = s / t",
+            "v = s × t",
+            "v = t / s",
+            "v = s + t"
+          ],
+          "answer": "v = s / t",
+          "explanation": "Vận tốc bằng quãng đường chia thời gian: v = s / t.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đơn vị đo cường độ dòng điện là gì?",
+          "question_vi": "",
+          "emoji": "🔌",
+          "options": [
+            "ampe (A)",
+            "vôn (V)",
+            "ôm (Ω)",
+            "oát (W)"
+          ],
+          "answer": "ampe (A)",
+          "explanation": "Cường độ dòng điện đo bằng ampe (A).",
+          "difficulty": 2
+        },
+        {
+          "question": "Theo định luật Ôm, cường độ dòng điện qua dây dẫn tỉ lệ thuận với đại lượng nào?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "hiệu điện thế giữa hai đầu dây",
+            "điện trở của dây",
+            "chiều dài tự do",
+            "khối lượng dây"
+          ],
+          "answer": "hiệu điện thế giữa hai đầu dây",
+          "explanation": "Định luật Ôm: I = U/R, I tỉ lệ thuận với hiệu điện thế U.",
+          "difficulty": 3
+        },
+        {
+          "question": "Lực đẩy Ác-si-mét xuất hiện khi nào?",
+          "question_vi": "",
+          "emoji": "🛟",
+          "options": [
+            "khi vật được nhúng trong chất lỏng (hoặc chất khí)",
+            "khi vật đặt trên mặt bàn",
+            "khi vật đứng yên trong chân không",
+            "khi vật bị nung nóng"
+          ],
+          "answer": "khi vật được nhúng trong chất lỏng (hoặc chất khí)",
+          "explanation": "Vật nhúng trong chất lỏng/khí chịu lực đẩy Ác-si-mét hướng lên.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hai lực cân bằng là hai lực như thế nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "cùng độ lớn, cùng phương, ngược chiều, cùng đặt lên một vật",
+            "cùng chiều và cùng độ lớn",
+            "vuông góc với nhau",
+            "khác độ lớn, cùng chiều"
+          ],
+          "answer": "cùng độ lớn, cùng phương, ngược chiều, cùng đặt lên một vật",
+          "explanation": "Hai lực cân bằng cùng tác dụng lên một vật, cùng phương, ngược chiều, cùng độ lớn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công thức tính công suất là gì?",
+          "question_vi": "",
+          "emoji": "💪",
+          "options": [
+            "P = A / t",
+            "P = A × t",
+            "P = t / A",
+            "P = A + t"
+          ],
+          "answer": "P = A / t",
+          "explanation": "Công suất bằng công thực hiện chia cho thời gian: P = A / t.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong môi trường trong suốt và đồng tính, ánh sáng truyền theo đường nào?",
+          "question_vi": "",
+          "emoji": "🔦",
+          "options": [
+            "đường thẳng",
+            "đường cong",
+            "đường gấp khúc",
+            "đường tròn"
+          ],
+          "answer": "đường thẳng",
+          "explanation": "Định luật truyền thẳng ánh sáng: ánh sáng truyền theo đường thẳng trong môi trường trong suốt, đồng tính.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đơn vị đo hiệu điện thế là gì?",
+          "question_vi": "",
+          "emoji": "🔋",
+          "options": [
+            "vôn (V)",
+            "ampe (A)",
+            "ôm (Ω)",
+            "jun (J)"
+          ],
+          "answer": "vôn (V)",
+          "explanation": "Hiệu điện thế đo bằng vôn (V).",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_exam_thpt_1",
+      "title": "Vật lý — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_thpt",
+      "questions": [
+        {
+          "question": "Gia tốc trọng trường ở gần mặt đất xấp xỉ bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "9,8 m/s²",
+            "98 m/s²",
+            "0,98 m/s²",
+            "980 m/s²"
+          ],
+          "answer": "9,8 m/s²",
+          "explanation": "Gia tốc trọng trường g ≈ 9,8 m/s² ở gần mặt đất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Theo định luật II Niu-tơn, gia tốc của vật tỉ lệ thuận với đại lượng nào?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": [
+            "lực tác dụng",
+            "khối lượng",
+            "thể tích",
+            "thời gian"
+          ],
+          "answer": "lực tác dụng",
+          "explanation": "Định luật II Niu-tơn: a = F/m, gia tốc tỉ lệ thuận với lực và tỉ lệ nghịch với khối lượng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đơn vị đo công và năng lượng trong hệ SI là gì?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": [
+            "jun (J)",
+            "oát (W)",
+            "niu-tơn (N)",
+            "pa-xcan (Pa)"
+          ],
+          "answer": "jun (J)",
+          "explanation": "Công và năng lượng đo bằng jun (J).",
+          "difficulty": 2
+        },
+        {
+          "question": "Dòng điện xoay chiều là dòng điện như thế nào?",
+          "question_vi": "",
+          "emoji": "〰️",
+          "options": [
+            "có chiều và cường độ thay đổi tuần hoàn theo thời gian",
+            "luôn có chiều không đổi",
+            "không bao giờ đổi chiều",
+            "chỉ tồn tại trong pin"
+          ],
+          "answer": "có chiều và cường độ thay đổi tuần hoàn theo thời gian",
+          "explanation": "Dòng điện xoay chiều có chiều và cường độ biến thiên tuần hoàn theo thời gian.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiện tượng cảm ứng điện từ do nhà khoa học nào phát hiện?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "Pha-ra-đây (Faraday)",
+            "Niu-tơn",
+            "Ôm",
+            "Jun"
+          ],
+          "answer": "Pha-ra-đây (Faraday)",
+          "explanation": "Faraday phát hiện hiện tượng cảm ứng điện từ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị đo tần số là gì?",
+          "question_vi": "",
+          "emoji": "📶",
+          "options": [
+            "héc (Hz)",
+            "vôn (V)",
+            "oát (W)",
+            "đề-xi-ben (dB)"
+          ],
+          "answer": "héc (Hz)",
+          "explanation": "Tần số đo bằng héc (Hz) — số dao động trong một giây.",
+          "difficulty": 2
+        },
+        {
+          "question": "Theo thuyết tương đối hẹp, đại lượng nào là giới hạn tốc độ trong vũ trụ?",
+          "question_vi": "",
+          "emoji": "🌌",
+          "options": [
+            "tốc độ ánh sáng trong chân không",
+            "tốc độ âm thanh",
+            "tốc độ Trái Đất tự quay",
+            "tốc độ gió"
+          ],
+          "answer": "tốc độ ánh sáng trong chân không",
+          "explanation": "Không vật nào có thể chuyển động nhanh hơn tốc độ ánh sáng trong chân không.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_hsg_school_1",
+      "title": "Vật lý — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_nang_cao",
+      "questions": [
+        {
+          "question": "Một vật chuyển động thẳng đều có đặc điểm gì?",
+          "question_vi": "",
+          "emoji": "➡️",
+          "options": [
+            "vận tốc không đổi theo thời gian",
+            "gia tốc tăng dần",
+            "vận tốc tăng đều",
+            "luôn đứng yên"
+          ],
+          "answer": "vận tốc không đổi theo thời gian",
+          "explanation": "Chuyển động thẳng đều có vận tốc không đổi (gia tốc bằng 0).",
+          "difficulty": 3
+        },
+        {
+          "question": "Công thức tính áp suất chất rắn là gì?",
+          "question_vi": "",
+          "emoji": "🔻",
+          "options": [
+            "p = F / S",
+            "p = F × S",
+            "p = S / F",
+            "p = F + S"
+          ],
+          "answer": "p = F / S",
+          "explanation": "Áp suất bằng áp lực chia diện tích bị ép: p = F / S.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong đoạn mạch mắc nối tiếp, cường độ dòng điện tại mọi điểm có đặc điểm gì?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": [
+            "bằng nhau",
+            "tỉ lệ với điện trở",
+            "cộng dồn lại",
+            "bằng không"
+          ],
+          "answer": "bằng nhau",
+          "explanation": "Mạch nối tiếp: cường độ dòng điện như nhau tại mọi điểm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Năng lượng mà vật có được do chuyển động gọi là gì?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "động năng",
+            "thế năng",
+            "nhiệt năng",
+            "hóa năng"
+          ],
+          "answer": "động năng",
+          "explanation": "Năng lượng do chuyển động là động năng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phản xạ toàn phần xảy ra khi ánh sáng truyền theo chiều nào?",
+          "question_vi": "",
+          "emoji": "💠",
+          "options": [
+            "từ môi trường chiết quang hơn sang chiết quang kém hơn với góc tới đủ lớn",
+            "từ môi trường kém sang hơn",
+            "trong cùng một môi trường",
+            "trong chân không tuyệt đối"
+          ],
+          "answer": "từ môi trường chiết quang hơn sang chiết quang kém hơn với góc tới đủ lớn",
+          "explanation": "Phản xạ toàn phần xảy ra khi đi từ môi trường chiết quang hơn sang kém hơn và góc tới lớn hơn góc giới hạn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị đo điện trở suất là gì?",
+          "question_vi": "",
+          "emoji": "🧵",
+          "options": [
+            "ôm mét (Ω·m)",
+            "ôm (Ω)",
+            "vôn (V)",
+            "oát (W)"
+          ],
+          "answer": "ôm mét (Ω·m)",
+          "explanation": "Điện trở suất đặc trưng cho vật liệu, đo bằng ôm mét (Ω·m).",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_hsg_district_1",
+      "title": "Vật lý — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_nang_cao",
+      "questions": [
+        {
+          "question": "Định luật bảo toàn động lượng áp dụng cho hệ nào?",
+          "question_vi": "",
+          "emoji": "💥",
+          "options": [
+            "hệ kín (tổng ngoại lực bằng 0)",
+            "hệ luôn có ma sát lớn",
+            "hệ chỉ một vật chịu lực ngoài",
+            "hệ đang bị nung nóng"
+          ],
+          "answer": "hệ kín (tổng ngoại lực bằng 0)",
+          "explanation": "Động lượng được bảo toàn trong hệ kín (cô lập), không có ngoại lực hoặc tổng ngoại lực bằng 0.",
+          "difficulty": 4
+        },
+        {
+          "question": "Công thức tính chu kì con lắc đơn dao động nhỏ là gì?",
+          "question_vi": "",
+          "emoji": "⏱️",
+          "options": [
+            "T = 2π√(l/g)",
+            "T = 2π√(g/l)",
+            "T = 2π·l·g",
+            "T = l/g"
+          ],
+          "answer": "T = 2π√(l/g)",
+          "explanation": "Chu kì con lắc đơn: T = 2π√(l/g), với l là chiều dài, g là gia tốc trọng trường.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sóng âm nghe được có tần số nằm trong khoảng nào?",
+          "question_vi": "",
+          "emoji": "👂",
+          "options": [
+            "khoảng 20 Hz đến 20 000 Hz",
+            "dưới 1 Hz",
+            "trên 1 triệu Hz",
+            "đúng 50 Hz"
+          ],
+          "answer": "khoảng 20 Hz đến 20 000 Hz",
+          "explanation": "Tai người nghe được âm có tần số khoảng 20 Hz đến 20 000 Hz.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong đoạn mạch mắc song song, đại lượng nào bằng nhau ở các nhánh?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": [
+            "hiệu điện thế giữa hai đầu mỗi nhánh",
+            "cường độ dòng điện",
+            "điện trở",
+            "công suất"
+          ],
+          "answer": "hiệu điện thế giữa hai đầu mỗi nhánh",
+          "explanation": "Mạch song song: hiệu điện thế hai đầu các nhánh bằng nhau.",
+          "difficulty": 4
+        },
+        {
+          "question": "Theo định luật Jun – Len-xơ, nhiệt lượng tỏa ra trên dây dẫn tỉ lệ thuận với bình phương đại lượng nào?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "cường độ dòng điện",
+            "hiệu điện thế nguồn",
+            "chiều dài dây nhân đôi",
+            "khối lượng dây"
+          ],
+          "answer": "cường độ dòng điện",
+          "explanation": "Định luật Jun – Len-xơ: Q = I²Rt, nhiệt lượng tỉ lệ với bình phương cường độ dòng điện.",
+          "difficulty": 4
+        },
+        {
+          "question": "Thấu kính hội tụ cho ảnh thật khi vật đặt ở vị trí nào?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": [
+            "ngoài tiêu điểm (khoảng cách lớn hơn tiêu cự)",
+            "trong khoảng tiêu cự",
+            "tại quang tâm",
+            "sát ngay mặt kính"
+          ],
+          "answer": "ngoài tiêu điểm (khoảng cách lớn hơn tiêu cự)",
+          "explanation": "Vật đặt ngoài tiêu cự của thấu kính hội tụ cho ảnh thật, ngược chiều.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_hsg_province_1",
+      "title": "Vật lý — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "vat_ly_chuyen_sau",
+      "questions": [
+        {
+          "question": "Đại lượng nào sau đây là đại lượng véc-tơ?",
+          "question_vi": "",
+          "emoji": "🧭",
+          "options": [
+            "vận tốc",
+            "khối lượng",
+            "thời gian",
+            "nhiệt độ"
+          ],
+          "answer": "vận tốc",
+          "explanation": "Vận tốc có cả độ lớn và hướng nên là đại lượng véc-tơ; khối lượng, thời gian, nhiệt độ là vô hướng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hiện tượng giao thoa ánh sáng chứng tỏ ánh sáng có tính chất gì?",
+          "question_vi": "",
+          "emoji": "🌈",
+          "options": [
+            "tính chất sóng",
+            "tính chất hạt",
+            "không có tính chất nào",
+            "chỉ là dòng điện"
+          ],
+          "answer": "tính chất sóng",
+          "explanation": "Giao thoa là hiện tượng đặc trưng của sóng, chứng tỏ ánh sáng có tính chất sóng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong dao động điều hòa, đại lượng nào biến thiên điều hòa cùng tần số với li độ?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": [
+            "gia tốc",
+            "khối lượng",
+            "chu kì",
+            "biên độ"
+          ],
+          "answer": "gia tốc",
+          "explanation": "Gia tốc biến thiên điều hòa cùng tần số và ngược pha với li độ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hạt nhân có năng lượng liên kết riêng càng lớn thì như thế nào?",
+          "question_vi": "",
+          "emoji": "⚛️",
+          "options": [
+            "càng bền vững",
+            "càng kém bền vững",
+            "luôn phân rã ngay",
+            "không liên quan đến độ bền"
+          ],
+          "answer": "càng bền vững",
+          "explanation": "Năng lượng liên kết riêng càng lớn thì hạt nhân càng bền vững.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quang phổ vạch phát xạ do nguồn nào phát ra?",
+          "question_vi": "",
+          "emoji": "🌟",
+          "options": [
+            "chất khí ở áp suất thấp khi bị kích thích",
+            "chất rắn bị nung nóng",
+            "mọi chất lỏng",
+            "mọi vật ở nhiệt độ phòng"
+          ],
+          "answer": "chất khí ở áp suất thấp khi bị kích thích",
+          "explanation": "Quang phổ vạch phát xạ do chất khí (hoặc hơi) ở áp suất thấp bị kích thích phát ra.",
+          "difficulty": 4
+        },
+        {
+          "question": "Theo lưỡng tính sóng – hạt, ánh sáng vừa có tính chất sóng vừa có tính chất gì?",
+          "question_vi": "",
+          "emoji": "💡",
+          "options": [
+            "tính chất hạt (phôtôn)",
+            "tính chất lỏng",
+            "tính chất từ thuần túy",
+            "tính chất cơ học Niu-tơn"
+          ],
+          "answer": "tính chất hạt (phôtôn)",
+          "explanation": "Ánh sáng có lưỡng tính sóng – hạt: vừa là sóng điện từ, vừa gồm các hạt phôtôn.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
