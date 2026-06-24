@@ -1,0 +1,683 @@
+{
+  "subject": "economics",
+  "exams": [
+    {
+      "paper_id": "economics_exam_grade6_1",
+      "title": "Kinh tế học — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_co_ban",
+      "questions": [
+        {
+          "question": "Tiền dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "💵",
+          "options": [
+            "trao đổi, mua bán hàng hóa và dịch vụ",
+            "để ăn",
+            "để uống",
+            "để đốt"
+          ],
+          "answer": "trao đổi, mua bán hàng hóa và dịch vụ",
+          "explanation": "Tiền là phương tiện trao đổi, mua bán hàng hóa và dịch vụ.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi em muốn mua một món đồ nhưng chưa đủ tiền, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🐷",
+          "options": [
+            "tiết kiệm dần cho đến khi đủ",
+            "lấy trộm",
+            "vay rồi không trả",
+            "đòi mua ngay bằng mọi cách"
+          ],
+          "answer": "tiết kiệm dần cho đến khi đủ",
+          "explanation": "Nên tiết kiệm dần cho đủ tiền rồi mới mua.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Thu nhập” của một gia đình là gì?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": [
+            "số tiền kiếm được (lương, buôn bán…)",
+            "số tiền chi tiêu",
+            "số nợ",
+            "số đồ đạc trong nhà"
+          ],
+          "answer": "số tiền kiếm được (lương, buôn bán…)",
+          "explanation": "Thu nhập là số tiền kiếm được từ lương, buôn bán, làm việc…",
+          "difficulty": 2
+        },
+        {
+          "question": "Hành động nào sau đây là tiết kiệm tiền?",
+          "question_vi": "",
+          "emoji": "🏦",
+          "options": [
+            "bỏ tiền vào lợn đất mỗi ngày",
+            "mua đồ chơi không cần thiết",
+            "vứt tiền lẻ",
+            "cho hết tiền đi"
+          ],
+          "answer": "bỏ tiền vào lợn đất mỗi ngày",
+          "explanation": "Bỏ tiền tiết kiệm vào lợn đất là thói quen tiết kiệm tốt.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chợ và siêu thị là nơi diễn ra hoạt động gì?",
+          "question_vi": "",
+          "emoji": "🛒",
+          "options": [
+            "mua bán hàng hóa",
+            "học tập",
+            "khám bệnh",
+            "thi đấu thể thao"
+          ],
+          "answer": "mua bán hàng hóa",
+          "explanation": "Chợ, siêu thị là nơi mua bán, trao đổi hàng hóa.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hàng hóa là gì?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": [
+            "sản phẩm được làm ra để bán",
+            "đồ vật chỉ để cho không",
+            "không khí tự nhiên",
+            "ánh nắng mặt trời"
+          ],
+          "answer": "sản phẩm được làm ra để bán",
+          "explanation": "Hàng hóa là sản phẩm của lao động, được làm ra để trao đổi, mua bán.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một quyển vở giá 10 000 đồng. Có 50 000 đồng thì mua được nhiều nhất bao nhiêu quyển?",
+          "question_vi": "",
+          "emoji": "📓",
+          "options": [
+            "5 quyển",
+            "4 quyển",
+            "6 quyển",
+            "10 quyển"
+          ],
+          "answer": "5 quyển",
+          "explanation": "50 000 ÷ 10 000 = 5 quyển.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Chi tiêu hợp lý” nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🧾",
+          "options": [
+            "chỉ mua những thứ cần thiết, phù hợp số tiền có",
+            "mua tất cả mọi thứ",
+            "không bao giờ mua gì",
+            "vay tiền để mua đồ đắt"
+          ],
+          "answer": "chỉ mua những thứ cần thiết, phù hợp số tiền có",
+          "explanation": "Chi tiêu hợp lý là mua đúng thứ cần, vừa với khả năng tài chính.",
+          "difficulty": 2
+        },
+        {
+          "question": "Người nông dân trồng lúa tạo ra sản phẩm gì?",
+          "question_vi": "",
+          "emoji": "🌾",
+          "options": [
+            "gạo (lúa)",
+            "quần áo",
+            "ô tô",
+            "điện thoại"
+          ],
+          "answer": "gạo (lúa)",
+          "explanation": "Nông dân trồng lúa tạo ra thóc, gạo.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_exam_grade10_1",
+      "title": "Kinh tế học — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_thcs",
+      "questions": [
+        {
+          "question": "Trong kinh tế, “cung” là gì?",
+          "question_vi": "",
+          "emoji": "📤",
+          "options": [
+            "lượng hàng hóa, dịch vụ mà người bán sẵn sàng bán",
+            "lượng hàng người mua muốn mua",
+            "giá của hàng hóa",
+            "tiền lương"
+          ],
+          "answer": "lượng hàng hóa, dịch vụ mà người bán sẵn sàng bán",
+          "explanation": "Cung là lượng hàng hóa/dịch vụ người bán sẵn sàng và có khả năng bán ở các mức giá.",
+          "difficulty": 3
+        },
+        {
+          "question": "“Cầu” trong kinh tế là gì?",
+          "question_vi": "",
+          "emoji": "📥",
+          "options": [
+            "lượng hàng hóa, dịch vụ mà người mua muốn và có khả năng mua",
+            "lượng hàng người bán cung cấp",
+            "số tiền in ra",
+            "tiền thuế"
+          ],
+          "answer": "lượng hàng hóa, dịch vụ mà người mua muốn và có khả năng mua",
+          "explanation": "Cầu là lượng hàng hóa/dịch vụ người mua muốn mua và có khả năng chi trả.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khi cầu tăng mà cung không đổi, giá cả thường có xu hướng thế nào?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": [
+            "tăng lên",
+            "giảm xuống",
+            "không đổi",
+            "bằng 0"
+          ],
+          "answer": "tăng lên",
+          "explanation": "Cầu tăng, cung không đổi thì giá có xu hướng tăng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Lạm phát là hiện tượng gì?",
+          "question_vi": "",
+          "emoji": "💸",
+          "options": [
+            "mức giá chung của hàng hóa tăng lên, đồng tiền mất giá",
+            "giá giảm liên tục",
+            "không có tiền lưu thông",
+            "hàng hóa khan hiếm tuyệt đối"
+          ],
+          "answer": "mức giá chung của hàng hóa tăng lên, đồng tiền mất giá",
+          "explanation": "Lạm phát là sự tăng lên của mức giá chung, làm đồng tiền mất giá.",
+          "difficulty": 3
+        },
+        {
+          "question": "Ngân hàng có chức năng cơ bản nào?",
+          "question_vi": "",
+          "emoji": "🏦",
+          "options": [
+            "nhận gửi tiền và cho vay",
+            "sản xuất hàng hóa",
+            "trồng trọt",
+            "dạy học"
+          ],
+          "answer": "nhận gửi tiền và cho vay",
+          "explanation": "Ngân hàng nhận tiền gửi và cho vay là chức năng cơ bản.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Lợi nhuận” của doanh nghiệp được tính như thế nào?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "doanh thu trừ chi phí",
+            "doanh thu cộng chi phí",
+            "chỉ là tiền lương",
+            "chỉ là tiền thuế"
+          ],
+          "answer": "doanh thu trừ chi phí",
+          "explanation": "Lợi nhuận = doanh thu − chi phí.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thuế là gì?",
+          "question_vi": "",
+          "emoji": "🧾",
+          "options": [
+            "khoản tiền bắt buộc nộp cho Nhà nước để chi cho hoạt động chung",
+            "tiền quà tặng",
+            "tiền tiết kiệm cá nhân",
+            "tiền cho vay"
+          ],
+          "answer": "khoản tiền bắt buộc nộp cho Nhà nước để chi cho hoạt động chung",
+          "explanation": "Thuế là khoản nộp bắt buộc cho Nhà nước để chi cho các nhu cầu chung của xã hội.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hoạt động xuất khẩu là gì?",
+          "question_vi": "",
+          "emoji": "🚢",
+          "options": [
+            "bán hàng hóa, dịch vụ ra nước ngoài",
+            "mua hàng từ nước ngoài",
+            "sản xuất trong nước",
+            "tiêu dùng nội địa"
+          ],
+          "answer": "bán hàng hóa, dịch vụ ra nước ngoài",
+          "explanation": "Xuất khẩu là bán hàng hóa, dịch vụ ra thị trường nước ngoài.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_exam_thpt_1",
+      "title": "Kinh tế học — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_thpt",
+      "questions": [
+        {
+          "question": "GDP (Tổng sản phẩm quốc nội) đo lường điều gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "tổng giá trị hàng hóa, dịch vụ cuối cùng tạo ra trong một quốc gia trong một thời kỳ",
+            "tổng dân số",
+            "tổng diện tích",
+            "số lượng nhà máy"
+          ],
+          "answer": "tổng giá trị hàng hóa, dịch vụ cuối cùng tạo ra trong một quốc gia trong một thời kỳ",
+          "explanation": "GDP là tổng giá trị hàng hóa, dịch vụ cuối cùng sản xuất trong phạm vi một quốc gia trong một thời kỳ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Theo quy luật cung – cầu, giá cân bằng được xác định khi nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "khi lượng cung bằng lượng cầu",
+            "khi cung lớn gấp đôi cầu",
+            "khi không ai mua",
+            "khi Nhà nước ấn định ngẫu nhiên"
+          ],
+          "answer": "khi lượng cung bằng lượng cầu",
+          "explanation": "Giá cân bằng đạt được khi lượng cung bằng lượng cầu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong nền kinh tế thị trường, giá cả chủ yếu do yếu tố nào quyết định?",
+          "question_vi": "",
+          "emoji": "🏷️",
+          "options": [
+            "quan hệ cung – cầu trên thị trường",
+            "ý muốn của một người",
+            "thời tiết",
+            "màu sắc sản phẩm"
+          ],
+          "answer": "quan hệ cung – cầu trên thị trường",
+          "explanation": "Trong kinh tế thị trường, giá cả hình thành chủ yếu qua quan hệ cung – cầu.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhập khẩu là hoạt động gì?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": [
+            "mua hàng hóa, dịch vụ từ nước ngoài về",
+            "bán hàng ra nước ngoài",
+            "sản xuất nội địa",
+            "đánh thuế"
+          ],
+          "answer": "mua hàng hóa, dịch vụ từ nước ngoài về",
+          "explanation": "Nhập khẩu là mua hàng hóa, dịch vụ từ nước ngoài về trong nước.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tỷ giá hối đoái là gì?",
+          "question_vi": "",
+          "emoji": "💱",
+          "options": [
+            "giá của một đồng tiền tính bằng đồng tiền khác",
+            "lãi suất ngân hàng",
+            "thuế nhập khẩu",
+            "giá vàng"
+          ],
+          "answer": "giá của một đồng tiền tính bằng đồng tiền khác",
+          "explanation": "Tỷ giá hối đoái là giá của một đồng tiền được biểu thị bằng đồng tiền khác.",
+          "difficulty": 4
+        },
+        {
+          "question": "Độc quyền (monopoly) là tình trạng thị trường như thế nào?",
+          "question_vi": "",
+          "emoji": "🏭",
+          "options": [
+            "chỉ có một người bán duy nhất một loại hàng hóa",
+            "có rất nhiều người bán",
+            "không có người mua",
+            "giá luôn bằng 0"
+          ],
+          "answer": "chỉ có một người bán duy nhất một loại hàng hóa",
+          "explanation": "Độc quyền là thị trường chỉ có một người bán một loại hàng hóa/dịch vụ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Chi phí cơ hội của một lựa chọn là gì?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": [
+            "giá trị của phương án tốt nhất bị bỏ qua khi chọn phương án này",
+            "tổng số tiền có",
+            "số tiền tiết kiệm",
+            "thuế phải nộp"
+          ],
+          "answer": "giá trị của phương án tốt nhất bị bỏ qua khi chọn phương án này",
+          "explanation": "Chi phí cơ hội là giá trị của phương án tốt nhất bị bỏ qua khi đưa ra một lựa chọn.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_hsg_school_1",
+      "title": "Kinh tế học — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_nang_cao",
+      "questions": [
+        {
+          "question": "Khi cung lớn hơn cầu, trên thị trường thường xảy ra hiện tượng gì?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": [
+            "dư thừa hàng hóa, giá có xu hướng giảm",
+            "khan hiếm hàng hóa, giá tăng vọt",
+            "không ảnh hưởng gì",
+            "giá luôn bằng 0"
+          ],
+          "answer": "dư thừa hàng hóa, giá có xu hướng giảm",
+          "explanation": "Cung vượt cầu gây dư thừa hàng hóa, đẩy giá giảm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lãi suất tiền gửi ngân hàng là gì?",
+          "question_vi": "",
+          "emoji": "🏦",
+          "options": [
+            "khoản tiền ngân hàng trả thêm cho người gửi, dựa trên số tiền gửi",
+            "tiền phạt",
+            "tiền thuế",
+            "phí dịch vụ"
+          ],
+          "answer": "khoản tiền ngân hàng trả thêm cho người gửi, dựa trên số tiền gửi",
+          "explanation": "Lãi suất tiền gửi là phần ngân hàng trả thêm cho người gửi, tính theo số tiền và thời gian gửi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ba vấn đề kinh tế cơ bản mà mọi nền kinh tế phải giải quyết là gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "sản xuất cái gì, sản xuất như thế nào, sản xuất cho ai",
+            "mua – bán – cho",
+            "ăn – ngủ – chơi",
+            "in tiền – tiêu tiền – cất tiền"
+          ],
+          "answer": "sản xuất cái gì, sản xuất như thế nào, sản xuất cho ai",
+          "explanation": "Ba vấn đề kinh tế cơ bản: sản xuất cái gì, sản xuất như thế nào, sản xuất cho ai.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hàng hóa công cộng (đèn đường, quốc phòng) có đặc điểm gì?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "nhiều người cùng sử dụng, khó loại trừ người không trả tiền",
+            "chỉ một người dùng được",
+            "luôn phải trả phí trực tiếp",
+            "do tư nhân độc quyền cung cấp"
+          ],
+          "answer": "nhiều người cùng sử dụng, khó loại trừ người không trả tiền",
+          "explanation": "Hàng hóa công cộng có tính không cạnh tranh và khó loại trừ người không trả tiền.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi Nhà nước tăng thuế đối với một mặt hàng, giá bán của mặt hàng đó thường thế nào?",
+          "question_vi": "",
+          "emoji": "🧾",
+          "options": [
+            "tăng lên",
+            "giảm xuống",
+            "bằng 0",
+            "không liên quan"
+          ],
+          "answer": "tăng lên",
+          "explanation": "Tăng thuế làm chi phí tăng, giá bán mặt hàng thường tăng theo.",
+          "difficulty": 3
+        },
+        {
+          "question": "“Tiết kiệm” trong kinh tế vĩ mô là gì?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": [
+            "phần thu nhập không dùng để tiêu dùng hiện tại",
+            "toàn bộ thu nhập",
+            "tiền vay",
+            "tiền thuế"
+          ],
+          "answer": "phần thu nhập không dùng để tiêu dùng hiện tại",
+          "explanation": "Tiết kiệm là phần thu nhập còn lại sau khi tiêu dùng, có thể dùng để đầu tư.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_hsg_district_1",
+      "title": "Kinh tế học — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_nang_cao",
+      "questions": [
+        {
+          "question": "Khi ngân hàng trung ương tăng lãi suất, hoạt động vay vốn của doanh nghiệp thường thế nào?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": [
+            "giảm đi vì vay đắt hơn",
+            "tăng mạnh",
+            "không đổi hoàn toàn",
+            "trở nên miễn phí"
+          ],
+          "answer": "giảm đi vì vay đắt hơn",
+          "explanation": "Lãi suất tăng làm chi phí vay cao hơn nên doanh nghiệp giảm vay.",
+          "difficulty": 4
+        },
+        {
+          "question": "Cạnh tranh trong kinh tế thị trường có tác động tích cực nào?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "thúc đẩy cải tiến chất lượng, hạ giá thành",
+            "làm hàng hóa kém đi",
+            "triệt tiêu sản xuất",
+            "luôn gây lạm phát"
+          ],
+          "answer": "thúc đẩy cải tiến chất lượng, hạ giá thành",
+          "explanation": "Cạnh tranh lành mạnh thúc đẩy doanh nghiệp cải tiến chất lượng, hạ giá thành.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Cầu co giãn theo giá” nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "lượng cầu thay đổi khi giá thay đổi",
+            "giá không bao giờ đổi",
+            "cầu luôn cố định",
+            "cung quyết định tất cả"
+          ],
+          "answer": "lượng cầu thay đổi khi giá thay đổi",
+          "explanation": "Cầu co giãn theo giá nghĩa là lượng cầu phản ứng (thay đổi) khi giá thay đổi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đầu tư là hoạt động gì?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": [
+            "dùng vốn hiện tại nhằm thu lợi ích lớn hơn trong tương lai",
+            "tiêu dùng hết ngay",
+            "cho không tài sản",
+            "đốt tiền"
+          ],
+          "answer": "dùng vốn hiện tại nhằm thu lợi ích lớn hơn trong tương lai",
+          "explanation": "Đầu tư là bỏ vốn hiện tại để kỳ vọng thu lợi ích lớn hơn trong tương lai.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi đồng nội tệ mất giá so với ngoại tệ, hoạt động xuất khẩu thường được lợi thế nào?",
+          "question_vi": "",
+          "emoji": "💱",
+          "options": [
+            "hàng xuất khẩu rẻ hơn với nước ngoài nên dễ bán hơn",
+            "hàng đắt hơn nên khó bán",
+            "không ảnh hưởng",
+            "xuất khẩu bị cấm"
+          ],
+          "answer": "hàng xuất khẩu rẻ hơn với nước ngoài nên dễ bán hơn",
+          "explanation": "Nội tệ mất giá làm hàng xuất khẩu rẻ hơn khi quy ra ngoại tệ, thuận lợi cho xuất khẩu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Thị trường lao động là nơi diễn ra việc mua bán gì?",
+          "question_vi": "",
+          "emoji": "👷",
+          "options": [
+            "sức lao động (giữa người lao động và người sử dụng lao động)",
+            "hàng tiêu dùng",
+            "bất động sản",
+            "cổ phiếu"
+          ],
+          "answer": "sức lao động (giữa người lao động và người sử dụng lao động)",
+          "explanation": "Thị trường lao động là nơi trao đổi, mua bán sức lao động.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_hsg_province_1",
+      "title": "Kinh tế học — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "kinh_te_chuyen_sau",
+      "questions": [
+        {
+          "question": "Chính sách tài khóa của Nhà nước chủ yếu sử dụng công cụ nào?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "thuế và chi tiêu công",
+            "chỉ lãi suất ngân hàng trung ương",
+            "chỉ tỷ giá hối đoái",
+            "chỉ giá vàng"
+          ],
+          "answer": "thuế và chi tiêu công",
+          "explanation": "Chính sách tài khóa dùng công cụ thuế và chi tiêu công của Nhà nước.",
+          "difficulty": 4
+        },
+        {
+          "question": "Chính sách tiền tệ do cơ quan nào điều hành và dùng công cụ chính nào?",
+          "question_vi": "",
+          "emoji": "🏦",
+          "options": [
+            "ngân hàng trung ương, qua lãi suất và lượng cung tiền",
+            "Quốc hội, qua thuế",
+            "doanh nghiệp, qua giá bán",
+            "hộ gia đình, qua tiết kiệm"
+          ],
+          "answer": "ngân hàng trung ương, qua lãi suất và lượng cung tiền",
+          "explanation": "Chính sách tiền tệ do ngân hàng trung ương điều hành qua lãi suất, lượng cung tiền.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Tăng trưởng kinh tế” được hiểu là gì?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": [
+            "sự gia tăng quy mô sản lượng (GDP) của nền kinh tế trong một thời kỳ",
+            "sự giảm dân số",
+            "việc in thêm tiền",
+            "sự tăng giá hàng hóa"
+          ],
+          "answer": "sự gia tăng quy mô sản lượng (GDP) của nền kinh tế trong một thời kỳ",
+          "explanation": "Tăng trưởng kinh tế là sự gia tăng sản lượng (GDP) của nền kinh tế qua thời gian.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Phát triển bền vững” đòi hỏi sự hài hòa giữa những yếu tố nào?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": [
+            "tăng trưởng kinh tế, công bằng xã hội và bảo vệ môi trường",
+            "chỉ lợi nhuận tối đa",
+            "chỉ tăng dân số",
+            "chỉ khai thác tài nguyên"
+          ],
+          "answer": "tăng trưởng kinh tế, công bằng xã hội và bảo vệ môi trường",
+          "explanation": "Phát triển bền vững hài hòa giữa kinh tế, xã hội và môi trường.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quy luật giá trị yêu cầu trao đổi hàng hóa dựa trên cơ sở nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "hao phí lao động xã hội cần thiết",
+            "ý thích của người bán",
+            "màu sắc hàng hóa",
+            "thời tiết"
+          ],
+          "answer": "hao phí lao động xã hội cần thiết",
+          "explanation": "Quy luật giá trị: sản xuất và trao đổi hàng hóa dựa trên hao phí lao động xã hội cần thiết.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi nền kinh tế suy thoái, Nhà nước thường dùng biện pháp nào để kích cầu?",
+          "question_vi": "",
+          "emoji": "💸",
+          "options": [
+            "tăng chi tiêu công và/hoặc giảm thuế",
+            "tăng thuế thật cao",
+            "cấm tiêu dùng",
+            "ngừng mọi đầu tư"
+          ],
+          "answer": "tăng chi tiêu công và/hoặc giảm thuế",
+          "explanation": "Để kích cầu khi suy thoái, Nhà nước thường tăng chi tiêu công và/hoặc giảm thuế.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
