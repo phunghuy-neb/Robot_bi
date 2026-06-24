@@ -42,7 +42,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 |---|---|
 | `src/ai/` | LLM streaming/fallback, prompts, and family persona settings; `language_detector.py` exists as a small placeholder file. |
 | `src/api/` | FastAPI app assembly in `server.py` and route modules in `src/api/routers/`. |
-| `src/audio/` | STT input, callback/native-rate microphone utilities, wake-word hook, TTS output, music state, separate-mic cry detection, and pronunciation scoring. `output/mouth_tts.py` defaults to edge-tts with a pyttsx3 fallback; `TTS_OFFLINE=true` (or `TTS_ENGINE=pyttsx3`) forces fully-offline pyttsx3, skipping edge-tts (does not change the protected playback/streaming/channel logic). `input/transcribe_file.py` transcribes uploaded audio files (no microphone/sounddevice import). |
+| `src/audio/` | STT input, callback/native-rate microphone utilities, wake-word hook, TTS output, music state, separate-mic cry detection, and pronunciation scoring. `output/mouth_tts.py` defaults to edge-tts with a pyttsx3 fallback; `TTS_OFFLINE=true` (or `TTS_ENGINE=pyttsx3`) forces fully-offline pyttsx3, skipping edge-tts (does not change the protected playback/streaming/channel logic). `input/transcribe_file.py` transcribes uploaded audio files (no microphone/sounddevice import). TTS chunk files are written to a dedicated temp dir (`mouth_tts.CHUNK_DIR`), not the CWD. |
 | `src/communication/` | In-memory video call manager and simulated robot-to-robot communication helpers. |
 | `src/config/` | Placeholder config module files exist; runtime completeness not verified. |
 | `src/display/` | Robot face state events and flashcard renderer; reward/sleep files exist as placeholders. |
@@ -53,7 +53,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/infrastructure/` | Auth/JWT helpers, SQLite database helpers, logging setup, notifier, session state/naming, and task manager. |
 | `src/living/` | Runtime-only Stage 1 living layer: state machine, micro moments, and audio-first proactive prompts. A recognized interaction creates a short recent-presence window; optional camera events may extend it. |
 | `src/memory/` | ChromaDB RAG manager plus smaller memory/progress placeholder or support files. |
-| `src/motion/` | Motor controller with simulation/serial/WebSocket paths plus navigation, follow-me, and dock helper modules. |
+| `src/motion/` | Motor controller with simulation/serial/WebSocket paths plus navigation, follow-me, and dock helper modules. `MotorController._send` fast-fails (no inline reconnect holding the lock — a `stop` is never starved); `forward/backward/spin` clamp duration centrally to `_MAX_DURATION_MS` (5 s) so all callers share the physical safety cap. |
 | `src/safety/` | Safety filter for LLM/puppet text before TTS. `safety_filter.py` keeps its 3 hardcoded layers (topic classifier + blacklist + sentence cap) and ADDS an admin-configurable GLOBAL layer (`resources/safety_config.json`): extra blocklist words, extra blocked topics (refusal), default age/time/sleep policy, plus an in-memory block-monitoring buffer (counts + recent triggers, no child text stored). Module-level config is shared across all SafetyFilter instances and reloads on admin save without restart. |
 | `src/vision/` | Optional camera stream module, disabled by default with `CAMERA_ENABLED=false`; current machine has no camera. |
 

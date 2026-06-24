@@ -210,7 +210,15 @@ def start_api_server(host: str = "0.0.0.0", port: int = 8000) -> None:
     from src.infrastructure.auth.auth import _get_jwt_config
     _get_jwt_config()
 
-    use_https = _USE_HTTPS
+    # SSL self-signed: KEY KHÔNG còn commit trong git (L-NEW-4) → tự sinh nếu thiếu,
+    # giữ HTTPS-by-default mà không lộ private key trong repo.
+    if not (_SSL_CERT.exists() and _SSL_KEY.exists()):
+        try:
+            from generate_ssl import generate_ssl as _gen_ssl
+            _gen_ssl()
+        except Exception as e:
+            print(f"[Server] Khong tao duoc SSL self-signed ({e}); chay HTTP")
+    use_https = _SSL_CERT.exists() and _SSL_KEY.exists()
     actual_port = 8443 if use_https else port
 
     def _run():

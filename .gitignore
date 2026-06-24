@@ -83,3 +83,6 @@ frontend/parent_app/dist/
 # CodeGraph local index (not tracked)
 .codegraph/
 .aider*
+
+# SSL self-signed (tự sinh khi chạy — không commit private key)
+ssl/*.pem

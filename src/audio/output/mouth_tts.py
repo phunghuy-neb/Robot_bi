@@ -33,6 +33,20 @@ import pygame
 
 _AUDIO_BACKEND_ERRORS = (pygame.error, OSError, RuntimeError)
 
+# Thư mục TẠM cho file audio chunk (M2): KHÔNG ghi vào CWD nữa (rác + xung đột khi
+# chạy từ thư mục khác). Dùng temp-dir riêng; main._cleanup_chunks quét đúng dir này.
+import tempfile as _tempfile
+
+CHUNK_DIR = os.path.join(_tempfile.gettempdir(), "robot_bi_voice")
+try:
+    os.makedirs(CHUNK_DIR, exist_ok=True)
+except OSError:
+    CHUNK_DIR = _tempfile.gettempdir()
+
+
+def _chunk_path(chunk_index: int, ext: str) -> str:
+    return os.path.join(CHUNK_DIR, f"voice_chunk_{chunk_index}.{ext}")
+
 
 def _tts_offline_only() -> bool:
     """True nếu cấu hình ép TTS chạy HOÀN TOÀN offline (pyttsx3), bỏ qua edge-tts.
@@ -110,7 +124,7 @@ class MouthTTS:
         # Chế độ offline-only: dùng thẳng pyttsx3, không gọi edge-tts (cần internet).
         if _tts_offline_only():
             return self._fallback_tts(text, chunk_index)
-        filename = f"voice_chunk_{chunk_index}.mp3"
+        filename = _chunk_path(chunk_index, "mp3")
         for attempt in range(3):
             try:
                 if attempt > 0:
@@ -147,7 +161,7 @@ class MouthTTS:
                 if 'vietnamese' in v.name.lower() or 'vi' in v.id.lower():
                     engine.setProperty('voice', v.id)
                     break
-            filename = f"voice_chunk_{chunk_index}.wav"
+            filename = _chunk_path(chunk_index, "wav")
             engine.save_to_file(text, filename)
             engine.runAndWait()
             return filename

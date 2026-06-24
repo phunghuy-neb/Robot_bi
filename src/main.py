@@ -324,12 +324,21 @@ class RobotBiApp:
         except Exception:
             pass
         import time
+        import os.path as _osp
+        from src.audio.output.mouth_tts import CHUNK_DIR
         time.sleep(0.3)
-        for f in glob.glob("voice_chunk_*.mp3") + glob.glob("voice_chunk_*.wav"):
-            try:
-                os.remove(f)
-            except (FileNotFoundError, PermissionError):
-                pass
+        # Quét đúng thư mục tạm của chunk (M2) — không còn ở CWD. Quét cả CWD để dọn
+        # file cũ còn sót từ phiên bản trước (backward-compatible).
+        patterns = [
+            _osp.join(CHUNK_DIR, "voice_chunk_*.mp3"), _osp.join(CHUNK_DIR, "voice_chunk_*.wav"),
+            "voice_chunk_*.mp3", "voice_chunk_*.wav",
+        ]
+        for pat in patterns:
+            for f in glob.glob(pat):
+                try:
+                    os.remove(f)
+                except (FileNotFoundError, PermissionError):
+                    pass
 
     def _close_current_session(self) -> None:
         if not self._current_session_id:

@@ -68,6 +68,10 @@ _SENSITIVE_PATTERNS_VI_ACCENTED = [
 _SENSITIVE_PATTERNS_NORM_ONLY = [
     # Tiếng Việt không dấu — bắt khi LLM output hoặc user gõ không dấu
     r'(?<!\w)(tu tu|tu sat|tu lam dau|cat tay|giet nguoi)(?!\w)',
+    # Bổ sung dạng không dấu cho các từ chỉ có ở bản CÓ DẤU (L-NEW-7).
+    # CHỦ Ý loại "ban"(bạn) / "bom"(bơm) / "sung"(sưng) / "tu dao"(tu đạo) vì gây
+    # false-positive với từ vô hại — chỉ thêm từ không có nghĩa lành phổ biến.
+    r'(?<!\w)(giet|danh nhau|khieu dam|noi dung nguoi lon)(?!\w)',
     r'(?<!\w)(chien tranh|vu khi|dao gam|thanh chien|khung bo|cuc doan)(?!\w)',
     r'(?<!\w)(chinh tri|dang phai|bieu tinh|cach mang|lat do|che do)(?!\w)',
     # English

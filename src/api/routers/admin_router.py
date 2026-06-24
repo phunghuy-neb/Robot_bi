@@ -166,15 +166,18 @@ async def delete_family(family_id: str, admin: dict = Depends(require_admin)):
     ok = delete_family_record(family_id)
     if not ok:
         raise HTTPException(status_code=404, detail="Family not found")
+    rag_cleaned = True
     if _state._rag:
         result = _state._rag.clear_all_memories(family_id=family_id)
         if not result:
+            rag_cleaned = False
             logger.warning(
                 "[Admin] ChromaDB cleanup failed for family %s - "
-                "DB deleted but memories may remain",
+                "DB deleted but memories may remain (family_id reuse could inherit them)",
                 family_id,
             )
-    return {"ok": True, "family_id": family_id}
+    # Báo rõ trạng thái cleanup RAG (L-NEW-7 r35) để admin biết có memory mồ côi cần dọn.
+    return {"ok": True, "family_id": family_id, "rag_cleaned": rag_cleaned}
 
 
 # ── User account management (admin) ───────────────────────────────────────────

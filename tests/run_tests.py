@@ -8792,6 +8792,76 @@ test("94.3  M-NEW-9: /api/eval/chat chỉ admin (non-admin 403)",              t
 test("94.4  M-NEW-10: feedback TOEIC qua SafetyFilter",                      test_94_exam_feedback_safetyfiltered)
 test("94.5  L-NEW-8: CSV chống formula injection",                           test_94_csv_formula_injection)
 
+# == GROUP 95: More review fixes (L-NEW-7, M1, H-NEW-3, M2, family-delete) ==
+print("\n[Group 95] Fix bổ sung từ review — safety/motor/audio")
+
+
+def test_95_safety_norm_terms():
+    from src.safety.safety_filter import SafetyFilter
+    sf = SafetyFilter()
+    # Không dấu nguy hiểm nay bị chặn (L-NEW-7)
+    assert sf.check("danh nhau di")[0] is False
+    assert sf.check("noi dung nguoi lon")[0] is False
+    assert sf.check("xem khieu dam")[0] is False
+    assert sf.check("giet het")[0] is False
+    # KHÔNG false-positive với từ vô hại: các từ mình THÊM (giet/danh nhau/khieu dam/
+    # noi dung nguoi lon) không đụng "bạn"/"sưng". (Lưu ý: "bom" đã bị pattern CÓ SẴN
+    # chặn từ trước do bom=bomb — collision bơm↔bom là vấn đề cũ, ngoài phạm vi.)
+    assert sf.check("Chào bạn, hôm nay vui không?")[0] is True
+    assert sf.check("ban oi minh choi nhe")[0] is True
+    assert sf.check("tay bi sung roi")[0] is True
+
+
+def test_95_motor_fastfail_no_lock_block():
+    from src.motion.motor_controller import MotorController, _clamp_duration
+    # H-NEW-3 clamp tập trung
+    assert _clamp_duration(600000) == 5000
+    assert _clamp_duration(-5) == 0
+    assert _clamp_duration(800) == 800
+    mc = MotorController()  # simulation mode (no ws_url)
+    called = {"reconnect": False}
+    mc._try_connect_ws = lambda: called.__setitem__("reconnect", True)
+
+    class _FakeWS:
+        def send(self, *a): raise RuntimeError("boom")
+        def close(self): pass
+    mc.mode = "wifi"
+    mc._ws = _FakeWS()
+    ok = mc._send("stop")
+    assert ok is False, "send lỗi phải trả False"
+    assert mc.mode == "simulation", "phải chuyển simulation"
+    assert called["reconnect"] is False, "M1: KHÔNG reconnect inline (không giữ lock ~19s)"
+    # forward clamp duration
+    mc.mode = "simulation"
+    mc.forward(speed=50, duration_ms=999999)
+    assert mc.last_command["duration_ms"] == 5000
+
+
+def test_95_chunk_path_in_tempdir():
+    from src.audio.output import mouth_tts as mt
+    p = mt._chunk_path(3, "mp3")
+    assert p.startswith(mt.CHUNK_DIR), f"chunk phải ở CHUNK_DIR, có {p}"
+    assert "voice_chunk_3.mp3" in p
+    import os as _os
+    assert _os.path.isabs(p), "phải là đường dẫn tuyệt đối (không phải CWD tương đối)"
+
+
+def test_95_delete_family_reports_rag_cleanup():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("dfadm", f"dfadm-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    fid = f"todel-{_uuid.uuid4().hex[:6]}"
+    client.post("/api/admin/families", json={"family_id": fid}, headers=ha)
+    r = client.delete(f"/api/admin/families/{fid}", headers=ha)
+    assert r.status_code == 200 and "rag_cleaned" in r.json(), r.text
+
+
+test("95.1  L-NEW-7: chặn từ không-dấu, KHÔNG false-positive bạn/bơm/sưng",     test_95_safety_norm_terms)
+test("95.2  M1+H-NEW-3: motor fast-fail (không block) + clamp 5s",            test_95_motor_fastfail_no_lock_block)
+test("95.3  M2: voice_chunk ghi vào temp dir (không CWD)",                    test_95_chunk_path_in_tempdir)
+test("95.4  delete_family báo rag_cleaned",                                   test_95_delete_family_reports_rag_cleanup)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

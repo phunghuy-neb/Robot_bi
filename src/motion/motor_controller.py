@@ -21,6 +21,15 @@ try:
 except ImportError:
     WS_AVAILABLE = False
 
+# Trần thời lượng chuyển động vật lý (H-NEW-3): clamp tập trung để MỌI caller
+# (REST/WS/gọi trực tiếp) đều bị giới hạn, không chỉ riêng router. Khớp _MAX_DURATION_MS
+# ở motor_router/streaming_router.
+_MAX_DURATION_MS = 5000
+
+
+def _clamp_duration(duration_ms) -> int:
+    return min(max(0, int(duration_ms)), _MAX_DURATION_MS)
+
 
 class MotorController:
     """Motor controller voi simulation fallback."""
@@ -113,21 +122,17 @@ class MotorController:
                     self._ws.send(payload_str.strip())
                     return True
                 except Exception:
-                    logger.warning("[MotorController] WiFi send failed — reconnecting...")
+                    # Fast-fail (M1): KHÔNG reconnect inline ở đây — `_try_connect_ws` mất tới
+                    # ~19s (3 lần thử + sleep) và GIỮ self._lock suốt thời gian đó, nuốt luôn
+                    # lệnh `stop` đang chờ lock → nguy hiểm vật lý. Đóng ws + chuyển simulation;
+                    # background reconnect thread sẽ tự kết nối lại (không giữ lock khi sleep).
+                    logger.warning("[MotorController] WiFi send failed — fast-fail; background sẽ reconnect")
                     try:
                         self._ws.close()
                     except Exception:
                         pass
                     self._ws = None
                     self.mode = "simulation"
-                    self._try_connect_ws()
-                    if self.mode == "wifi" and self._ws:
-                        try:
-                            self._ws.send(payload_str.strip())
-                            return True
-                        except Exception as e2:
-                            logger.error(f"[MotorController] Retry failed: {e2}")
-                            return False
                     return False
             elif self.mode == "serial" and self._serial:
                 try:
@@ -142,11 +147,11 @@ class MotorController:
 
     def forward(self, speed: int = 50, duration_ms: int = 1000) -> bool:
         """Di tien voi speed va duration."""
-        return self._send("forward", speed=max(0, min(100, int(speed))), duration_ms=max(0, int(duration_ms)))
+        return self._send("forward", speed=max(0, min(100, int(speed))), duration_ms=_clamp_duration(duration_ms))
 
     def backward(self, speed: int = 50, duration_ms: int = 1000) -> bool:
         """Di lui voi speed va duration."""
-        return self._send("backward", speed=max(0, min(100, int(speed))), duration_ms=max(0, int(duration_ms)))
+        return self._send("backward", speed=max(0, min(100, int(speed))), duration_ms=_clamp_duration(duration_ms))
 
     def turn_left(self, degrees: int = 90) -> bool:
         """Quay trai theo degrees."""
@@ -166,7 +171,7 @@ class MotorController:
 
     def spin(self, speed: int = 50, duration_ms: int = 2000) -> bool:
         """Quay tron tai cho."""
-        return self._send("spin", speed=max(0, min(100, int(speed))), duration_ms=max(0, int(duration_ms)))
+        return self._send("spin", speed=max(0, min(100, int(speed))), duration_ms=_clamp_duration(duration_ms))
 
     def drive(self, left: int = 0, right: int = 0) -> bool:
         """Continuous drive: left/right PWM doc lap, -100 den 100.
