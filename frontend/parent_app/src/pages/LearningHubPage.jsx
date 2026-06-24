@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   getLearningModules, getLearningLesson, submitLearningLesson, showToast,
-  getExamTracks, getExams, getExam, submitExam, submitToeicSW, getExamSessions, deleteExam,
+  getExamTracks, getExams, getExam, submitExam, submitToeicSW, submitToeicSpeakingAudio,
+  getExamSessions, deleteExam,
 } from '../services/api.js';
 import ExamBuilder from '../components/ExamBuilder.jsx';
 
@@ -97,6 +98,11 @@ export default function LearningHubPage() {
   // TOEIC S&W speaking: browser-native speech-to-text (no extra deps).
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
+  // Audio THẬT cho Speaking: ghi clip mỗi câu, gửi server STT khi nộp.
+  const mediaRecorderRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioBlobsRef = useRef({});  // { [questionId]: Blob }
 
   useEffect(() => { loadModules(); }, []);
 
@@ -138,6 +144,7 @@ export default function LearningHubPage() {
     if (!data?.questions?.length) { showToast('Không tải được đề thi'); return; }
     setExamData(data);
     setExamAnswers({});
+    audioBlobsRef.current = {};
     setExamQIndex(0);
     setExamResult(null);
     setExamTimeLeft((data.paper.duration_minutes || 30) * 60);
@@ -151,33 +158,59 @@ export default function LearningHubPage() {
 
   function stopRecording() {
     try { recognitionRef.current?.stop(); } catch { /* noop */ }
+    try { mediaRecorderRef.current?.state === 'recording' && mediaRecorderRef.current.stop(); } catch { /* noop */ }
     setRecording(false);
   }
 
-  // Speaking: capture the spoken answer for `questionId` via the Web Speech API
-  // and write the running transcript into examAnswers. Falls back to manual
-  // typing when the browser has no SpeechRecognition.
-  function toggleRecord(questionId) {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { showToast('Trình duyệt không hỗ trợ ghi âm — hãy gõ nội dung bạn nói.'); return; }
+  // Ghi âm THẬT clip của câu `questionId` qua MediaRecorder (gửi server STT khi nộp).
+  // Song song chạy Web Speech API để hiện transcript xem trước (nếu trình duyệt hỗ trợ).
+  async function startAudioCapture(questionId) {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return false;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      audioChunksRef.current = [];
+      const mr = new MediaRecorder(stream);
+      mr.ondataavailable = (e) => { if (e.data && e.data.size) audioChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        if (audioChunksRef.current.length) {
+          audioBlobsRef.current[questionId] = new Blob(audioChunksRef.current, { type: mr.mimeType || 'audio/webm' });
+        }
+        try { mediaStreamRef.current?.getTracks().forEach(t => t.stop()); } catch { /* noop */ }
+        mediaStreamRef.current = null;
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Speaking: ghi âm thật (server STT) + Web Speech API (transcript xem trước).
+  async function toggleRecord(questionId) {
     if (recording) { stopRecording(); return; }
-    const rec = new SR();
-    rec.lang = 'en-US';
-    rec.interimResults = true;
-    rec.continuous = true;
-    let finalText = examAnswers[questionId] ? `${examAnswers[questionId]} ` : '';
-    rec.onresult = (e) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalText += `${t} `; else interim += t;
-      }
-      setExamAnswers(prev => ({ ...prev, [questionId]: (finalText + interim).trim() }));
-    };
-    rec.onerror = () => setRecording(false);
-    rec.onend = () => setRecording(false);
-    recognitionRef.current = rec;
-    rec.start();
+    const gotAudio = await startAudioCapture(questionId);
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR && !gotAudio) { showToast('Trình duyệt không hỗ trợ ghi âm — hãy gõ nội dung bạn nói.'); return; }
+    if (SR) {
+      const rec = new SR();
+      rec.lang = 'en-US';
+      rec.interimResults = true;
+      rec.continuous = true;
+      let finalText = examAnswers[questionId] ? `${examAnswers[questionId]} ` : '';
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += `${t} `; else interim += t;
+        }
+        setExamAnswers(prev => ({ ...prev, [questionId]: (finalText + interim).trim() }));
+      };
+      rec.onerror = () => {};
+      recognitionRef.current = rec;
+      rec.start();
+    }
     setRecording(true);
   }
 
@@ -190,11 +223,27 @@ export default function LearningHubPage() {
     let res;
     if (examData.paper.subject === 'toeic_sw') {
       const skill = (examData.paper.skill || 'writing').toLowerCase();
-      res = await submitToeicSW(examData.paper.paper_id, {
-        responses: skill === 'speaking' ? {} : examAnswers,
-        transcripts: skill === 'speaking' ? examAnswers : {},
-        timeSpentSeconds: timeSpent,
-      });
+      const blobMap = audioBlobsRef.current || {};
+      const recordedQids = Object.keys(blobMap);
+      if (skill === 'speaking' && recordedQids.length) {
+        // Ưu tiên audio THẬT: server transcribe (Whisper) rồi chấm.
+        res = await submitToeicSpeakingAudio(examData.paper.paper_id, {
+          questionIds: recordedQids,
+          blobs: recordedQids.map(q => blobMap[q]),
+          timeSpentSeconds: timeSpent,
+          language: 'en',
+        });
+        // Fallback sang transcript trình duyệt nếu server STT lỗi.
+        if (!res && Object.keys(examAnswers).length) {
+          res = await submitToeicSW(examData.paper.paper_id, { transcripts: examAnswers, timeSpentSeconds: timeSpent });
+        }
+      } else {
+        res = await submitToeicSW(examData.paper.paper_id, {
+          responses: skill === 'speaking' ? {} : examAnswers,
+          transcripts: skill === 'speaking' ? examAnswers : {},
+          timeSpentSeconds: timeSpent,
+        });
+      }
     } else {
       res = await submitExam(examData.paper.paper_id, examAnswers, timeSpent);
     }

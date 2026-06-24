@@ -436,6 +436,16 @@ export async function submitExam(paperId, answers, timeSpentSeconds = 0) {
 // TOEIC Speaking & Writing: free-text grading (rubric + LLM, offline fallback).
 // `responses` = written answers (writing skill); `transcripts` = spoken text
 // (speaking skill). The backend reads the relevant map based on the paper skill.
+// Speaking với AUDIO THẬT: upload từng clip ghi âm; server transcribe (Whisper) rồi chấm.
+export async function submitToeicSpeakingAudio(paperId, { questionIds = [], blobs = [], timeSpentSeconds = 0, language = 'en' } = {}) {
+  const fd = new FormData();
+  questionIds.forEach(q => fd.append('question_ids', q));
+  blobs.forEach((b, i) => fd.append('files', b, `q${i}.webm`));
+  fd.append('time_spent_seconds', String(timeSpentSeconds));
+  fd.append('language', language);
+  return apiFetch(`/api/learning/exams/${paperId}/submit-speaking-audio`, { method: 'POST', body: fd });
+}
+
 export async function submitToeicSW(paperId, { responses = {}, transcripts = {}, timeSpentSeconds = 0 } = {}) {
   return apiFetch(`/api/learning/exams/${paperId}/submit-toeic-sw`, {
     method: 'POST',

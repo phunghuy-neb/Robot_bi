@@ -8404,6 +8404,108 @@ test("89.3  Nội dung global hiện cho gia đình",                           
 test("89.4  Thống kê tổng quan + RBAC",                                      test_89_stats)
 test("89.5  Công tắc KNOWLEDGE_ENABLED tắt → 503",                           test_89_knowledge_toggle)
 
+# == GROUP 90: TOEIC Speaking — server-side audio upload + STT ==============
+print("\n[Group 90] TOEIC Speaking audio thật — multipart upload + STT (stub)")
+
+
+def _toeic_speaking_paper(client, headers):
+    exams = client.get("/api/learning/exams?track=toeic_sw", headers=headers).json()["exams"]
+    spid = next(e["paper_id"] for e in exams if "speaking" in e["paper_id"])
+    det = client.get(f"/api/learning/exams/{spid}", headers=headers).json()
+    qids = [q["question_id"] for q in det["questions"]]
+    return spid, qids
+
+
+def _with_stub_transcribe(text):
+    """Trả (restore_fn) sau khi gắn stub _transcribe_audio để KHỎI tải Whisper."""
+    import src.api.routers.exam_router as er
+    saved = er._transcribe_audio
+    er._transcribe_audio = lambda data, filename, language=None: text
+    def restore():
+        er._transcribe_audio = saved
+    return restore
+
+
+def test_90_submit_speaking_audio_ok():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    prev = _os.environ.get("SKIP_LLM"); _os.environ["SKIP_LLM"] = "1"
+    restore = _with_stub_transcribe("I usually read English books with my friends on the weekend.")
+    try:
+        headers = _phase44_headers("spaud", f"sa-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        spid, qids = _toeic_speaking_paper(client, headers)
+        use = qids[:2]
+        files = [("files", (f"q{i}.webm", b"FAKEAUDIODATA", "audio/webm")) for i in range(len(use))]
+        data = {"question_ids": use, "time_spent_seconds": "30", "language": "en"}
+        r = client.post(f"/api/learning/exams/{spid}/submit-speaking-audio",
+                        data=data, files=files, headers=headers)
+        assert r.status_code == 200, f"{r.status_code} {r.text[:200]}"
+        body = r.json()
+        assert body["score"] > 0 and "estimated_200" in body and "disclaimer" in body
+    finally:
+        restore()
+        if prev is None: _os.environ.pop("SKIP_LLM", None)
+        else: _os.environ["SKIP_LLM"] = prev
+
+
+def test_90_count_mismatch_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    restore = _with_stub_transcribe("hello")
+    try:
+        headers = _phase44_headers("spmis", f"sm-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        spid, qids = _toeic_speaking_paper(client, headers)
+        # 1 file nhưng 2 question_ids → 422
+        files = [("files", ("q.webm", b"X", "audio/webm"))]
+        data = {"question_ids": qids[:2], "time_spent_seconds": "5"}
+        r = client.post(f"/api/learning/exams/{spid}/submit-speaking-audio",
+                        data=data, files=files, headers=headers)
+        assert r.status_code == 422, f"mismatch phải 422, có {r.status_code}"
+    finally:
+        restore()
+
+
+def test_90_empty_transcript_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    restore = _with_stub_transcribe("")  # STT không ra chữ
+    try:
+        headers = _phase44_headers("spemp", f"se-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        spid, qids = _toeic_speaking_paper(client, headers)
+        files = [("files", ("q.webm", b"NOISE", "audio/webm"))]
+        data = {"question_ids": qids[:1], "time_spent_seconds": "5"}
+        r = client.post(f"/api/learning/exams/{spid}/submit-speaking-audio",
+                        data=data, files=files, headers=headers)
+        assert r.status_code == 422, f"không transcript phải 422, có {r.status_code}"
+    finally:
+        restore()
+
+
+def test_90_non_sw_paper_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    restore = _with_stub_transcribe("some words")
+    try:
+        headers = _phase44_headers("spnsw", f"sn-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        files = [("files", ("q.webm", b"X", "audio/webm"))]
+        data = {"question_ids": ["q1"], "time_spent_seconds": "1"}
+        r = client.post("/api/learning/exams/exam_math_thpt_starter_1/submit-speaking-audio",
+                        data=data, files=files, headers=headers)
+        assert r.status_code == 422, f"đề không phải toeic_sw phải 422, có {r.status_code}"
+    finally:
+        restore()
+
+
+test("90.1  Multipart audio → STT (stub) → chấm có estimated_200",            test_90_submit_speaking_audio_ok)
+test("90.2  Số file ≠ số question_id → 422",                                 test_90_count_mismatch_422)
+test("90.3  STT rỗng → 422",                                                 test_90_empty_transcript_422)
+test("90.4  Đề không phải toeic_sw → 422",                                   test_90_non_sw_paper_422)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

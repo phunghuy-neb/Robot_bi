@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
@@ -679,10 +679,66 @@ async def submit_toeic_speaking(
     body: SubmitToeicSW,
     current_user: dict = Depends(get_current_user),
 ):
-    # MVP testable path: callers provide transcripts. Browser multipart upload is
-    # intentionally deferred until python-multipart is added to the dependency set.
+    # Đường JSON: caller tự cung cấp transcript (vd Web Speech API của trình duyệt).
+    # Đường audio THẬT (server STT) ở `/submit-speaking-audio` bên dưới.
     if not body.transcripts:
         raise HTTPException(status_code=422, detail="Transcript is required for speaking submission")
+    return await submit_toeic_sw(paper_id, body, current_user)
+
+
+# Tách riêng để test monkeypatch (không tải Whisper khi chạy test/CI).
+_MAX_AUDIO_BYTES = 25 * 1024 * 1024  # 25MB/clip — đủ cho 1 câu nói
+
+
+def _transcribe_audio(data: bytes, filename: str, language: str | None = None) -> str:
+    """Ghi bytes ra file tạm rồi STT qua faster-whisper. Trả "" nếu lỗi."""
+    import tempfile
+    suffix = os.path.splitext(filename or "")[1] or ".webm"
+    tmp = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+            f.write(data)
+            tmp = f.name
+        from src.audio.input.transcribe_file import transcribe_file
+        return transcribe_file(tmp, language=language)
+    except Exception as e:
+        logger.warning("[ToeicSpeaking] transcribe lỗi: %s", e)
+        return ""
+    finally:
+        if tmp:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+
+
+@router.post("/api/learning/exams/{paper_id}/submit-speaking-audio")
+async def submit_toeic_speaking_audio(
+    paper_id: str,
+    question_ids: list[str] = Form(...),
+    files: list[UploadFile] = File(...),
+    time_spent_seconds: int = Form(0),
+    language: str = Form("en"),
+    current_user: dict = Depends(get_current_user),
+):
+    """Nộp bài Speaking bằng AUDIO THẬT: mỗi câu 1 file ghi âm, server transcribe
+    (faster-whisper) rồi chấm như transcript. `question_ids[i]` ứng `files[i]`."""
+    if len(files) != len(question_ids):
+        raise HTTPException(status_code=422, detail="Số file audio và question_id phải khớp")
+    lang = (language or "").strip().lower() or None
+    transcripts: dict[str, str] = {}
+    for qid, upload in zip(question_ids, files):
+        data = await upload.read()
+        if not data:
+            continue
+        if len(data) > _MAX_AUDIO_BYTES:
+            raise HTTPException(status_code=413, detail=f"File audio quá lớn (>{_MAX_AUDIO_BYTES // (1024*1024)}MB)")
+        text = _transcribe_audio(data, upload.filename or "audio.webm", language=lang)
+        if text:
+            transcripts[str(qid)] = text
+    if not transcripts:
+        raise HTTPException(status_code=422, detail="Không nhận dạng được nội dung nói từ audio")
+    body = SubmitToeicSW(transcripts=transcripts, time_spent_seconds=max(0, int(time_spent_seconds)))
     return await submit_toeic_sw(paper_id, body, current_user)
 
 

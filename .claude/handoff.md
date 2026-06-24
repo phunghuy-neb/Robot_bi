@@ -19,7 +19,24 @@
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
-  (b) hoàn tất TOEIC S&W audio thật (multipart STT); (c) track phần cứng ESP32-S3.
+  (b) ✅ TOEIC S&W audio thật server-side = ĐÃ XONG phiên này (xem bullet "TOEIC Speaking audio
+  server" ngay dưới); (c) track phần cứng ESP32-S3.
+- **TOEIC Speaking audio server (multipart + STT) — ✅ DONE (UNCOMMITTED phiên này):**
+  - `src/audio/input/transcribe_file.py` (MỚI): STT cho FILE (không import sounddevice như ear_stt) —
+    lazy faster-whisper, GPU(cuda float16)→fallback CPU(`WHISPER_CPU_MODEL`, int8) giữ đúng Protected
+    Fix; `transcribe_file(path, language)` không raise (lỗi→"").
+  - `exam_router.py`: endpoint MỚI `POST /api/learning/exams/{paper_id}/submit-speaking-audio`
+    (multipart: `question_ids[]` + `files[]` khớp index + `time_spent_seconds` + `language`), transcribe
+    từng clip qua helper module-level `_transcribe_audio` (monkeypatch được trong test) rồi tái dùng
+    `submit_toeic_sw`. Giới hạn 25MB/clip; mismatch→422, STT rỗng→422, quá lớn→413. `/submit-speaking`
+    (JSON transcript) GIỮ làm fallback.
+  - `requirements.txt`: thêm `python-multipart==0.0.20` (CI tự cài; ĐÃ cài vào `.venv` phiên này theo
+    approval của user — endpoint multipart cần nó).
+  - **Frontend** `LearningHubPage.jsx`: Speaking nay ghi âm THẬT bằng MediaRecorder (song song Web Speech
+    API để xem trước transcript); `finishExam` ưu tiên gửi audio qua `submitToeicSpeakingAudio`
+    (`api.js` MỚI, FormData), fallback transcript nếu server STT lỗi/không ghi được. Reset blob mỗi đề.
+  - **Test Group 90** (4): multipart→STT(stub)→chấm có estimated_200; mismatch 422; STT rỗng 422; đề
+    không phải toeic_sw 422. Suite **689/689 PASS** (trước 685). SYSTEM_MAP cập nhật.
 - **Phase 6 (Nội dung + Nhật ký + Thống kê + công tắc tri thức) — ✅ DONE + committed `27994b3`:**
   - **Nội dung GLOBAL** (`admin_router`): `/api/admin/content` GET(list, lọc type)/POST(tạo global
     family_id NULL)/`/{id}` POST(sửa)/DELETE — radio/video/game trên bảng `content_items`, validate
@@ -195,9 +212,8 @@
     submit-toeic-sw writing (est200 + disclaimer); HTTP speaking + submit-speaking rỗng=422;
     đề không phải toeic_sw bị từ chối 422. Suite: **642/642 PASS** (trước 637). `test_toeic_sw.py`
     standalone vẫn giữ (unit helper), Group 81 lo phần CI/seed/HTTP.
-  - **CÒN LẠI (chưa làm)**: Speaking dùng audio THẬT phía server — upload multipart + STT
-    (cần `python-multipart`). Hiện Speaking dựa vào Web Speech API của trình duyệt (transcript),
-    server vẫn là MVP transcript.
+  - **✅ ĐÃ XONG**: Speaking audio THẬT phía server (multipart + faster-whisper STT) — xem bullet
+    "TOEIC Speaking audio server" ở đầu file. Không còn hạng mục dở cho TOEIC S&W.
 - **OpenCode repo cleanup (DONE, 2026-06-24)**: verified `opencode.json`,
   `scripts/setup_opencode_bluesminds.sh`, and `scripts/test_bluesminds_api.sh` are absent
   from both `HEAD` and the working tree. Aider's temporary commit `31495c9` is not an
@@ -304,7 +320,7 @@
 - Provider quota can throttle Cerebras/Groq; fallback chain handled observed quota 429 warnings during tests.
 - Current machine has no camera; this is supported and no longer blocks proactive behavior.
 - Windows microphone diagnostics apply only to optional PC-connected microphones, not the two INMP441 modules on the robot.
-- Learning Hub TOEIC S&W: backend chấm điểm + content pack đã có; frontend UI (nhập/thu âm, hiển thị `estimated_200`) và audio STT thật (multipart) chưa làm.
+- Learning Hub TOEIC S&W: HOÀN TẤT — backend chấm điểm, content pack, frontend UI, và audio STT thật server-side (multipart + faster-whisper) đều đã làm. Speaking audio thật cần `faster-whisper` model tải sẵn khi chạy production (test stub `_transcribe_audio`).
 
 ## Next Recommended Action
 
