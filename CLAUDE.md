@@ -26,7 +26,7 @@ Khong tu cai package, download tool, sua `.env`, hoac chay global installer khi 
 
 # PROJECT.md - Robot Bi Single Source of Truth
 
-> Updated: 2026-06-13
+> Updated: 2026-06-24
 > Robot Bi is an AI tutor robot project for children ages 5-12.
 > This file is the single source of truth for rules, workflow, protected fixes, technical constraints, and AI context policy.
 
@@ -144,7 +144,7 @@ AI backend: 5-provider fallback chain — Cerebras → Groq → Sambanova → Ge
 |---|---|---|
 | LLM | 5-provider fallback chain: Cerebras `gpt-oss-120b` → Groq `llama-3.3-70b-versatile` → Sambanova → Gemini `gemini-2.0-flash` → Cloudflare Workers AI | Fixed provider order in `src/ai/ai_engine.py`; models are configured via `config.json`; Cerebras and Groq have quota cooldowns |
 | STT | `faster-whisper` | Callback microphone capture supports native device rates and resamples to 16 kHz; GPU keeps `large-v2`, CPU uses `WHISPER_CPU_MODEL` default `medium` |
-| TTS | `edge-tts` + `pygame` | **Requires internet** (edge-tts is cloud Microsoft TTS). Fallback to `pyttsx3` (local). |
+| TTS | `edge-tts` + `pygame` | Default edge-tts needs internet (cloud Microsoft TTS). Fallback to `pyttsx3` (local). Set `TTS_OFFLINE=true` (or `TTS_ENGINE=pyttsx3`) to force fully-offline pyttsx3. |
 | Wake word | `faster-whisper tiny` fuzzy match | **Disabled by default** (`WAKEWORD_ENABLED=false` in `.env`). Not a trained custom model. |
 | Safety | Regex/pattern filter | `src/safety/safety_filter.py`, post-LLM and pre-TTS. 3 layers: topic classifier (5 patterns) + blacklist (11 words) + sentence cap |
 | RAG | `chromadb` + `sentence-transformers` | Family-scoped queries required; similarity threshold `0.62`; model `paraphrase-multilingual-MiniLM-L12-v2`; max 500 memories/family |
@@ -214,7 +214,7 @@ Do not regress these behaviors without explicit user approval and full verificat
 - `login_attempts`: `ip_address`, `attempt_count`, `first_attempt_at`, `locked_until`
 - `conversations`: `session_id`, `family_id`, `started_at`, `ended_at`, `title`, `turn_count`, `is_homework`, `homework_marked_at`
 - `turns`: `turn_id`, `session_id`, `role`, `content`, `timestamp`
-- `events`: `event_id`, `family_id`, `type`, `data`, `created_at`
+- `events`: `db_id` (PK autoincrement), `family_id`, `event_id` (nullable text), `timestamp`, `type`, `message`, `clip_path`, `metadata_json`, `is_read`, `import_key`
 - `tasks`: `task_id`, `family_id`, `name`, `remind_time`, `completed_today`, `stars`, `created_at`, `last_reminded`, `import_key`
 
 ## Machine Setup Policy
@@ -265,14 +265,14 @@ start_robot.bat
 
 - Wake word is **disabled by default** (`WAKEWORD_ENABLED=false`). When enabled, it uses `faster-whisper tiny` fuzzy match — not a trained custom wake word model.
 - The Windows microphone diagnostic applies only to PC-connected development microphones. The intended robot microphones are two INMP441 modules connected to the ESP32-S3 and do not depend on Windows microphone permissions.
-- `edge-tts` (primary TTS) **requires internet** — Microsoft cloud TTS. Robot Bi is not fully offline-capable with default TTS.
+- `edge-tts` (default TTS) requires internet — Microsoft cloud TTS. For fully offline operation set `TTS_OFFLINE=true` (or `TTS_ENGINE=pyttsx3`) to use the local pyttsx3 engine.
 - ESP32-S3 has a compile-verified autonomous dual-INMP441 + MAX98357A record/playback test, but production network audio transport, echo control, and display firmware are not integrated yet.
 - `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are **stub placeholders** — no actual CV or motion logic.
 - Motor firmware has **hardcoded IP** `192.168.40.107:8443` — must be changed per deployment. Not configurable via OTA.
 - Cloudflare quick tunnel URLs can change after restart unless a named tunnel is configured.
 - YAMNet TFLite cry detection depends on optional TensorFlow Lite support and falls back when unavailable.
 - No camera is connected; camera startup is disabled by default. Browser audio, microphone capture, mobile behavior, and motor hardware require real-device verification.
-- Parent App migrated to React+Vite; `frontend/parent_app/src/` is the real source. Some API calls use mock fallbacks (radio, videos, games, system logs).
+- Parent App migrated to React+Vite; `frontend/parent_app/src/` is the real source. Radio/videos/games/emotions now return real backend data (empty state when none) — mock fallbacks removed; a few "save settings" buttons remain stubs.
 
 ## Historical Notes
 
