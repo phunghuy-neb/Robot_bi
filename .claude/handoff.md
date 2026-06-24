@@ -33,6 +33,11 @@
   `run_tests.py`. **NEXT**: commit these 4 files together (3 prompt files + the test), do
   NOT bundle the pre-existing dirty `.gitignore`; then record commit id here. Not yet
   committed because pending user approval.
+  - Xác nhận 2026-06-24 (cuối phiên Learning Hub): working tree còn dirty đúng 5 file của
+    workstream opencode này (`src/ai/prompts.py`, `persona_manager.py`, `role_manager.py`,
+    `tests/test_prompt_invariants.py`, `.gitignore`) — KHÔNG phải thay đổi của phiên exam-pack
+    và CỐ Ý để nguyên, vẫn chờ user duyệt. Toàn bộ công việc exam/HSG (resources/learning/*)
+    đã commit xong (mới nhất `3bc1529`); không có thay đổi nào của tôi còn chưa ghi nhận.
 - **Learning Hub Phase 3 — HSG/exam packs (strategy: one subject deep at a time):**
   - DONE + committed (`20b6042`): `resources/learning/math_exam.json` — Toán fully covered, 6 papers / 42 questions (exam_grade6, exam_grade10, exam_thpt, hsg_school, hsg_district, hsg_province). 0 bad answers, unique paper_ids.
   - DONE + committed (`4771802`): `resources/learning/vietnamese_exam.json` — Tiếng Việt, 6 papers / 42 questions (same 6 tracks; subject='vietnamese'; comp_level set for hsg_*). Hand-authored language-focused MCQ (chính tả, từ loại, từ láy/ghép, biện pháp tu từ, thành phần câu, phong cách ngôn ngữ, hàm ý…). Validated: 0 bad answers, unique paper_ids.
