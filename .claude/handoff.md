@@ -47,10 +47,14 @@
     (responses cho writing, transcripts cho speaking). Vite build OK; verify HTTP roundtrip qua
     TestClient: list 6 đề → detail (qtypes đúng, options rỗng) → submit writing & speaking đều 200
     (estimated_200 + disclaimer) → submit-speaking rỗng = 422.
-  - **CÒN LẠI (chưa làm)**: (1) gắn `tests/test_toeic_sw.py` vào `run_tests.py` thành Group (giống
-    `test_prompt_invariants.py` vẫn đứng riêng); (2) Speaking dùng audio thật phía server: upload
-    multipart + STT (cần `python-multipart`) — hiện Speaking dựa vào Web Speech API của trình duyệt
-    (transcript), server vẫn là MVP transcript.
+  - **Test trong `run_tests.py` — ✅ DONE (UNCOMMITTED phiên này):** thêm **Group 81** (5 test)
+    — loader seed ≥6 đề toeic_sw đúng question_type & 0 câu mcq; grader offline bounds; HTTP
+    submit-toeic-sw writing (est200 + disclaimer); HTTP speaking + submit-speaking rỗng=422;
+    đề không phải toeic_sw bị từ chối 422. Suite: **642/642 PASS** (trước 637). `test_toeic_sw.py`
+    standalone vẫn giữ (unit helper), Group 81 lo phần CI/seed/HTTP.
+  - **CÒN LẠI (chưa làm)**: Speaking dùng audio THẬT phía server — upload multipart + STT
+    (cần `python-multipart`). Hiện Speaking dựa vào Web Speech API của trình duyệt (transcript),
+    server vẫn là MVP transcript.
 - **OpenCode repo cleanup (DONE, 2026-06-24)**: verified `opencode.json`,
   `scripts/setup_opencode_bluesminds.sh`, and `scripts/test_bluesminds_api.sh` are absent
   from both `HEAD` and the working tree. Aider's temporary commit `31495c9` is not an

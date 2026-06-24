@@ -7417,6 +7417,123 @@ test("80.4  GET /api/learning/curriculum trả blueprint",                      
 test("80.5  Pack exam: GET detail + submit chấm điểm end-to-end",              test_80_pack_exam_submit_end_to_end)
 test("80.6  Admin: generate-batch (offline) + chặn non-admin + guard size",   test_80_batch_generate_and_auth)
 
+# == GROUP 81: TOEIC Speaking & Writing ====================================
+print("\n[Group 81] TOEIC Speaking & Writing — free-text grading")
+
+
+def test_81_sw_pack_seeded():
+    # The pack loader must seed TOEIC S&W as free-text tasks (toeic_speaking /
+    # toeic_writing), never as MCQ, with no options/answer.
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        papers = conn.execute(
+            "SELECT COUNT(*) c FROM exam_papers "
+            "WHERE subject='toeic_sw' AND status='published'").fetchone()["c"]
+        rows = conn.execute(
+            "SELECT question_type, COUNT(*) c FROM question_bank "
+            "WHERE subject='toeic_sw' GROUP BY question_type").fetchall()
+    types = {r["question_type"]: r["c"] for r in rows}
+    assert papers >= 6, f"phải có >=6 đề toeic_sw, có {papers}"
+    assert types.get("toeic_speaking", 0) > 0, f"thiếu câu speaking: {types}"
+    assert types.get("toeic_writing", 0) > 0, f"thiếu câu writing: {types}"
+    assert "mcq" not in types, f"câu toeic_sw không được tag mcq: {types}"
+
+
+def test_81_grade_bounds_offline():
+    from src.api.routers.exam_router import _estimate_200, _offline_toeic_grade
+    assert _estimate_200(0, 5) == 0
+    assert _estimate_200(2.5, 5) == 100
+    assert _estimate_200(99, 5) == 200  # clamp tại 200
+    empty = _offline_toeic_grade("", 5, "writing")
+    assert empty["score"] == 0, "bài rỗng phải 0 điểm"
+    full = _offline_toeic_grade(
+        "This is a reasonably complete written answer with quite a few words here.",
+        5, "writing")
+    assert 0 < full["score"] <= 5, f"điểm phải trong (0, 5], có {full['score']}"
+
+
+def test_81_submit_writing_http():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    prev = _os.environ.get("SKIP_LLM")
+    _os.environ["SKIP_LLM"] = "1"
+    try:
+        headers = _phase44_headers("toeicw", f"tw-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        exams = client.get("/api/learning/exams?track=toeic_sw", headers=headers).json()["exams"]
+        assert len(exams) >= 1, "phải có đề toeic_sw"
+        wpid = next(e["paper_id"] for e in exams if "writing" in e["paper_id"])
+        det = client.get(f"/api/learning/exams/{wpid}", headers=headers).json()
+        assert det["paper"]["subject"] == "toeic_sw"
+        assert all(q["question_type"] == "toeic_writing" for q in det["questions"])
+        assert all(q["options"] == [] for q in det["questions"]), "câu tự luận không có options"
+        resp = {q["question_id"]: "Thank you for your email. I can attend the meeting on Saturday at two."
+                for q in det["questions"]}
+        r = client.post(f"/api/learning/exams/{wpid}/submit-toeic-sw",
+                        json={"responses": resp, "transcripts": {}, "time_spent_seconds": 30},
+                        headers=headers)
+        assert r.status_code == 200, f"submit: {r.status_code} {r.text[:200]}"
+        b = r.json()
+        assert 0 <= b["estimated_200"] <= 200
+        assert b["score"] > 0 and b["max_score"] > 0
+        assert b["disclaimer"], "phải có disclaimer điểm ước tính"
+        assert len(b["review"]) == len(det["questions"])
+    finally:
+        if prev is None:
+            _os.environ.pop("SKIP_LLM", None)
+        else:
+            _os.environ["SKIP_LLM"] = prev
+
+
+def test_81_submit_speaking_http():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    prev = _os.environ.get("SKIP_LLM")
+    _os.environ["SKIP_LLM"] = "1"
+    try:
+        headers = _phase44_headers("toeics", f"ts-{_uuid.uuid4().hex[:6]}")
+        client = TestClient(app)
+        exams = client.get("/api/learning/exams?track=toeic_sw", headers=headers).json()["exams"]
+        spid = next(e["paper_id"] for e in exams if "speaking" in e["paper_id"])
+        det = client.get(f"/api/learning/exams/{spid}", headers=headers).json()
+        trans = {q["question_id"]: "I usually read English books with my friends on the weekend."
+                 for q in det["questions"]}
+        r = client.post(f"/api/learning/exams/{spid}/submit-toeic-sw",
+                        json={"responses": {}, "transcripts": trans, "time_spent_seconds": 20},
+                        headers=headers)
+        assert r.status_code == 200, f"speaking submit: {r.status_code} {r.text[:200]}"
+        assert r.json()["score"] > 0
+        # submit-speaking requires a transcript — empty must be rejected.
+        empty = client.post(f"/api/learning/exams/{spid}/submit-speaking",
+                            json={"responses": {}, "transcripts": {}}, headers=headers)
+        assert empty.status_code == 422, f"transcript rỗng phải 422, có {empty.status_code}"
+    finally:
+        if prev is None:
+            _os.environ.pop("SKIP_LLM", None)
+        else:
+            _os.environ["SKIP_LLM"] = prev
+
+
+def test_81_non_sw_paper_rejected():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    headers = _phase44_headers("toeicx", f"tx-{_uuid.uuid4().hex[:6]}")
+    client = TestClient(app)
+    # An MCQ paper sent to the S&W endpoint must be rejected (422), not graded.
+    r = client.post("/api/learning/exams/exam_math_thpt_starter_1/submit-toeic-sw",
+                    json={"responses": {}, "transcripts": {}, "time_spent_seconds": 1},
+                    headers=headers)
+    assert r.status_code == 422, f"đề không phải toeic_sw phải bị từ chối 422, có {r.status_code}"
+
+
+test("81.1  Loader: seed >=6 đề toeic_sw, có speaking+writing, 0 câu mcq",      test_81_sw_pack_seeded)
+test("81.2  Grader offline: estimated_200 bounds + chấm theo độ dài",          test_81_grade_bounds_offline)
+test("81.3  HTTP: submit-toeic-sw writing chấm + có disclaimer/est200",        test_81_submit_writing_http)
+test("81.4  HTTP: submit-toeic-sw speaking + submit-speaking rỗng = 422",       test_81_submit_speaking_http)
+test("81.5  HTTP: đề không phải toeic_sw bị từ chối 422",                       test_81_non_sw_paper_rejected)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)
