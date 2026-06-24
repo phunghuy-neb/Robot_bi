@@ -34,7 +34,16 @@
     mục 'apikeys' trong AdminApp = ready. Test **Group 85** (5, dùng `_TempEnv` không đụng .env thật,
     verify không lộ giá trị). Suite **663/663 PASS**. Lưu ý: ghi .env cập nhật os.environ ngay,
     nhưng singleton (youtube/websearch) + biến đọc lúc start (camera/cry/wakeword) cần RESTART.
-  - **Phase còn lại (chưa làm)**: P3 Đề thi (admin global + parent cá nhân). P4 Kênh YouTube
+  - **Phase 3 (DONE + committed)**: Đề thi tự tạo. `exam_router.py`: `POST /api/learning/exams/custom`
+    (parent = đề riêng family-scoped; admin `is_global=true` = đề chung), `DELETE /api/learning/exams/{id}`
+    (admin xóa bất kỳ; parent chỉ xóa đề custom của family mình; không xóa pack), `GET /api/learning/admin/papers`.
+    **Cô lập gia đình** thêm vào list/detail/submit/submit-toeic-sw: `(family_id IS NULL OR family_id=?)`
+    — đề riêng chỉ family đó thấy, đề global mọi người thấy (backward-compatible vì pack đều family_id NULL).
+    FE: `components/ExamBuilder.jsx` (form MCQ dùng chung), `pages/admin/ExamsAdminPage.jsx` (list mọi đề +
+    tạo đề chung + xóa), và LearningHubPage exam mode thêm "➕ Tạo đề của tôi" + nút 🗑️ trên đề custom của mình.
+    Test **Group 86** (6): cô lập family, admin global hiện cho mọi nhà, non-admin không tạo global,
+    422 đáp-án-sai, quyền xóa, admin list RBAC. Suite **669/669 PASS**, build OK.
+  - **Phase còn lại (chưa làm)**: P4 Kênh YouTube
     (admin global + parent gia đình). P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
     P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**

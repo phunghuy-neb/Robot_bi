@@ -70,6 +70,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
 | `game_router.py` | Word quiz, voice quiz, game score routes, and Parent App radio/video/game metadata routes. `/api/entertainment/videos` merges live videos from the YouTube channel allowlist (when configured) into the DB content. |
 | `knowledge_router.py` | Read-only `/api/knowledge/*` (+ `/api/entertainment/jokes`) lookups over external public APIs — dictionary, country, number/math, trivia, books/gutenberg/poem/wiki, weather/ISS/APOD, animal & fun facts, jokes (safe-mode), Pokémon/Disney. Auth-gated; degrades to `ok:false` on source error. |
+| `exam_router.py` | Learning Hub exams under `/api/learning/*`: subjects/tracks, exam list/detail (answers hidden), MCQ + TOEIC S&W grading, sessions, custom exams (`POST /api/learning/exams/custom` — parent = family-scoped, admin `is_global` = global; `DELETE` with owner/admin guard), and admin generate/review/assemble + `GET /api/learning/admin/papers`. Exam papers are family-isolated (`family_id` NULL = global). |
 | `motor_router.py` | Motor movement, joystick, dock/home, spin, and status routes. |
 | `music_router.py` | Music play/stop/pause/next/previous/shuffle/repeat/volume/status/playlist/lullaby routes. |
 | `ops_router.py` | Health check, Parent App root page, MJPEG camera stream, and tunnel helper code. |

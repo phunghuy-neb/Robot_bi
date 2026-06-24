@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import UsersAdminPage from './UsersAdminPage.jsx';
 import ApiKeysPage from './ApiKeysPage.jsx';
+import ExamsAdminPage from './ExamsAdminPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
@@ -8,7 +9,7 @@ import Toast from '../../components/Toast.jsx';
 const SECTIONS = [
   { key: 'users',     label: 'Tài khoản',     icon: '👤', ready: true },
   { key: 'apikeys',   label: 'API key',       icon: '🔑', ready: true },
-  { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: false },
+  { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: true },
   { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: false },
   { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: false },
   { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: false },
@@ -62,7 +63,8 @@ export default function AdminApp({ user, onLogout }) {
         </h1>
         {section === 'users' && <UsersAdminPage currentUsername={user?.username} />}
         {section === 'apikeys' && <ApiKeysPage />}
-        {section !== 'users' && section !== 'apikeys' && (
+        {section === 'exams' && <ExamsAdminPage />}
+        {section !== 'users' && section !== 'apikeys' && section !== 'exams' && (
           <div style={{
             padding: 40, textAlign: 'center', color: 'var(--muted, #64748b)',
             background: 'var(--card, #fff)', borderRadius: 14,

@@ -444,6 +444,23 @@ export async function submitToeicSW(paperId, { responses = {}, transcripts = {},
   });
 }
 
+// Custom exams: parent tạo đề riêng (gia đình); admin is_global=true → đề chung.
+export async function createCustomExam(payload) {
+  return apiFetch('/api/learning/exams/custom', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteExam(paperId) {
+  return apiFetch(`/api/learning/exams/${paperId}`, { method: 'DELETE' });
+}
+
+export async function adminListPapers() {
+  const data = await apiFetch('/api/learning/admin/papers');
+  return data?.papers || [];
+}
+
 export async function getExamSessions(limit = 50) {
   return apiFetch(`/api/learning/exams/sessions?limit=${limit}`);
 }

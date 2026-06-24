@@ -7984,6 +7984,101 @@ test("85.3  Set key: masked, không lộ giá trị thật",                    
 test("85.4  Toggle bật/tắt + chặn toggle ngoài whitelist",                     test_85_toggle_set)
 test("85.5  Test key chưa đặt → ok:false (không mạng)",                        test_85_test_key_unset_no_network)
 
+# == GROUP 86: Custom exams (admin global + parent personal) ===============
+print("\n[Group 86] Đề thi tự tạo — admin global + parent cá nhân")
+
+_EX_Q = [{"question": "1 + 1 = ?", "options": ["2", "3"], "answer": "2", "explanation": "hai"}]
+
+
+def test_86_parent_personal_isolated():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    famA, famB = f"exA-{_uuid.uuid4().hex[:6]}", f"exB-{_uuid.uuid4().hex[:6]}"
+    _, ha = _admin_mk_user("exA", famA, False)
+    _, hb = _admin_mk_user("exB", famB, False)
+    client = TestClient(app)
+    r = client.post("/api/learning/exams/custom",
+                    json={"title": "Đề của A", "subject": "custom", "questions": _EX_Q}, headers=ha)
+    assert r.status_code == 200 and r.json()["is_global"] is False
+    pid = r.json()["paper_id"]
+    assert pid in [e["paper_id"] for e in client.get("/api/learning/exams", headers=ha).json()["exams"]]
+    assert pid not in [e["paper_id"] for e in client.get("/api/learning/exams", headers=hb).json()["exams"]], "gia đình B không được thấy đề riêng của A"
+    assert client.get(f"/api/learning/exams/{pid}", headers=hb).status_code == 404, "B xem detail phải 404"
+
+
+def test_86_admin_global_visible_all():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    famA, famB = f"gA-{_uuid.uuid4().hex[:6]}", f"gB-{_uuid.uuid4().hex[:6]}"
+    _, ha = _admin_mk_user("gadm", famA, True)
+    _, hb = _admin_mk_user("gusr", famB, False)
+    client = TestClient(app)
+    r = client.post("/api/learning/exams/custom",
+                    json={"title": "Đề chung", "subject": "custom", "is_global": True, "questions": _EX_Q}, headers=ha)
+    assert r.status_code == 200 and r.json()["is_global"] is True
+    pid = r.json()["paper_id"]
+    assert pid in [e["paper_id"] for e in client.get("/api/learning/exams", headers=hb).json()["exams"]], "đề global phải hiện cho mọi gia đình"
+
+
+def test_86_nonadmin_global_forced_personal():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    famA, famB = f"nA-{_uuid.uuid4().hex[:6]}", f"nB-{_uuid.uuid4().hex[:6]}"
+    _, ha = _admin_mk_user("nadm", famA, False)
+    _, hb = _admin_mk_user("nusr", famB, False)
+    client = TestClient(app)
+    r = client.post("/api/learning/exams/custom",
+                    json={"title": "Cố tạo global", "is_global": True, "questions": _EX_Q}, headers=ha)
+    assert r.json()["is_global"] is False, "non-admin không được tạo đề global"
+    pid = r.json()["paper_id"]
+    assert pid not in [e["paper_id"] for e in client.get("/api/learning/exams", headers=hb).json()["exams"]]
+
+
+def test_86_invalid_questions_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("inv", f"inv-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    r = client.post("/api/learning/exams/custom",
+                    json={"title": "Sai", "questions": [{"question": "q", "options": ["a", "b"], "answer": "zzz"}]}, headers=ha)
+    assert r.status_code == 422, f"đáp án ∉ options phải 422, có {r.status_code}"
+
+
+def test_86_delete_permissions():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    famA, famB = f"dA-{_uuid.uuid4().hex[:6]}", f"dB-{_uuid.uuid4().hex[:6]}"
+    _, ha = _admin_mk_user("dusrA", famA, False)
+    _, hb = _admin_mk_user("dusrB", famB, False)
+    _, hadm = _admin_mk_user("dadm", f"dadm-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    pid = client.post("/api/learning/exams/custom",
+                      json={"title": "A đề", "questions": _EX_Q}, headers=ha).json()["paper_id"]
+    assert client.delete(f"/api/learning/exams/{pid}", headers=hb).status_code == 403, "B không xóa được đề của A"
+    # parent không xóa được đề pack (seed)
+    assert client.delete("/api/learning/exams/exam_math_thpt_starter_1", headers=ha).status_code == 403
+    assert client.delete(f"/api/learning/exams/{pid}", headers=ha).status_code == 200, "A xóa được đề của mình"
+    assert client.get(f"/api/learning/exams/{pid}", headers=ha).status_code == 404
+
+
+def test_86_admin_papers_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("padm", f"padm-{_uuid.uuid4().hex[:6]}", True)
+    _, hn = _admin_mk_user("pusr", f"pusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/learning/admin/papers", headers=hn).status_code == 403
+    r = client.get("/api/learning/admin/papers", headers=ha)
+    assert r.status_code == 200 and isinstance(r.json()["papers"], list)
+
+
+test("86.1  Parent tạo đề cá nhân + cô lập gia đình",                          test_86_parent_personal_isolated)
+test("86.2  Admin tạo đề global hiện cho mọi gia đình",                        test_86_admin_global_visible_all)
+test("86.3  Non-admin không tạo được đề global",                              test_86_nonadmin_global_forced_personal)
+test("86.4  Câu hỏi sai (đáp án ∉ options) → 422",                            test_86_invalid_questions_422)
+test("86.5  Quyền xóa: của mình OK, của người khác/pack 403",                  test_86_delete_permissions)
+test("86.6  Admin list papers RBAC",                                          test_86_admin_papers_rbac)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

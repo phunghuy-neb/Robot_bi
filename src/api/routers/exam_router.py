@@ -229,12 +229,15 @@ async def list_exams(
         if val:
             clauses.append(f"{col} = ?")
             params.append(val)
+    # Cô lập gia đình: đề global (family_id NULL) cho mọi người + đề riêng của family.
+    clauses.append("(family_id IS NULL OR family_id = ?)")
+    params.append(family_id)
     where = " AND ".join(clauses)
     with get_db_connection() as conn:
         rows = conn.execute(
             f"""SELECT paper_id, title, subject, track, comp_level, skill, level,
                        age_group, duration_minutes, total_questions, pass_percent,
-                       school_year, source
+                       school_year, source, family_id
                 FROM exam_papers WHERE {where}
                 ORDER BY subject, track, level, title""",
             params,
@@ -306,13 +309,13 @@ async def get_exam_session(session_id: str, current_user: dict = Depends(get_cur
 @router.get("/api/learning/exams/{paper_id}")
 async def get_exam(paper_id: str, current_user: dict = Depends(get_current_user)):
     """Return the paper with its questions — answers/explanations are hidden."""
-    _require_family(current_user)
+    family_id = _require_family(current_user)
     with get_db_connection() as conn:
         paper = conn.execute(
             "SELECT * FROM exam_papers WHERE paper_id = ? AND status = 'published'",
             (paper_id,),
         ).fetchone()
-        if not paper:
+        if not paper or paper["family_id"] not in (None, family_id):
             raise HTTPException(status_code=404, detail="Exam paper not found")
         items = conn.execute(
             """SELECT q.question_id, q.question, q.question_vi, q.emoji,
@@ -538,7 +541,7 @@ async def submit_exam(
             "SELECT * FROM exam_papers WHERE paper_id = ? AND status = 'published'",
             (paper_id,),
         ).fetchone()
-        if not paper:
+        if not paper or paper["family_id"] not in (None, family_id):
             raise HTTPException(status_code=404, detail="Exam paper not found")
         items = conn.execute(
             """SELECT q.question_id, q.answer, q.explanation, q.question_type,
@@ -621,6 +624,8 @@ async def submit_toeic_sw(
     family_id = _require_family(current_user)
     with get_db_connection() as conn:
         paper, items = _load_paper_items(conn, paper_id)
+        if paper["family_id"] not in (None, family_id):
+            raise HTTPException(status_code=404, detail="Exam paper not found")
         if paper["subject"] != TOEIC_SW_SUBJECT:
             raise HTTPException(status_code=422, detail="Paper is not TOEIC S&W")
         skill = (paper["skill"] or "writing").strip().lower()
@@ -679,6 +684,117 @@ async def submit_toeic_speaking(
     if not body.transcripts:
         raise HTTPException(status_code=422, detail="Transcript is required for speaking submission")
     return await submit_toeic_sw(paper_id, body, current_user)
+
+
+# ── Custom exams (admin = global, parent = riêng gia đình) ────────────────────
+class CustomQuestion(BaseModel):
+    question: str = Field(..., min_length=1, max_length=500)
+    question_vi: str = Field(default="", max_length=500)
+    emoji: str = Field(default="", max_length=8)
+    options: list[str] = Field(..., min_length=2, max_length=6)
+    answer: str = Field(..., min_length=1, max_length=200)
+    explanation: str = Field(default="", max_length=1000)
+    difficulty: int = Field(default=2, ge=1, le=5)
+
+
+class CreateCustomExam(BaseModel):
+    title: str = Field(..., min_length=1, max_length=160)
+    subject: str = Field(default="custom", max_length=40)
+    track: str = Field(default="practice", max_length=40)
+    duration_minutes: int = Field(default=20, ge=1, le=240)
+    pass_percent: int = Field(default=60, ge=0, le=100)
+    is_global: bool = False  # chỉ admin mới được tạo đề global
+    questions: list[CustomQuestion] = Field(..., min_length=1, max_length=100)
+
+
+@router.post("/api/learning/exams/custom")
+async def create_custom_exam(body: CreateCustomExam, current_user: dict = Depends(get_current_user)):
+    """Parent: tạo đề riêng (chỉ gia đình mình thấy). Admin: is_global=true → đề chung."""
+    family_id = _require_family(current_user)
+    is_admin = is_user_admin(str(current_user.get("user_id", "")))
+    make_global = bool(body.is_global and is_admin)
+    owner_family = None if make_global else family_id
+
+    valid = []
+    for q in body.questions:
+        opts = [str(o).strip() for o in q.options if str(o).strip()]
+        ans = q.answer.strip()
+        if len(opts) >= 2 and ans in opts:
+            valid.append((q, opts, ans))
+    if not valid:
+        raise HTTPException(status_code=422, detail="Cần ít nhất 1 câu hợp lệ (đáp án phải nằm trong lựa chọn)")
+
+    now = _utc_now()
+    paper_id = f"custom_{'global' if make_global else family_id}_{uuid4().hex[:10]}"
+    with get_db_connection() as conn:
+        conn.execute(
+            """INSERT INTO exam_papers
+               (paper_id, title, subject, track, comp_level, skill, level, age_group,
+                duration_minutes, total_questions, pass_percent, school_year, source,
+                status, family_id, created_at, updated_at)
+               VALUES (?, ?, ?, ?, '', '', '', 'all', ?, ?, ?, '', 'custom', 'published', ?, ?, ?)""",
+            (paper_id, body.title, body.subject, body.track, body.duration_minutes,
+             len(valid), body.pass_percent, owner_family, now, now),
+        )
+        for idx, (q, opts, ans) in enumerate(valid):
+            qid = f"{paper_id}_q{idx + 1}"
+            conn.execute(
+                """INSERT INTO question_bank
+                   (question_id, subject, topic, age_group, track, skill, level, difficulty,
+                    question_type, question, question_vi, emoji, options_json, answer,
+                    explanation, school_year, source, is_ai_generated, status, family_id,
+                    created_at, updated_at)
+                   VALUES (?, ?, '', 'all', ?, '', '', ?, 'mcq', ?, ?, ?, ?, ?, ?, '', 'custom', 0, 'published', ?, ?, ?)""",
+                (qid, body.subject, body.track, q.difficulty, q.question, q.question_vi,
+                 q.emoji, json.dumps(opts, ensure_ascii=False), ans, q.explanation,
+                 owner_family, now, now),
+            )
+            conn.execute(
+                "INSERT INTO exam_paper_questions (paper_id, question_id, order_index, points) VALUES (?, ?, ?, 1)",
+                (paper_id, qid, idx),
+            )
+        conn.commit()
+    return {"ok": True, "paper_id": paper_id, "total_questions": len(valid), "is_global": make_global}
+
+
+@router.delete("/api/learning/exams/{paper_id}")
+async def delete_exam(paper_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin xóa bất kỳ; parent chỉ xóa đề custom của gia đình mình."""
+    family_id = _require_family(current_user)
+    is_admin = is_user_admin(str(current_user.get("user_id", "")))
+    with get_db_connection() as conn:
+        paper = conn.execute(
+            "SELECT family_id, source FROM exam_papers WHERE paper_id = ?", (paper_id,)
+        ).fetchone()
+        if not paper:
+            raise HTTPException(status_code=404, detail="Exam paper not found")
+        if not is_admin:
+            if paper["family_id"] != family_id:
+                raise HTTPException(status_code=403, detail="Không có quyền xóa đề này")
+            if paper["source"] != "custom":
+                raise HTTPException(status_code=403, detail="Chỉ xóa được đề tự tạo")
+        qids = [r["question_id"] for r in conn.execute(
+            "SELECT question_id FROM exam_paper_questions WHERE paper_id = ?", (paper_id,)
+        ).fetchall()]
+        conn.execute("DELETE FROM exam_paper_questions WHERE paper_id = ?", (paper_id,))
+        for qid in qids:
+            conn.execute("DELETE FROM question_bank WHERE question_id = ? AND source = 'custom'", (qid,))
+        conn.execute("DELETE FROM exam_sessions WHERE paper_id = ?", (paper_id,))
+        conn.execute("DELETE FROM exam_papers WHERE paper_id = ?", (paper_id,))
+        conn.commit()
+    return {"ok": True, "paper_id": paper_id}
+
+
+@router.get("/api/learning/admin/papers")
+async def admin_list_papers(_admin: dict = Depends(require_admin)):
+    """Admin: liệt kê TẤT CẢ đề (mọi family + mọi status) để quản lý."""
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """SELECT paper_id, title, subject, track, total_questions, pass_percent,
+                      source, status, family_id, created_at
+               FROM exam_papers ORDER BY created_at DESC"""
+        ).fetchall()
+    return {"papers": [dict(r) for r in rows]}
 
 
 # ── Admin: AI generation + review pipeline ────────────────────────────────────

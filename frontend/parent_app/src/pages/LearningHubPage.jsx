@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   getLearningModules, getLearningLesson, submitLearningLesson, showToast,
-  getExamTracks, getExams, getExam, submitExam, submitToeicSW, getExamSessions,
+  getExamTracks, getExams, getExam, submitExam, submitToeicSW, getExamSessions, deleteExam,
 } from '../services/api.js';
+import ExamBuilder from '../components/ExamBuilder.jsx';
 
 // TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
 const SW_TASK_LABELS = {
@@ -584,6 +585,25 @@ export default function LearningHubPage() {
     }
 
     // Exam list for a track
+    // Parent tự tạo đề (chỉ gia đình mình thấy).
+    if (examView === 'builder') {
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <button className="btn-sm secondary" style={{ minWidth: 40 }}
+              onClick={() => setExamView('tracks')}>←</button>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>Tạo đề của tôi</div>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
+            Đề bạn tạo chỉ tài khoản của bạn nhìn thấy (xuất hiện ở mục "Luyện tập").
+          </div>
+          <ExamBuilder
+            onCreated={() => { setExamView('tracks'); loadTracks(); }}
+            onCancel={() => setExamView('tracks')} />
+        </div>
+      );
+    }
+
     if (examView === 'list' && selectedTrack) {
       return (
         <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
@@ -600,29 +620,49 @@ export default function LearningHubPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {examList.map(ex => (
-                <button key={ex.paper_id} onClick={() => startExam(ex)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                    borderRadius: 12, background: 'var(--card)', cursor: 'pointer', textAlign: 'left',
-                    border: '2px solid var(--border, #e0e0e0)',
-                  }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700 }}>{ex.title}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                      {ex.total_questions} câu · {ex.duration_minutes} phút · đạt ≥{ex.pass_percent}%
-                      {ex.attempts > 0 && ` · đã làm ${ex.attempts} lần`}
-                    </div>
+              {examList.map(ex => {
+                const own = ex.source === 'custom' && ex.family_id;
+                return (
+                  <div key={ex.paper_id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+                    <button onClick={() => startExam(ex)}
+                      style={{
+                        flex: 1, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+                        borderRadius: 12, background: 'var(--card)', cursor: 'pointer', textAlign: 'left',
+                        border: '2px solid var(--border, #e0e0e0)',
+                      }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700 }}>
+                          {ex.title}{own && <span style={{ fontSize: 11, color: '#2563eb' }}> · đề của tôi</span>}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                          {ex.total_questions} câu · {ex.duration_minutes} phút · đạt ≥{ex.pass_percent}%
+                          {ex.attempts > 0 && ` · đã làm ${ex.attempts} lần`}
+                        </div>
+                      </div>
+                      {ex.best_percent != null && (
+                        <div style={{
+                          fontWeight: 800, fontSize: 15,
+                          color: ex.best_percent >= ex.pass_percent ? '#2e7d32' : '#ef5350',
+                        }}>{ex.best_percent}%</div>
+                      )}
+                      <span style={{ fontSize: 18, color: 'var(--muted)' }}>▶</span>
+                    </button>
+                    {own && (
+                      <button title="Xóa đề của tôi"
+                        onClick={async () => {
+                          if (!window.confirm(`Xóa đề "${ex.title}"?`)) return;
+                          const r = await deleteExam(ex.paper_id);
+                          if (r) { showToast('Đã xóa đề'); openTrack(selectedTrack); }
+                          else showToast('Xóa thất bại');
+                        }}
+                        style={{
+                          width: 44, borderRadius: 12, border: '2px solid #ef5350',
+                          background: 'transparent', color: '#ef5350', cursor: 'pointer', fontSize: 16,
+                        }}>🗑️</button>
+                    )}
                   </div>
-                  {ex.best_percent != null && (
-                    <div style={{
-                      fontWeight: 800, fontSize: 15,
-                      color: ex.best_percent >= ex.pass_percent ? '#2e7d32' : '#ef5350',
-                    }}>{ex.best_percent}%</div>
-                  )}
-                  <span style={{ fontSize: 18, color: 'var(--muted)' }}>▶</span>
-                </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -639,6 +679,12 @@ export default function LearningHubPage() {
     return (
       <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
         <ModeToggle />
+        <button onClick={() => setExamView('builder')}
+          style={{
+            width: '100%', marginBottom: 16, padding: '12px', borderRadius: 12,
+            border: '2px dashed var(--primary, #2196f3)', background: 'transparent',
+            color: 'var(--primary, #2196f3)', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+          }}>➕ Tạo đề của tôi</button>
         {examLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
         ) : (
