@@ -18,9 +18,24 @@
   = **689/689 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
-  **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
-  (b) ✅ TOEIC S&W audio thật server-side = ĐÃ XONG + committed `b38ec25` (xem bullet "TOEIC Speaking audio
-  server" ngay dưới); (c) track phần cứng ESP32-S3.
+  **BACKLOG NON-HARDWARE ĐÃ DỌN GẦN HẾT phiên này** (xem bullet "Dọn backlog non-hardware" ngay dưới):
+  Knowledge UI Parent App ✅, TOEIC audio server ✅, lọc title YouTube ✅, Persona admin-global ✅,
+  gỡ mock fallback Parent App ✅. **CÒN LẠI (defer có lý do, KHÔNG tự làm)**: Stage 2 Special Memories
+  (PROJECT.md cấm tự khởi động), Radio Browser (cần quyết định curation an toàn trẻ), TTS offline
+  (đụng Protected Fix audio, rework lớn), Robot Display gọi Knowledge (file vanilla 61KB, cần thiết kế
+  UX + không test tự động được). Track phần cứng ESP32-S3 vẫn chờ thiết bị.
+- **Dọn backlog non-hardware (2026-06-24) — ✅ DONE phiên này:**
+  - **Lọc title YouTube qua SafetyFilter** (`youtube_lessons.py`): `_title_is_safe()` (lazy SafetyFilter,
+    lỗi→coi an toàn) trong `_fetch_channel` → bỏ video có tiêu đề bị chặn. Test **82.6**.
+  - **Persona admin-global** (`persona_manager.py` + `admin_router.py` + FE): khóa `__global__` lưu persona
+    mặc định; `_load` fallback sang `__global__` khi gia đình CHƯA cấu hình (gia đình đã tùy chỉnh giữ
+    nguyên). Endpoint `GET/POST /api/admin/persona` (`require_admin`, validate qua PersonaManager.save).
+    FE `pages/admin/PersonaAdminPage.jsx` + sidebar 'persona' (🤖, AdminApp 9 mục). Role = contextual,
+    không có cấu hình global. Test **Group 91** (3).
+  - **Gỡ mock fallback Parent App** (`api.js` + `MorePage.jsx`): radio/video/games/emotions trả dữ liệu
+    THẬT (rỗng nếu chưa có), bỏ import `mockData`. MorePage thêm cờ `loaded` → rỗng-thật hiện empty state
+    thay vì "đang tải" mãi (seed DB vẫn có 2 radio/2 video/2 game nên thực tế không rỗng).
+  - Suite **693/693 PASS** (trước 689); Vite build OK; SYSTEM_MAP cập nhật.
 - **TOEIC Speaking audio server (multipart + STT) — ✅ DONE + committed `b38ec25`:**
   - `src/audio/input/transcribe_file.py` (MỚI): STT cho FILE (không import sounddevice như ear_stt) —
     lazy faster-whisper, GPU(cuda float16)→fallback CPU(`WHISPER_CPU_MODEL`, int8) giữ đúng Protected
@@ -321,7 +336,7 @@
 - `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are stubs/placeholders.
 - Motor firmware has hardcoded IP `192.168.40.107:8443`; deployment-specific change needed.
 - Cloudflare quick tunnel URL can change after restart unless a named tunnel is configured.
-- Parent App radio/videos/games/system logs use mock fallbacks; several settings save buttons remain stubs.
+- Parent App radio/videos/games/emotions now return REAL backend data (empty state khi chưa có) — mock fallback đã gỡ. Một số nút lưu cài đặt vẫn là stub. (PROJECT.md "Known Current Gaps" còn ghi mock — sẽ tự cập nhật lần sync.py kế tiếp.)
 - Provider quota can throttle Cerebras/Groq; fallback chain handled observed quota 429 warnings during tests.
 - Current machine has no camera; this is supported and no longer blocks proactive behavior.
 - Windows microphone diagnostics apply only to optional PC-connected microphones, not the two INMP441 modules on the robot.
