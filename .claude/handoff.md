@@ -146,7 +146,7 @@
     graceful (lỗi→ok:false không 500), math eval, yêu-cầu-auth. Suite **652/652 PASS**.
   - SYSTEM_MAP cập nhật. **Env tùy chọn**: `NASA_API_KEY` (mặc định DEMO_KEY),
     `KNOWLEDGE_CACHE_TTL_SECONDS` (mặc định 1800). 16/17 nguồn no-key, dùng được ngay.
-  - **UI Parent App — ✅ DONE (UNCOMMITTED → commit phiên này)**: `components/KnowledgeExplorer.jsx`
+  - **UI Parent App — ✅ DONE + committed `d1399ac`**: `components/KnowledgeExplorer.jsx`
     (chọn danh mục: từ điển/wiki/thời tiết/pokémon/số/toán/động vật/điều thú vị/truyện cười/ISS/APOD,
     input động + render từng loại, degrade ok:false → thông báo nhẹ) nhúng trong `MorePage.jsx` (card
     "🔎 Khám phá tri thức", mở rộng khi cần). `api.js` thêm helper generic `knowledgeQuery(name, params)`
