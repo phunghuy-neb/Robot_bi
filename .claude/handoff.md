@@ -15,8 +15,8 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **698/698 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
-  CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
+  = **698/698 PASS**; Vite build OK. PROJECT.md đã dọn + sync (commit `4b3fc56`); working tree giờ CHỈ
+  còn `.gitignore` dirty (đổi line-ending CRLF↔LF toàn file — noise, KHÔNG đụng). **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
   Knowledge UI Parent App ✅, TOEIC audio server ✅, lọc title YouTube ✅, Persona admin-global ✅,
