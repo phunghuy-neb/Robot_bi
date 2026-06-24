@@ -8,6 +8,7 @@ import time
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -77,11 +78,17 @@ async def eval_chat(
     full_response = ""
     provider_used = "unknown"
 
-    try:
+    def _collect() -> str:
+        out = ""
         for token in stream_chat(messages, system_context=system_context, role=body.role):
-            full_response += token
-            if len(full_response) > 3000:
+            out += token
+            if len(out) > 3000:
                 break
+        return out
+
+    try:
+        # M-NEW-8: stream_chat đồng bộ (requests) → chạy trong threadpool, không block event loop.
+        full_response = await run_in_threadpool(_collect)
     except Exception as e:
         logger.warning("[Eval] stream_chat error: %s", e)
         raise HTTPException(status_code=503, detail=f"AI provider error: {str(e)[:200]}")

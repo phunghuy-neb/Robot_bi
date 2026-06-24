@@ -390,6 +390,12 @@ async def refresh_token_endpoint(request: Request):
     if not row["is_active"]:
         raise HTTPException(status_code=401, detail="Tai khoan da bi vo hieu hoa")
 
+    # L-NEW-8: refresh HỢP LỆ → reset bộ đếm rate-limit của IP này, tránh khóa nhầm
+    # session hợp lệ lâu dài / NAT nhiều thiết bị (counter trước đây chỉ reset sau khi đã khóa).
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM login_attempts WHERE ip_address = ?", (rate_key,))
+        conn.commit()
+
     new_access = create_access_token(user_id, row["family_name"])
 
     return {

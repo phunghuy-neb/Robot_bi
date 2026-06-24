@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
@@ -119,12 +120,17 @@ async def send_parent_chat(
     # Call AI engine — collect full response, no streaming needed for REST
     try:
         from src.ai.ai_engine import stream_chat
-        full_reply = ""
-        for token in stream_chat(messages, role="parent_advisor"):
-            full_reply += token
-            if len(full_reply) >= _MAX_REPLY_LEN:
-                break
-        full_reply = full_reply.strip()
+
+        def _collect() -> str:
+            out = ""
+            for token in stream_chat(messages, role="parent_advisor"):
+                out += token
+                if len(out) >= _MAX_REPLY_LEN:
+                    break
+            return out.strip()
+
+        # M-NEW-8: stream_chat đồng bộ → threadpool để không block event loop.
+        full_reply = await run_in_threadpool(_collect)
         if not full_reply:
             full_reply = "Bi chưa hiểu câu hỏi. Bạn có thể hỏi lại không?"
     except Exception as exc:

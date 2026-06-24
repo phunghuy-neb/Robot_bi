@@ -8862,6 +8862,48 @@ test("95.2  M1+H-NEW-3: motor fast-fail (không block) + clamp 5s",            t
 test("95.3  M2: voice_chunk ghi vào temp dir (không CWD)",                    test_95_chunk_path_in_tempdir)
 test("95.4  delete_family báo rag_cleaned",                                   test_95_delete_family_reports_rag_cleanup)
 
+# == GROUP 96: Round-36 fixes (M-NEW-8 concurrency, L-NEW-8 refresh reset) ==
+print("\n[Group 96] Fix round 36 — event-loop blocking + refresh counter reset")
+
+
+def test_96_blocking_calls_wrapped():
+    # M-NEW-8: stream_chat/whisper đồng bộ phải được bọc run_in_threadpool trong async handlers.
+    import inspect
+    import src.api.routers.eval_router as ev
+    import src.api.routers.parent_chat_router as pc
+    import src.api.routers.exam_router as ex
+    for mod, name in ((ev, "eval"), (pc, "parent_chat"), (ex, "exam")):
+        src = inspect.getsource(mod)
+        assert "run_in_threadpool" in src, f"{name}: thiếu run_in_threadpool"
+    ex_src = inspect.getsource(ex)
+    # exam: grade + transcribe + 2× generate = ≥4 lần bọc threadpool
+    assert ex_src.count("await run_in_threadpool") >= 4, \
+        f"exam phải bọc ≥4 lời gọi blocking, có {ex_src.count('await run_in_threadpool')}"
+    # không còn vòng lặp stream_chat trực tiếp trong async handler của eval/parent_chat
+    assert "for token in stream_chat" not in inspect.getsource(ev) or "_collect" in inspect.getsource(ev)
+
+
+def test_96_refresh_counter_resets_on_success():
+    import datetime as _dt
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.auth.auth import create_user, create_refresh_token, store_refresh_token
+    user = create_user(f"rfr_{_uuid.uuid4().hex[:8]}", "Password1!", f"rfrfam-{_uuid.uuid4().hex[:6]}")
+    uid = str(user["user_id"])
+    raw, hashed = create_refresh_token(uid)
+    store_refresh_token(uid, hashed, _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(days=7))
+    client = TestClient(app)
+    token = raw
+    # 22 lần refresh hợp lệ liên tiếp — với L-NEW-8 fix, counter reset mỗi lần → KHÔNG bị 429.
+    for i in range(22):
+        r = client.post("/auth/refresh", json={"refresh_token": token})
+        assert r.status_code == 200, f"refresh #{i+1} phải 200 (counter reset), có {r.status_code} {r.text[:120]}"
+        token = r.json()["refresh_token"]
+
+
+test("96.1  M-NEW-8: blocking stream_chat/whisper bọc run_in_threadpool",      test_96_blocking_calls_wrapped)
+test("96.2  L-NEW-8: refresh hợp lệ reset counter (22 lần không bị 429)",      test_96_refresh_counter_resets_on_success)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

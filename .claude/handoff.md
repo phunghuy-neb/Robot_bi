@@ -15,7 +15,7 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **708/708 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
+  = **710/710 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
   (`9ab8ae5`). **Working tree SẠCH HOÀN TOÀN** (không còn file dirty). **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
@@ -75,7 +75,23 @@
     không-dấu+English), L-NEW-5 ("không được" đã bị loại khỏi blacklist), H-NEW-1/M2/L-NEW-6 (round 36 đã
     POSSIBLY_FIXED).
   - Suite **704/704 PASS** (trước 698); Vite build OK; SYSTEM_MAP cập nhật.
-- **FIX review wave-2 (2026-06-25, theo lệnh "sửa nốt non-hardware") — ✅ DONE phiên này (UNCOMMITTED → commit):**
+- **Round 36 review (06:48) + FIX 2 issue mới — ✅ DONE phiên này (UNCOMMITTED → commit):**
+  - Review loop chạy xong round 36 (vẫn parse-error nên report không merge, nhưng stdout
+    `failures/round-36-…064824…stdout.txt` là bản review CHÍNH XÁC trên code hiện tại).
+  - **Round 36 XÁC NHẬN 6 fix của mình ĐÚNG → POSSIBLY_FIXED**: H-NEW-1, M-NEW-1, L-NEW-1, M1, H-NEW-3, L-NEW-7.
+  - **M-NEW-8 (MEDIUM/concurrency) — FIXED**: `stream_chat`/faster-whisper đồng bộ chạy trong `async def`
+    handler → block event loop. Bọc `run_in_threadpool`: `eval_router` (collect), `parent_chat_router`
+    (collect), `exam_router` (`_grade_toeic_sw_attempt`, `_transcribe_audio`, `_llm_generate_questions`×2).
+  - **L-NEW-8 (LOW) — FIXED**: `/auth/refresh` counter rate-limit nay RESET khi refresh thành công
+    (`DELETE login_attempts WHERE ip=refresh:{ip}`) → không khóa nhầm session NAT/nhiều thiết bị.
+  - Test **Group 96** (2): blocking calls bọc threadpool (source guard); 22 refresh hợp lệ liên tiếp
+    không bị 429. Suite **710/710 PASS** (trước 708).
+  - **Coverage review: 24/554 DEEP (~4.3%)** — round 36 next priorities: `server.py` + `main.py`
+    (NEEDS_RECHECK), `role_manager.py`, `rag_manager.py`, `db.py` (110KB), `knowledge_client.py` (SSRF),
+    `notifier.py`, `state.py`, audio internals, firmware, frontend — đều CHƯA review sâu.
+  - **CÒN OPEN nhỏ**: round-36 không thêm gì khác; round-35 LOWs (prune/quota/embed/notifier/dup) +
+    L-NEW-2 (pickle wakeword) vẫn để (minor). M-NEW-8 INFO residual: chưa có `safe_stream_chat()` dùng chung.
+- **FIX review wave-2 (2026-06-25, theo lệnh "sửa nốt non-hardware") — ✅ DONE phiên này (committed cùng đợt):**
   - **L-NEW-7 (an toàn trẻ)**: thêm từ KHÔNG DẤU an toàn vào `_SENSITIVE_PATTERNS_NORM_ONLY`
     (`giet, danh nhau, khieu dam, noi dung nguoi lon`) — CHỦ Ý loại `ban/bom/sung/tu dao` vì collision
     với bạn/bơm/sưng (false-positive). (Lưu ý: `bom`=bomb đã bị accented-set chặn sẵn → bơm-không-dấu

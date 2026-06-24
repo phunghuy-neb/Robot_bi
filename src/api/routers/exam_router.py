@@ -28,6 +28,7 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
@@ -653,7 +654,8 @@ async def submit_toeic_sw(
         skill = (paper["skill"] or "writing").strip().lower()
         if skill not in {"speaking", "writing"}:
             skill = "speaking" if any((it["question_type"] or "") == TOEIC_SPEAKING_TYPE for it in items) else "writing"
-        graded = _grade_toeic_sw_attempt(paper, items, body, skill)
+        # M-NEW-8: chấm điểm có gọi LLM đồng bộ → threadpool, không block event loop.
+        graded = await run_in_threadpool(_grade_toeic_sw_attempt, paper, items, body, skill)
         if not graded["review"]:
             raise HTTPException(status_code=422, detail="No TOEIC S&W questions to grade")
         session_id = uuid4().hex
@@ -755,7 +757,8 @@ async def submit_toeic_speaking_audio(
             continue
         if len(data) > _MAX_AUDIO_BYTES:
             raise HTTPException(status_code=413, detail=f"File audio quá lớn (>{_MAX_AUDIO_BYTES // (1024*1024)}MB)")
-        text = _transcribe_audio(data, upload.filename or "audio.webm", language=lang)
+        # M-NEW-8: STT (faster-whisper) là CPU-bound đồng bộ → threadpool.
+        text = await run_in_threadpool(_transcribe_audio, data, upload.filename or "audio.webm", lang)
         if text:
             transcripts[str(qid)] = text
     if not transcripts:
@@ -949,7 +952,8 @@ async def admin_generate_questions(
     family_id = _require_family(admin)
     skip_llm = os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes")
     try:
-        items = _stub_questions(req) if skip_llm else _llm_generate_questions(req)
+        # M-NEW-8: sinh câu hỏi qua LLM đồng bộ → threadpool.
+        items = _stub_questions(req) if skip_llm else await run_in_threadpool(_llm_generate_questions, req)
     except Exception as e:
         logger.warning("[exam] AI generation failed (%s) — falling back to stub", e)
         items = _stub_questions(req)
@@ -1027,7 +1031,7 @@ async def admin_generate_batch(
                 school_year=body.school_year,
             )
             try:
-                items = _stub_questions(req) if skip_llm else _llm_generate_questions(req)
+                items = _stub_questions(req) if skip_llm else await run_in_threadpool(_llm_generate_questions, req)
             except Exception as e:
                 logger.warning("[exam] batch topic '%s' failed (%s) — stub", topic, e)
                 items = _stub_questions(req)
