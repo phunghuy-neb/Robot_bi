@@ -1,0 +1,683 @@
+{
+  "subject": "programming",
+  "exams": [
+    {
+      "paper_id": "programming_exam_grade6_1",
+      "title": "Lập trình — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_co_ban",
+      "questions": [
+        {
+          "question": "Trong lập trình, “câu lệnh” là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "chỉ thị yêu cầu máy tính thực hiện một việc",
+            "một thiết bị phần cứng",
+            "một loại virus",
+            "tên của máy tính"
+          ],
+          "answer": "chỉ thị yêu cầu máy tính thực hiện một việc",
+          "explanation": "Câu lệnh là một chỉ thị yêu cầu máy tính thực hiện một thao tác.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trong Scratch, để nhân vật lặp lại một hành động nhiều lần, ta dùng khối lệnh nào?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "khối lặp (repeat)",
+            "khối âm thanh",
+            "khối màu sắc",
+            "khối xóa"
+          ],
+          "answer": "khối lặp (repeat)",
+          "explanation": "Khối lặp (repeat) giúp lặp lại hành động nhiều lần.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thứ tự thực hiện các câu lệnh trong chương trình thông thường là?",
+          "question_vi": "",
+          "emoji": "⬇️",
+          "options": [
+            "từ trên xuống dưới",
+            "từ dưới lên trên",
+            "ngẫu nhiên",
+            "từ phải sang trái"
+          ],
+          "answer": "từ trên xuống dưới",
+          "explanation": "Chương trình thường thực hiện tuần tự các lệnh từ trên xuống dưới.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để in dòng chữ “Xin chào” ra màn hình trong Python, ta dùng lệnh nào?",
+          "question_vi": "",
+          "emoji": "🖨️",
+          "options": [
+            "print(\"Xin chào\")",
+            "echo Xin chào",
+            "write Xin chào",
+            "say \"Xin chào\""
+          ],
+          "answer": "print(\"Xin chào\")",
+          "explanation": "Lệnh print() dùng để in ra màn hình trong Python.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một chương trình máy tính là gì?",
+          "question_vi": "",
+          "emoji": "💻",
+          "options": [
+            "tập hợp các câu lệnh để máy tính thực hiện một công việc",
+            "một thiết bị phần cứng",
+            "một trang giấy",
+            "một loại chuột"
+          ],
+          "answer": "tập hợp các câu lệnh để máy tính thực hiện một công việc",
+          "explanation": "Chương trình là tập hợp các câu lệnh chỉ dẫn máy tính làm việc.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Bug” trong lập trình nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🐛",
+          "options": [
+            "lỗi trong chương trình",
+            "một con vật",
+            "một loại máy in",
+            "tên một ngôn ngữ"
+          ],
+          "answer": "lỗi trong chương trình",
+          "explanation": "Bug là lỗi (sai sót) trong chương trình.",
+          "difficulty": 1
+        },
+        {
+          "question": "Việc tìm và sửa lỗi trong chương trình gọi là gì?",
+          "question_vi": "",
+          "emoji": "🔧",
+          "options": [
+            "gỡ lỗi (debug)",
+            "tăng tốc",
+            "định dạng",
+            "in ấn"
+          ],
+          "answer": "gỡ lỗi (debug)",
+          "explanation": "Gỡ lỗi (debug) là quá trình tìm và sửa lỗi trong chương trình.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong Python, dấu # ở đầu dòng dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "💬",
+          "options": [
+            "viết chú thích (comment)",
+            "in ra màn hình",
+            "khai báo biến",
+            "kết thúc chương trình"
+          ],
+          "answer": "viết chú thích (comment)",
+          "explanation": "Dấu # bắt đầu một dòng chú thích, không được máy thực thi.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để máy tính ra quyết định dựa trên một điều kiện, ta dùng cấu trúc nào?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": [
+            "cấu trúc rẽ nhánh (if)",
+            "cấu trúc in",
+            "biến",
+            "tên hàm"
+          ],
+          "answer": "cấu trúc rẽ nhánh (if)",
+          "explanation": "Cấu trúc rẽ nhánh if cho phép chương trình ra quyết định theo điều kiện.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_exam_grade10_1",
+      "title": "Lập trình — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_thcs",
+      "questions": [
+        {
+          "question": "Trong Python, kiểu dữ liệu nào dùng để lưu số nguyên?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "int",
+            "str",
+            "float",
+            "bool"
+          ],
+          "answer": "int",
+          "explanation": "int là kiểu số nguyên trong Python.",
+          "difficulty": 2
+        },
+        {
+          "question": "Biểu thức 7 // 2 trong Python (chia lấy phần nguyên) cho kết quả là?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": [
+            "3",
+            "3.5",
+            "4",
+            "2"
+          ],
+          "answer": "3",
+          "explanation": "Toán tử // chia lấy phần nguyên: 7 // 2 = 3.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong Python, để lặp một khối lệnh đúng 5 lần, ta thường dùng?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "for i in range(5):",
+            "while False:",
+            "if 5:",
+            "print(5)"
+          ],
+          "answer": "for i in range(5):",
+          "explanation": "for i in range(5): lặp 5 lần với i từ 0 đến 4.",
+          "difficulty": 3
+        },
+        {
+          "question": "Toán tử nào dùng để so sánh bằng trong Python?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "==",
+            "=",
+            "!=",
+            "=>"
+          ],
+          "answer": "==",
+          "explanation": "== là toán tử so sánh bằng; = là phép gán.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kết quả của biểu thức 2 ** 3 trong Python (lũy thừa) là?",
+          "question_vi": "",
+          "emoji": "🔼",
+          "options": [
+            "8",
+            "6",
+            "9",
+            "5"
+          ],
+          "answer": "8",
+          "explanation": "** là phép lũy thừa: 2 ** 3 = 8.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hàm len(\"abc\") trong Python trả về giá trị nào?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "3",
+            "2",
+            "4",
+            "\"abc\""
+          ],
+          "answer": "3",
+          "explanation": "len() trả về độ dài chuỗi: len(\"abc\") = 3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Danh sách (list) trong Python được khai báo bằng cặp dấu nào?",
+          "question_vi": "",
+          "emoji": "🗃️",
+          "options": [
+            "dấu ngoặc vuông [ ]",
+            "dấu ngoặc nhọn { }",
+            "dấu ngoặc tròn ( )",
+            "dấu nháy \" \""
+          ],
+          "answer": "dấu ngoặc vuông [ ]",
+          "explanation": "List trong Python dùng cặp dấu ngoặc vuông [ ].",
+          "difficulty": 3
+        },
+        {
+          "question": "Biến kiểu boolean (bool) chỉ nhận một trong hai giá trị nào?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "True và False",
+            "0 và 9",
+            "“có” và “không” tùy ý",
+            "A và B"
+          ],
+          "answer": "True và False",
+          "explanation": "Kiểu bool chỉ có hai giá trị: True và False.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_exam_thpt_1",
+      "title": "Lập trình — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_thpt",
+      "questions": [
+        {
+          "question": "Trong Python, lệnh nào dùng để nhập dữ liệu từ bàn phím?",
+          "question_vi": "",
+          "emoji": "⌨️",
+          "options": [
+            "input()",
+            "print()",
+            "len()",
+            "range()"
+          ],
+          "answer": "input()",
+          "explanation": "input() đọc dữ liệu người dùng nhập từ bàn phím.",
+          "difficulty": 3
+        },
+        {
+          "question": "Kết quả của 10 % 3 (chia lấy dư) trong Python là?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": [
+            "1",
+            "3",
+            "0",
+            "7"
+          ],
+          "answer": "1",
+          "explanation": "% là phép chia lấy dư: 10 % 3 = 1.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hàm (function) trong lập trình dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🧩",
+          "options": [
+            "nhóm các lệnh thực hiện một nhiệm vụ, có thể tái sử dụng",
+            "lưu trữ hình ảnh",
+            "kết nối mạng",
+            "định dạng ổ cứng"
+          ],
+          "answer": "nhóm các lệnh thực hiện một nhiệm vụ, có thể tái sử dụng",
+          "explanation": "Hàm gom các lệnh thực hiện một nhiệm vụ và có thể gọi lại nhiều lần.",
+          "difficulty": 4
+        },
+        {
+          "question": "Vòng lặp while sẽ tiếp tục chạy chừng nào điều kiện của nó còn?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "đúng (True)",
+            "sai (False)",
+            "bằng 0",
+            "rỗng"
+          ],
+          "answer": "đúng (True)",
+          "explanation": "while lặp chừng nào điều kiện còn đúng (True).",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong Python, kiểu “string” (str) dùng để lưu gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "văn bản (dãy ký tự)",
+            "chỉ số nguyên",
+            "chỉ số thực",
+            "chỉ giá trị True/False"
+          ],
+          "answer": "văn bản (dãy ký tự)",
+          "explanation": "str là kiểu chuỗi, lưu văn bản (dãy ký tự).",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu lệnh nào dùng để thoát khỏi vòng lặp ngay lập tức?",
+          "question_vi": "",
+          "emoji": "🚪",
+          "options": [
+            "break",
+            "continue",
+            "pass",
+            "return"
+          ],
+          "answer": "break",
+          "explanation": "break thoát ngay khỏi vòng lặp đang chạy.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lỗi cú pháp (syntax error) trong lập trình là gì?",
+          "question_vi": "",
+          "emoji": "❌",
+          "options": [
+            "lỗi do viết sai quy tắc ngữ pháp của ngôn ngữ lập trình",
+            "lỗi phần cứng",
+            "lỗi mạng",
+            "lỗi nguồn điện"
+          ],
+          "answer": "lỗi do viết sai quy tắc ngữ pháp của ngôn ngữ lập trình",
+          "explanation": "Lỗi cú pháp xảy ra khi viết sai quy tắc ngữ pháp của ngôn ngữ.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_hsg_school_1",
+      "title": "Lập trình — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_nang_cao",
+      "questions": [
+        {
+          "question": "Độ phức tạp của thuật toán duyệt toàn bộ n phần tử đúng một lần là?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": [
+            "O(n)",
+            "O(1)",
+            "O(n²)",
+            "O(log n)"
+          ],
+          "answer": "O(n)",
+          "explanation": "Duyệt qua n phần tử một lần có độ phức tạp O(n).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong Python, range(1, 5) tạo ra dãy số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "1, 2, 3, 4",
+            "1, 2, 3, 4, 5",
+            "0, 1, 2, 3, 4",
+            "chỉ 1 và 5"
+          ],
+          "answer": "1, 2, 3, 4",
+          "explanation": "range(1, 5) sinh các số 1, 2, 3, 4 (không gồm 5).",
+          "difficulty": 4
+        },
+        {
+          "question": "Đệ quy luôn cần có thành phần nào để không lặp vô hạn?",
+          "question_vi": "",
+          "emoji": "🛑",
+          "options": [
+            "điều kiện dừng (base case)",
+            "một vòng for",
+            "một mảng",
+            "một biến toàn cục"
+          ],
+          "answer": "điều kiện dừng (base case)",
+          "explanation": "Hàm đệ quy cần điều kiện dừng (base case) để kết thúc.",
+          "difficulty": 4
+        },
+        {
+          "question": "Cấu trúc dữ liệu ngăn xếp (stack) hoạt động theo nguyên tắc nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "vào sau ra trước (LIFO)",
+            "vào trước ra trước (FIFO)",
+            "ngẫu nhiên",
+            "theo bảng chữ cái"
+          ],
+          "answer": "vào sau ra trước (LIFO)",
+          "explanation": "Stack hoạt động theo nguyên tắc LIFO (Last In, First Out).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong Python, kết quả của \"Hello\"[0] là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "\"H\"",
+            "\"o\"",
+            "\"Hello\"",
+            "báo lỗi"
+          ],
+          "answer": "\"H\"",
+          "explanation": "Chỉ số 0 lấy ký tự đầu tiên: \"Hello\"[0] = \"H\".",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu lệnh continue trong vòng lặp có tác dụng gì?",
+          "question_vi": "",
+          "emoji": "⏭️",
+          "options": [
+            "bỏ qua phần còn lại của lần lặp hiện tại và sang lần lặp tiếp theo",
+            "thoát hẳn vòng lặp",
+            "dừng chương trình",
+            "in ra màn hình"
+          ],
+          "answer": "bỏ qua phần còn lại của lần lặp hiện tại và sang lần lặp tiếp theo",
+          "explanation": "continue bỏ qua phần còn lại của lần lặp hiện tại, chuyển sang lần lặp kế tiếp.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_hsg_district_1",
+      "title": "Lập trình — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_nang_cao",
+      "questions": [
+        {
+          "question": "Cấu trúc dữ liệu hàng đợi (queue) hoạt động theo nguyên tắc nào?",
+          "question_vi": "",
+          "emoji": "🚶",
+          "options": [
+            "vào trước ra trước (FIFO)",
+            "vào sau ra trước (LIFO)",
+            "ngẫu nhiên",
+            "theo độ lớn"
+          ],
+          "answer": "vào trước ra trước (FIFO)",
+          "explanation": "Queue hoạt động theo nguyên tắc FIFO (First In, First Out).",
+          "difficulty": 4
+        },
+        {
+          "question": "Thuật toán sắp xếp nổi bọt (bubble sort) có độ phức tạp thời gian trung bình là?",
+          "question_vi": "",
+          "emoji": "🫧",
+          "options": [
+            "O(n²)",
+            "O(n)",
+            "O(log n)",
+            "O(1)"
+          ],
+          "answer": "O(n²)",
+          "explanation": "Bubble sort có độ phức tạp thời gian trung bình và xấu nhất là O(n²).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong Python, từ khóa nào dùng để định nghĩa một hàm?",
+          "question_vi": "",
+          "emoji": "🧱",
+          "options": [
+            "def",
+            "function",
+            "func",
+            "define"
+          ],
+          "answer": "def",
+          "explanation": "Từ khóa def dùng để định nghĩa hàm trong Python.",
+          "difficulty": 3
+        },
+        {
+          "question": "Danh sách [1, 2, 3] sau khi gọi .append(4) sẽ trở thành?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": [
+            "[1, 2, 3, 4]",
+            "[4, 1, 2, 3]",
+            "[1, 2, 3]",
+            "[1, 2, 3, 4, 4]"
+          ],
+          "answer": "[1, 2, 3, 4]",
+          "explanation": ".append(4) thêm 4 vào cuối danh sách: [1, 2, 3, 4].",
+          "difficulty": 4
+        },
+        {
+          "question": "Biến cục bộ (local variable) là biến như thế nào?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": [
+            "chỉ tồn tại và dùng được bên trong hàm/khối đã khai báo nó",
+            "dùng được ở mọi nơi",
+            "luôn là hằng số",
+            "là một thiết bị phần cứng"
+          ],
+          "answer": "chỉ tồn tại và dùng được bên trong hàm/khối đã khai báo nó",
+          "explanation": "Biến cục bộ chỉ có hiệu lực trong phạm vi hàm/khối khai báo nó.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong tìm kiếm tuyến tính (linear search), trường hợp xấu nhất phải duyệt bao nhiêu phần tử?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": [
+            "toàn bộ n phần tử",
+            "1 phần tử",
+            "log n phần tử",
+            "không phần tử nào"
+          ],
+          "answer": "toàn bộ n phần tử",
+          "explanation": "Trường hợp xấu nhất tìm kiếm tuyến tính phải duyệt hết n phần tử.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "programming_hsg_province_1",
+      "title": "Lập trình — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "lap_trinh_chuyen_sau",
+      "questions": [
+        {
+          "question": "Thuật toán tìm kiếm nhị phân (binary search) có độ phức tạp thời gian là?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": [
+            "O(log n)",
+            "O(n)",
+            "O(n²)",
+            "O(1)"
+          ],
+          "answer": "O(log n)",
+          "explanation": "Tìm kiếm nhị phân có độ phức tạp O(log n) trên dữ liệu đã sắp xếp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong lập trình hướng đối tượng, tính kế thừa (inheritance) cho phép điều gì?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "một lớp con dùng lại thuộc tính, phương thức của lớp cha",
+            "cộng hai biến lại",
+            "một vòng lặp chạy mãi",
+            "mã hóa dữ liệu"
+          ],
+          "answer": "một lớp con dùng lại thuộc tính, phương thức của lớp cha",
+          "explanation": "Kế thừa cho phép lớp con thừa hưởng và mở rộng thuộc tính, phương thức của lớp cha.",
+          "difficulty": 4
+        },
+        {
+          "question": "Cấu trúc dữ liệu nào phù hợp để biểu diễn quan hệ phân cấp (cha – con) như cây thư mục?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "cây (tree)",
+            "hàng đợi",
+            "ngăn xếp",
+            "số nguyên"
+          ],
+          "answer": "cây (tree)",
+          "explanation": "Cây (tree) phù hợp biểu diễn quan hệ phân cấp cha – con.",
+          "difficulty": 4
+        },
+        {
+          "question": "Phương pháp “chia để trị” (divide and conquer) là gì?",
+          "question_vi": "",
+          "emoji": "✂️",
+          "options": [
+            "chia bài toán lớn thành các bài toán con nhỏ hơn, giải rồi gộp kết quả lại",
+            "gộp nhiều bài thành một",
+            "bỏ qua các bài khó",
+            "chạy chương trình ngẫu nhiên"
+          ],
+          "answer": "chia bài toán lớn thành các bài toán con nhỏ hơn, giải rồi gộp kết quả lại",
+          "explanation": "Chia để trị chia nhỏ bài toán, giải các bài con rồi kết hợp lại (ví dụ merge sort).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong Python, kết quả của biểu thức 3 < 5 and 5 < 2 là gì?",
+          "question_vi": "",
+          "emoji": "🔣",
+          "options": [
+            "False",
+            "True",
+            "báo lỗi",
+            "5"
+          ],
+          "answer": "False",
+          "explanation": "3 < 5 là True, 5 < 2 là False; True and False = False.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ký hiệu “Big-O” được dùng để mô tả điều gì của thuật toán?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "độ phức tạp (thời gian/bộ nhớ) theo kích thước dữ liệu đầu vào",
+            "màu sắc giao diện",
+            "tên tác giả",
+            "ngôn ngữ lập trình"
+          ],
+          "answer": "độ phức tạp (thời gian/bộ nhớ) theo kích thước dữ liệu đầu vào",
+          "explanation": "Big-O mô tả cách thời gian chạy/bộ nhớ tăng theo kích thước đầu vào.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
