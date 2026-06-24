@@ -15,7 +15,7 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **685/685 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
+  = **689/689 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
