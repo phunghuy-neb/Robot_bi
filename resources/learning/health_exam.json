@@ -1,0 +1,683 @@
+{
+  "subject": "health",
+  "exams": [
+    {
+      "paper_id": "health_exam_grade6_1",
+      "title": "Dinh dưỡng & Sức khỏe — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_co_ban",
+      "questions": [
+        {
+          "question": "Mỗi ngày em nên uống khoảng bao nhiêu nước để cơ thể khỏe mạnh?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "khoảng 1,5–2 lít",
+            "chỉ 1 cốc",
+            "10 lít",
+            "không cần uống nước"
+          ],
+          "answer": "khoảng 1,5–2 lít",
+          "explanation": "Cơ thể cần khoảng 1,5–2 lít nước mỗi ngày.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nhóm thực phẩm nào giàu vitamin và chất xơ?",
+          "question_vi": "",
+          "emoji": "🥦",
+          "options": [
+            "rau xanh và trái cây",
+            "kẹo ngọt",
+            "nước ngọt có ga",
+            "đồ chiên rán"
+          ],
+          "answer": "rau xanh và trái cây",
+          "explanation": "Rau xanh và trái cây giàu vitamin, chất xơ.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trước khi ăn và sau khi đi vệ sinh, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🧼",
+          "options": [
+            "rửa tay bằng xà phòng",
+            "bỏ qua không cần",
+            "lau tay vào quần áo",
+            "ăn ngay"
+          ],
+          "answer": "rửa tay bằng xà phòng",
+          "explanation": "Rửa tay bằng xà phòng giúp loại bỏ vi khuẩn, phòng bệnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Mỗi ngày trẻ em nên ngủ khoảng bao nhiêu tiếng?",
+          "question_vi": "",
+          "emoji": "😴",
+          "options": [
+            "khoảng 8–10 tiếng",
+            "2 tiếng",
+            "20 tiếng",
+            "không cần ngủ"
+          ],
+          "answer": "khoảng 8–10 tiếng",
+          "explanation": "Trẻ em cần ngủ khoảng 8–10 tiếng mỗi ngày để phát triển khỏe mạnh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để răng chắc khỏe, em nên hạn chế ăn loại thực phẩm nào?",
+          "question_vi": "",
+          "emoji": "🍬",
+          "options": [
+            "bánh kẹo ngọt",
+            "rau xanh",
+            "cá",
+            "trái cây"
+          ],
+          "answer": "bánh kẹo ngọt",
+          "explanation": "Ăn nhiều bánh kẹo ngọt dễ gây sâu răng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hoạt động nào tốt cho sức khỏe?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "tập thể dục thường xuyên",
+            "ngồi xem tivi cả ngày",
+            "ăn vặt liên tục",
+            "thức khuya"
+          ],
+          "answer": "tập thể dục thường xuyên",
+          "explanation": "Tập thể dục đều đặn giúp cơ thể khỏe mạnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vitamin C có nhiều trong loại thực phẩm nào?",
+          "question_vi": "",
+          "emoji": "🍊",
+          "options": [
+            "cam, chanh, ổi",
+            "mỡ động vật",
+            "đường",
+            "muối"
+          ],
+          "answer": "cam, chanh, ổi",
+          "explanation": "Cam, chanh, ổi và nhiều loại trái cây giàu vitamin C.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi bị chảy máu cam, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "👃",
+          "options": [
+            "ngồi, hơi cúi đầu về trước và bóp nhẹ cánh mũi",
+            "ngửa cổ ra sau thật mạnh",
+            "chạy nhảy",
+            "nằm ngửa"
+          ],
+          "answer": "ngồi, hơi cúi đầu về trước và bóp nhẹ cánh mũi",
+          "explanation": "Chảy máu cam nên ngồi, cúi nhẹ đầu về trước và bóp cánh mũi để cầm máu.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi ho hoặc hắt hơi, để phòng bệnh em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🤧",
+          "options": [
+            "che miệng, mũi bằng khuỷu tay hoặc khăn giấy",
+            "quay mặt vào người khác",
+            "không che gì cả",
+            "ho thật to"
+          ],
+          "answer": "che miệng, mũi bằng khuỷu tay hoặc khăn giấy",
+          "explanation": "Che miệng, mũi khi ho/hắt hơi giúp hạn chế phát tán mầm bệnh.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "health_exam_grade10_1",
+      "title": "Dinh dưỡng & Sức khỏe — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_thcs",
+      "questions": [
+        {
+          "question": "Chất dinh dưỡng nào cung cấp năng lượng chính cho cơ thể hoạt động?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": [
+            "carbohydrate (chất bột đường)",
+            "vitamin",
+            "nước",
+            "muối khoáng"
+          ],
+          "answer": "carbohydrate (chất bột đường)",
+          "explanation": "Carbohydrate (chất bột đường) là nguồn năng lượng chính của cơ thể.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chất nào cần thiết để xây dựng và phục hồi cơ bắp, mô của cơ thể?",
+          "question_vi": "",
+          "emoji": "🥚",
+          "options": [
+            "protein (chất đạm)",
+            "chất xơ",
+            "vitamin C",
+            "nước"
+          ],
+          "answer": "protein (chất đạm)",
+          "explanation": "Protein (chất đạm) giúp xây dựng và sửa chữa cơ bắp, mô.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bệnh béo phì có nguyên nhân chủ yếu nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "ăn quá nhiều năng lượng và ít vận động",
+            "ăn nhiều rau",
+            "uống nhiều nước lọc",
+            "ngủ đủ giấc"
+          ],
+          "answer": "ăn quá nhiều năng lượng và ít vận động",
+          "explanation": "Béo phì chủ yếu do nạp năng lượng nhiều hơn tiêu hao và ít vận động.",
+          "difficulty": 3
+        },
+        {
+          "question": "Để phòng bệnh lây qua đường hô hấp (như cúm), biện pháp nào hiệu quả?",
+          "question_vi": "",
+          "emoji": "😷",
+          "options": [
+            "đeo khẩu trang, rửa tay, giữ khoảng cách khi cần",
+            "dùng chung cốc với người bệnh",
+            "không rửa tay",
+            "ở nơi đông đúc khi đang ốm"
+          ],
+          "answer": "đeo khẩu trang, rửa tay, giữ khoảng cách khi cần",
+          "explanation": "Đeo khẩu trang, rửa tay, giữ khoảng cách giúp phòng bệnh hô hấp.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thiếu vitamin A kéo dài có thể gây bệnh gì về mắt?",
+          "question_vi": "",
+          "emoji": "👁️",
+          "options": [
+            "quáng gà (khô mắt)",
+            "gãy xương",
+            "sâu răng",
+            "cảm cúm"
+          ],
+          "answer": "quáng gà (khô mắt)",
+          "explanation": "Thiếu vitamin A gây khô mắt, quáng gà.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thiếu i-ốt trong khẩu phần ăn có thể gây bệnh gì?",
+          "question_vi": "",
+          "emoji": "🧂",
+          "options": [
+            "bướu cổ",
+            "cận thị",
+            "sâu răng",
+            "gãy xương"
+          ],
+          "answer": "bướu cổ",
+          "explanation": "Thiếu i-ốt gây bệnh bướu cổ (phình tuyến giáp).",
+          "difficulty": 3
+        },
+        {
+          "question": "Một bữa ăn cân đối nên bao gồm những gì?",
+          "question_vi": "",
+          "emoji": "🍽️",
+          "options": [
+            "đủ chất bột đường, đạm, béo, vitamin và khoáng chất",
+            "chỉ toàn cơm",
+            "chỉ toàn thịt",
+            "chỉ toàn rau"
+          ],
+          "answer": "đủ chất bột đường, đạm, béo, vitamin và khoáng chất",
+          "explanation": "Bữa ăn cân đối cần đủ các nhóm chất: bột đường, đạm, béo, vitamin, khoáng chất.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hút thuốc lá có hại chủ yếu cho cơ quan nào?",
+          "question_vi": "",
+          "emoji": "🚬",
+          "options": [
+            "phổi và hệ hô hấp",
+            "tóc",
+            "móng tay",
+            "da đầu"
+          ],
+          "answer": "phổi và hệ hô hấp",
+          "explanation": "Khói thuốc lá gây hại nặng nề cho phổi và hệ hô hấp.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "health_exam_thpt_1",
+      "title": "Dinh dưỡng & Sức khỏe — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_thpt",
+      "questions": [
+        {
+          "question": "Chỉ số BMI dùng để đánh giá điều gì?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "tình trạng cân nặng so với chiều cao",
+            "chiều cao tuyệt đối",
+            "huyết áp",
+            "nhịp tim"
+          ],
+          "answer": "tình trạng cân nặng so với chiều cao",
+          "explanation": "BMI = cân nặng / (chiều cao)², đánh giá gầy/bình thường/thừa cân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Vi chất nào quan trọng cho sự tạo máu, thiếu sẽ gây thiếu máu?",
+          "question_vi": "",
+          "emoji": "🩸",
+          "options": [
+            "sắt",
+            "vitamin C đơn thuần",
+            "canxi",
+            "kali"
+          ],
+          "answer": "sắt",
+          "explanation": "Sắt cần cho tạo hồng cầu; thiếu sắt gây thiếu máu.",
+          "difficulty": 3
+        },
+        {
+          "question": "Canxi và vitamin D quan trọng nhất cho bộ phận nào của cơ thể?",
+          "question_vi": "",
+          "emoji": "🦴",
+          "options": [
+            "xương và răng",
+            "tóc",
+            "móng tay",
+            "lông mi"
+          ],
+          "answer": "xương và răng",
+          "explanation": "Canxi và vitamin D giúp xương, răng chắc khỏe.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bệnh tiểu đường (đái tháo đường) liên quan đến rối loạn chuyển hóa chất nào?",
+          "question_vi": "",
+          "emoji": "🩺",
+          "options": [
+            "đường (glucose) trong máu",
+            "chất xơ",
+            "nước",
+            "vitamin"
+          ],
+          "answer": "đường (glucose) trong máu",
+          "explanation": "Tiểu đường là rối loạn chuyển hóa glucose, khiến đường huyết tăng cao.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để bảo vệ tim mạch, nên hạn chế ăn loại chất béo nào?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "chất béo bão hòa và chất béo chuyển hóa (trans fat)",
+            "chất xơ",
+            "vitamin",
+            "nước lọc"
+          ],
+          "answer": "chất béo bão hòa và chất béo chuyển hóa (trans fat)",
+          "explanation": "Chất béo bão hòa và trans fat làm tăng nguy cơ bệnh tim mạch.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tập thể dục đều đặn mang lại lợi ích nào?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "tăng cường sức khỏe tim mạch, cơ bắp và tinh thần",
+            "gây béo phì",
+            "làm yếu tim",
+            "gây mất ngủ vĩnh viễn"
+          ],
+          "answer": "tăng cường sức khỏe tim mạch, cơ bắp và tinh thần",
+          "explanation": "Vận động đều đặn tốt cho tim mạch, cơ bắp và tinh thần.",
+          "difficulty": 3
+        },
+        {
+          "question": "Ngộ độc thực phẩm thường do nguyên nhân nào?",
+          "question_vi": "",
+          "emoji": "🤢",
+          "options": [
+            "ăn thức ăn ôi thiu, nhiễm khuẩn hoặc bảo quản sai cách",
+            "ăn rau sạch",
+            "uống đủ nước",
+            "ngủ đủ giấc"
+          ],
+          "answer": "ăn thức ăn ôi thiu, nhiễm khuẩn hoặc bảo quản sai cách",
+          "explanation": "Ngộ độc thực phẩm thường do thức ăn ôi thiu, nhiễm khuẩn hoặc bảo quản sai.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "health_hsg_school_1",
+      "title": "Dinh dưỡng & Sức khỏe — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_nang_cao",
+      "questions": [
+        {
+          "question": "Tháp dinh dưỡng khuyên nên ăn nhiều nhất nhóm thực phẩm nào (ở đáy tháp)?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": [
+            "nhóm lương thực (cơm, bánh mì, ngũ cốc)",
+            "nhóm đường và muối",
+            "nhóm dầu mỡ",
+            "nhóm đồ ngọt"
+          ],
+          "answer": "nhóm lương thực (cơm, bánh mì, ngũ cốc)",
+          "explanation": "Đáy tháp dinh dưỡng là nhóm lương thực, nên ăn nhiều nhất.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhóm thực phẩm nào nên ăn hạn chế nhất (ở đỉnh tháp dinh dưỡng)?",
+          "question_vi": "",
+          "emoji": "🍭",
+          "options": [
+            "đường, muối, dầu mỡ",
+            "rau xanh",
+            "trái cây",
+            "ngũ cốc"
+          ],
+          "answer": "đường, muối, dầu mỡ",
+          "explanation": "Đỉnh tháp là nhóm đường, muối, dầu mỡ — nên dùng hạn chế.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trẻ em sốt cao cần xử trí ban đầu thế nào?",
+          "question_vi": "",
+          "emoji": "🌡️",
+          "options": [
+            "hạ nhiệt (chườm ấm, uống nhiều nước) và theo dõi",
+            "đắp thật nhiều chăn cho ra mồ hôi",
+            "cho ăn đồ lạnh liên tục",
+            "để mặc, không làm gì"
+          ],
+          "answer": "hạ nhiệt (chườm ấm, uống nhiều nước) và theo dõi",
+          "explanation": "Sốt cao cần hạ nhiệt bằng chườm ấm, bù nước và theo dõi, đến cơ sở y tế khi cần.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi sơ cứu người bị bỏng nhẹ, bước đầu tiên nên làm gì?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "làm mát vết bỏng bằng nước sạch mát",
+            "bôi kem đánh răng",
+            "chọc vỡ vết phồng",
+            "đắp nước mắm"
+          ],
+          "answer": "làm mát vết bỏng bằng nước sạch mát",
+          "explanation": "Bỏng nhẹ nên làm mát ngay bằng nước sạch mát trong vài phút.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để phòng sâu răng, ngoài việc đánh răng, nên làm gì?",
+          "question_vi": "",
+          "emoji": "🦷",
+          "options": [
+            "hạn chế đồ ngọt và khám răng định kỳ",
+            "ăn thật nhiều kẹo",
+            "không bao giờ đi khám",
+            "súc miệng bằng nước ngọt"
+          ],
+          "answer": "hạn chế đồ ngọt và khám răng định kỳ",
+          "explanation": "Hạn chế đồ ngọt và khám răng định kỳ giúp phòng sâu răng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Suy dinh dưỡng ở trẻ em chủ yếu do nguyên nhân nào?",
+          "question_vi": "",
+          "emoji": "🍼",
+          "options": [
+            "thiếu năng lượng và chất dinh dưỡng kéo dài",
+            "ăn quá nhiều rau",
+            "uống nhiều nước",
+            "ngủ nhiều"
+          ],
+          "answer": "thiếu năng lượng và chất dinh dưỡng kéo dài",
+          "explanation": "Suy dinh dưỡng do thiếu năng lượng và dưỡng chất kéo dài.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "health_hsg_district_1",
+      "title": "Dinh dưỡng & Sức khỏe — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_nang_cao",
+      "questions": [
+        {
+          "question": "Chế độ ăn nhiều muối kéo dài làm tăng nguy cơ mắc bệnh nào?",
+          "question_vi": "",
+          "emoji": "🧂",
+          "options": [
+            "tăng huyết áp (cao huyết áp)",
+            "cận thị",
+            "gãy xương",
+            "sâu răng"
+          ],
+          "answer": "tăng huyết áp (cao huyết áp)",
+          "explanation": "Ăn mặn kéo dài làm tăng nguy cơ cao huyết áp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Vai trò chính của chất xơ trong khẩu phần ăn là gì?",
+          "question_vi": "",
+          "emoji": "🥬",
+          "options": [
+            "hỗ trợ tiêu hóa, chống táo bón",
+            "cung cấp nhiều năng lượng nhất",
+            "xây dựng cơ bắp",
+            "tạo máu"
+          ],
+          "answer": "hỗ trợ tiêu hóa, chống táo bón",
+          "explanation": "Chất xơ giúp hệ tiêu hóa hoạt động tốt, chống táo bón.",
+          "difficulty": 4
+        },
+        {
+          "question": "Vắc-xin có tác dụng gì?",
+          "question_vi": "",
+          "emoji": "💉",
+          "options": [
+            "giúp cơ thể tạo miễn dịch phòng bệnh",
+            "chữa khỏi mọi bệnh ngay lập tức",
+            "cung cấp năng lượng",
+            "thay thế bữa ăn"
+          ],
+          "answer": "giúp cơ thể tạo miễn dịch phòng bệnh",
+          "explanation": "Vắc-xin kích thích cơ thể tạo miễn dịch, phòng bệnh truyền nhiễm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Người bị đuối nước vừa được đưa lên bờ và ngừng thở cần kỹ thuật sơ cứu nào?",
+          "question_vi": "",
+          "emoji": "🆘",
+          "options": [
+            "hô hấp nhân tạo và ép tim ngoài lồng ngực (CPR)",
+            "cho uống thật nhiều nước",
+            "lắc mạnh người",
+            "để nằm yên, không làm gì"
+          ],
+          "answer": "hô hấp nhân tạo và ép tim ngoài lồng ngực (CPR)",
+          "explanation": "Người ngừng thở cần CPR (ép tim, hô hấp nhân tạo) và gọi cấp cứu ngay.",
+          "difficulty": 4
+        },
+        {
+          "question": "Năng lượng trong thực phẩm thường được đo bằng đơn vị nào?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "ki-lô-ca-lo (kcal)",
+            "mét",
+            "lít",
+            "gam đường"
+          ],
+          "answer": "ki-lô-ca-lo (kcal)",
+          "explanation": "Năng lượng thực phẩm thường tính bằng kcal (ki-lô-ca-lo).",
+          "difficulty": 4
+        },
+        {
+          "question": "Để an toàn vệ sinh thực phẩm, nên bảo quản thức ăn thừa thế nào?",
+          "question_vi": "",
+          "emoji": "🍱",
+          "options": [
+            "để trong tủ lạnh và hâm kỹ trước khi ăn lại",
+            "để ngoài trời nhiều ngày",
+            "trộn chung đồ sống và đồ chín",
+            "để nơi ẩm thấp"
+          ],
+          "answer": "để trong tủ lạnh và hâm kỹ trước khi ăn lại",
+          "explanation": "Thức ăn thừa nên bảo quản lạnh và hâm kỹ trước khi ăn để tránh nhiễm khuẩn.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "health_hsg_province_1",
+      "title": "Dinh dưỡng & Sức khỏe — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "suc_khoe_chuyen_sau",
+      "questions": [
+        {
+          "question": "Theo WHO, người trưởng thành được coi là béo phì khi chỉ số BMI ở mức nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "từ 30 trở lên",
+            "dưới 18,5",
+            "từ 18,5 đến 22,9",
+            "đúng bằng 25"
+          ],
+          "answer": "từ 30 trở lên",
+          "explanation": "Theo WHO, BMI ≥ 30 được xếp vào béo phì.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bệnh còi xương ở trẻ em chủ yếu do thiếu vi chất nào?",
+          "question_vi": "",
+          "emoji": "🦴",
+          "options": [
+            "vitamin D và canxi",
+            "vitamin A",
+            "sắt",
+            "i-ốt"
+          ],
+          "answer": "vitamin D và canxi",
+          "explanation": "Còi xương ở trẻ chủ yếu do thiếu vitamin D và canxi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nguyên tắc “ăn chín, uống sôi” nhằm mục đích gì?",
+          "question_vi": "",
+          "emoji": "🍲",
+          "options": [
+            "tiêu diệt vi khuẩn, phòng bệnh đường tiêu hóa",
+            "tăng vị ngọt",
+            "giảm năng lượng",
+            "làm thức ăn lạnh đi"
+          ],
+          "answer": "tiêu diệt vi khuẩn, phòng bệnh đường tiêu hóa",
+          "explanation": "“Ăn chín, uống sôi” giúp diệt vi khuẩn, phòng bệnh tiêu hóa.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cholesterol xấu (LDL) cao trong máu làm tăng nguy cơ bệnh nào?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "bệnh tim mạch (xơ vữa động mạch)",
+            "cận thị",
+            "sâu răng",
+            "cảm cúm"
+          ],
+          "answer": "bệnh tim mạch (xơ vữa động mạch)",
+          "explanation": "LDL cao gây xơ vữa động mạch, tăng nguy cơ bệnh tim mạch.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tổ chức Y tế Thế giới được viết tắt là gì?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "WHO",
+            "FAO",
+            "UNICEF",
+            "WTO"
+          ],
+          "answer": "WHO",
+          "explanation": "Tổ chức Y tế Thế giới viết tắt là WHO (World Health Organization).",
+          "difficulty": 3
+        },
+        {
+          "question": "Để phòng thiếu máu do thiếu sắt, nên bổ sung thực phẩm nào?",
+          "question_vi": "",
+          "emoji": "🥩",
+          "options": [
+            "thịt đỏ, gan, rau lá xanh đậm",
+            "chỉ ăn cơm trắng",
+            "chỉ uống nước ngọt",
+            "chỉ ăn đường"
+          ],
+          "answer": "thịt đỏ, gan, rau lá xanh đậm",
+          "explanation": "Thịt đỏ, gan, rau lá xanh đậm giàu sắt, giúp phòng thiếu máu.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
