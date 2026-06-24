@@ -7315,12 +7315,15 @@ def test_80_packs_loaded():
 
 
 def test_80_published_answers_valid():
-    # Data integrity: every published question's answer must be one of its options.
+    # Data integrity: every published MCQ question's answer must be one of its
+    # options. Free-text tasks (TOEIC S&W: toeic_speaking/toeic_writing) carry no
+    # options/answer — they are graded by exam_router's rubric/LLM grader.
     import json as _json
     from src.infrastructure.database.db import get_db_connection
     with get_db_connection() as conn:
         rows = conn.execute(
-            "SELECT options_json, answer FROM question_bank WHERE status='published'").fetchall()
+            "SELECT options_json, answer FROM question_bank "
+            "WHERE status='published' AND question_type='mcq'").fetchall()
     bad = [r for r in rows if r["answer"] not in _json.loads(r["options_json"] or "[]")]
     assert len(bad) == 0, f"{len(bad)} câu published có đáp án không khớp options"
 

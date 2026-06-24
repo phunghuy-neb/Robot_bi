@@ -15,29 +15,46 @@
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
+- **Learning Hub Phase 3 — TOEIC Speaking & Writing (đang làm, 2026-06-24):**
+  - opencode đã làm + COMMIT backend chấm điểm (`1952a4e feat(learning): add toeic sw backend grading`):
+    `src/api/routers/exam_router.py` — model `SubmitToeicSW`, rubric `TOEIC_TASK_MAX_SCORES`,
+    quy đổi thang 200 (`_estimate_200`), `_llm_toeic_grade` (qua `stream_chat` role teacher,
+    trả JSON) + fallback offline khi `SKIP_LLM`/lỗi (`_offline_toeic_grade`), helper
+    `_load_paper_items`/`_grade_toeic_sw_attempt`, 2 endpoint `POST /exams/{id}/submit-toeic-sw`
+    và `/submit-speaking` (nhận transcript; multipart audio hoãn đến khi thêm `python-multipart`).
+    Test riêng `tests/test_toeic_sw.py` (7 case, chạy `python tests/test_toeic_sw.py`, 7/7 PASS).
+  - **PHIÊN NÀY (UNCOMMITTED — sẵn sàng commit):** vá khoảng trống loader + thêm content pack:
+    - `src/infrastructure/database/db.py`: mở rộng `_seed_learning_packs` để hỗ trợ câu TỰ LUẬN.
+      Trước đây loader hard-code `question_type='mcq'` và bắt buộc `answer ∈ options` → KHÔNG seed
+      được S&W. Nay: câu có `question_type` `toeic_speaking`/`toeic_writing` (hoặc suy ra từ
+      `skill: speaking/writing`) bỏ qua kiểm tra options/answer và seed đúng `question_type`;
+      MCQ giữ nguyên hành vi cũ (backward-compatible). Hằng số mới `_FREE_TEXT_QUESTION_TYPES`,
+      `_SKILL_TO_FREE_TEXT_TYPE`; docstring cập nhật.
+    - `resources/learning/toeic_sw.json` (MỚI): 6 đề / 14 task theo roadmap `toeic_sw_100→200`,
+      phủ cả Speaking & Writing và đủ 6 topic rubric (read_aloud, describe_picture,
+      respond_to_questions, email, express_opinion, opinion_essay).
+    - `tests/run_tests.py`: test 80.2 (data-integrity answer∈options) nay lọc `question_type='mcq'`
+      để không bắt nhầm câu tự luận S&W.
+    - Đã verify: `init_db()` seed 6 paper / 14 câu S&W (0 câu lọt thành mcq); `_grade_toeic_sw_attempt`
+      chấm end-to-end trên item seed thật OK; `python tests/run_tests.py` **637/637 PASS**, fresh DB.
+  - **CÒN LẠI (chưa làm)**: (1) nối frontend — `LearningHubPage.jsx` + `api.js` chưa có UI nhập
+    bài viết / thu âm nói + gọi `submit-toeic-sw`/`submit-speaking` + hiển thị `estimated_200`
+    & disclaimer; (2) gắn `tests/test_toeic_sw.py` vào `run_tests.py` thành Group (giống
+    `test_prompt_invariants.py` vẫn đứng riêng); (3) Speaking dùng audio thật: upload multipart
+    + STT (cần `python-multipart`), hiện mới là MVP transcript.
 - **OpenCode repo cleanup (DONE, 2026-06-24)**: verified `opencode.json`,
   `scripts/setup_opencode_bluesminds.sh`, and `scripts/test_bluesminds_api.sh` are absent
   from both `HEAD` and the working tree. Aider's temporary commit `31495c9` is not an
   ancestor of the active branch. The remaining OpenCode binary is outside the repo at
   `~/.nvm/versions/node/v22.19.0/bin/opencode` and was intentionally left untouched.
-- **AI prompt-quality pass (opencode, REVIEWED OK — UNCOMMITTED, awaiting user go-ahead):**
-  `src/ai/prompts.py`, `persona_manager.py`, `role_manager.py` edited by opencode to add
-  age-tiering (5-6 / 7-9 / 10-12), clearer kid examples, and stronger TEACHER pedagogy
-  (4-step flow). Verified by gatekeeper: scope clean (no Protected files touched), all
-  exported names intact, `MAIN_SYSTEM_PROMPT is FRIEND_PROMPT`, `PROMPT_VERSION` bumped
-  v1.0→v1.1, FRIEND/TEACHER stayed no-diacritics, PARENT_* stayed diacritics, all core
-  guardrails (no auto-naming child, distress-first, danger refusal, lang-match) retained,
-  imports clean. opencode task #2 (also REVIEWED OK, UNCOMMITTED): new standalone test
-  `tests/test_prompt_invariants.py` — 9 cases locking the above invariants; runs via
-  `python tests/test_prompt_invariants.py` (stdlib only, 9/9 PASS exit 0); does NOT touch
-  `run_tests.py`. **NEXT**: commit these 4 files together (3 prompt files + the test), do
-  NOT bundle the pre-existing dirty `.gitignore`; then record commit id here. Not yet
-  committed because pending user approval.
-  - Xác nhận 2026-06-24 (cuối phiên Learning Hub): working tree còn dirty đúng 5 file của
-    workstream opencode này (`src/ai/prompts.py`, `persona_manager.py`, `role_manager.py`,
-    `tests/test_prompt_invariants.py`, `.gitignore`) — KHÔNG phải thay đổi của phiên exam-pack
-    và CỐ Ý để nguyên, vẫn chờ user duyệt. Toàn bộ công việc exam/HSG (resources/learning/*)
-    đã commit xong (mới nhất `3bc1529`); không có thay đổi nào của tôi còn chưa ghi nhận.
+- **AI prompt-quality pass (opencode) — ✅ DONE + committed (`9f69cae feat(ai): improve prompt pedagogy`):**
+  `src/ai/prompts.py`, `persona_manager.py`, `role_manager.py` + standalone test
+  `tests/test_prompt_invariants.py` (9 cases, `python tests/test_prompt_invariants.py`, 9/9 PASS).
+  Age-tiering (5-6 / 7-9 / 10-12), clearer kid examples, stronger TEACHER 4-step pedagogy,
+  `PROMPT_VERSION` v1.0→v1.1. All core guardrails (no auto-naming child, distress-first,
+  danger refusal, lang-match) + exported names retained; FRIEND/TEACHER no-diacritics,
+  PARENT_* diacritics. (Trước đây ghi là UNCOMMITTED + có "ghi chú giữ dirty cố ý" — nay đã
+  commit, các ghi chú đó đã bỏ.)
 - **Learning Hub Phase 3 — HSG/exam packs (strategy: one subject deep at a time):**
   - DONE + committed (`20b6042`): `resources/learning/math_exam.json` — Toán fully covered, 6 papers / 42 questions (exam_grade6, exam_grade10, exam_thpt, hsg_school, hsg_district, hsg_province). 0 bad answers, unique paper_ids.
   - DONE + committed (`4771802`): `resources/learning/vietnamese_exam.json` — Tiếng Việt, 6 papers / 42 questions (same 6 tracks; subject='vietnamese'; comp_level set for hsg_*). Hand-authored language-focused MCQ (chính tả, từ loại, từ láy/ghép, biện pháp tu từ, thành phần câu, phong cách ngôn ngữ, hàm ý…). Validated: 0 bad answers, unique paper_ids.
@@ -60,11 +77,13 @@
   - DONE + committed (`220c45f`): `resources/learning/art_exam.json` — Mỹ thuật, 6 papers / 42 questions (subject='art'). Validated 0 bad, unique ids.
   - DONE + committed (`49d4aa8`): `resources/learning/chinese_exam.json` — Tiếng Trung, 6 papers / 42 questions (subject='chinese'). Validated 0 bad, unique ids.
   - DONE + committed (`aa4cffd`): `resources/learning/japanese_exam.json` — Tiếng Nhật, 6 papers / 42 questions (subject='japanese'). Validated 0 bad, unique ids.
-  - DONE (uncommitted, 2026-06-24): `resources/learning/korean_exam.json` — Tiếng Hàn, 6 papers / 42 questions (subject='korean'; comp_level set for hsg_*). Chào hỏi, Hangul/vua Sejong, số đếm thuần Hàn, trợ từ -이/-가 & -을/-를, kính ngữ, TOPIK… Validated: 0 bad answers, unique paper_ids. Aggregate now: 24 subjects / 220 papers / 1586 questions / 0 invalid. **Ready to commit.**
-  - **✅ HOÀN TẤT Phase 3 exam/HSG packs (22 môn)**: tất cả môn học/kỹ năng đã có đủ gói 6 đề/42 câu (6 track exam_grade6/10/thpt + hsg_school/district/province). Môn KHÔNG cần gói dạng này: `ielts`, `toeic_lr` (đã là roadmap pack 6 đề sẵn); `toeic_sw` (Speaking/Writing — cần STT + chấm tự luận, workstream RIÊNG, CHƯA làm). Build helper ở scratchpad (`build_exam_common.py` + `b_<subject>.py`). Lưu ý: ngưỡng `run_tests.py` Group 80 vẫn pass (hiện chỉ yêu cầu ≥85 papers/≥640 q/≥22 subjects; thực tế đã ~220/1586/24).
+  - DONE + committed (`3bc1529`): `resources/learning/korean_exam.json` — Tiếng Hàn, 6 papers / 42 questions (subject='korean'; comp_level set for hsg_*). Chào hỏi, Hangul/vua Sejong, số đếm thuần Hàn, trợ từ -이/-가 & -을/-를, kính ngữ, TOPIK… Validated: 0 bad answers, unique paper_ids. Aggregate now: 24 subjects / 220 papers / 1586 questions / 0 invalid.
+  - **✅ HOÀN TẤT Phase 3 exam/HSG packs (22 môn)**: tất cả môn học/kỹ năng đã có đủ gói 6 đề/42 câu (6 track exam_grade6/10/thpt + hsg_school/district/province). Môn KHÔNG cần gói dạng này: `ielts`, `toeic_lr` (đã là roadmap pack 6 đề sẵn); `toeic_sw` (Speaking/Writing — workstream RIÊNG, xem bullet "TOEIC Speaking & Writing" ở đầu mục này: backend đã commit, content pack + loader đã xong phiên này). Build helper ở scratchpad (`build_exam_common.py` + `b_<subject>.py`). Lưu ý: ngưỡng `run_tests.py` Group 80 vẫn pass (hiện chỉ yêu cầu ≥85 papers/≥640 q/≥22 subjects; thực tế đã ~220/1586/24).
   - Pattern: new per-subject file `resources/learning/<subject>_exam.json`; `subject` field groups it (e.g. "vietnamese"/"literature"/"en"); unique paper_ids; tracks = exam_grade6/exam_grade10/exam_thpt/hsg_school/hsg_district/hsg_province (set `comp_level` for HSG). Seed = `_seed_learning_packs` (idempotent). ALWAYS validate answer∈options before committing (script in `changelog/`-style one-liner used 2026-06-24).
 - **Tooling installed 2026-06-24** (separate from product code): codegraph MCP (local code knowledge graph; `.mcp.json` + `.codegraph/` index, telemetry off, loads on next Claude Code restart); new skills `taste-skill` (`design-taste-frontend`), `pdf`, `xlsx`; PROJECT.md UI-skill routing rule. Pre-existing dirty files (`speckit-git-*`, `settings.local.json`, `ui-ux-pro-max/scripts/search.py`) left untouched.
-- **Next thread (not started)**: Learning Hub Phase 3 / remaining packs — `toeic_sw` (Speaking/Writing, needs free-text/STT grading) and HSG / exam-track papers (`hsg_*`, `exam_grade6/10`). Produce via the batch-generate pipeline (needs LLM keys) or hand-authoring. Curriculum blueprint already lists the topics.
+- **Next thread**: hoàn tất TOEIC S&W — (1) nối frontend UI (viết/nói + gọi 2 endpoint mới +
+  hiển thị `estimated_200`/disclaimer); (2) gắn `test_toeic_sw.py` vào `run_tests.py`; (3) audio
+  thật cho Speaking (multipart + STT, cần `python-multipart`). Chi tiết ở bullet TOEIC S&W đầu mục.
 
 ## Current State
 
@@ -114,7 +133,7 @@
 - Stage 1 software: complete through Sprint 1.4 hardening.
 - Stage 1 manual validation: robot audio is blocked until the ESP32-S3 microphone hardware test passes and production audio transport is implemented.
 - Stage 1.5 body expression: software landed (`movement_emotion.py`); pending real motor-hardware validation.
-- Learning Hub: Phase 1 + Phase 2 complete (24 subjects). Phase 3 (Speaking/Writing + HSG/exam packs) not started.
+- Learning Hub: Phase 1 + Phase 2 complete (24 subjects). Phase 3 — HSG/exam packs (22 môn) DONE + committed; TOEIC S&W backend + content pack DONE (frontend UI + audio STT còn lại).
 - Stage 2 Special Memories: not started.
 
 ## Known Issues / Deferred Work
@@ -129,11 +148,11 @@
 - Provider quota can throttle Cerebras/Groq; fallback chain handled observed quota 429 warnings during tests.
 - Current machine has no camera; this is supported and no longer blocks proactive behavior.
 - Windows microphone diagnostics apply only to optional PC-connected microphones, not the two INMP441 modules on the robot.
-- Learning Hub `toeic_sw` + HSG/exam-track papers not yet produced (need LLM keys or authoring).
+- Learning Hub TOEIC S&W: backend chấm điểm + content pack đã có; frontend UI (nhập/thu âm, hiển thị `estimated_200`) và audio STT thật (multipart) chưa làm.
 
 ## Next Recommended Action
 
-1. **Learning Hub Phase 3 / remaining packs**: produce `toeic_sw` and `hsg_*` / `exam_grade6/10` papers via the batch-generate pipeline (needs LLM keys) or hand-authoring; topics already in `CURRICULUM_BLUEPRINT`.
+1. **Hoàn tất TOEIC S&W**: nối frontend UI (Speaking/Writing + 2 endpoint mới + `estimated_200`/disclaimer); gắn `test_toeic_sw.py` vào `run_tests.py`; làm audio STT thật (multipart, cần `python-multipart`). Backend + content pack đã xong (xem In Progress).
 2. Commit the current `.claude/skills/` tooling edits (incl. new `speckit-converge`) if satisfied.
 3. Hardware track (independent): upload `firmware/ESP32S3_Mic_Test/ESP32S3_Mic_Test.ino`, verify the beep/record/playback cycle, then implement ESP32-S3 network audio transport.
 4. Do not start Stage 2 automatically.

@@ -1,0 +1,201 @@
+{
+  "subject": "toeic_sw",
+  "exams": [
+    {
+      "paper_id": "toeic_sw_100_speaking_1",
+      "title": "TOEIC S&W — Speaking khởi động: Đọc to & trả lời (Mục tiêu 100)",
+      "track": "toeic_sw",
+      "skill": "speaking",
+      "level": "toeic_sw_100",
+      "age_group": "15-18",
+      "duration_minutes": 12,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "read_aloud",
+      "questions": [
+        {
+          "question": "Read the text aloud: \"Welcome to City Library. We are open from nine in the morning to eight in the evening, Monday through Saturday. Please keep your voice low and turn off your mobile phone in the reading rooms.\"",
+          "question_vi": "Đọc to đoạn văn trên. Chú ý phát âm rõ ràng, nối âm tự nhiên và ngắt nghỉ đúng dấu câu.",
+          "question_type": "toeic_speaking",
+          "topic": "read_aloud",
+          "emoji": "📣",
+          "difficulty": 1
+        },
+        {
+          "question": "Read the text aloud: \"Thank you for calling Sunrise Electronics. For sales, press one. For technical support, press two. To speak with an operator, please stay on the line.\"",
+          "question_vi": "Đọc to đoạn thông báo tổng đài. Giữ ngữ điệu rõ ràng, xuống giọng ở cuối câu.",
+          "question_type": "toeic_speaking",
+          "topic": "read_aloud",
+          "emoji": "☎️",
+          "difficulty": 1
+        },
+        {
+          "question": "Respond to the question: \"What do you usually do on weekends?\" Speak for about 15 seconds.",
+          "question_vi": "Trả lời câu hỏi về cuối tuần của bạn trong khoảng 15 giây. Nói thành câu hoàn chỉnh, có ví dụ cụ thể.",
+          "question_type": "toeic_speaking",
+          "topic": "respond_to_questions",
+          "emoji": "🗓️",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_sw_120_writing_1",
+      "title": "TOEIC S&W — Writing khởi động: Viết email ngắn (Mục tiêu 120)",
+      "track": "toeic_sw",
+      "skill": "writing",
+      "level": "toeic_sw_120",
+      "age_group": "15-18",
+      "duration_minutes": 18,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "email",
+      "questions": [
+        {
+          "question": "Respond to the email. A classmate wrote: \"Hi, are you free to study together this Saturday? Let me know what time and where works for you.\" Write a reply (about 40-60 words) that agrees and suggests a time and place.",
+          "question_vi": "Viết email trả lời bạn cùng lớp (khoảng 40-60 từ): đồng ý, đề xuất thời gian và địa điểm học chung. Có lời chào và lời kết.",
+          "question_type": "toeic_writing",
+          "topic": "email",
+          "emoji": "✉️",
+          "difficulty": 2
+        },
+        {
+          "question": "Respond to the email. A store wrote: \"Thank you for your order. The item you bought is temporarily out of stock. Would you like to wait or receive a refund?\" Write a reply (about 40-60 words) stating your choice and one reason.",
+          "question_vi": "Viết email trả lời cửa hàng (khoảng 40-60 từ): nêu lựa chọn (chờ hàng hoặc hoàn tiền) kèm một lý do. Lịch sự, đủ ý.",
+          "question_type": "toeic_writing",
+          "topic": "email",
+          "emoji": "📦",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_sw_140_speaking_1",
+      "title": "TOEIC S&W — Speaking: Miêu tả tranh & trả lời (Mục tiêu 140)",
+      "track": "toeic_sw",
+      "skill": "speaking",
+      "level": "toeic_sw_140",
+      "age_group": "15-18",
+      "duration_minutes": 14,
+      "pass_percent": 55,
+      "school_year": "2025-2026",
+      "topic": "describe_picture",
+      "questions": [
+        {
+          "question": "Describe a picture: Imagine a busy coffee shop in the morning. Describe what you see — the people, what they are doing, and the setting. Speak for about 30 seconds.",
+          "question_vi": "Miêu tả khung cảnh một quán cà phê đông đúc buổi sáng trong khoảng 30 giây: con người, hành động, không gian. Dùng thì hiện tại tiếp diễn.",
+          "question_type": "toeic_speaking",
+          "topic": "describe_picture",
+          "emoji": "☕",
+          "difficulty": 2
+        },
+        {
+          "question": "Respond to the question: \"How do you usually travel to school or work, and why?\" Speak for about 15 seconds.",
+          "question_vi": "Trả lời: bạn thường đi học/đi làm bằng phương tiện gì và vì sao? Nói khoảng 15 giây, có lý do.",
+          "question_type": "toeic_speaking",
+          "topic": "respond_to_questions",
+          "emoji": "🚌",
+          "difficulty": 2
+        },
+        {
+          "question": "Respond to the question: \"What kind of restaurant would you recommend to a visitor in your city?\" Speak for about 20 seconds.",
+          "question_vi": "Trả lời: bạn sẽ giới thiệu loại nhà hàng nào cho khách đến thành phố của bạn? Nói khoảng 20 giây.",
+          "question_type": "toeic_speaking",
+          "topic": "respond_to_questions",
+          "emoji": "🍜",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_sw_160_writing_1",
+      "title": "TOEIC S&W — Writing: Email công việc (Mục tiêu 160)",
+      "track": "toeic_sw",
+      "skill": "writing",
+      "level": "toeic_sw_160",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 55,
+      "school_year": "2025-2026",
+      "topic": "email",
+      "questions": [
+        {
+          "question": "Respond to the email. A manager wrote: \"We are planning a team event next month. Please send me two suggestions for the activity and your preferred date.\" Write a reply (about 50-70 words) with two activity ideas, one preferred date, and a brief reason.",
+          "question_vi": "Viết email trả lời quản lý (khoảng 50-70 từ): đề xuất hai hoạt động cho buổi team, một ngày mong muốn và lý do ngắn. Văn phong lịch sự, mạch lạc.",
+          "question_type": "toeic_writing",
+          "topic": "email",
+          "emoji": "🧑‍💼",
+          "difficulty": 3
+        },
+        {
+          "question": "Respond to the email. A customer wrote: \"I received my package, but one item was damaged. What can you do to help?\" Write a reply (about 50-70 words) apologizing, offering a solution, and explaining the next step.",
+          "question_vi": "Viết email trả lời khách hàng (khoảng 50-70 từ): xin lỗi, đề xuất giải pháp và nêu bước tiếp theo. Rõ ràng và chuyên nghiệp.",
+          "question_type": "toeic_writing",
+          "topic": "email",
+          "emoji": "🛠️",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_sw_180_speaking_1",
+      "title": "TOEIC S&W — Speaking: Nêu quan điểm (Mục tiêu 180)",
+      "track": "toeic_sw",
+      "skill": "speaking",
+      "level": "toeic_sw_180",
+      "age_group": "15-18",
+      "duration_minutes": 16,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "express_opinion",
+      "questions": [
+        {
+          "question": "Express an opinion: \"Some people prefer to work in a team, while others prefer to work alone. Which do you prefer, and why?\" Speak for about 60 seconds with reasons and an example.",
+          "question_vi": "Nêu quan điểm trong khoảng 60 giây: bạn thích làm việc nhóm hay làm việc một mình? Đưa ra hai lý do và một ví dụ. Có mở bài, thân bài, kết luận.",
+          "question_type": "toeic_speaking",
+          "topic": "express_opinion",
+          "emoji": "🗣️",
+          "difficulty": 4
+        },
+        {
+          "question": "Express an opinion: \"Do you agree or disagree that students should learn a second language from a young age?\" Speak for about 60 seconds with clear reasons.",
+          "question_vi": "Nêu quan điểm trong khoảng 60 giây: bạn đồng ý hay không đồng ý rằng học sinh nên học ngoại ngữ thứ hai từ nhỏ? Lập luận rõ ràng, có ví dụ.",
+          "question_type": "toeic_speaking",
+          "topic": "express_opinion",
+          "emoji": "🌍",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_sw_200_writing_1",
+      "title": "TOEIC S&W — Writing: Bài luận quan điểm (Mục tiêu 200)",
+      "track": "toeic_sw",
+      "skill": "writing",
+      "level": "toeic_sw_200",
+      "age_group": "15-18",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "opinion_essay",
+      "questions": [
+        {
+          "question": "Write an opinion essay (about 200-300 words): \"Do you agree or disagree with the following statement? Working from home is better than working in an office.\" Use specific reasons and examples to support your opinion.",
+          "question_vi": "Viết bài luận quan điểm (khoảng 200-300 từ): bạn đồng ý hay không đồng ý rằng làm việc tại nhà tốt hơn làm việc tại văn phòng? Có mở bài nêu quan điểm, 2-3 đoạn thân bài với lý do và ví dụ, và kết bài.",
+          "question_type": "toeic_writing",
+          "topic": "opinion_essay",
+          "emoji": "🏠",
+          "difficulty": 5
+        },
+        {
+          "question": "Write an opinion essay (about 200-300 words): \"Some people think technology makes our lives simpler, while others think it makes life more complicated. What is your opinion?\" Support your view with reasons and examples.",
+          "question_vi": "Viết bài luận quan điểm (khoảng 200-300 từ): công nghệ làm cuộc sống đơn giản hơn hay phức tạp hơn? Trình bày quan điểm với lý do và ví dụ cụ thể, bố cục rõ ràng.",
+          "question_type": "toeic_writing",
+          "topic": "opinion_essay",
+          "emoji": "💡",
+          "difficulty": 5
+        }
+      ]
+    }
+  ]
+}

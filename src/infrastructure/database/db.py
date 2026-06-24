@@ -604,6 +604,14 @@ def _seed_exam_content(conn) -> None:
 
 LEARNING_PACKS_DIR = REPO_ROOT / "resources" / "learning"
 
+# Free-text question types (TOEIC Speaking & Writing). These carry no
+# options/answer and are graded by the rubric/LLM grader in exam_router, so the
+# pack loader must NOT subject them to the MCQ answer∈options validation.
+_FREE_TEXT_QUESTION_TYPES = {"toeic_speaking", "toeic_writing"}
+# When a question omits question_type, derive a free-text type from the paper
+# skill so S&W packs need not repeat question_type on every task.
+_SKILL_TO_FREE_TEXT_TYPE = {"speaking": "toeic_speaking", "writing": "toeic_writing"}
+
 
 def _seed_learning_packs(conn) -> int:
     """Load JSON content packs from resources/learning/ into the question bank
@@ -632,6 +640,13 @@ def _seed_learning_packs(conn) -> int:
 
     A question whose ``answer`` is not one of its ``options`` is skipped (logged),
     so malformed/AI content can never produce an ungradeable exam.
+
+    Free-text TOEIC S&W tasks use ``"question_type": "toeic_speaking"`` /
+    ``"toeic_writing"`` (or are inferred from ``"skill": "speaking"/"writing"``)
+    and carry no ``options``/``answer``; they bypass the MCQ check and are graded
+    later by ``exam_router`` (rubric + LLM, with an offline fallback). Set each
+    task's ``topic`` to a rubric key (read_aloud, describe_picture,
+    respond_to_questions, email, express_opinion, opinion_essay) for max-score.
     Returns the number of papers seeded.
     """
     import json as _json
@@ -658,18 +673,29 @@ def _seed_learning_packs(conn) -> int:
             if not paper_id or not questions:
                 continue
             # Validate questions first; skip the exam if nothing gradeable remains.
+            # MCQ tasks require answer ∈ options; free-text TOEIC S&W tasks carry
+            # no options/answer and bypass that check (graded later by exam_router).
+            exam_skill = (exam.get("skill") or "").strip().lower()
             valid = []
             for q in questions:
+                qtext = (q.get("question") or "").strip()
+                if not qtext:
+                    continue
+                qtype = (q.get("question_type") or "").strip().lower()
+                if not qtype:
+                    qtype = _SKILL_TO_FREE_TEXT_TYPE.get(exam_skill, "mcq")
+                if qtype in _FREE_TEXT_QUESTION_TYPES:
+                    valid.append((qtext, q, [], "", qtype))
+                    continue
                 opts = q.get("options") or []
                 ans = (q.get("answer") or "").strip()
-                qtext = (q.get("question") or "").strip()
-                if not qtext or len(opts) < 2:
+                if len(opts) < 2:
                     continue
                 if ans not in [str(o).strip() for o in opts]:
                     logger.warning("[DB] Pack %s: dap an khong khop options, bo qua 1 cau",
                                    pack_path.name)
                     continue
-                valid.append((qtext, q, opts, ans))
+                valid.append((qtext, q, opts, ans, "mcq"))
             if not valid:
                 continue
             conn.execute(
@@ -687,7 +713,7 @@ def _seed_learning_packs(conn) -> int:
                  exam.get("school_year", "2025-2026"), now, now),
             )
             topic = exam.get("topic", "")
-            for idx, (qtext, q, opts, ans) in enumerate(valid):
+            for idx, (qtext, q, opts, ans, qtype) in enumerate(valid):
                 question_id = f"{paper_id}_q{idx + 1}"
                 conn.execute(
                     """INSERT OR IGNORE INTO question_bank
@@ -695,11 +721,11 @@ def _seed_learning_packs(conn) -> int:
                         difficulty, question_type, question, question_vi, emoji,
                         options_json, answer, explanation, school_year, source,
                         is_ai_generated, status, family_id, created_at, updated_at)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'mcq', ?, ?, ?, ?, ?, ?, ?, 'pack', ?, 'published', NULL, ?, ?)""",
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pack', ?, 'published', NULL, ?, ?)""",
                     (question_id, subject, q.get("topic", topic),
                      exam.get("age_group", "all"), exam.get("track", "practice"),
                      exam.get("skill", ""), exam.get("level", ""),
-                     int(q.get("difficulty", 2)), qtext, q.get("question_vi", ""),
+                     int(q.get("difficulty", 2)), qtype, qtext, q.get("question_vi", ""),
                      q.get("emoji", ""),
                      _json.dumps([str(o) for o in opts], ensure_ascii=False), ans,
                      q.get("explanation", ""), exam.get("school_year", "2025-2026"),
