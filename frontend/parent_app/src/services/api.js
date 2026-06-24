@@ -433,6 +433,17 @@ export async function submitExam(paperId, answers, timeSpentSeconds = 0) {
   });
 }
 
+// TOEIC Speaking & Writing: free-text grading (rubric + LLM, offline fallback).
+// `responses` = written answers (writing skill); `transcripts` = spoken text
+// (speaking skill). The backend reads the relevant map based on the paper skill.
+export async function submitToeicSW(paperId, { responses = {}, transcripts = {}, timeSpentSeconds = 0 } = {}) {
+  return apiFetch(`/api/learning/exams/${paperId}/submit-toeic-sw`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses, transcripts, time_spent_seconds: timeSpentSeconds }),
+  });
+}
+
 export async function getExamSessions(limit = 50) {
   return apiFetch(`/api/learning/exams/sessions?limit=${limit}`);
 }

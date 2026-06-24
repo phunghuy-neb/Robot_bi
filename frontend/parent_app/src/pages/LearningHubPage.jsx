@@ -1,8 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   getLearningModules, getLearningLesson, submitLearningLesson, showToast,
-  getExamTracks, getExams, getExam, submitExam, getExamSessions,
+  getExamTracks, getExams, getExam, submitExam, submitToeicSW, getExamSessions,
 } from '../services/api.js';
+
+// TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
+const SW_TASK_LABELS = {
+  read_aloud:           'Đọc to',
+  describe_picture:     'Miêu tả tranh',
+  respond_to_questions: 'Trả lời câu hỏi',
+  email:                'Viết email',
+  express_opinion:      'Nêu quan điểm',
+  opinion_essay:        'Bài luận quan điểm',
+};
 
 // Kind -> badge color for track cards.
 const TRACK_KIND_COLORS = {
@@ -83,6 +93,9 @@ export default function LearningHubPage() {
   const [examSubmitting, setExamSubmitting] = useState(false);
   const examStartRef = useRef(0);
   const examTimerRef = useRef(null);
+  // TOEIC S&W speaking: browser-native speech-to-text (no extra deps).
+  const [recording, setRecording] = useState(false);
+  const recognitionRef = useRef(null);
 
   useEffect(() => { loadModules(); }, []);
 
@@ -135,12 +148,55 @@ export default function LearningHubPage() {
     setExamAnswers(prev => ({ ...prev, [questionId]: option }));
   }
 
+  function stopRecording() {
+    try { recognitionRef.current?.stop(); } catch { /* noop */ }
+    setRecording(false);
+  }
+
+  // Speaking: capture the spoken answer for `questionId` via the Web Speech API
+  // and write the running transcript into examAnswers. Falls back to manual
+  // typing when the browser has no SpeechRecognition.
+  function toggleRecord(questionId) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { showToast('Trình duyệt không hỗ trợ ghi âm — hãy gõ nội dung bạn nói.'); return; }
+    if (recording) { stopRecording(); return; }
+    const rec = new SR();
+    rec.lang = 'en-US';
+    rec.interimResults = true;
+    rec.continuous = true;
+    let finalText = examAnswers[questionId] ? `${examAnswers[questionId]} ` : '';
+    rec.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += `${t} `; else interim += t;
+      }
+      setExamAnswers(prev => ({ ...prev, [questionId]: (finalText + interim).trim() }));
+    };
+    rec.onerror = () => setRecording(false);
+    rec.onend = () => setRecording(false);
+    recognitionRef.current = rec;
+    rec.start();
+    setRecording(true);
+  }
+
   async function finishExam(auto = false) {
     if (examSubmitting || !examData) return;
     clearInterval(examTimerRef.current);
+    stopRecording();
     setExamSubmitting(true);
     const timeSpent = Math.max(0, examStartRef.current - examTimeLeft);
-    const res = await submitExam(examData.paper.paper_id, examAnswers, timeSpent);
+    let res;
+    if (examData.paper.subject === 'toeic_sw') {
+      const skill = (examData.paper.skill || 'writing').toLowerCase();
+      res = await submitToeicSW(examData.paper.paper_id, {
+        responses: skill === 'speaking' ? {} : examAnswers,
+        transcripts: skill === 'speaking' ? examAnswers : {},
+        timeSpentSeconds: timeSpent,
+      });
+    } else {
+      res = await submitExam(examData.paper.paper_id, examAnswers, timeSpent);
+    }
     setExamSubmitting(false);
     if (res) {
       setExamResult({ ...res, auto });
@@ -237,6 +293,69 @@ export default function LearningHubPage() {
 
   // ── EXAM MODE ──────────────────────────────────────────────────────────────
   if (mode === 'exam') {
+    const isSW = examData?.paper?.subject === 'toeic_sw';
+
+    // TOEIC S&W result — estimated 200-scale band + per-task feedback/tips.
+    if (examView === 'result' && examResult && isSW) {
+      const r = examResult;
+      const byOrder = [...(r.review || [])].sort((a, b) => a.order_index - b.order_index);
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 18 }}>
+            <div style={{ fontSize: 56 }}>{r.passed ? '🏆' : '🗣️'}</div>
+            <div style={{ fontSize: 34, fontWeight: 800 }}>~{r.estimated_200}<span style={{ fontSize: 18, fontWeight: 600, color: 'var(--muted)' }}>/200</span></div>
+            <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 2 }}>
+              {Number(r.score).toFixed(1)}/{Number(r.max_score).toFixed(1)} điểm · {r.percent}%
+              {r.auto ? ' · hết giờ tự nộp ⏱️' : ''}
+            </div>
+            <div style={{
+              display: 'inline-block', marginTop: 8, padding: '6px 16px', borderRadius: 99,
+              fontWeight: 700, color: '#fff', background: r.passed ? '#2e7d32' : '#ef5350',
+            }}>
+              {r.passed ? '✅ Đạt' : `❌ Chưa đạt (cần ${r.pass_percent}%)`}
+            </div>
+            {r.disclaimer && (
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 10, fontStyle: 'italic' }}>
+                ⚠️ {r.disclaimer}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+            {byOrder.map((q, i) => (
+              <div key={q.question_id} style={{
+                background: 'var(--card)', borderRadius: 12, padding: 14,
+                borderLeft: '4px solid #7c3aed',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ fontWeight: 700 }}>Câu {i + 1}</div>
+                  <div style={{ fontWeight: 800, color: '#7c3aed' }}>
+                    {Number(q.score).toFixed(1)}/{Number(q.max_score).toFixed(1)}
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--muted)', whiteSpace: 'pre-wrap', marginBottom: 6 }}>
+                  Bài làm: <i>{q.given || '— (bỏ trống)'}</i>
+                </div>
+                {q.feedback && <div style={{ fontSize: 13, color: 'var(--text)' }}>📝 {q.feedback}</div>}
+                {Array.isArray(q.tips) && q.tips.length > 0 && (
+                  <ul style={{ fontSize: 13, color: 'var(--text)', margin: '6px 0 0', paddingLeft: 18 }}>
+                    {q.tips.map((t, k) => <li key={k}>{t}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn-sm secondary" style={{ flex: 1, minHeight: 48 }}
+              onClick={() => setExamView('list')}>📋 Đề khác</button>
+            <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+              onClick={() => startExam(examData.paper)}>🔄 Làm lại</button>
+          </div>
+        </div>
+      );
+    }
+
     // Result
     if (examView === 'result' && examResult) {
       const r = examResult;
@@ -285,6 +404,105 @@ export default function LearningHubPage() {
               onClick={() => setExamView('list')}>📋 Đề khác</button>
             <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
               onClick={() => startExam(examData.paper)}>🔄 Làm lại</button>
+          </div>
+        </div>
+      );
+    }
+
+    // TOEIC S&W playing — free-text writing / spoken transcript per task.
+    if (examView === 'playing' && examData && isSW) {
+      const skill = (examData.paper.skill || 'writing').toLowerCase();
+      const isSpeaking = skill === 'speaking';
+      const q = examData.questions[examQIndex];
+      const total = examData.questions.length;
+      const text = examAnswers[q.question_id] || '';
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const answered = Object.values(examAnswers).filter(v => (v || '').trim()).length;
+      const low = examTimeLeft <= 60;
+      const taskLabel = SW_TASK_LABELS[q.topic] || (isSpeaking ? 'Nói' : 'Viết');
+      return (
+        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
+            <div style={{
+              fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
+              background: low ? '#ffebee' : '#ede7f6', color: low ? '#c62828' : '#5e35b1',
+            }}>⏱️ {fmtTime(examTimeLeft)}</div>
+          </div>
+
+          {/* Task nav dots */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+            {examData.questions.map((qq, i) => {
+              const done = (examAnswers[qq.question_id] || '').trim().length > 0;
+              return (
+                <button key={qq.question_id} onClick={() => { stopRecording(); setExamQIndex(i); }}
+                  style={{
+                    width: 32, height: 32, borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                    border: `2px solid ${i === examQIndex ? '#7c3aed' : '#ccc'}`,
+                    background: done ? '#d1c4e9' : 'var(--card)', color: 'var(--text)',
+                  }}>{i + 1}</button>
+              );
+            })}
+          </div>
+
+          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '18px 16px', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{
+                fontSize: 12, fontWeight: 700, color: '#fff', background: '#7c3aed',
+                padding: '3px 10px', borderRadius: 99,
+              }}>{isSpeaking ? '🗣️ Nói' : '✍️ Viết'} · {taskLabel}</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>Câu {examQIndex + 1}/{total} {q.emoji}</span>
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, whiteSpace: 'pre-wrap' }}>{q.question}</div>
+            {q.question_vi && <div style={{ fontSize: 14, color: 'var(--muted)' }}>{q.question_vi}</div>}
+          </div>
+
+          {isSpeaking && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <button onClick={() => toggleRecord(q.question_id)}
+                style={{
+                  minHeight: 44, padding: '0 16px', borderRadius: 12, fontWeight: 700, cursor: 'pointer',
+                  border: `2px solid ${recording ? '#c62828' : '#7c3aed'}`,
+                  background: recording ? '#ffebee' : 'var(--card)',
+                  color: recording ? '#c62828' : '#7c3aed',
+                }}>
+                {recording ? '⏹️ Dừng ghi' : '🎤 Ghi âm để nói'}
+              </button>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                {recording ? 'Đang nghe…' : 'Hoặc gõ lời bạn nói bên dưới'}
+              </span>
+            </div>
+          )}
+
+          <textarea
+            value={text}
+            onChange={e => setExamAnswers(prev => ({ ...prev, [q.question_id]: e.target.value }))}
+            placeholder={isSpeaking ? 'Lời nói của bạn (transcript) sẽ hiện ở đây…' : 'Viết bài của bạn ở đây…'}
+            rows={isSpeaking ? 5 : 8}
+            style={{
+              width: '100%', boxSizing: 'border-box', borderRadius: 12, padding: 12, fontSize: 15,
+              border: '2px solid var(--border, #e0e0e0)', background: 'var(--card)', color: 'var(--text)',
+              resize: 'vertical', marginBottom: 6, fontFamily: 'inherit',
+            }}
+          />
+          <div style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'right', marginBottom: 14 }}>
+            {words} từ
+          </div>
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn-sm secondary" style={{ flex: 1, minHeight: 48 }}
+              disabled={examQIndex === 0}
+              onClick={() => { stopRecording(); setExamQIndex(i => Math.max(0, i - 1)); }}>← Trước</button>
+            {examQIndex < total - 1 ? (
+              <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+                onClick={() => { stopRecording(); setExamQIndex(i => Math.min(total - 1, i + 1)); }}>Sau →</button>
+            ) : (
+              <button className="btn-sm primary" style={{ flex: 1, minHeight: 48 }}
+                disabled={examSubmitting}
+                onClick={() => finishExam(false)}>
+                {examSubmitting ? 'Bi đang chấm…' : `📨 Nộp bài (${answered}/${total})`}
+              </button>
+            )}
           </div>
         </div>
       );

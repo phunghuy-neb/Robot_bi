@@ -23,7 +23,7 @@
     `_load_paper_items`/`_grade_toeic_sw_attempt`, 2 endpoint `POST /exams/{id}/submit-toeic-sw`
     và `/submit-speaking` (nhận transcript; multipart audio hoãn đến khi thêm `python-multipart`).
     Test riêng `tests/test_toeic_sw.py` (7 case, chạy `python tests/test_toeic_sw.py`, 7/7 PASS).
-  - **PHIÊN NÀY (UNCOMMITTED — sẵn sàng commit):** vá khoảng trống loader + thêm content pack:
+  - **PHIÊN NÀY — ✅ committed (`4397669`):** vá khoảng trống loader + thêm content pack:
     - `src/infrastructure/database/db.py`: mở rộng `_seed_learning_packs` để hỗ trợ câu TỰ LUẬN.
       Trước đây loader hard-code `question_type='mcq'` và bắt buộc `answer ∈ options` → KHÔNG seed
       được S&W. Nay: câu có `question_type` `toeic_speaking`/`toeic_writing` (hoặc suy ra từ
@@ -37,11 +37,20 @@
       để không bắt nhầm câu tự luận S&W.
     - Đã verify: `init_db()` seed 6 paper / 14 câu S&W (0 câu lọt thành mcq); `_grade_toeic_sw_attempt`
       chấm end-to-end trên item seed thật OK; `python tests/run_tests.py` **637/637 PASS**, fresh DB.
-  - **CÒN LẠI (chưa làm)**: (1) nối frontend — `LearningHubPage.jsx` + `api.js` chưa có UI nhập
-    bài viết / thu âm nói + gọi `submit-toeic-sw`/`submit-speaking` + hiển thị `estimated_200`
-    & disclaimer; (2) gắn `tests/test_toeic_sw.py` vào `run_tests.py` thành Group (giống
-    `test_prompt_invariants.py` vẫn đứng riêng); (3) Speaking dùng audio thật: upload multipart
-    + STT (cần `python-multipart`), hiện mới là MVP transcript.
+  - **Frontend UI — ✅ DONE (UNCOMMITTED phiên này):** `frontend/parent_app/src/services/api.js`
+    thêm `submitToeicSW(paperId, {responses, transcripts, timeSpentSeconds})`.
+    `frontend/parent_app/src/pages/LearningHubPage.jsx`: trong exam mode, paper `subject==='toeic_sw'`
+    rẽ sang luồng tự luận — playing-SW (1 task/màn, nav dots, textarea + đếm từ; Speaking có nút
+    🎤 ghi âm dùng Web Speech API `webkitSpeechRecognition` đổ transcript vào textarea, fallback
+    gõ tay nếu trình duyệt không hỗ trợ) và result-SW (hiển thị `~estimated_200/200`, %/điểm,
+    Đạt/Chưa đạt, disclaimer, feedback + tips từng task). `finishExam` route sang `submitToeicSW`
+    (responses cho writing, transcripts cho speaking). Vite build OK; verify HTTP roundtrip qua
+    TestClient: list 6 đề → detail (qtypes đúng, options rỗng) → submit writing & speaking đều 200
+    (estimated_200 + disclaimer) → submit-speaking rỗng = 422.
+  - **CÒN LẠI (chưa làm)**: (1) gắn `tests/test_toeic_sw.py` vào `run_tests.py` thành Group (giống
+    `test_prompt_invariants.py` vẫn đứng riêng); (2) Speaking dùng audio thật phía server: upload
+    multipart + STT (cần `python-multipart`) — hiện Speaking dựa vào Web Speech API của trình duyệt
+    (transcript), server vẫn là MVP transcript.
 - **OpenCode repo cleanup (DONE, 2026-06-24)**: verified `opencode.json`,
   `scripts/setup_opencode_bluesminds.sh`, and `scripts/test_bluesminds_api.sh` are absent
   from both `HEAD` and the working tree. Aider's temporary commit `31495c9` is not an
