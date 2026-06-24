@@ -6,6 +6,8 @@ env/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Python cache
 __pycache__/
@@ -80,3 +82,4 @@ frontend/parent_app/dist/
 
 # CodeGraph local index (not tracked)
 .codegraph/
+.aider*
