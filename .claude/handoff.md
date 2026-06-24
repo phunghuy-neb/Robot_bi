@@ -15,7 +15,7 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **704/704 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
+  = **708/708 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
   (`9ab8ae5`). **Working tree SẠCH HOÀN TOÀN** (không còn file dirty). **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
@@ -74,13 +74,30 @@
   - **ĐÃ XÁC MINH KHÔNG CÒN LÀ BUG**: M-NEW-5 (safety_filter đã có `_SENSITIVE_PATTERNS_NORM_ONLY` bắt
     không-dấu+English), L-NEW-5 ("không được" đã bị loại khỏi blacklist), H-NEW-1/M2/L-NEW-6 (round 36 đã
     POSSIBLY_FIXED).
-  - **CÒN OPEN (defer có lý do — KHÔNG fix vội)**: M-NEW-8 (admin `/api/admin/logs` có thể lộ free-text
-    nội dung trẻ cross-family — đã giảm nhờ L-NEW-9; fix triệt để cần policy logging riêng); M2 CWD
-    `voice_chunk_*` (đụng Protected Fix audio + `_cleanup_chunks`, cần đổi đồng bộ); round 35 LOWs
-    (RAG cleanup gap khi xóa family, prune-arbitrary, manual-add bỏ quota, blocking embed, notifier cache
-    default-family, duplicate broadcast) — minor perf/cleanup. **Review loop mới phủ ~5% / 554 file** —
-    còn nhiều file NOT_REVIEWED (db.py, state.py, rag_manager sâu, audio internals, firmware, frontend).
   - Suite **704/704 PASS** (trước 698); Vite build OK; SYSTEM_MAP cập nhật.
+- **FIX review wave-2 (2026-06-25, theo lệnh "sửa nốt non-hardware") — ✅ DONE phiên này (UNCOMMITTED → commit):**
+  - **L-NEW-7 (an toàn trẻ)**: thêm từ KHÔNG DẤU an toàn vào `_SENSITIVE_PATTERNS_NORM_ONLY`
+    (`giet, danh nhau, khieu dam, noi dung nguoi lon`) — CHỦ Ý loại `ban/bom/sung/tu dao` vì collision
+    với bạn/bơm/sưng (false-positive). (Lưu ý: `bom`=bomb đã bị accented-set chặn sẵn → bơm-không-dấu
+    là false-positive CŨ, ngoài phạm vi.) Test **95.1**.
+  - **M1 (motor)**: `MotorController._send` nay **fast-fail** — không gọi `_try_connect_ws` inline khi giữ
+    lock (tránh block ~19s nuốt lệnh `stop`); background thread reconnect. Test **95.2**.
+  - **H-NEW-3 residual**: thêm `_clamp_duration()` (trần 5s) tập trung trong forward/backward/spin →
+    mọi caller bị clamp, không chỉ router. Test **95.2**.
+  - **M2 (CWD)**: file `voice_chunk_*` ghi vào `mouth_tts.CHUNK_DIR` (temp dir riêng), KHÔNG còn CWD;
+    `main._cleanup_chunks` quét đúng dir đó (+ CWD cũ để dọn rác cũ). Test **95.3**.
+  - **L-NEW-4 (SSL)**: thực ra `ssl/*.pem` **chưa từng track trong git** (tracker stale). Đã thêm
+    `ssl/*.pem` vào `.gitignore` (chặn commit nhầm) + `server.py` tự sinh self-signed khi thiếu
+    (giữ HTTPS-by-default cho fresh clone, dùng `generate_ssl.generate_ssl()`).
+  - **round-35 L-NEW-7**: `delete_family` trả thêm cờ `rag_cleaned` để admin biết memory mồ côi. Test **95.4**.
+  - **ĐÃ XÁC MINH ĐÃ FIX TỪ TRƯỚC** (tracker stale): M-NEW-1 (auth/refresh đã có rate-limit), M4
+    (/health đã probe DB), L9 (setup_logging đã guard bằng lock).
+  - **M-NEW-8 (admin logs free-text)**: user CHỌN ĐỂ NGUYÊN (admin-only, rủi ro thấp, đã giảm nhờ L-NEW-9).
+  - **CÒN OPEN (minor, defer)**: round-35 LOWs còn lại (prune-arbitrary, manual-add bỏ quota, blocking
+    embed perf, notifier cache default-family, duplicate broadcast); L-NEW-2 (pickle.load model wake-word —
+    wake-word path). **Review loop mới phủ ~5%/554 file** — còn db.py/state.py/rag sâu/audio/firmware/
+    frontend chưa review sâu → danh sách "vấn đề" CHƯA đầy đủ.
+  - Suite **708/708 PASS** (trước 704); Vite build OK; SYSTEM_MAP cập nhật.
 - **TOEIC Speaking audio server (multipart + STT) — ✅ DONE + committed `b38ec25`:**
   - `src/audio/input/transcribe_file.py` (MỚI): STT cho FILE (không import sounddevice như ear_stt) —
     lazy faster-whisper, GPU(cuda float16)→fallback CPU(`WHISPER_CPU_MODEL`, int8) giữ đúng Protected
