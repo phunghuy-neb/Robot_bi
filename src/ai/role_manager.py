@@ -37,7 +37,9 @@ _TEACHER_KEYWORDS = [
     "học đi", "làm bài", "làm toán", "bài tập", "ôn bài", "ôn tập",
     "ôn thi", "giải toán", "giải bài", "kiểm tra", "thi thử", "luyện tập",
     "luyện đọc", "luyện viết", "luyện tính", "dạy bi", "bi dạy tôi",
-    "bi dạy con", "học cùng bi",
+    "bi dạy con", "học cùng bi", "giúp con học", "giúp tôi học",
+    "giúp em học", "chỉ bài", "chữa bài", "soát bài", "kiểm tra đáp án",
+    "công thức", "cách làm", "bài này", "đề này",
 ]
 
 _FRIEND_KEYWORDS = [
@@ -51,7 +53,9 @@ _DISTRESS_KEYWORDS = [
     "buồn", "khóc", "tức quá", "giận", "sợ lắm", "lo lắm",
     "cô đơn", "bị bắt nạt", "bị đánh", "bị chửi", "bị la",
     "điểm kém", "thi trượt", "buồn lắm", "khóc lắm",
-    "không muốn sống", "muốn chết", "ghét trường",
+    "không muốn sống", "muốn chết", "ghét trường", "con sợ",
+    "em sợ", "tôi sợ", "con buồn", "em buồn", "tôi buồn",
+    "không ai chơi", "bị bỏ rơi", "bị trêu", "bị mắng",
 ]
 
 
@@ -112,10 +116,13 @@ class RoleState:
         """Context string inject vào prompt để AI biết task goal + timer."""
         if self.current_role != ROLE_TEACHER:
             return None
-        parts = []
+        parts = [
+            "[CHE DO GIAO VIEN] Day theo tung buoc nho, khong dua dap an ngay. "
+            "Hay hoi be thu nghi hoac giai thich lai bang loi cua be."
+        ]
         if self.task_goal:
             parts.append(
-                f"[CHE DO GIAO VIEN] Muc tieu hoc: {self.task_goal}."
+                f"Muc tieu hoc: {self.task_goal}."
                 f" Da lam xong: {self.task_progress}."
             )
         remaining = self.remaining_seconds()
@@ -213,11 +220,11 @@ class RoleManager:
 # ── Câu chuyển vai — inject vào đầu response của AI ─────────────────────────
 
 TRANSITION_LINES = {
-    TRANSITION_TO_TEACHER: "Oke minh hoc nao! Bi se hoi tung buoc, be cu thu truoc nhe.",
+    TRANSITION_TO_TEACHER: "Oke minh hoc nao! Bi se di tung buoc nho, be thu nghi truoc roi Bi goi y nhe.",
     TRANSITION_TO_FRIEND: "Ok xong hoc roi! Gio choi thoi, be muon lam gi nao?",
     TRANSITION_DISTRESS: "",  # không nói gì — prompt sẽ xử lý cảm xúc
     TRANSITION_TIME_UP: "Het gio hoc roi! Be hoc tot lam hom nay. Gio nghi nhe!",
     TRANSITION_TASK_DONE: "Xong het roi! Be gioi lam! Gio choi khong?",
-    TEACHER_HOLD: "Minh lam not cai nay roi choi ngay nhe, con mot buoc nua thoi!",
-    TEACHER_HOLD_FINAL: "Rag len chut nua di be, gan xong roi!",
+    TEACHER_HOLD: "Minh lam not mot buoc nho nua roi choi nhe, be thu noi cach nghi cua be xem!",
+    TEACHER_HOLD_FINAL: "Gan xong roi be, neu met qua thi lam cau nay that ngan roi Bi cho nghi nhe!",
 }

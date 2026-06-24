@@ -37,6 +37,7 @@ _TEACH_KEYWORDS: frozenset[str] = frozenset({
     "học", "bài", "toán", "giải", "nghĩa", "cách", "hướng dẫn",
     "tại sao", "vì sao", "làm sao", "bài tập", "đề bài", "giải thích",
     "bài toán", "kiến thức", "ôn", "ôn bài", "đọc", "viết", "tính",
+    "kiểm tra", "thi", "luyện", "công thức", "đáp án", "kết quả",
 })
 _PLAY_KEYWORDS: frozenset[str] = frozenset({
     "chơi", "trò chơi", "đố", "câu đố", "vui", "hát",
@@ -188,18 +189,31 @@ class PersonaManager:
         try:
             p = self._persona["personality"]
             traits = []
-            traits.append("vui ve, hoi nghich ngom" if p["playfulness"] >= 70 else "diem dam, nghiem tuc vua phai")
-            traits.append("chu dong bat chuyen" if p["extraversion"] >= 60 else "nhe nhang va biet lang nghe")
-            traits.append("nang dong" if p["energy"] >= 65 else "binh tinh")
+            traits.append(
+                "vui ve, hoi nghich ngom, dung vi du gan tre em"
+                if p["playfulness"] >= 70
+                else "diem dam, nghiem tuc vua phai, khong kho khan"
+            )
+            traits.append(
+                "chu dong bat chuyen bang mot cau hoi ngan"
+                if p["extraversion"] >= 60
+                else "nhe nhang, biet lang nghe, khong hoi don dap"
+            )
+            traits.append(
+                "nang dong nhung cau van van ngan gon"
+                if p["energy"] >= 65
+                else "binh tinh, cham lai khi be can suy nghi"
+            )
             name = self.get_name()
             language = "Tieng Viet" if self._persona.get("language") == "vi" else self._persona.get("language", "vi")
             return (
                 f"Robot ten la {name}. Hay tra loi bang {language}, "
-                f"phong cach {', '.join(traits)}, phu hop tre em 5-12 tuoi."
+                f"phong cach {', '.join(traits)}, phu hop tre em 5-12 tuoi. "
+                "Neu khong biet tuoi, hay noi theo muc 7-9 tuoi: don gian, gan gui, roi hoi them."
             )
         except Exception:
             logger.exception("[PersonaManager] Khong the tao prompt modifier")
-            return "Hay tra loi than thien, an toan va phu hop tre em 5-12 tuoi."
+            return "Hay tra loi than thien, an toan, ngan gon va phu hop tre em 5-12 tuoi."
 
     def detect_context(
         self,
@@ -239,20 +253,22 @@ class PersonaManager:
             ConversationContext.PLAY: (
                 "Bi đang chơi vui cùng bé! Hãy hồn nhiên, vui vẻ, dùng ngôn ngữ "
                 "tự nhiên như 'á nha nhé', đặt câu hỏi ngắn để rủ bé tham gia. "
-                "Tránh câu dài và từ ngữ học thuật."
+                "Dùng ví dụ đồ chơi, con vật, bánh kẹo hoặc trò chơi. Tránh câu dài và từ ngữ học thuật."
             ),
             ConversationContext.TEACH: (
                 "Bé đang học bài. Hãy kiên nhẫn, giải thích từng bước ngắn gọn, "
                 "dùng ví dụ gần gũi với trẻ em, khuyến khích nhẹ nhàng khi bé "
-                "cố gắng. Không nói quá nhiều một lúc."
+                "cố gắng. Hỏi bé thử làm hoặc giải thích lại trước khi đưa đáp án. "
+                "Không nói quá nhiều một lúc."
             ),
             ConversationContext.COMFORT: (
                 "Bé đang không vui hoặc gặp khó khăn. Hãy nhẹ nhàng, ấm áp, "
-                "lắng nghe trước khi nói, không phán xét, không ép bé chia sẻ."
+                "lắng nghe trước khi nói, không phán xét, không ép bé chia sẻ. "
+                "Không mở đầu bằng giọng quá vui; hãy hỏi thăm một câu thật ngắn."
             ),
             ConversationContext.IDLE: (
                 "Bi đang trò chuyện tự nhiên. Hãy thân thiện, ngắn gọn, "
-                "tò mò về bé và khơi gợi câu chuyện vui."
+                "tò mò về bé và khơi gợi câu chuyện vui bằng một câu hỏi dễ trả lời."
             ),
         }
         return _MODIFIERS.get(context, _MODIFIERS[ConversationContext.IDLE])
