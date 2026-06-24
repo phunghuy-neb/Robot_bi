@@ -4,6 +4,7 @@ import { apiFetch, getRadioChannels, getVideoLessons, getInteractiveGames, showT
 import SectionState from '../components/SectionState.jsx';
 import FeatureBadge from '../components/FeatureBadge.jsx';
 import YouTubeChannelManager from '../components/YouTubeChannelManager.jsx';
+import KnowledgeExplorer from '../components/KnowledgeExplorer.jsx';
 
 const DEMO_SONGS = {
   kids_vn: [{ title: 'Cá vàng bơi', artist: 'Nhạc thiếu nhi VN', icon: '🐠' }, { title: 'Đàn vịt con', artist: 'Nhạc thiếu nhi VN', icon: '🦆' }],
@@ -22,6 +23,7 @@ export default function MorePage() {
   const [videoLessons, setVideoLessons] = useState([]);
   const [games, setGames] = useState([]);
   const [showYtManager, setShowYtManager] = useState(false);
+  const [showKnowledge, setShowKnowledge] = useState(false);
 
   useEffect(() => {
     loadRadio();
@@ -88,6 +90,20 @@ export default function MorePage() {
       </div>
 
       <div className="page-body">
+        {/* Khám phá tri thức — tra cứu API ngoài an toàn cho trẻ */}
+        <div className="card">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="card-title">🔎 Khám phá tri thức</span>
+            <button className="btn-sm secondary" onClick={() => setShowKnowledge(v => !v)}>
+              {showKnowledge ? 'Thu gọn' : 'Mở'}
+            </button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--muted,#64748b)', padding: '0 4px 8px' }}>
+            Tra từ điển, Wikipedia, thời tiết, Pokémon, sự thật thú vị, ảnh NASA… — nguồn an toàn cho trẻ.
+          </div>
+          {showKnowledge && <KnowledgeExplorer />}
+        </div>
+
         {/* Feature shortcut cards */}
         <div className="more-grid">
           <div className="more-card" style={{ background: 'linear-gradient(135deg, #FFE4E6 0%, #FECDD3 100%)' }}>

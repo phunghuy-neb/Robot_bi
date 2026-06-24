@@ -716,6 +716,14 @@ export async function removeMyYoutubeChannel(channelId) {
   return apiFetch(`/api/entertainment/youtube/channels/${channelId}`, { method: 'DELETE' });
 }
 
+// —— Knowledge: tra cứu API ngoài an toàn (auth-gated, degrade ok:false) ——
+export async function knowledgeQuery(name, params = {}) {
+  const entries = Object.entries(params).filter(([, v]) => v !== '' && v != null);
+  const qs = new URLSearchParams(entries).toString();
+  const base = name === 'jokes' ? '/api/entertainment/jokes' : `/api/knowledge/${name}`;
+  return apiFetch(`${base}${qs ? `?${qs}` : ''}`);
+}
+
 // —— An toàn trẻ (admin — GLOBAL) ——
 export async function adminGetSafetyConfig() {
   const data = await apiFetch('/api/admin/safety/config');
