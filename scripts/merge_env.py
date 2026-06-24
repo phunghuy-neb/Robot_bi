@@ -30,8 +30,15 @@ _PLACEHOLDER_RE = re.compile(
 )
 
 
+def _value_only(raw: str) -> str:
+    """Bỏ comment cuối dòng kiểu 'value   # chú thích' (cần khoảng trắng trước #)."""
+    m = re.search(r"\s#", raw)
+    v = raw[: m.start()] if m else raw
+    return v.strip().strip('"').strip("'")
+
+
 def _is_real(value: str) -> bool:
-    v = value.strip().strip('"').strip("'")
+    v = _value_only(value)
     if not v:
         return False
     return not _PLACEHOLDER_RE.match(v)
