@@ -20,6 +20,15 @@
   from both `HEAD` and the working tree. Aider's temporary commit `31495c9` is not an
   ancestor of the active branch. The remaining OpenCode binary is outside the repo at
   `~/.nvm/versions/node/v22.19.0/bin/opencode` and was intentionally left untouched.
+- **AI prompt-quality pass (opencode, REVIEWED OK — UNCOMMITTED, awaiting user go-ahead):**
+  `src/ai/prompts.py`, `persona_manager.py`, `role_manager.py` edited by opencode to add
+  age-tiering (5-6 / 7-9 / 10-12), clearer kid examples, and stronger TEACHER pedagogy
+  (4-step flow). Verified by gatekeeper: scope clean (no Protected files touched), all
+  exported names intact, `MAIN_SYSTEM_PROMPT is FRIEND_PROMPT`, `PROMPT_VERSION` bumped
+  v1.0→v1.1, FRIEND/TEACHER stayed no-diacritics, PARENT_* stayed diacritics, all core
+  guardrails (no auto-naming child, distress-first, danger refusal, lang-match) retained,
+  imports clean. **NEXT**: commit these 3 files ONLY (do NOT bundle the pre-existing dirty
+  `.gitignore`), then record commit id here. Not yet committed because pending user approval.
 - **Learning Hub Phase 3 — HSG/exam packs (strategy: one subject deep at a time):**
   - DONE + committed (`20b6042`): `resources/learning/math_exam.json` — Toán fully covered, 6 papers / 42 questions (exam_grade6, exam_grade10, exam_thpt, hsg_school, hsg_district, hsg_province). 0 bad answers, unique paper_ids.
   - DONE + committed (`4771802`): `resources/learning/vietnamese_exam.json` — Tiếng Việt, 6 papers / 42 questions (same 6 tracks; subject='vietnamese'; comp_level set for hsg_*). Hand-authored language-focused MCQ (chính tả, từ loại, từ láy/ghép, biện pháp tu từ, thành phần câu, phong cách ngôn ngữ, hàm ý…). Validated: 0 bad answers, unique paper_ids.
@@ -33,8 +42,9 @@
   - DONE + committed (`eceb9c4`): `resources/learning/geography_exam.json` — Địa lý, 6 papers / 42 questions (subject='geography'). Validated 0 bad, unique ids.
   - DONE + committed (`2c51b57`): `resources/learning/civics_exam.json` — GDCD, 6 papers / 42 questions (subject='civics'). Validated 0 bad, unique ids.
   - DONE + committed (`0b25fbc`): `resources/learning/informatics_exam.json` — Tin học, 6 papers / 42 questions (subject='informatics'). Validated 0 bad, unique ids.
-  - DONE (uncommitted, 2026-06-24): `resources/learning/programming_exam.json` — Lập trình, 6 papers / 42 questions (subject='programming'; comp_level set for hsg_*). Scratch/Python, biến/kiểu dữ liệu, vòng lặp/rẽ nhánh, hàm/đệ quy, stack/queue/tree, Big-O, chia để trị… Validated: 0 bad answers, unique paper_ids. Aggregate now: 24 subjects / 166 papers / 1208 questions / 0 invalid. **Ready to commit.**
-  - **NEXT STEP (đang chạy tự động sau 07:15)**: 13 môn xong. Còn lại nếu còn quota: logic, economics, health, life_skills, music, art, chinese, japanese, korean. Cùng pattern. Helper ở scratchpad (`build_exam_common.py`).
+  - DONE + committed (`715ac47`): `resources/learning/programming_exam.json` — Lập trình, 6 papers / 42 questions (subject='programming'). Validated 0 bad, unique ids.
+  - DONE (uncommitted, 2026-06-24): `resources/learning/logic_exam.json` — Tư duy logic, 6 papers / 42 questions (subject='logic'; comp_level set for hsg_*). Dãy số/quy luật, suy luận, mã hóa, tổ hợp/xác suất cơ bản, câu đố logic… Validated: 0 bad answers, unique paper_ids. Aggregate now: 24 subjects / 172 papers / 1250 questions / 0 invalid. **Ready to commit.**
+  - **NEXT STEP (đang chạy tự động sau 07:15)**: 14 môn xong. Còn lại nếu còn quota: economics, health, life_skills, music, art, chinese, japanese, korean. Cùng pattern. Helper ở scratchpad (`build_exam_common.py`).
   - Pattern: new per-subject file `resources/learning/<subject>_exam.json`; `subject` field groups it (e.g. "vietnamese"/"literature"/"en"); unique paper_ids; tracks = exam_grade6/exam_grade10/exam_thpt/hsg_school/hsg_district/hsg_province (set `comp_level` for HSG). Seed = `_seed_learning_packs` (idempotent). ALWAYS validate answer∈options before committing (script in `changelog/`-style one-liner used 2026-06-24).
 - **Tooling installed 2026-06-24** (separate from product code): codegraph MCP (local code knowledge graph; `.mcp.json` + `.codegraph/` index, telemetry off, loads on next Claude Code restart); new skills `taste-skill` (`design-taste-frontend`), `pdf`, `xlsx`; PROJECT.md UI-skill routing rule. Pre-existing dirty files (`speckit-git-*`, `settings.local.json`, `ui-ux-pro-max/scripts/search.py`) left untouched.
 - **Next thread (not started)**: Learning Hub Phase 3 / remaining packs — `toeic_sw` (Speaking/Writing, needs free-text/STT grading) and HSG / exam-track papers (`hsg_*`, `exam_grade6/10`). Produce via the batch-generate pipeline (needs LLM keys) or hand-authoring. Curriculum blueprint already lists the topics.

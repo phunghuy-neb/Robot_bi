@@ -1,0 +1,683 @@
+{
+  "subject": "logic",
+  "exams": [
+    {
+      "paper_id": "logic_exam_grade6_1",
+      "title": "Tư duy logic — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "logic_co_ban",
+      "questions": [
+        {
+          "question": "Số tiếp theo trong dãy 2, 4, 6, 8, … là số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "10",
+            "9",
+            "12",
+            "7"
+          ],
+          "answer": "10",
+          "explanation": "Dãy số chẵn cách đều 2: sau 8 là 10.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số tiếp theo trong dãy 1, 3, 5, 7, … là số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "9",
+            "8",
+            "10",
+            "11"
+          ],
+          "answer": "9",
+          "explanation": "Dãy số lẻ cách đều 2: sau 7 là 9.",
+          "difficulty": 1
+        },
+        {
+          "question": "Đối tượng nào khác loại với những đối tượng còn lại?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": [
+            "quả táo",
+            "hình tròn",
+            "hình vuông",
+            "hình tam giác"
+          ],
+          "answer": "quả táo",
+          "explanation": "Ba cái kia là hình học, còn quả táo là trái cây.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nếu hôm nay là thứ Hai thì ngày mai là thứ mấy?",
+          "question_vi": "",
+          "emoji": "📅",
+          "options": [
+            "thứ Ba",
+            "Chủ nhật",
+            "thứ Tư",
+            "thứ Hai"
+          ],
+          "answer": "thứ Ba",
+          "explanation": "Sau thứ Hai là thứ Ba.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số nào còn thiếu trong dãy 5, 10, 15, ?, 25?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "20",
+            "18",
+            "22",
+            "30"
+          ],
+          "answer": "20",
+          "explanation": "Dãy cách đều 5: 15 + 5 = 20.",
+          "difficulty": 2
+        },
+        {
+          "question": "Mèo kêu “meo meo” thì chó kêu thế nào?",
+          "question_vi": "",
+          "emoji": "🐶",
+          "options": [
+            "gâu gâu",
+            "meo meo",
+            "ò ó o",
+            "quạc quạc"
+          ],
+          "answer": "gâu gâu",
+          "explanation": "Chó sủa “gâu gâu”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Một quả cam giá 3 000 đồng. Hỏi 3 quả cam giá bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🍊",
+          "options": [
+            "9 000 đồng",
+            "6 000 đồng",
+            "3 000 đồng",
+            "12 000 đồng"
+          ],
+          "answer": "9 000 đồng",
+          "explanation": "3 × 3 000 = 9 000 đồng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số tiếp theo trong dãy 10, 8, 6, 4, … là số nào?",
+          "question_vi": "",
+          "emoji": "🔻",
+          "options": [
+            "2",
+            "3",
+            "5",
+            "0"
+          ],
+          "answer": "2",
+          "explanation": "Dãy giảm đều 2: sau 4 là 2.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nam cao hơn Bình, Bình cao hơn Lan. Vậy ai cao nhất?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "Nam",
+            "Bình",
+            "Lan",
+            "không xác định"
+          ],
+          "answer": "Nam",
+          "explanation": "Nam > Bình > Lan nên Nam cao nhất.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_exam_grade10_1",
+      "title": "Tư duy logic — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "logic_thcs",
+      "questions": [
+        {
+          "question": "Số tiếp theo trong dãy 1, 4, 9, 16, … là số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "25",
+            "20",
+            "24",
+            "36"
+          ],
+          "answer": "25",
+          "explanation": "Dãy bình phương: 1², 2², 3², 4², 5² = 25.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số tiếp theo trong dãy 2, 4, 8, 16, … là số nào?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": [
+            "32",
+            "24",
+            "20",
+            "30"
+          ],
+          "answer": "32",
+          "explanation": "Mỗi số gấp đôi số trước: 16 × 2 = 32.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tất cả mèo đều là động vật, và Tom là một con mèo. Kết luận nào đúng?",
+          "question_vi": "",
+          "emoji": "🐱",
+          "options": [
+            "Tom là động vật",
+            "Tom không phải động vật",
+            "mọi động vật đều là mèo",
+            "Tom là con chó"
+          ],
+          "answer": "Tom là động vật",
+          "explanation": "Theo suy luận, Tom (mèo) là động vật.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hoàn thành dãy: 3, 6, 12, 24, ?",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": [
+            "48",
+            "36",
+            "30",
+            "40"
+          ],
+          "answer": "48",
+          "explanation": "Mỗi số gấp đôi số trước: 24 × 2 = 48.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số tiếp theo trong dãy Fibonacci 1, 1, 2, 3, 5, 8, ?",
+          "question_vi": "",
+          "emoji": "🌀",
+          "options": [
+            "13",
+            "11",
+            "12",
+            "10"
+          ],
+          "answer": "13",
+          "explanation": "Mỗi số bằng tổng hai số liền trước: 5 + 8 = 13.",
+          "difficulty": 3
+        },
+        {
+          "question": "A lớn hơn B, C nhỏ hơn B. Số nào nhỏ nhất?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": [
+            "C",
+            "A",
+            "B",
+            "không xác định"
+          ],
+          "answer": "C",
+          "explanation": "A > B > C nên C nhỏ nhất.",
+          "difficulty": 2
+        },
+        {
+          "question": "5 công nhân xây xong một bức tường trong 5 giờ. 10 công nhân (cùng năng suất) xây xong bức tường tương tự trong bao lâu?",
+          "question_vi": "",
+          "emoji": "🧱",
+          "options": [
+            "2,5 giờ",
+            "10 giờ",
+            "5 giờ",
+            "1 giờ"
+          ],
+          "answer": "2,5 giờ",
+          "explanation": "Gấp đôi số công nhân thì thời gian giảm một nửa: 5 / 2 = 2,5 giờ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quy luật dãy 1, 2, 4, 7, 11, ? (cộng thêm 1, 2, 3, 4, …)",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": [
+            "16",
+            "15",
+            "14",
+            "18"
+          ],
+          "answer": "16",
+          "explanation": "Hiệu tăng dần 1,2,3,4,5: 11 + 5 = 16.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_exam_thpt_1",
+      "title": "Tư duy logic — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "logic_thpt",
+      "questions": [
+        {
+          "question": "Số tiếp theo trong dãy 2, 6, 12, 20, 30, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "42",
+            "40",
+            "38",
+            "36"
+          ],
+          "answer": "42",
+          "explanation": "Hiệu tăng dần 4,6,8,10,12: 30 + 12 = 42.",
+          "difficulty": 3
+        },
+        {
+          "question": "Mệnh đề “Nếu trời mưa thì đường ướt” đúng. Biết đường KHÔNG ướt. Kết luận đúng là?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": [
+            "trời không mưa",
+            "trời mưa",
+            "không kết luận được",
+            "đường vẫn ướt"
+          ],
+          "answer": "trời không mưa",
+          "explanation": "Phản đảo: nếu đường không ướt thì trời không mưa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Số tiếp theo trong dãy 100, 50, 25, 12,5, ?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": [
+            "6,25",
+            "6",
+            "5",
+            "0"
+          ],
+          "answer": "6,25",
+          "explanation": "Mỗi số bằng một nửa số trước: 12,5 / 2 = 6,25.",
+          "difficulty": 3
+        },
+        {
+          "question": "An đứng thứ 5 từ trái sang và thứ 4 từ phải sang trong một hàng. Hàng có bao nhiêu người?",
+          "question_vi": "",
+          "emoji": "🧍",
+          "options": [
+            "8",
+            "9",
+            "7",
+            "10"
+          ],
+          "answer": "8",
+          "explanation": "Số người = 5 + 4 − 1 = 8.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nếu A ⟹ B và B ⟹ C đều đúng, thì điều nào sau đây đúng?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": [
+            "A ⟹ C",
+            "C ⟹ A",
+            "A và C luôn sai",
+            "B ⟹ A"
+          ],
+          "answer": "A ⟹ C",
+          "explanation": "Tính bắc cầu của phép kéo theo: A ⟹ B, B ⟹ C suy ra A ⟹ C.",
+          "difficulty": 4
+        },
+        {
+          "question": "Dãy chữ cái A, C, E, G, ? (cách một chữ)",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "I",
+            "H",
+            "J",
+            "K"
+          ],
+          "answer": "I",
+          "explanation": "Các chữ cách nhau một vị trí: A, C, E, G, I.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một đồng hồ chỉ đúng 3 giờ. Góc nhỏ giữa kim giờ và kim phút là bao nhiêu độ?",
+          "question_vi": "",
+          "emoji": "🕒",
+          "options": [
+            "90 độ",
+            "60 độ",
+            "120 độ",
+            "45 độ"
+          ],
+          "answer": "90 độ",
+          "explanation": "Lúc 3 giờ, kim phút ở số 12, kim giờ ở số 3, tạo góc 90°.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_hsg_school_1",
+      "title": "Tư duy logic — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "logic_nang_cao",
+      "questions": [
+        {
+          "question": "Số tiếp theo trong dãy 1, 2, 6, 24, 120, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "720",
+            "600",
+            "480",
+            "360"
+          ],
+          "answer": "720",
+          "explanation": "Nhân lần lượt với 2,3,4,5,6: 120 × 6 = 720.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nếu CAT được mã hóa thành 3-1-20 (theo vị trí chữ cái), thì DOG là?",
+          "question_vi": "",
+          "emoji": "🔡",
+          "options": [
+            "4-15-7",
+            "3-15-7",
+            "4-14-7",
+            "5-15-7"
+          ],
+          "answer": "4-15-7",
+          "explanation": "D là chữ thứ 4, O thứ 15, G thứ 7 → 4-15-7.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ba hộp bi đều dán nhãn SAI: một hộp toàn đỏ, một toàn xanh, một lẫn lộn. Cần lấy bi từ ít nhất mấy hộp để biết chắc nội dung cả ba?",
+          "question_vi": "",
+          "emoji": "🎱",
+          "options": [
+            "1 hộp",
+            "2 hộp",
+            "3 hộp",
+            "không thể biết"
+          ],
+          "answer": "1 hộp",
+          "explanation": "Lấy từ hộp dán nhãn “lẫn lộn” (vốn sai) sẽ suy ra toàn bộ, chỉ cần 1 lần.",
+          "difficulty": 4
+        },
+        {
+          "question": "Số tiếp theo trong dãy 0, 1, 4, 9, 16, 25, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "36",
+            "30",
+            "35",
+            "49"
+          ],
+          "answer": "36",
+          "explanation": "Dãy bình phương 0²…5²; tiếp theo 6² = 36.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nếu ngày 1 của tháng là thứ Hai, thì ngày 15 cùng tháng là thứ mấy?",
+          "question_vi": "",
+          "emoji": "📅",
+          "options": [
+            "thứ Hai",
+            "thứ Ba",
+            "Chủ nhật",
+            "thứ Tư"
+          ],
+          "answer": "thứ Hai",
+          "explanation": "Cách nhau 14 ngày (chia hết cho 7) nên ngày 15 cũng là thứ Hai.",
+          "difficulty": 4
+        },
+        {
+          "question": "5 người bắt tay nhau, mỗi cặp bắt tay đúng một lần. Tổng số cái bắt tay là?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "10",
+            "5",
+            "20",
+            "15"
+          ],
+          "answer": "10",
+          "explanation": "Số cặp = 5×4/2 = 10.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_hsg_district_1",
+      "title": "Tư duy logic — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "logic_nang_cao",
+      "questions": [
+        {
+          "question": "Số tiếp theo trong dãy 2, 3, 5, 7, 11, 13, ?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "17",
+            "15",
+            "14",
+            "16"
+          ],
+          "answer": "17",
+          "explanation": "Dãy số nguyên tố: sau 13 là 17.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nếu một số chia hết cho 6 thì nó chắc chắn chia hết cho số nào sau đây?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": [
+            "3",
+            "4",
+            "5",
+            "7"
+          ],
+          "answer": "3",
+          "explanation": "6 = 2×3 nên số chia hết cho 6 luôn chia hết cho 3.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giải đấu loại trực tiếp 16 đội, cần bao nhiêu trận để tìm ra nhà vô địch?",
+          "question_vi": "",
+          "emoji": "🏆",
+          "options": [
+            "15",
+            "16",
+            "8",
+            "4"
+          ],
+          "answer": "15",
+          "explanation": "Mỗi trận loại 1 đội; cần loại 15 đội nên có 15 trận.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tổng các số từ 1 đến 10 bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": [
+            "55",
+            "50",
+            "45",
+            "100"
+          ],
+          "answer": "55",
+          "explanation": "Tổng = 10×11/2 = 55.",
+          "difficulty": 3
+        },
+        {
+          "question": "Số tiếp theo trong dãy 1, 8, 27, 64, ?",
+          "question_vi": "",
+          "emoji": "🧊",
+          "options": [
+            "125",
+            "100",
+            "81",
+            "128"
+          ],
+          "answer": "125",
+          "explanation": "Dãy lập phương 1³,2³,3³,4³; tiếp theo 5³ = 125.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nếu hôm nay là thứ Tư, thì 100 ngày nữa là thứ mấy?",
+          "question_vi": "",
+          "emoji": "📆",
+          "options": [
+            "thứ Sáu",
+            "thứ Năm",
+            "thứ Bảy",
+            "thứ Tư"
+          ],
+          "answer": "thứ Sáu",
+          "explanation": "100 = 14×7 + 2, dư 2 ngày; thứ Tư + 2 = thứ Sáu.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "logic_hsg_province_1",
+      "title": "Tư duy logic — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "logic_chuyen_sau",
+      "questions": [
+        {
+          "question": "Số hạng thứ 10 của dãy số lẻ 1, 3, 5, 7, … là số nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "19",
+            "21",
+            "17",
+            "20"
+          ],
+          "answer": "19",
+          "explanation": "Số lẻ thứ n = 2n − 1; thứ 10 = 2×10 − 1 = 19.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lá sen trên ao mỗi ngày tăng gấp đôi diện tích. Sau 30 ngày phủ kín ao. Vậy ngày thứ mấy lá sen phủ kín nửa ao?",
+          "question_vi": "",
+          "emoji": "🪷",
+          "options": [
+            "ngày thứ 29",
+            "ngày thứ 15",
+            "ngày thứ 28",
+            "ngày thứ 30"
+          ],
+          "answer": "ngày thứ 29",
+          "explanation": "Vì mỗi ngày gấp đôi, một ngày trước khi phủ kín (ngày 30) thì lá phủ nửa ao — ngày 29.",
+          "difficulty": 4
+        },
+        {
+          "question": "Có bao nhiêu số có 3 chữ số khác nhau lập từ các chữ số 1, 2, 3 (mỗi chữ số dùng đúng một lần)?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "6",
+            "3",
+            "9",
+            "27"
+          ],
+          "answer": "6",
+          "explanation": "Số hoán vị của 3 phần tử = 3! = 6.",
+          "difficulty": 4
+        },
+        {
+          "question": "Xác suất khi tung một con xúc xắc 6 mặt cân đối được mặt 6 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🎲",
+          "options": [
+            "1/6",
+            "1/2",
+            "1/3",
+            "6"
+          ],
+          "answer": "1/6",
+          "explanation": "Có 1 mặt thuận lợi trên 6 mặt: xác suất 1/6.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tổng ba góc trong một tam giác bằng bao nhiêu độ?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "180 độ",
+            "360 độ",
+            "90 độ",
+            "270 độ"
+          ],
+          "answer": "180 độ",
+          "explanation": "Tổng ba góc trong của một tam giác luôn bằng 180°.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một chiếc đồng hồ mỗi giờ chạy chậm 5 phút. Sau 12 giờ thực tế, đồng hồ chậm tổng cộng bao nhiêu phút?",
+          "question_vi": "",
+          "emoji": "🕰️",
+          "options": [
+            "60 phút",
+            "5 phút",
+            "12 phút",
+            "50 phút"
+          ],
+          "answer": "60 phút",
+          "explanation": "Mỗi giờ chậm 5 phút, sau 12 giờ chậm 5×12 = 60 phút.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}
