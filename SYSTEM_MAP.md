@@ -54,17 +54,17 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/living/` | Runtime-only Stage 1 living layer: state machine, micro moments, and audio-first proactive prompts. A recognized interaction creates a short recent-presence window; optional camera events may extend it. |
 | `src/memory/` | ChromaDB RAG manager plus smaller memory/progress placeholder or support files. |
 | `src/motion/` | Motor controller with simulation/serial/WebSocket paths plus navigation, follow-me, and dock helper modules. |
-| `src/safety/` | Safety filter for LLM/puppet text before TTS. |
+| `src/safety/` | Safety filter for LLM/puppet text before TTS. `safety_filter.py` keeps its 3 hardcoded layers (topic classifier + blacklist + sentence cap) and ADDS an admin-configurable GLOBAL layer (`resources/safety_config.json`): extra blocklist words, extra blocked topics (refusal), default age/time/sleep policy, plus an in-memory block-monitoring buffer (counts + recent triggers, no child text stored). Module-level config is shared across all SafetyFilter instances and reloads on admin save without restart. |
 | `src/vision/` | Optional camera stream module, disabled by default with `CAMERA_ENABLED=false`; current machine has no camera. |
 
 ## 5. API Router Map
 
 | Router file | Current responsibility |
 |---|---|
-| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets — and the GLOBAL YouTube allowlist under `/api/admin/youtube/channels` (list/add/delete; writes `resources/youtube_channels.json` + reloads singleton, all `require_admin`). |
+| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets — the GLOBAL YouTube allowlist under `/api/admin/youtube/channels` (list/add/delete; writes `resources/youtube_channels.json` + reloads singleton), and GLOBAL child-safety under `/api/admin/safety/*` (config/blocklist/topics/policy/stats[/reset] — writes `resources/safety_config.json` + live-reloads SafetyFilter; all `require_admin`). |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
-| `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
+| `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings (age filter / time limits / sleep — their defaults for unconfigured families come from the admin GLOBAL safety policy), chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
 | `conversation_router.py` | Conversation list/detail/delete, homework conversation routes, and parent-to-Bi chat history routes. |
 | `education_router.py` | Flashcard session routes, learning summary, vocabulary, and learning schedule routes. |
 | `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
@@ -156,6 +156,7 @@ Current runtime artifact locations include:
 - SQLite runtime schema includes Parent App Phase 3 tables for report export audit metadata, radio/video/game content metadata, and parent-to-Bi chat history.
 - SQLite runtime schema includes Parent App Phase 4 tables for device pairing metadata and robot location metadata. Admin logs are a sanitized API response and do not read raw log files.
 - SQLite runtime schema includes the `youtube_channels` table (per-family approved YouTube channels: `family_id`, `channel_id`, `label`, `language`, `age_min`, `age_max`, `tags_json`, unique per family+channel). The global allowlist stays in `resources/youtube_channels.json`.
+- Global child-safety config lives in `resources/youtube_channels.json`'s sibling `resources/safety_config.json` (admin blocklist words, blocked topics, default age/time/sleep policy) — not in SQLite. Safety block monitoring is in-memory only.
 - `runtime/chroma_db/`
 - `runtime/.hf_cache/`
 - `runtime/vision_data/`

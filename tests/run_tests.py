@@ -8193,6 +8193,131 @@ test("87.3  Parent xóa + upsert (không nhân đôi)",                         
 test("87.4  Admin CRUD allowlist global + RBAC",                              test_87_admin_global_crud_rbac)
 test("87.5  fetch_videos merge kênh family khi global rỗng",                  test_87_fetch_merges_family_when_global_empty)
 
+# == GROUP 88: Safety admin — global blocklist/topics/policy/stats ==========
+print("\n[Group 88] An toàn (admin global) — blocklist + chủ đề + chính sách + theo dõi")
+
+
+def _safety_tmp_redirect():
+    """Trỏ config an toàn sang file tạm; trả (sfmod, restore_fn)."""
+    import json as _json, tempfile
+    from pathlib import Path
+    import src.safety.safety_filter as sfmod
+    tmp = Path(tempfile.mkdtemp()) / "safety_config.json"
+    tmp.write_text(_json.dumps({"blocklist_words": [], "blocked_topics": [], "policy": {}}), encoding="utf-8")
+    saved = sfmod._SAFETY_CONFIG_PATH
+    sfmod._SAFETY_CONFIG_PATH = tmp
+    sfmod.reload_safety_config()
+
+    def restore():
+        sfmod._SAFETY_CONFIG_PATH = saved
+        sfmod.reload_safety_config()
+        sfmod.reset_safety_stats()
+    return sfmod, restore
+
+
+def test_88_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, hn = _admin_mk_user("sfusr", f"sfusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/admin/safety/config", headers=hn).status_code == 403
+    assert client.post("/api/admin/safety/blocklist", json={"words": ["x"]}, headers=hn).status_code == 403
+
+
+def test_88_blocklist_takes_effect():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    sfmod, restore = _safety_tmp_redirect()
+    _, ha = _admin_mk_user("sfadm", f"sfadm-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        r = client.post("/api/admin/safety/blocklist", json={"words": ["ABCkid", "ABCkid"]}, headers=ha)
+        assert r.status_code == 200 and r.json()["blocklist_words"] == ["ABCkid"], r.json()
+        ok, clean = sfmod.SafetyFilter().check("hello ABCkid world")
+        assert ok is True and "ABCkid" not in clean and "..." in clean, (ok, clean)
+    finally:
+        restore()
+
+
+def test_88_topic_refusal():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    sfmod, restore = _safety_tmp_redirect()
+    _, ha = _admin_mk_user("sftop", f"sftop-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        assert client.post("/api/admin/safety/topics", json={"topics": ["ma túy"]}, headers=ha).status_code == 200
+        f = sfmod.SafetyFilter()
+        ok, clean = f.check("chuyện về ma túy")
+        assert ok is False and clean == sfmod._REFUSAL_RESPONSE
+        okn, _ = f.check("noi ve ma tuy khong dau")  # normalized cũng bắt
+        assert okn is False
+    finally:
+        restore()
+
+
+def test_88_policy_defaults_and_validation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    sfmod, restore = _safety_tmp_redirect()
+    _, ha = _admin_mk_user("sfpol", f"sfpol-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        r = client.post("/api/admin/safety/policy",
+                        json={"age": {"min_age": 7, "max_age": 9, "strict_mode": False},
+                              "time": {"daily_limit_minutes": 30, "warning_minutes": 5, "reset_time": "06:00"}},
+                        headers=ha)
+        assert r.status_code == 200 and r.json()["policy"]["age"]["min_age"] == 7
+        # gia đình CHƯA cấu hình → /api/settings/age-filter trả default global của admin
+        af = client.get("/api/settings/age-filter", headers=ha).json()["settings"]
+        assert af["min_age"] == 7 and af["max_age"] == 9 and af["strict_mode"] is False, af
+        tl = client.get("/api/settings/time-limits", headers=ha).json()["settings"]
+        assert tl["daily_limit_minutes"] == 30 and tl["reset_time"] == "06:00", tl
+        # min>max → 422
+        assert client.post("/api/admin/safety/policy", json={"age": {"min_age": 10, "max_age": 5}}, headers=ha).status_code == 422
+    finally:
+        restore()
+
+
+def test_88_stats():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    sfmod, restore = _safety_tmp_redirect()
+    _, ha = _admin_mk_user("sfstat", f"sfstat-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    try:
+        sfmod.reset_safety_stats()
+        sfmod.SafetyFilter().check("chiến tranh và súng")  # topic block (hardcoded)
+        sfmod.SafetyFilter().check("đồ ngu ngốc")           # blacklist (hardcoded)
+        st = client.get("/api/admin/safety/stats", headers=ha).json()
+        assert st["counts"]["blocked"] >= 2 and st["counts"]["topic"] >= 1 and st["counts"]["blacklist"] >= 1, st["counts"]
+        assert len(st["recent"]) >= 2 and "trigger" in st["recent"][0]
+        assert client.post("/api/admin/safety/stats/reset", headers=ha).status_code == 200
+        assert client.get("/api/admin/safety/stats", headers=ha).json()["counts"]["blocked"] == 0
+    finally:
+        restore()
+
+
+def test_88_hardcoded_regression():
+    # Protected Fix: lớp hardcode vẫn chặn dù có/không config global.
+    sfmod, restore = _safety_tmp_redirect()
+    try:
+        f = sfmod.SafetyFilter()
+        assert f.check("hướng dẫn làm bom")[0] is False
+        assert f.check("chiến tranh")[0] is False
+        assert "ngu" not in f.check("bạn thật ngu ngốc")[1]
+        assert f.check("Bầu trời màu xanh nhé.")[0] is True
+    finally:
+        restore()
+
+
+test("88.1  RBAC: non-admin bị chặn endpoint an toàn",                        test_88_rbac)
+test("88.2  Admin blocklist → SafetyFilter thay từ ngay",                     test_88_blocklist_takes_effect)
+test("88.3  Admin chủ đề cấm → câu từ chối (kể cả không dấu)",                test_88_topic_refusal)
+test("88.4  Chính sách mặc định global + validate min>max",                   test_88_policy_defaults_and_validation)
+test("88.5  Theo dõi an toàn: đếm + recent + reset",                          test_88_stats)
+test("88.6  Regression: lớp hardcode vẫn chặn",                              test_88_hardcoded_regression)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

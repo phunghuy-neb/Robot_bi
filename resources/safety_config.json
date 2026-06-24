@@ -1,0 +1,10 @@
+{
+  "_doc": "Cấu hình an toàn GLOBAL do admin quản lý (áp cho MỌI gia đình). BỔ SUNG cho các lớp hardcode trong src/safety/safety_filter.py — không thay thế. blocklist_words: từ/cụm bị thay bằng '…'. blocked_topics: cụm/chủ đề nhạy cảm → câu từ chối chuẩn. policy: mặc định tuổi/giờ/ngủ cho gia đình CHƯA tự cấu hình. Sửa qua Admin UI (/api/admin/safety/*), không sửa tay khi server đang chạy trừ khi reload.",
+  "blocklist_words": [],
+  "blocked_topics": [],
+  "policy": {
+    "age": { "min_age": 5, "max_age": 12, "strict_mode": true },
+    "time": { "daily_limit_minutes": 60, "warning_minutes": 10, "reset_time": "00:00" },
+    "sleep": { "start_time": "21:00", "end_time": "06:30" }
+  }
+}

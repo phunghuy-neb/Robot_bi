@@ -705,3 +705,39 @@ export async function addMyYoutubeChannel(channel) {
 export async function removeMyYoutubeChannel(channelId) {
   return apiFetch(`/api/entertainment/youtube/channels/${channelId}`, { method: 'DELETE' });
 }
+
+// —— An toàn trẻ (admin — GLOBAL) ——
+export async function adminGetSafetyConfig() {
+  const data = await apiFetch('/api/admin/safety/config');
+  return data || { blocklist_words: [], blocked_topics: [], policy: {} };
+}
+
+export async function adminSetSafetyBlocklist(words) {
+  return apiFetch('/api/admin/safety/blocklist', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ words }),
+  });
+}
+
+export async function adminSetSafetyTopics(topics) {
+  return apiFetch('/api/admin/safety/topics', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topics }),
+  });
+}
+
+export async function adminSetSafetyPolicy(policy) {
+  return apiFetch('/api/admin/safety/policy', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(policy),
+  });
+}
+
+export async function adminGetSafetyStats(limit = 50) {
+  const data = await apiFetch(`/api/admin/safety/stats?limit=${limit}`);
+  return data || { counts: {}, recent: [] };
+}
+
+export async function adminResetSafetyStats() {
+  return apiFetch('/api/admin/safety/stats/reset', { method: 'POST' });
+}

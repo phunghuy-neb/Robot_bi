@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from src.infrastructure.auth.auth import get_current_user
 from src.api.routers.conversation_router import _require_family
+from src.safety.safety_filter import get_global_policy
 from src.infrastructure.database.db import (
     create_parent_event_note,
     delete_parent_event_note,
@@ -319,34 +320,38 @@ def _normalize_child_payload(data: dict, *, partial: bool = False) -> dict:
 
 
 def _default_age_filter(child_id: Optional[str] = None) -> dict:
+    # Mặc định global do admin đặt (Phase 5); fallback giá trị an toàn cũ.
+    pol = get_global_policy()["age"]
     return {
         "child_id": child_id,
         "enabled": False,
-        "min_age": 5,
-        "max_age": 12,
+        "min_age": pol["min_age"],
+        "max_age": pol["max_age"],
         "blocked_topics": [],
         "allowed_topics": [],
-        "strict_mode": True,
+        "strict_mode": bool(pol["strict_mode"]),
         "updated_at": None,
     }
 
 
 def _default_time_limits(child_id: Optional[str] = None) -> dict:
+    pol = get_global_policy()["time"]
     return {
         "child_id": child_id,
         "enabled": False,
-        "daily_limit_minutes": 60,
-        "warning_minutes": 10,
-        "reset_time": "00:00",
+        "daily_limit_minutes": pol["daily_limit_minutes"],
+        "warning_minutes": pol["warning_minutes"],
+        "reset_time": pol["reset_time"],
         "updated_at": None,
     }
 
 
 def _default_sleep_settings() -> dict:
+    pol = get_global_policy()["sleep"]
     return {
         "enabled": False,
-        "start_time": "21:00",
-        "end_time": "06:30",
+        "start_time": pol["start_time"],
+        "end_time": pol["end_time"],
         "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
         "timezone": "Asia/Ho_Chi_Minh",
         "updated_at": None,

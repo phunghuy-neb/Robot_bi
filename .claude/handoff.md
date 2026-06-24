@@ -12,14 +12,32 @@
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
 - 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: đang làm **Admin UI** theo phase.
-  **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`). **Phase 4 (Kênh YouTube) = ✅ DONE phiên
-  này (committed `363a6ce`)**. **TIẾP THEO = Phase 5 (An toàn): SafetyFilter, lọc tuổi/giờ/child
-  content trong Admin UI.** Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **674/674 PASS**;
-  Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/
-  `CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test
-  bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định
-  kiến trúc đã chốt với user (xem bullet "Admin UI"). Lộ trình còn: P5 An toàn, P6 (Radio/Video/Game,
-  Knowledge toggle, Persona, Nhật ký, Thống kê).
+  **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`), **Phase 4 (Kênh YouTube)** (`363a6ce`),
+  **Phase 5 (An toàn) = ✅ DONE phiên này (UNCOMMITTED — sắp commit)**. **TIẾP THEO = Phase 6**:
+  Radio/Video/Game metadata (admin), Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
+  Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **680/680 PASS**; Vite build OK. Working
+  tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`)
+  — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test bằng
+  `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định kiến
+  trúc đã chốt với user (xem bullet "Admin UI").
+- **Phase 5 (An toàn trẻ — admin global) — ✅ DONE (UNCOMMITTED phiên này):** user chọn cả 4 mảng.
+  - **Backend** `src/safety/safety_filter.py`: GIỮ NGUYÊN 3 lớp hardcode (Protected Fix), THÊM lớp
+    global module-level đọc `resources/safety_config.json` (MỚI): `blocklist_words` (thay bằng "…"),
+    `blocked_topics` (refusal, khớp cả có dấu/không dấu qua normalize_vi), `policy` (age/time/sleep).
+    Helper module: `load/reload_safety_config`, `get_global_policy`, `get_safety_config_full`,
+    `set_blocklist_words/set_blocked_topics/set_global_policy`, monitoring `get_safety_stats/reset_safety_stats`
+    (đếm + ring buffer 200, CHỈ lưu trigger word/topic — KHÔNG lưu nội dung trẻ). `check()` ghi monitoring
+    + dùng `_first_topic_trigger` (trả chuỗi trigger). Hiệu lực NGAY sau khi admin lưu (reload), mọi
+    SafetyFilter instance dùng chung state module.
+  - `control_router.py`: `_default_age_filter/_default_time_limits/_default_sleep_settings` nay lấy từ
+    `get_global_policy()` → gia đình CHƯA tự cấu hình thấy mặc định global của admin (fallback giá trị cũ).
+  - `admin_router.py`: `/api/admin/safety/config` (GET), `/blocklist` `/topics` `/policy` (POST),
+    `/stats` (GET) `/stats/reset` (POST) — `require_admin`, validate min≤max / warning≤daily / HH:MM.
+  - **Frontend**: `pages/admin/SafetyAdminPage.jsx` (TagEditor cho blocklist+topics, form policy,
+    bảng theo dõi + reset); mục 'safety' trong AdminApp = ready; `api.js` thêm 6 helper adminSafety*.
+  - **Test Group 88** (6): RBAC, blocklist hiệu lực ngay, topic refusal (có/không dấu), policy default
+    + validate 422, stats đếm/recent/reset, regression lớp hardcode. Suite **680/680 PASS** (trước 674).
+    Test redirect `_SAFETY_CONFIG_PATH` sang temp → KHÔNG đụng file thật. SYSTEM_MAP cập nhật.
 - **Phase 4 (Kênh YouTube) — ✅ DONE + committed `363a6ce`:** admin sửa allowlist GLOBAL + parent
   thêm kênh cho GIA ĐÌNH mình.
   - **Backend**: bảng DB mới `youtube_channels` (family-scoped) + helper trong `db.py`
@@ -71,8 +89,10 @@
     422 đáp-án-sai, quyền xóa, admin list RBAC. Suite **669/669 PASS**, build OK.
   - **Phase 4 (DONE + committed `363a6ce`)**: Kênh YouTube (admin global + parent gia đình) —
     xem bullet "Phase 4 (Kênh YouTube)" ở trên.
-  - **Phase còn lại (chưa làm)**: P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
-    P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
+  - **Phase 5 (DONE — UNCOMMITTED phiên này)**: An toàn trẻ (admin global blocklist/topics/policy/stats)
+    — xem bullet "Phase 5 (An toàn trẻ)" ở trên.
+  - **Phase còn lại (chưa làm)**: P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role,
+    Nhật ký&kiểm toán, Thống kê.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
   User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:
   - `src/knowledge/knowledge_client.py` (MỚI): HTTP+timeout+cache TTL dùng chung, lọc text

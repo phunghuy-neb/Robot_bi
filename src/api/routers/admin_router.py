@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 from src.config import env_admin
 from src.entertainment.youtube_lessons import youtube_lessons
+from src.safety import safety_filter as sf
 from src.infrastructure.auth.auth import get_current_user, hash_password
 from src.infrastructure.database.db import (
     create_family_record,
@@ -360,3 +361,87 @@ async def admin_remove_global_channel(channel_id: str, _admin: dict = Depends(re
     if not youtube_lessons.remove_global_channel(channel_id):
         raise HTTPException(status_code=404, detail="Không tìm thấy kênh trong allowlist global")
     return {"ok": True, "channel_id": channel_id.strip()}
+
+
+# ── An toàn trẻ (admin — GLOBAL): blocklist + chủ đề cấm + chính sách + theo dõi ─
+class WordList(BaseModel):
+    words: list[str] = Field(default_factory=list, max_length=500)
+
+
+class TopicList(BaseModel):
+    topics: list[str] = Field(default_factory=list, max_length=500)
+
+
+class _AgePolicy(BaseModel):
+    min_age: int = Field(default=5, ge=0, le=18)
+    max_age: int = Field(default=12, ge=0, le=18)
+    strict_mode: bool = True
+
+
+class _TimePolicy(BaseModel):
+    daily_limit_minutes: int = Field(default=60, ge=1, le=480)
+    warning_minutes: int = Field(default=10, ge=0, le=120)
+    reset_time: str = Field(default="00:00", max_length=5)
+
+
+class _SleepPolicy(BaseModel):
+    start_time: str = Field(default="21:00", max_length=5)
+    end_time: str = Field(default="06:30", max_length=5)
+
+
+class SafetyPolicyIn(BaseModel):
+    age: _AgePolicy | None = None
+    time: _TimePolicy | None = None
+    sleep: _SleepPolicy | None = None
+
+
+_HHMM_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+@router.get("/api/admin/safety/config")
+async def get_safety_config(_admin: dict = Depends(require_admin)):
+    return sf.get_safety_config_full()
+
+
+@router.post("/api/admin/safety/blocklist")
+async def set_safety_blocklist(body: WordList, _admin: dict = Depends(require_admin)):
+    words = sf.set_blocklist_words([w for w in body.words if len(w) <= 60])
+    return {"ok": True, "blocklist_words": words}
+
+
+@router.post("/api/admin/safety/topics")
+async def set_safety_topics(body: TopicList, _admin: dict = Depends(require_admin)):
+    topics = sf.set_blocked_topics([t for t in body.topics if len(t) <= 80])
+    return {"ok": True, "blocked_topics": topics}
+
+
+@router.post("/api/admin/safety/policy")
+async def set_safety_policy(body: SafetyPolicyIn, _admin: dict = Depends(require_admin)):
+    incoming: dict = {}
+    if body.age is not None:
+        if body.age.min_age > body.age.max_age:
+            raise HTTPException(status_code=422, detail="min_age phải ≤ max_age")
+        incoming["age"] = body.age.model_dump()
+    if body.time is not None:
+        if body.time.warning_minutes > body.time.daily_limit_minutes:
+            raise HTTPException(status_code=422, detail="warning_minutes phải ≤ daily_limit_minutes")
+        if not _HHMM_RE.match(body.time.reset_time):
+            raise HTTPException(status_code=422, detail="reset_time phải dạng HH:MM")
+        incoming["time"] = body.time.model_dump()
+    if body.sleep is not None:
+        if not _HHMM_RE.match(body.sleep.start_time) or not _HHMM_RE.match(body.sleep.end_time):
+            raise HTTPException(status_code=422, detail="start_time/end_time phải dạng HH:MM")
+        incoming["sleep"] = body.sleep.model_dump()
+    policy = sf.set_global_policy(incoming)
+    return {"ok": True, "policy": policy}
+
+
+@router.get("/api/admin/safety/stats")
+async def get_safety_stats(limit: int = Query(default=50, ge=1, le=200), _admin: dict = Depends(require_admin)):
+    return sf.get_safety_stats(limit)
+
+
+@router.post("/api/admin/safety/stats/reset")
+async def reset_safety_stats(_admin: dict = Depends(require_admin)):
+    sf.reset_safety_stats()
+    return {"ok": True}

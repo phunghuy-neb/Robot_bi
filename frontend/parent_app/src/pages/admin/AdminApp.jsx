@@ -3,6 +3,7 @@ import UsersAdminPage from './UsersAdminPage.jsx';
 import ApiKeysPage from './ApiKeysPage.jsx';
 import ExamsAdminPage from './ExamsAdminPage.jsx';
 import YouTubeAdminPage from './YouTubeAdminPage.jsx';
+import SafetyAdminPage from './SafetyAdminPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
@@ -12,7 +13,7 @@ const SECTIONS = [
   { key: 'apikeys',   label: 'API key',       icon: '🔑', ready: true },
   { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: true },
   { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: true },
-  { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: false },
+  { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: true },
   { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: false },
   { key: 'logs',      label: 'Nhật ký',       icon: '📋', ready: false },
   { key: 'stats',     label: 'Thống kê',      icon: '📊', ready: false },
@@ -66,7 +67,8 @@ export default function AdminApp({ user, onLogout }) {
         {section === 'apikeys' && <ApiKeysPage />}
         {section === 'exams' && <ExamsAdminPage />}
         {section === 'youtube' && <YouTubeAdminPage />}
-        {section !== 'users' && section !== 'apikeys' && section !== 'exams' && section !== 'youtube' && (
+        {section === 'safety' && <SafetyAdminPage />}
+        {section !== 'users' && section !== 'apikeys' && section !== 'exams' && section !== 'youtube' && section !== 'safety' && (
           <div style={{
             padding: 40, textAlign: 'center', color: 'var(--muted, #64748b)',
             background: 'var(--card, #fff)', borderRadius: 14,

@@ -15,9 +15,17 @@ Interface:
     # is_safe=False → clean_text = câu từ chối chuẩn của Bi (SRS 2.3)
 """
 
+import collections
+import copy
+import json
+import logging
 import re
+from datetime import datetime, timezone
+from pathlib import Path
 
 from src.safety.vi_normalize import normalize_vi
+
+logger = logging.getLogger(__name__)
 
 # ── Câu từ chối chuẩn (SRS 2.3) ──────────────────────────────────────────────
 _REFUSAL_RESPONSE = "Oi cai nay Bi khong the huong dan duoc dau nhe! Minh choi thu khac vui hon di!"
@@ -70,6 +78,161 @@ _SENSITIVE_PATTERNS_NORM_ONLY = [
 
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  Lớp an toàn GLOBAL do admin cấu hình (BỔ SUNG cho các lớp hardcode ở trên)
+# ══════════════════════════════════════════════════════════════════════════════
+# Quy tắc: chỉ THÊM từ/chủ đề cấm và chính sách mặc định; KHÔNG bao giờ làm yếu
+# 3 lớp hardcode (Protected Fix). Cấu hình lưu ở resources/safety_config.json,
+# áp dụng cho MỌI gia đình. Trạng thái dưới đây ở mức module → mọi SafetyFilter
+# instance (main loop, knowledge_client, story_engine…) dùng chung, có hiệu lực
+# ngay sau khi admin lưu (gọi reload_safety_config()).
+
+_SAFETY_CONFIG_PATH = Path(__file__).resolve().parents[2] / "resources" / "safety_config.json"
+
+_DEFAULT_POLICY = {
+    "age": {"min_age": 5, "max_age": 12, "strict_mode": True},
+    "time": {"daily_limit_minutes": 60, "warning_minutes": 10, "reset_time": "00:00"},
+    "sleep": {"start_time": "21:00", "end_time": "06:30"},
+}
+
+# Lớp bổ sung (rebuild từ file khi import / khi admin lưu)
+_extra_blacklist: list[tuple[str, "re.Pattern"]] = []
+_extra_topics: list[tuple[str, str]] = []  # (phrase_lower, phrase_normalized)
+
+# Theo dõi an toàn (in-memory, chia sẻ giữa mọi instance)
+_safety_events: collections.deque = collections.deque(maxlen=200)
+_safety_counts: dict = {"total_checks": 0, "blocked": 0, "topic": 0, "blacklist": 0}
+
+
+def load_safety_config() -> dict:
+    """Đọc resources/safety_config.json; không tồn tại / lỗi → {}."""
+    if not _SAFETY_CONFIG_PATH.exists():
+        return {}
+    try:
+        data = json.loads(_SAFETY_CONFIG_PATH.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception as e:
+        logger.warning("[SafetyConfig] Lỗi đọc config: %s", e)
+        return {}
+
+
+def _write_safety_config(data: dict) -> None:
+    _SAFETY_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _SAFETY_CONFIG_PATH.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def reload_safety_config() -> None:
+    """Build lại lớp bổ sung từ file. Gọi sau khi admin lưu để có hiệu lực ngay."""
+    global _extra_blacklist, _extra_topics
+    cfg = load_safety_config()
+    words = [str(w).strip() for w in (cfg.get("blocklist_words") or []) if str(w).strip()]
+    _extra_blacklist = [
+        (w.lower(), re.compile(r"(?<!\w)" + re.escape(w) + r"(?!\w)", re.IGNORECASE | re.UNICODE))
+        for w in words
+    ]
+    topics = [str(t).strip() for t in (cfg.get("blocked_topics") or []) if str(t).strip()]
+    _extra_topics = [(t.lower(), normalize_vi(t)) for t in topics]
+
+
+def get_global_policy() -> dict:
+    """Chính sách tuổi/giờ/ngủ mặc định global (admin đặt), merge trên _DEFAULT_POLICY."""
+    cfg = load_safety_config()
+    pol = copy.deepcopy(_DEFAULT_POLICY)
+    file_pol = cfg.get("policy") or {}
+    for section in ("age", "time", "sleep"):
+        if isinstance(file_pol.get(section), dict):
+            pol[section].update({k: v for k, v in file_pol[section].items() if k in pol[section]})
+    return pol
+
+
+def get_safety_config_full() -> dict:
+    """Toàn bộ config cho admin xem (blocklist + topics + policy)."""
+    cfg = load_safety_config()
+    return {
+        "blocklist_words": [str(w) for w in (cfg.get("blocklist_words") or [])],
+        "blocked_topics": [str(t) for t in (cfg.get("blocked_topics") or [])],
+        "policy": get_global_policy(),
+        "hardcoded_blacklist_count": len(_BLACKLIST_WORDS),
+    }
+
+
+def set_blocklist_words(words: list) -> list:
+    cfg = load_safety_config()
+    clean = []
+    seen = set()
+    for w in words or []:
+        s = str(w).strip()
+        if s and s.lower() not in seen:
+            seen.add(s.lower())
+            clean.append(s)
+    cfg["blocklist_words"] = clean
+    _write_safety_config(cfg)
+    reload_safety_config()
+    return clean
+
+
+def set_blocked_topics(topics: list) -> list:
+    cfg = load_safety_config()
+    clean = []
+    seen = set()
+    for t in topics or []:
+        s = str(t).strip()
+        if s and s.lower() not in seen:
+            seen.add(s.lower())
+            clean.append(s)
+    cfg["blocked_topics"] = clean
+    _write_safety_config(cfg)
+    reload_safety_config()
+    return clean
+
+
+def set_global_policy(policy: dict) -> dict:
+    """Lưu chính sách mặc định; chỉ nhận key hợp lệ, KHÔNG cho ghi rác."""
+    cfg = load_safety_config()
+    merged = get_global_policy()  # bắt đầu từ giá trị hiện tại đã merge
+    incoming = policy or {}
+    for section in ("age", "time", "sleep"):
+        if isinstance(incoming.get(section), dict):
+            for k, v in incoming[section].items():
+                if k in merged[section]:
+                    merged[section][k] = v
+    cfg["policy"] = merged
+    _write_safety_config(cfg)
+    return merged
+
+
+def _record_block(layer: str, trigger: str) -> None:
+    _safety_counts[layer] = _safety_counts.get(layer, 0) + 1
+    _safety_counts["blocked"] = _safety_counts.get("blocked", 0) + 1
+    # Chỉ lưu TỪ/CHỦ ĐỀ bị chặn (không phải nội dung trẻ) → an toàn quyền riêng tư.
+    _safety_events.appendleft({
+        "layer": layer,
+        "trigger": str(trigger)[:60],
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+def get_safety_stats(limit: int = 50) -> dict:
+    return {
+        "counts": dict(_safety_counts),
+        "recent": list(_safety_events)[: max(0, min(limit, 200))],
+        "extra_blacklist_count": len(_extra_blacklist),
+        "extra_topics_count": len(_extra_topics),
+    }
+
+
+def reset_safety_stats() -> None:
+    _safety_events.clear()
+    for k in _safety_counts:
+        _safety_counts[k] = 0
+
+
+# Build lớp bổ sung 1 lần khi import.
+reload_safety_config()
+
+
 class SafetyFilter:
     """
     Bộ lọc an toàn nội dung cho Robot Bi.
@@ -110,57 +273,68 @@ class SafetyFilter:
         if not text or not text.strip():
             return True, text
 
+        _safety_counts["total_checks"] = _safety_counts.get("total_checks", 0) + 1
+
         # Bước 1: Phân loại chủ đề nhạy cảm — refusal ngay nếu trigger
-        if not self._topic_classifier(text):
+        trigger = self._first_topic_trigger(text)
+        if trigger is not None:
+            _record_block("topic", trigger)
             return False, _REFUSAL_RESPONSE
 
         # Bước 2: Lọc blacklist — thay thế từ xấu
-        has_blacklist, clean_text = self._blacklist_filter(text)
+        has_blacklist, clean_text, matched = self._blacklist_filter(text)
+        for word in matched:
+            _record_block("blacklist", word)
 
         # Bước 3: Kiểm tra độ dài câu — cắt bớt nếu quá 4 câu (SRS ST-01)
         clean_text = self._sentence_length_check(clean_text)
 
         return True, clean_text
 
-    def _blacklist_filter(self, text: str) -> tuple[bool, str]:
+    def _blacklist_filter(self, text: str) -> tuple[bool, str, list]:
         """
-        Lọc và thay thế các từ trong blacklist (SRS ST-04).
-
-        Args:
-            text: Chuỗi cần lọc.
+        Lọc và thay thế các từ trong blacklist hardcode + blocklist global của admin.
 
         Returns:
-            (has_blacklist_word, cleaned_text):
-                has_blacklist_word = True nếu có từ xấu
-                cleaned_text = text sau khi thay thế từ xấu bằng "..."
+            (has_blacklist_word, cleaned_text, matched_words)
         """
         has_blacklist = False
         result = text
-        for word, pattern in self._blacklist_regexes:
+        matched: list[str] = []
+        for word, pattern in self._blacklist_regexes + _extra_blacklist:
             if pattern.search(result):
                 has_blacklist = True
+                matched.append(word)
                 result = pattern.sub("...", result)
-        return has_blacklist, result
+        return has_blacklist, result, matched
 
-    def _topic_classifier(self, text: str) -> bool:
+    def _first_topic_trigger(self, text: str):
         """
-        Phát hiện chủ đề nhạy cảm bằng regex pattern matching.
+        Trả về CHUỖI trigger đầu tiên nếu phát hiện chủ đề nhạy cảm, ngược lại None.
 
         - Accented Vietnamese patterns: match trên text gốc (giữ nguyên dấu).
         - No-diacritic/English patterns: match trên text đã normalize.
-        Tách hai nhóm để tránh bắn→ban = bạn→ban collision.
-
-        Returns:
-            True nếu an toàn, False nếu phát hiện chủ đề nhạy cảm.
+        - Chủ đề cấm GLOBAL của admin: so khớp substring cả bản gốc lẫn normalize.
+        Tách các nhóm để tránh bắn→ban = bạn→ban collision.
         """
         for pattern in self._vi_regexes:
-            if pattern.search(text):
-                return False
+            m = pattern.search(text)
+            if m:
+                return m.group(0)
         norm_text = normalize_vi(text)
         for pattern in self._norm_regexes:
-            if pattern.search(norm_text):
-                return False
-        return True
+            m = pattern.search(norm_text)
+            if m:
+                return m.group(0)
+        low = text.lower()
+        for phrase, phrase_norm in _extra_topics:
+            if (phrase and phrase in low) or (phrase_norm and phrase_norm in norm_text):
+                return phrase
+        return None
+
+    def _topic_classifier(self, text: str) -> bool:
+        """Tương thích ngược: True nếu an toàn, False nếu có chủ đề nhạy cảm."""
+        return self._first_topic_trigger(text) is None
 
     def _sentence_length_check(self, text: str) -> str:
         """
