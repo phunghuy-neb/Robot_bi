@@ -15,14 +15,17 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **698/698 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
+  = **704/704 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
   (`9ab8ae5`). **Working tree SẠCH HOÀN TOÀN** (không còn file dirty). **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
   Knowledge UI Parent App ✅, TOEIC audio server ✅, lọc title YouTube ✅, Persona admin-global ✅,
   gỡ mock fallback ✅, **Stage 2 Special Memories ✅** (user bật đèn xanh), **Radio Browser ✅** (helper
-  admin tìm đài), **TTS offline ✅** (công tắc). **CHỈ CÒN PHẦN CỨNG**: ESP32-S3 audio transport/firmware,
-  motor/camera thật, wake-word validate bằng mic thật.
+  admin tìm đài), **TTS offline ✅** (công tắc), **Stage 2 proactive (due_today) ✅**, **CI bump ✅**,
+  **FIX bug từ review loop round 34/35/36 ✅** (H-NEW-4 + 5 issue khác — xem bullet bên dưới).
+  **CÒN LẠI**: (a) PHẦN CỨNG (ESP32-S3 audio/firmware, motor/camera, wake-word mic thật); (b) vài review
+  residual NHỎ đã defer có lý do (M-NEW-8 admin-log, M2 CWD audio, round-35 LOWs) + review loop mới phủ
+  ~5%/554 file (còn db.py/state.py/audio/firmware/frontend chưa review sâu).
   - **Robot Display gọi Knowledge = BỎ có chủ đích**: `index.html` là màn hình MẶT robot (output-only,
     animation do runtime điều khiển), không phải nơi gõ truy vấn → tri thức đã trả qua giọng/hội thoại.
   - **Settings save stubs = không có stub thực**: settings tuổi/giờ/ngủ đã persist; phần `disabled`/
@@ -53,6 +56,31 @@
     THẬT (rỗng nếu chưa có), bỏ import `mockData`. MorePage thêm cờ `loaded` → rỗng-thật hiện empty state
     thay vì "đang tải" mãi (seed DB vẫn có 2 radio/2 video/2 game nên thực tế không rỗng).
   - Suite **693/693 PASS** (trước 689); Vite build OK; SYSTEM_MAP cập nhật.
+- **Stage 2 proactive + CI bump + FIX theo review loop (2026-06-25) — ✅ DONE phiên này (UNCOMMITTED → commit):**
+  - **Stage 2 nhắc chủ động**: `control_router` thêm `_memory_due_today()` + endpoint list special memories
+    nay gắn cờ `due_today` (khớp DD/MM hôm nay) + trả `due_today` list. FE SpecialMemories: banner 🔔 +
+    highlight kỷ niệm hôm nay. Test **92.3**. (Robot tự NÓI khi tới ngày = hook runtime, để sau.)
+  - **CI**: `.github/workflows/test.yml` bump `actions/checkout@v4→v5` + `setup-python@v5→v6` (hết Node20 deprecated).
+  - **Đọc review loop `.claude-review/` round 34/35/36** → verify trên code hiện tại → FIX bug thật:
+    - **H-NEW-4 (HIGH/child-safety)**: PII advisory chạy TRƯỚC EmotionRiskDetector ở cả text+voice path
+      → utterance vừa có PII vừa có tín hiệu khủng hoảng bị PII redirect nuốt, BỎ QUA crisis override +
+      cảnh báo phụ huynh. **ĐÃ ĐẢO**: risk.check chạy trước pii.check ở cả 2 path. Test **94.1**.
+    - **L-NEW-10 (privacy)**: text-mode chạy web search TRƯỚC PII gate → rò PII trẻ ra Tavily/Brave.
+      **ĐÃ DỜI** web search xuống sau PII gate (giống voice). Test **94.2**.
+    - **M-NEW-9**: `/api/eval/chat` raw LLM passthrough → **gate admin-only**. Test **94.3**.
+    - **M-NEW-10**: TOEIC `feedback`/`tips` (free-text LLM cho trẻ) → lọc qua SafetyFilter. Test **94.4**.
+    - **L-NEW-9**: bỏ DEBUG log nội dung `rag_context` (PII) → chỉ log độ dài.
+    - **L-NEW-8**: CSV report chống formula injection (`_csv_safe`). Test **94.5**.
+  - **ĐÃ XÁC MINH KHÔNG CÒN LÀ BUG**: M-NEW-5 (safety_filter đã có `_SENSITIVE_PATTERNS_NORM_ONLY` bắt
+    không-dấu+English), L-NEW-5 ("không được" đã bị loại khỏi blacklist), H-NEW-1/M2/L-NEW-6 (round 36 đã
+    POSSIBLY_FIXED).
+  - **CÒN OPEN (defer có lý do — KHÔNG fix vội)**: M-NEW-8 (admin `/api/admin/logs` có thể lộ free-text
+    nội dung trẻ cross-family — đã giảm nhờ L-NEW-9; fix triệt để cần policy logging riêng); M2 CWD
+    `voice_chunk_*` (đụng Protected Fix audio + `_cleanup_chunks`, cần đổi đồng bộ); round 35 LOWs
+    (RAG cleanup gap khi xóa family, prune-arbitrary, manual-add bỏ quota, blocking embed, notifier cache
+    default-family, duplicate broadcast) — minor perf/cleanup. **Review loop mới phủ ~5% / 554 file** —
+    còn nhiều file NOT_REVIEWED (db.py, state.py, rag_manager sâu, audio internals, firmware, frontend).
+  - Suite **704/704 PASS** (trước 698); Vite build OK; SYSTEM_MAP cập nhật.
 - **TOEIC Speaking audio server (multipart + STT) — ✅ DONE + committed `b38ec25`:**
   - `src/audio/input/transcribe_file.py` (MỚI): STT cho FILE (không import sounddevice như ear_stt) —
     lazy faster-whisper, GPU(cuda float16)→fallback CPU(`WHISPER_CPU_MODEL`, int8) giữ đúng Protected
@@ -343,7 +371,7 @@
 - Stage 1 manual validation: robot audio is blocked until the ESP32-S3 microphone hardware test passes and production audio transport is implemented.
 - Stage 1.5 body expression: software landed (`movement_emotion.py`); pending real motor-hardware validation.
 - Learning Hub: Phase 1 + Phase 2 complete (24 subjects). Phase 3 — HSG/exam packs (22 môn) DONE + committed; TOEIC S&W backend + content pack DONE (frontend UI + audio STT còn lại).
-- Stage 2 Special Memories: MVP DONE (special_memories table + parent CRUD + RAG seeding + JournalPage UI). Mở rộng (proactive nhắc dịp, lịch nhắc) để sau.
+- Stage 2 Special Memories: DONE (table + parent CRUD + RAG seeding + JournalPage UI + `due_today` nhắc chủ động). Còn lại: robot tự NÓI khi tới ngày (hook runtime), lịch nhắc nâng cao.
 
 ## Known Issues / Deferred Work
 
