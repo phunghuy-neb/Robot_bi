@@ -26,8 +26,15 @@
     FE: `pages/admin/AdminApp.jsx` (shell sidebar 8 mục, 7 mục "sắp có") + `UsersAdminPage.jsx`;
     `App.jsx` rẽ nhánh `if user.isAdmin`; `api.js` thêm admin* helper. Test **Group 84** (5).
     Suite **658/658 PASS**, build OK.
-  - **Phase còn lại (chưa làm)**: P2 API key public (xem/sửa, ghi .env) + công tắc tính năng +
-    trạng thái key (sống/chết). P3 Đề thi (admin global + parent cá nhân). P4 Kênh YouTube
+  - **Phase 2 (DONE + committed)**: `src/config/env_admin.py` (MỚI) — đọc/ghi `.env` an toàn,
+    **whitelist nghiêm ngặt** (chỉ YOUTUBE/NASA/TAVILY/BRAVE + 6 toggle), không bao giờ đụng/lộ
+    key LLM/JWT/admin; masked giá trị; test key sống/chết. `admin_router.py` thêm
+    `/api/admin/config/keys` (GET/POST/DELETE/test) + `/api/admin/config/toggles` (GET/POST).
+    FE: `ApiKeysPage.jsx` (key public: set/test/xóa + masked; toggle bật/tắt, đánh dấu cần-restart);
+    mục 'apikeys' trong AdminApp = ready. Test **Group 85** (5, dùng `_TempEnv` không đụng .env thật,
+    verify không lộ giá trị). Suite **663/663 PASS**. Lưu ý: ghi .env cập nhật os.environ ngay,
+    nhưng singleton (youtube/websearch) + biến đọc lúc start (camera/cry/wakeword) cần RESTART.
+  - **Phase còn lại (chưa làm)**: P3 Đề thi (admin global + parent cá nhân). P4 Kênh YouTube
     (admin global + parent gia đình). P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
     P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**

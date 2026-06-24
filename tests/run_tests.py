@@ -7869,6 +7869,121 @@ test("84.3  Cấp/bỏ admin + đặt lại mật khẩu",                      
 test("84.4  Tự khóa/bỏ-admin/xóa chính mình bị chặn 400",                      test_84_self_guard)
 test("84.5  Xóa tài khoản",                                                    test_84_delete_user)
 
+# == GROUP 85: Admin — public API keys + feature toggles ===================
+print("\n[Group 85] Admin — API key public + công tắc tính năng")
+
+
+class _TempEnv:
+    """Trỏ env_admin.ENV_PATH sang file tạm + khôi phục os.environ sau test."""
+    def __init__(self, *guard_vars):
+        self.guard = guard_vars
+
+    def __enter__(self):
+        import os as _os
+        import tempfile
+        from pathlib import Path
+        from src.config import env_admin
+        self._mod = env_admin
+        self._saved_path = env_admin.ENV_PATH
+        self._tmp = Path(tempfile.mkdtemp()) / ".env"
+        self._tmp.write_text("", encoding="utf-8")
+        env_admin.ENV_PATH = self._tmp
+        self._saved_env = {k: _os.environ.get(k) for k in self.guard}
+        return self
+
+    def __exit__(self, *a):
+        import os as _os
+        self._mod.ENV_PATH = self._saved_path
+        for k, v in self._saved_env.items():
+            if v is None:
+                _os.environ.pop(k, None)
+            else:
+                _os.environ[k] = v
+        return False
+
+
+def test_85_keys_rbac_no_llm():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admkey", fam, True)
+    _, nh = _admin_mk_user("normkey", fam, False)
+    client = TestClient(app)
+    assert client.get("/api/admin/config/keys", headers=nh).status_code == 403
+    r = client.get("/api/admin/config/keys", headers=ah)
+    assert r.status_code == 200
+    names = [k["name"] for k in r.json()["keys"]]
+    assert "YOUTUBE_API_KEY" in names
+    # KHÔNG bao giờ lộ key LLM/secret qua endpoint này.
+    for forbidden in ("GEMINI_API_KEY", "CEREBRAS_API_KEY", "GROQ_API_KEY", "JWT_SECRET_KEY"):
+        assert forbidden not in names, f"{forbidden} không được xuất hiện"
+
+
+def test_85_whitelist_blocks_secrets():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admwl", fam, True)
+    client = TestClient(app)
+    # Ghi key ngoài whitelist (LLM/JWT) phải bị từ chối, .env thật KHÔNG đổi.
+    for name in ("GEMINI_API_KEY", "JWT_SECRET_KEY", "ADMIN_PASSWORD"):
+        r = client.post(f"/api/admin/config/keys/{name}", json={"value": "x"}, headers=ah)
+        assert r.status_code == 400, f"{name} phải bị chặn, có {r.status_code}"
+
+
+def test_85_set_key_masked_not_leaked():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admset2", fam, True)
+    client = TestClient(app)
+    with _TempEnv("YOUTUBE_API_KEY"):
+        assert client.post("/api/admin/config/keys/YOUTUBE_API_KEY",
+                           json={"value": "AIzaSECRET1234"}, headers=ah).status_code == 200
+        r = client.get("/api/admin/config/keys", headers=ah)
+        yt = next(k for k in r.json()["keys"] if k["name"] == "YOUTUBE_API_KEY")
+        assert yt["is_set"] is True
+        assert yt["masked"] == "••••1234", f"masked sai: {yt['masked']}"
+        assert "AIzaSECRET1234" not in r.text, "KHÔNG được lộ giá trị key thật"
+
+
+def test_85_toggle_set():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admtog", fam, True)
+    client = TestClient(app)
+    with _TempEnv("REGISTRATION_ENABLED"):
+        assert client.post("/api/admin/config/toggles/REGISTRATION_ENABLED",
+                           json={"enabled": True}, headers=ah).status_code == 200
+        toggles = client.get("/api/admin/config/toggles", headers=ah).json()["toggles"]
+        reg = next(t for t in toggles if t["name"] == "REGISTRATION_ENABLED")
+        assert reg["enabled"] is True
+        # toggle ngoài whitelist bị chặn
+        assert client.post("/api/admin/config/toggles/JWT_SECRET_KEY",
+                           json={"enabled": True}, headers=ah).status_code == 400
+
+
+def test_85_test_key_unset_no_network():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"adm-{_uuid.uuid4().hex[:6]}"
+    _, ah = _admin_mk_user("admtest", fam, True)
+    client = TestClient(app)
+    with _TempEnv("BRAVE_API_KEY"):
+        import os as _os
+        _os.environ.pop("BRAVE_API_KEY", None)
+        r = client.post("/api/admin/config/keys/BRAVE_API_KEY/test", headers=ah)
+        assert r.status_code == 200
+        assert r.json()["ok"] is False  # chưa đặt -> không gọi mạng
+
+
+test("85.1  Keys: RBAC + KHÔNG lộ key LLM/secret",                             test_85_keys_rbac_no_llm)
+test("85.2  Whitelist chặn ghi key LLM/JWT/admin (400)",                       test_85_whitelist_blocks_secrets)
+test("85.3  Set key: masked, không lộ giá trị thật",                           test_85_set_key_masked_not_leaked)
+test("85.4  Toggle bật/tắt + chặn toggle ngoài whitelist",                     test_85_toggle_set)
+test("85.5  Test key chưa đặt → ok:false (không mạng)",                        test_85_test_key_unset_no_network)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

@@ -11,6 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from src.config import env_admin
 from src.infrastructure.auth.auth import get_current_user, hash_password
 from src.infrastructure.database.db import (
     create_family_record,
@@ -269,3 +270,55 @@ async def delete_user(user_id: str, admin: dict = Depends(require_admin)):
         conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
         conn.commit()
     return {"ok": True, "user_id": user_id}
+
+
+# ── Config: public API keys + feature toggles (admin) ─────────────────────────
+class KeyValue(BaseModel):
+    value: str = Field(default="", max_length=400)
+
+
+class ToggleValue(BaseModel):
+    enabled: bool
+
+
+@router.get("/api/admin/config/keys")
+async def get_public_keys(_admin: dict = Depends(require_admin)):
+    # Chỉ trạng thái + masked; KHÔNG trả giá trị thật, KHÔNG có key LLM.
+    return {"keys": env_admin.keys_status()}
+
+
+@router.post("/api/admin/config/keys/{name}")
+async def set_public_key(name: str, body: KeyValue, _admin: dict = Depends(require_admin)):
+    try:
+        env_admin.write_env_var(name, body.value.strip())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "name": name}
+
+
+@router.delete("/api/admin/config/keys/{name}")
+async def clear_public_key(name: str, _admin: dict = Depends(require_admin)):
+    try:
+        env_admin.write_env_var(name, "")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "name": name}
+
+
+@router.post("/api/admin/config/keys/{name}/test")
+async def test_public_key(name: str, _admin: dict = Depends(require_admin)):
+    return env_admin.test_key(name)
+
+
+@router.get("/api/admin/config/toggles")
+async def get_toggles(_admin: dict = Depends(require_admin)):
+    return {"toggles": env_admin.toggles_status()}
+
+
+@router.post("/api/admin/config/toggles/{name}")
+async def set_toggle(name: str, body: ToggleValue, _admin: dict = Depends(require_admin)):
+    try:
+        env_admin.write_env_var(name, "true" if body.enabled else "false")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "name": name, "enabled": body.enabled}

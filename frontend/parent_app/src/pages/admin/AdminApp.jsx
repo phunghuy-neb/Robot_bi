@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import UsersAdminPage from './UsersAdminPage.jsx';
+import ApiKeysPage from './ApiKeysPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
 // Mỗi mục tương ứng một phase; mục chưa làm hiện placeholder "Sắp có".
 const SECTIONS = [
   { key: 'users',     label: 'Tài khoản',     icon: '👤', ready: true },
-  { key: 'apikeys',   label: 'API key',       icon: '🔑', ready: false },
+  { key: 'apikeys',   label: 'API key',       icon: '🔑', ready: true },
   { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: false },
   { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: false },
   { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: false },
@@ -60,7 +61,8 @@ export default function AdminApp({ user, onLogout }) {
           {active.icon} {active.label}
         </h1>
         {section === 'users' && <UsersAdminPage currentUsername={user?.username} />}
-        {section !== 'users' && (
+        {section === 'apikeys' && <ApiKeysPage />}
+        {section !== 'users' && section !== 'apikeys' && (
           <div style={{
             padding: 40, textAlign: 'center', color: 'var(--muted, #64748b)',
             background: 'var(--card, #fff)', borderRadius: 14,

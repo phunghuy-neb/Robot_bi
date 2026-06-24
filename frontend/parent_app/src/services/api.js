@@ -621,3 +621,36 @@ export async function adminResetPassword(userId, newPassword) {
 export async function adminDeleteUser(userId) {
   return apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
 }
+
+// —— Admin: public API keys + feature toggles (is_admin only) ——
+export async function adminGetKeys() {
+  const data = await apiFetch('/api/admin/config/keys');
+  return data?.keys || [];
+}
+
+export async function adminSetKey(name, value) {
+  return apiFetch(`/api/admin/config/keys/${name}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value }),
+  });
+}
+
+export async function adminClearKey(name) {
+  return apiFetch(`/api/admin/config/keys/${name}`, { method: 'DELETE' });
+}
+
+export async function adminTestKey(name) {
+  return apiFetch(`/api/admin/config/keys/${name}/test`, { method: 'POST' });
+}
+
+export async function adminGetToggles() {
+  const data = await apiFetch('/api/admin/config/toggles');
+  return data?.toggles || [];
+}
+
+export async function adminSetToggle(name, enabled) {
+  return apiFetch(`/api/admin/config/toggles/${name}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled }),
+  });
+}

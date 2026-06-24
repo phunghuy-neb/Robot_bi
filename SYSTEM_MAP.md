@@ -61,7 +61,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 | Router file | Current responsibility |
 |---|---|
-| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards). |
+| `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), and config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets. |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
 | `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. |
 | `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings, chat logs, RAG memory CRUD/export, puppet text queue, tasks, and star counters. |
