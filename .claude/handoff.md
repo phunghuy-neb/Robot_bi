@@ -13,14 +13,14 @@
 
 - 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: đang làm **Admin UI** theo phase.
   **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`). **Phase 4 (Kênh YouTube) = ✅ DONE phiên
-  này (UNCOMMITTED — sắp commit)**. **TIẾP THEO = Phase 5 (An toàn): SafetyFilter, lọc tuổi/giờ/child
+  này (committed `363a6ce`)**. **TIẾP THEO = Phase 5 (An toàn): SafetyFilter, lọc tuổi/giờ/child
   content trong Admin UI.** Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **674/674 PASS**;
   Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/
   `CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test
   bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định
   kiến trúc đã chốt với user (xem bullet "Admin UI"). Lộ trình còn: P5 An toàn, P6 (Radio/Video/Game,
   Knowledge toggle, Persona, Nhật ký, Thống kê).
-- **Phase 4 (Kênh YouTube) — ✅ DONE (UNCOMMITTED phiên này):** admin sửa allowlist GLOBAL + parent
+- **Phase 4 (Kênh YouTube) — ✅ DONE + committed `363a6ce`:** admin sửa allowlist GLOBAL + parent
   thêm kênh cho GIA ĐÌNH mình.
   - **Backend**: bảng DB mới `youtube_channels` (family-scoped) + helper trong `db.py`
     (`list_family_youtube_channels`/`add_family_youtube_channel` upsert/`delete_family_youtube_channel`).
@@ -69,7 +69,7 @@
     tạo đề chung + xóa), và LearningHubPage exam mode thêm "➕ Tạo đề của tôi" + nút 🗑️ trên đề custom của mình.
     Test **Group 86** (6): cô lập family, admin global hiện cho mọi nhà, non-admin không tạo global,
     422 đáp-án-sai, quyền xóa, admin list RBAC. Suite **669/669 PASS**, build OK.
-  - **Phase 4 (DONE — UNCOMMITTED phiên này)**: Kênh YouTube (admin global + parent gia đình) —
+  - **Phase 4 (DONE + committed `363a6ce`)**: Kênh YouTube (admin global + parent gia đình) —
     xem bullet "Phase 4 (Kênh YouTube)" ở trên.
   - **Phase còn lại (chưa làm)**: P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
     P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
