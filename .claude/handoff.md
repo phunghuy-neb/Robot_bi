@@ -48,8 +48,17 @@
   - Test **Group 82** (4 test, không cần mạng — dùng stub): `_fmt_duration`, tắt-mặc-định,
     allowlist chỉ nhận UC…, và HTTP merge+dedup. Suite **646/646 PASS**. FE build OK.
   - SYSTEM_MAP.md cập nhật (entertainment + game_router rows).
-  - **CÒN LẠI**: user cấu hình key + channel_id thật; (tùy chọn) hiển thị tên kênh/`channel`
-    field trên UI; (tùy chọn) lọc thêm tiêu đề qua SafetyFilter.
+  - **2026-06-24 (cuối)**: user đã thêm `YOUTUBE_API_KEY` thật (check_keys: sống). Allowlist
+    `resources/youtube_channels.json` nay có **7 kênh** (channel_id verify qua API): POPS Kids,
+    Bút chì TV, Học Tiếng Anh Cùng Emma, Thầy Mùa Toán Tư Duy, Dr.Binocs, Chun Chin, Cảnh Sát
+    Trưởng Labrador. Verify thật: `fetch_videos()` trả 28 video (4×7), duration/tags đúng, cache OK.
+  - **BUG đã sửa**: `fetch_videos` gọi `_get_cached/_set_cached` mà chưa định nghĩa → sẽ 500 khi
+    bật key thật. Đã thêm 2 method cache + bọc try/except trong `_augment_with_youtube` (game_router)
+    + test regression **82.5** (đi đường thật, stub `_fetch_channel`). 82.2/82.4 sửa để độc lập `.env`
+    (vì `.env` thật giờ có key, `load_dotenv` nạp vào process test). Suite **653/653 PASS**.
+  - Tooling mới: `scripts/check_keys.py` (kiểm tra key sống/chết), `scripts/resolve_youtube_channels.py`
+    (tra channel_id thật từ tên), `scripts/merge_env.py` (trộn .env cũ vào template).
+  - **CÒN LẠI**: user restart server để thấy video; (tùy chọn) UI hiện tên kênh; lọc tiêu đề qua SafetyFilter.
 - **Learning Hub Phase 3 — TOEIC Speaking & Writing (đang làm, 2026-06-24):**
   - opencode đã làm + COMMIT backend chấm điểm (`1952a4e feat(learning): add toeic sw backend grading`):
     `src/api/routers/exam_router.py` — model `SubmitToeicSW`, rubric `TOEIC_TASK_MAX_SCORES`,

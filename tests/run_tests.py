@@ -7547,11 +7547,18 @@ def test_82_fmt_duration():
     assert _fmt_duration("rác") == ""
 
 
-def test_82_disabled_by_default():
-    # Không có YOUTUBE_API_KEY trong env test => tắt, endpoint không đổi.
-    from src.entertainment.youtube_lessons import youtube_lessons
-    assert youtube_lessons.enabled is False
-    assert youtube_lessons.fetch_videos() == []
+def test_82_disabled_without_key():
+    # Không phụ thuộc .env: dựng instance mới với key bị gỡ -> phải tắt.
+    import os as _os
+    from src.entertainment.youtube_lessons import YouTubeLessons
+    saved = _os.environ.pop("YOUTUBE_API_KEY", None)
+    try:
+        yt = YouTubeLessons()
+        assert yt.enabled is False, "thiếu key phải tắt"
+        assert yt.fetch_videos() == []
+    finally:
+        if saved is not None:
+            _os.environ["YOUTUBE_API_KEY"] = saved
 
 
 def test_82_allowlist_validation():
@@ -7582,8 +7589,6 @@ def test_82_videos_endpoint_merges_youtube():
     from src.entertainment.youtube_lessons import youtube_lessons
     headers = _phase44_headers("ytuser", f"yt-{_uuid.uuid4().hex[:6]}")
     client = TestClient(app)
-    base = client.get("/api/entertainment/videos", headers=headers).json()["videos"]
-    assert all(not v["content_id"].startswith("yt-") for v in base), "baseline không có video yt-"
     fake = [{
         "content_id": "yt-FAKE123", "type": "video", "title": "Phonics for kids",
         "description": "abc", "source_url": "https://www.youtube.com/watch?v=FAKE123",
@@ -7593,12 +7598,17 @@ def test_82_videos_endpoint_merges_youtube():
     }]
     saved = (youtube_lessons._explicitly_disabled, youtube_lessons._has_key,
              youtube_lessons._channels, youtube_lessons.fetch_videos)
-    youtube_lessons._explicitly_disabled = False
-    youtube_lessons._has_key = True
-    youtube_lessons._channels = [{"channel_id": "UC0123456789", "language": "vi",
-                                  "age_min": 5, "age_max": 9, "tags": ["english"], "label": "Demo"}]
-    youtube_lessons.fetch_videos = lambda **kw: [dict(x) for x in fake]
     try:
+        # baseline: ép TẮT YouTube (độc lập .env) -> chỉ nội dung DB
+        youtube_lessons._explicitly_disabled = True
+        base = client.get("/api/entertainment/videos", headers=headers).json()["videos"]
+        assert all(not v["content_id"].startswith("yt-") for v in base), "baseline không có video yt-"
+        # bật + stub fetch (không mạng)
+        youtube_lessons._explicitly_disabled = False
+        youtube_lessons._has_key = True
+        youtube_lessons._channels = [{"channel_id": "UC0123456789", "language": "vi",
+                                      "age_min": 5, "age_max": 9, "tags": ["english"], "label": "Demo"}]
+        youtube_lessons.fetch_videos = lambda **kw: [dict(x) for x in fake]
         r = client.get("/api/entertainment/videos", headers=headers).json()["videos"]
     finally:
         (youtube_lessons._explicitly_disabled, youtube_lessons._has_key,
@@ -7612,9 +7622,34 @@ def test_82_videos_endpoint_merges_youtube():
 
 
 test("82.1  _fmt_duration: parse ISO8601 + làm tròn giây",                     test_82_fmt_duration)
-test("82.2  Tắt mặc định khi thiếu YOUTUBE_API_KEY (fetch trả [])",            test_82_disabled_by_default)
+test("82.2  Tắt khi thiếu YOUTUBE_API_KEY (fetch trả [])",                     test_82_disabled_without_key)
 test("82.3  Allowlist: chỉ nhận channel_id UC… hợp lệ, tags lowercase",        test_82_allowlist_validation)
+def test_82_fetch_videos_real_path_cached():
+    # Đi qua fetch_videos THẬT (không stub) để bắt lỗi cache/_fetch_uncached;
+    # chỉ stub _fetch_channel để khỏi gọi mạng.
+    from src.entertainment.youtube_lessons import YouTubeLessons
+    yt = YouTubeLessons()
+    yt._explicitly_disabled = False
+    yt._has_key = True
+    yt._channels = [{"channel_id": "UC0123456789", "language": "vi",
+                     "age_min": 5, "age_max": 9, "tags": ["x"], "label": "Demo"}]
+    calls = {"n": 0}
+
+    def fake_channel(ch):
+        calls["n"] += 1
+        return [{"content_id": "yt-A", "type": "video", "title": "t",
+                 "source_url": "u", "duration": "5 phút", "channel": ch["label"],
+                 "enabled": True}]
+
+    yt._fetch_channel = fake_channel
+    v1 = yt.fetch_videos()
+    v2 = yt.fetch_videos()  # phải lấy từ cache
+    assert len(v1) == 1 and len(v2) == 1, "fetch_videos phải trả 1 video"
+    assert calls["n"] == 1, "lần 2 phải dùng cache, không fetch lại"
+
+
 test("82.4  HTTP: /entertainment/videos merge video YouTube + dedup",          test_82_videos_endpoint_merges_youtube)
+test("82.5  fetch_videos: đường thật + cache (regression _get_cached)",        test_82_fetch_videos_real_path_cached)
 
 # == GROUP 83: Knowledge APIs (no-key, safe, graceful) =====================
 print("\n[Group 83] Knowledge APIs — external sources, safe + graceful")

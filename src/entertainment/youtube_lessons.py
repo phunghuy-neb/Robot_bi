@@ -122,6 +122,19 @@ class YouTubeLessons:
             "cache_size": len(self._cache),
         }
 
+    # ── Cache ────────────────────────────────────────────────────────────────
+    def _get_cached(self, key: str):
+        if self._cache_ttl <= 0:
+            return None
+        hit = self._cache.get(key)
+        if hit and time.monotonic() - hit[0] <= self._cache_ttl:
+            return hit[1]
+        return None
+
+    def _set_cached(self, key: str, items: list[dict]) -> None:
+        if self._cache_ttl > 0 and key:
+            self._cache[key] = (time.monotonic(), items)
+
     # ── Fetch ────────────────────────────────────────────────────────────────
     def fetch_videos(self, language=None, min_age=None, max_age=None) -> list[dict]:
         """Trả về list video (shape content_items) từ allowlist, đã cache.

@@ -173,7 +173,10 @@ def _augment_with_youtube(
     bộ lọc chủ đề (blocked/allowed) như nội dung DB."""
     if not youtube_lessons.enabled:
         return items
-    yt = youtube_lessons.fetch_videos(language=language, min_age=min_age, max_age=max_age)
+    try:
+        yt = youtube_lessons.fetch_videos(language=language, min_age=min_age, max_age=max_age)
+    except Exception:  # YouTube không bao giờ được phép làm hỏng endpoint
+        return items
     if not yt:
         return items
     child_key = _validate_child_for_family(family_id, child_id)
