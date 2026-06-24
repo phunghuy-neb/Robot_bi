@@ -4,6 +4,9 @@ import ApiKeysPage from './ApiKeysPage.jsx';
 import ExamsAdminPage from './ExamsAdminPage.jsx';
 import YouTubeAdminPage from './YouTubeAdminPage.jsx';
 import SafetyAdminPage from './SafetyAdminPage.jsx';
+import ContentAdminPage from './ContentAdminPage.jsx';
+import LogsAdminPage from './LogsAdminPage.jsx';
+import StatsAdminPage from './StatsAdminPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
@@ -14,9 +17,9 @@ const SECTIONS = [
   { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: true },
   { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: true },
   { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: true },
-  { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: false },
-  { key: 'logs',      label: 'Nhật ký',       icon: '📋', ready: false },
-  { key: 'stats',     label: 'Thống kê',      icon: '📊', ready: false },
+  { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: true },
+  { key: 'logs',      label: 'Nhật ký',       icon: '📋', ready: true },
+  { key: 'stats',     label: 'Thống kê',      icon: '📊', ready: true },
 ];
 
 export default function AdminApp({ user, onLogout }) {
@@ -68,14 +71,9 @@ export default function AdminApp({ user, onLogout }) {
         {section === 'exams' && <ExamsAdminPage />}
         {section === 'youtube' && <YouTubeAdminPage />}
         {section === 'safety' && <SafetyAdminPage />}
-        {section !== 'users' && section !== 'apikeys' && section !== 'exams' && section !== 'youtube' && section !== 'safety' && (
-          <div style={{
-            padding: 40, textAlign: 'center', color: 'var(--muted, #64748b)',
-            background: 'var(--card, #fff)', borderRadius: 14,
-          }}>
-            Mục "{active.label}" sẽ được bổ sung ở phase tiếp theo.
-          </div>
-        )}
+        {section === 'content' && <ContentAdminPage />}
+        {section === 'logs' && <LogsAdminPage />}
+        {section === 'stats' && <StatsAdminPage />}
       </main>
 
       <Toast />

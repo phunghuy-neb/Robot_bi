@@ -11,15 +11,35 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
-- 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: đang làm **Admin UI** theo phase.
-  **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`), **Phase 4 (Kênh YouTube)** (`363a6ce`),
-  **Phase 5 (An toàn)** (`0dcba21`). **TIẾP THEO = Phase 6**:
-  Radio/Video/Game metadata (admin), Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
-  Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **680/680 PASS**; Vite build OK. Working
-  tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`)
-  — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test bằng
-  `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định kiến
-  trúc đã chốt với user (xem bullet "Admin UI").
+- 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: **Admin UI ĐÃ XONG TOÀN BỘ 6 PHASE** —
+  Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
+  **Phase 6 Nội dung/Nhật ký/Thống kê + công tắc tri thức = ✅ DONE phiên này (UNCOMMITTED — sắp commit)**.
+  Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
+  = **685/685 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
+  CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
+  — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
+  **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
+  (b) hoàn tất TOEIC S&W audio thật (multipart STT); (c) track phần cứng ESP32-S3.
+- **Phase 6 (Nội dung + Nhật ký + Thống kê + công tắc tri thức) — ✅ DONE (UNCOMMITTED phiên này):**
+  - **Nội dung GLOBAL** (`admin_router`): `/api/admin/content` GET(list, lọc type)/POST(tạo global
+    family_id NULL)/`/{id}` POST(sửa)/DELETE — radio/video/game trên bảng `content_items`, validate
+    type∈{radio,video,game} & age_min≤age_max. Nội dung global enabled hiện cho MỌI gia đình qua
+    `/api/entertainment/*` (đã có `(family_id IS NULL OR =?)`). FE `ContentAdminPage.jsx` (form + bảng
+    + toggle bật/tắt + sửa/xóa, lọc theo loại).
+  - **Thống kê** (`/api/admin/stats`): đếm users/admin/active, families, conversations, exams
+    (papers/global/sessions/questions), content theo loại, kênh YouTube global+family, tóm tắt safety.
+    FE `StatsAdminPage.jsx` (thẻ số liệu nhóm).
+  - **Nhật ký**: FE `LogsAdminPage.jsx` dùng endpoint `/api/admin/logs` SẴN CÓ (Phase 1, đã redact
+    secret + child_text) + lọc level/component. `api.js` thêm `adminGetLogs` có tham số.
+  - **Công tắc tri thức**: thêm `KNOWLEDGE_ENABLED` vào `env_admin.TOGGLES` (hiện ở trang API key) +
+    gate `knowledge_router` (dependency, mặc định BẬT; tắt → 503).
+  - AdminApp: bật ready cho content/logs/stats; bỏ placeholder "sắp có". `api.js` thêm helper
+    adminListContent/Create/Update/Delete + adminGetStats + adminGetLogs.
+  - **Test Group 89** (5): content CRUD+RBAC, validate 422, global content hiện cho family, stats+RBAC,
+    knowledge toggle→503. Suite **685/685 PASS** (trước 680). SYSTEM_MAP cập nhật.
+  - **DEFER có chủ đích — Persona/Role admin-global**: persona đã per-family (parent chỉnh qua
+    `/api/persona`), lưu trong bảng `persona` keyed family_id. Biến thành "mặc định global" đòi đổi
+    logic fallback nạp persona (đụng prompt AI lõi — cần pass riêng cẩn thận). KHÔNG làm trong phase này.
 - **Phase 5 (An toàn trẻ — admin global) — ✅ DONE + committed `0dcba21`:** user chọn cả 4 mảng.
   - **Backend** `src/safety/safety_filter.py`: GIỮ NGUYÊN 3 lớp hardcode (Protected Fix), THÊM lớp
     global module-level đọc `resources/safety_config.json` (MỚI): `blocklist_words` (thay bằng "…"),
@@ -91,8 +111,9 @@
     xem bullet "Phase 4 (Kênh YouTube)" ở trên.
   - **Phase 5 (DONE + committed `0dcba21`)**: An toàn trẻ (admin global blocklist/topics/policy/stats)
     — xem bullet "Phase 5 (An toàn trẻ)" ở trên.
-  - **Phase còn lại (chưa làm)**: P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role,
-    Nhật ký&kiểm toán, Thống kê.
+  - **Phase 6 (DONE — UNCOMMITTED phiên này)**: Nội dung global + Nhật ký + Thống kê + công tắc tri
+    thức — xem bullet "Phase 6" ở trên. Persona/Role admin-global DEFER có chủ đích.
+  - **✅ HẾT PHASE Admin UI**: cả 6 phase đã hoàn tất, 8 mục sidebar đều ready.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
   User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:
   - `src/knowledge/knowledge_client.py` (MỚI): HTTP+timeout+cache TTL dùng chung, lọc text

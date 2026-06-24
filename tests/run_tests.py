@@ -8318,6 +8318,92 @@ test("88.4  Chính sách mặc định global + validate min>max",              
 test("88.5  Theo dõi an toàn: đếm + recent + reset",                          test_88_stats)
 test("88.6  Regression: lớp hardcode vẫn chặn",                              test_88_hardcoded_regression)
 
+# == GROUP 89: Phase 6 — content metadata + stats + knowledge toggle ========
+print("\n[Group 89] Admin Phase 6 — nội dung global + thống kê + công tắc tri thức")
+
+
+def test_89_content_crud_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("ctadm", f"ctadm-{_uuid.uuid4().hex[:6]}", True)
+    _, hn = _admin_mk_user("ctusr", f"ctusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/admin/content", headers=hn).status_code == 403
+    assert client.post("/api/admin/content", json={"type": "radio", "title": "x"}, headers=hn).status_code == 403
+    r = client.post("/api/admin/content",
+                    json={"type": "video", "title": "Bài học mẫu", "tags": ["Science"]}, headers=ha)
+    assert r.status_code == 200, r.text
+    cid = r.json()["content_id"]
+    lst = client.get("/api/admin/content?type=video", headers=ha).json()["items"]
+    row = [x for x in lst if x["content_id"] == cid]
+    assert row and row[0]["scope"] == "global" and row[0]["tags"] == ["science"]
+    # update
+    assert client.post(f"/api/admin/content/{cid}",
+                       json={"type": "video", "title": "Đã sửa", "enabled": False}, headers=ha).status_code == 200
+    # delete + 404
+    assert client.delete(f"/api/admin/content/{cid}", headers=ha).status_code == 200
+    assert client.delete(f"/api/admin/content/{cid}", headers=ha).status_code == 404
+
+
+def test_89_content_validation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("ctval", f"ctval-{_uuid.uuid4().hex[:6]}", True)
+    client = TestClient(app)
+    assert client.post("/api/admin/content", json={"type": "bad", "title": "x"}, headers=ha).status_code == 422
+    assert client.post("/api/admin/content",
+                       json={"type": "radio", "title": "x", "age_min": 12, "age_max": 5}, headers=ha).status_code == 422
+
+
+def test_89_global_content_visible_to_family():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("gcadm", f"gcadm-{_uuid.uuid4().hex[:6]}", True)
+    _, hf = _admin_mk_user("gcfam", f"gcfam-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    cid = client.post("/api/admin/content",
+                      json={"type": "radio", "title": "Radio chung", "enabled": True}, headers=ha).json()["content_id"]
+    items = client.get("/api/entertainment/radio", headers=hf).json()["channels"]
+    assert cid in [x["content_id"] for x in items], "gia đình phải thấy nội dung global đã bật"
+
+
+def test_89_stats():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("stadm", f"stadm-{_uuid.uuid4().hex[:6]}", True)
+    _, hn = _admin_mk_user("stusr", f"stusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/admin/stats", headers=hn).status_code == 403
+    s = client.get("/api/admin/stats", headers=ha).json()
+    assert s["users"]["total"] >= 2 and "families" in s and "exams" in s and "content" in s and "safety" in s
+
+
+def test_89_knowledge_toggle():
+    import os as _os
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, hu = _admin_mk_user("kgusr", f"kgusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    saved = _os.environ.get("KNOWLEDGE_ENABLED")
+    try:
+        assert client.get("/api/knowledge/status", headers=hu).status_code == 200
+        _os.environ["KNOWLEDGE_ENABLED"] = "false"
+        assert client.get("/api/knowledge/status", headers=hu).status_code == 503
+        _os.environ["KNOWLEDGE_ENABLED"] = "true"
+        assert client.get("/api/knowledge/status", headers=hu).status_code == 200
+    finally:
+        if saved is None:
+            _os.environ.pop("KNOWLEDGE_ENABLED", None)
+        else:
+            _os.environ["KNOWLEDGE_ENABLED"] = saved
+
+
+test("89.1  Nội dung global CRUD + RBAC",                                     test_89_content_crud_rbac)
+test("89.2  Nội dung: validate type/tuổi → 422",                             test_89_content_validation)
+test("89.3  Nội dung global hiện cho gia đình",                              test_89_global_content_visible_to_family)
+test("89.4  Thống kê tổng quan + RBAC",                                      test_89_stats)
+test("89.5  Công tắc KNOWLEDGE_ENABLED tắt → 503",                           test_89_knowledge_toggle)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

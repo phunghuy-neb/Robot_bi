@@ -4,14 +4,22 @@ Tất cả endpoint chỉ đọc, yêu cầu đăng nhập, và degrade mượt 
 không 500). Logic nằm ở src/knowledge/knowledge_client.py.
 """
 
+import os
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.infrastructure.auth.auth import get_current_user
 from src.knowledge import knowledge_client as kc
 
-router = APIRouter()
+
+def _require_knowledge_enabled():
+    """Công tắc admin KNOWLEDGE_ENABLED; mặc định BẬT khi chưa đặt."""
+    if os.getenv("KNOWLEDGE_ENABLED", "").strip().lower() in {"0", "false", "no", "off"}:
+        raise HTTPException(status_code=503, detail="API tri thức đang tắt")
+
+
+router = APIRouter(dependencies=[Depends(_require_knowledge_enabled)])
 
 
 @router.get("/api/knowledge/status")

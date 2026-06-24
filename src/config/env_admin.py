@@ -36,6 +36,7 @@ TOGGLES = [
     {"name": "WAKEWORD_ENABLED",       "label": "Wake word",                  "needs_restart": True},
     {"name": "CAMERA_ENABLED",         "label": "Camera",                     "needs_restart": True},
     {"name": "CRY_DETECTION_ENABLED",  "label": "Phát hiện tiếng khóc",       "needs_restart": True},
+    {"name": "KNOWLEDGE_ENABLED",      "label": "API tri thức",               "needs_restart": False},
 ]
 
 _PUBLIC_KEY_NAMES = {k["name"] for k in PUBLIC_KEYS}

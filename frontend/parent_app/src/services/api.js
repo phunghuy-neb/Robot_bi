@@ -741,3 +741,43 @@ export async function adminGetSafetyStats(limit = 50) {
 export async function adminResetSafetyStats() {
   return apiFetch('/api/admin/safety/stats/reset', { method: 'POST' });
 }
+
+// —— Nội dung GLOBAL (admin) ——
+export async function adminListContent(type) {
+  const qs = type ? `?type=${type}` : '';
+  const data = await apiFetch(`/api/admin/content${qs}`);
+  return data?.items || [];
+}
+
+export async function adminCreateContent(item) {
+  return apiFetch('/api/admin/content', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
+  });
+}
+
+export async function adminUpdateContent(contentId, item) {
+  return apiFetch(`/api/admin/content/${contentId}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
+  });
+}
+
+export async function adminDeleteContent(contentId) {
+  return apiFetch(`/api/admin/content/${contentId}`, { method: 'DELETE' });
+}
+
+// —— Thống kê tổng quan (admin) ——
+export async function adminGetStats() {
+  return apiFetch('/api/admin/stats');
+}
+
+// —— Nhật ký hệ thống (admin) với bộ lọc ——
+export async function adminGetLogs({ level = '', component = '', limit = 100 } = {}) {
+  const p = new URLSearchParams();
+  if (level) p.set('level', level);
+  if (component) p.set('component', component);
+  p.set('limit', String(limit));
+  const data = await apiFetch(`/api/admin/logs?${p.toString()}`);
+  return data || { logs: [], total: 0 };
+}

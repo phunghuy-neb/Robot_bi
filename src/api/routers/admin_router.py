@@ -445,3 +445,159 @@ async def get_safety_stats(limit: int = Query(default=50, ge=1, le=200), _admin:
 async def reset_safety_stats(_admin: dict = Depends(require_admin)):
     sf.reset_safety_stats()
     return {"ok": True}
+
+
+# ── Nội dung GLOBAL: radio / video / game metadata (admin) ────────────────────
+_CONTENT_TYPES = {"radio", "video", "game"}
+
+
+class ContentItemIn(BaseModel):
+    type: str = Field(..., max_length=20)
+    title: str = Field(..., min_length=1, max_length=200)
+    description: str = Field(default="", max_length=1000)
+    source_url: str = Field(default="", max_length=600)
+    thumbnail_url: str = Field(default="", max_length=600)
+    age_min: int = Field(default=5, ge=0, le=18)
+    age_max: int = Field(default=12, ge=0, le=18)
+    language: str = Field(default="vi", max_length=20)
+    tags: list[str] = Field(default_factory=list, max_length=20)
+    enabled: bool = True
+    sort_order: int = Field(default=0, ge=0, le=100000)
+
+
+def _content_row(row) -> dict:
+    import json as _json
+    try:
+        tags = _json.loads(row["tags_json"] or "[]")
+    except Exception:
+        tags = []
+    return {
+        "content_id": row["content_id"],
+        "family_id": row["family_id"],
+        "type": row["type"],
+        "title": row["title"],
+        "description": row["description"],
+        "source_url": row["source_url"],
+        "thumbnail_url": row["thumbnail_url"],
+        "age_min": row["age_min"],
+        "age_max": row["age_max"],
+        "language": row["language"],
+        "tags": tags if isinstance(tags, list) else [],
+        "enabled": bool(row["enabled"]),
+        "sort_order": row["sort_order"],
+        "scope": "global" if row["family_id"] is None else "family",
+    }
+
+
+@router.get("/api/admin/content")
+async def admin_list_content(
+    type: Optional[str] = Query(default=None, max_length=20),
+    _admin: dict = Depends(require_admin),
+):
+    where, params = [], []
+    if type:
+        if type not in _CONTENT_TYPES:
+            raise HTTPException(status_code=422, detail="type phải là radio/video/game")
+        where.append("type = ?")
+        params.append(type)
+    sql = "SELECT * FROM content_items"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY type, sort_order, created_at"
+    with get_db_connection() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return {"items": [_content_row(r) for r in rows]}
+
+
+@router.post("/api/admin/content")
+async def admin_create_content(body: ContentItemIn, _admin: dict = Depends(require_admin)):
+    import json as _json
+    from uuid import uuid4
+    if body.type not in _CONTENT_TYPES:
+        raise HTTPException(status_code=422, detail="type phải là radio/video/game")
+    if body.age_min > body.age_max:
+        raise HTTPException(status_code=422, detail="age_min phải ≤ age_max")
+    cid = f"adm-{body.type}-{uuid4().hex[:10]}"
+    now = _utc_now_iso()
+    with get_db_connection() as conn:
+        conn.execute(
+            """INSERT INTO content_items
+               (content_id, family_id, type, title, description, source_url, thumbnail_url,
+                age_min, age_max, language, tags_json, enabled, sort_order, created_at, updated_at)
+               VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (cid, body.type, body.title, body.description, body.source_url, body.thumbnail_url,
+             body.age_min, body.age_max, body.language,
+             _json.dumps([str(t).lower() for t in body.tags], ensure_ascii=False),
+             1 if body.enabled else 0, body.sort_order, now, now),
+        )
+        conn.commit()
+    return {"ok": True, "content_id": cid}
+
+
+@router.post("/api/admin/content/{content_id}")
+async def admin_update_content(content_id: str, body: ContentItemIn, _admin: dict = Depends(require_admin)):
+    import json as _json
+    if body.type not in _CONTENT_TYPES:
+        raise HTTPException(status_code=422, detail="type phải là radio/video/game")
+    if body.age_min > body.age_max:
+        raise HTTPException(status_code=422, detail="age_min phải ≤ age_max")
+    with get_db_connection() as conn:
+        if not conn.execute("SELECT 1 FROM content_items WHERE content_id = ?", (content_id,)).fetchone():
+            raise HTTPException(status_code=404, detail="Không tìm thấy nội dung")
+        conn.execute(
+            """UPDATE content_items SET type=?, title=?, description=?, source_url=?, thumbnail_url=?,
+               age_min=?, age_max=?, language=?, tags_json=?, enabled=?, sort_order=?, updated_at=?
+               WHERE content_id=?""",
+            (body.type, body.title, body.description, body.source_url, body.thumbnail_url,
+             body.age_min, body.age_max, body.language,
+             _json.dumps([str(t).lower() for t in body.tags], ensure_ascii=False),
+             1 if body.enabled else 0, body.sort_order, _utc_now_iso(), content_id),
+        )
+        conn.commit()
+    return {"ok": True, "content_id": content_id}
+
+
+@router.delete("/api/admin/content/{content_id}")
+async def admin_delete_content(content_id: str, _admin: dict = Depends(require_admin)):
+    with get_db_connection() as conn:
+        cur = conn.execute("DELETE FROM content_items WHERE content_id = ?", (content_id,))
+        conn.commit()
+    if cur.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Không tìm thấy nội dung")
+    return {"ok": True, "content_id": content_id}
+
+
+# ── Thống kê tổng quan (admin) ────────────────────────────────────────────────
+@router.get("/api/admin/stats")
+async def admin_overview_stats(_admin: dict = Depends(require_admin)):
+    def _count(conn, sql, params=()):
+        try:
+            return conn.execute(sql, params).fetchone()[0]
+        except Exception:
+            return 0
+
+    with get_db_connection() as conn:
+        users_total = _count(conn, "SELECT COUNT(*) FROM users")
+        users_admin = _count(conn, "SELECT COUNT(*) FROM users WHERE is_admin = 1")
+        users_active = _count(conn, "SELECT COUNT(*) FROM users WHERE is_active = 1")
+        families = _count(conn, "SELECT COUNT(*) FROM families")
+        conversations = _count(conn, "SELECT COUNT(*) FROM conversations")
+        exam_papers = _count(conn, "SELECT COUNT(*) FROM exam_papers")
+        exam_global = _count(conn, "SELECT COUNT(*) FROM exam_papers WHERE family_id IS NULL")
+        exam_sessions = _count(conn, "SELECT COUNT(*) FROM exam_sessions")
+        questions = _count(conn, "SELECT COUNT(*) FROM question_bank WHERE status = 'published'")
+        content_radio = _count(conn, "SELECT COUNT(*) FROM content_items WHERE type = 'radio'")
+        content_video = _count(conn, "SELECT COUNT(*) FROM content_items WHERE type = 'video'")
+        content_game = _count(conn, "SELECT COUNT(*) FROM content_items WHERE type = 'game'")
+        yt_family = _count(conn, "SELECT COUNT(*) FROM youtube_channels")
+
+    safety = sf.get_safety_stats(1)["counts"]
+    return {
+        "users": {"total": users_total, "admins": users_admin, "active": users_active},
+        "families": families,
+        "conversations": conversations,
+        "exams": {"papers": exam_papers, "global": exam_global, "sessions": exam_sessions, "questions": questions},
+        "content": {"radio": content_radio, "video": content_video, "game": content_game},
+        "youtube": {"global": len(youtube_lessons.list_global_channels()), "family": yt_family},
+        "safety": safety,
+    }
