@@ -49,6 +49,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `src/education/` | Curriculum schedule, flashcard sessions, progress tracking, homework classification, and basic language tutor; grammar checker is a placeholder. |
 | `src/emotion/` | Emotion analyzer, emotion journal, and emotion alert state. |
 | `src/entertainment/` | Story engine, music library, word quiz, and voice quiz logic backed by local resources. `youtube_lessons.py` fetches video lessons from an allowlist of educational YouTube channels (`resources/youtube_channels.json`) via YouTube Data API; off unless `YOUTUBE_API_KEY` is set, degrades to DB/mock content. |
+| `src/knowledge/` | `knowledge_client.py` — shared client for kid-safe external public APIs (no-key except NASA APOD which falls back to DEMO_KEY). Shared HTTP+timeout, TTL cache, and SafetyFilter on text output; never raises (errors → `ok:false`). Backs `knowledge_router.py`. |
 | `src/infrastructure/` | Auth/JWT helpers, SQLite database helpers, logging setup, notifier, session state/naming, and task manager. |
 | `src/living/` | Runtime-only Stage 1 living layer: state machine, micro moments, and audio-first proactive prompts. A recognized interaction creates a short recent-presence window; optional camera events may extend it. |
 | `src/memory/` | ChromaDB RAG manager plus smaller memory/progress placeholder or support files. |
@@ -68,6 +69,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `education_router.py` | Flashcard session routes, learning summary, vocabulary, and learning schedule routes. |
 | `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
 | `game_router.py` | Word quiz, voice quiz, game score routes, and Parent App radio/video/game metadata routes. `/api/entertainment/videos` merges live videos from the YouTube channel allowlist (when configured) into the DB content. |
+| `knowledge_router.py` | Read-only `/api/knowledge/*` (+ `/api/entertainment/jokes`) lookups over external public APIs — dictionary, country, number/math, trivia, books/gutenberg/poem/wiki, weather/ISS/APOD, animal & fun facts, jokes (safe-mode), Pokémon/Disney. Auth-gated; degrades to `ok:false` on source error. |
 | `motor_router.py` | Motor movement, joystick, dock/home, spin, and status routes. |
 | `music_router.py` | Music play/stop/pause/next/previous/shuffle/repeat/volume/status/playlist/lullaby routes. |
 | `ops_router.py` | Health check, Parent App root page, MJPEG camera stream, and tunnel helper code. |

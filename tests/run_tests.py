@@ -7616,6 +7616,127 @@ test("82.2  Tắt mặc định khi thiếu YOUTUBE_API_KEY (fetch trả [])",  
 test("82.3  Allowlist: chỉ nhận channel_id UC… hợp lệ, tags lowercase",        test_82_allowlist_validation)
 test("82.4  HTTP: /entertainment/videos merge video YouTube + dedup",          test_82_videos_endpoint_merges_youtube)
 
+# == GROUP 83: Knowledge APIs (no-key, safe, graceful) =====================
+print("\n[Group 83] Knowledge APIs — external sources, safe + graceful")
+
+
+def test_83_status_endpoint():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    headers = _phase44_headers("know", f"kn-{_uuid.uuid4().hex[:6]}")
+    client = TestClient(app)
+    r = client.get("/api/knowledge/status", headers=headers)
+    assert r.status_code == 200, f"status={r.status_code}"
+    body = r.json()
+    assert body["ok"] is True
+    assert "dictionary" in body["no_key_sources"]
+    assert "apod" in body["key_sources"]
+
+
+def test_83_dictionary_parse():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.knowledge import knowledge_client as kc
+    saved = kc._get_json
+    kc._cache.clear()
+    kc._get_json = lambda url, params=None, headers=None: [{
+        "word": "cat", "phonetic": "/kæt/",
+        "phonetics": [{"audio": "https://audio/cat.mp3"}],
+        "meanings": [{"partOfSpeech": "noun", "definitions": [{"definition": "a small animal"}]}],
+    }]
+    try:
+        headers = _phase44_headers("dict", f"dc-{_uuid.uuid4().hex[:6]}")
+        r = TestClient(app).get("/api/knowledge/dictionary?word=catxyz&lang=en", headers=headers)
+    finally:
+        kc._get_json = saved
+        kc._cache.clear()
+    b = r.json()
+    assert r.status_code == 200 and b["ok"] is True
+    assert b["word"] == "cat" and b["audio"] == "https://audio/cat.mp3"
+    assert b["meanings"][0]["part_of_speech"] == "noun"
+
+
+def test_83_joke_safe_mode_params():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.knowledge import knowledge_client as kc
+    calls = {}
+
+    def fake(url, params=None, headers=None):
+        calls["url"] = url
+        calls["params"] = params or {}
+        return {"type": "single", "joke": "Why did the kid bring a ladder? To reach high school."}
+
+    saved = kc._get_json
+    kc._cache.clear()
+    kc._get_json = fake
+    try:
+        headers = _phase44_headers("joke", f"jk-{_uuid.uuid4().hex[:6]}")
+        r = TestClient(app).get("/api/entertainment/jokes?type=single", headers=headers)
+    finally:
+        kc._get_json = saved
+        kc._cache.clear()
+    b = r.json()
+    assert r.status_code == 200 and b["ok"] is True
+    assert "ladder" in b["joke"]
+    # phải bật safe-mode + blacklist khi gọi JokeAPI
+    assert "safe-mode" in calls["params"], "JokeAPI phải có safe-mode"
+    assert "nsfw" in calls["params"].get("blacklistFlags", "")
+
+
+def test_83_graceful_on_error():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.knowledge import knowledge_client as kc
+
+    def boom(*a, **k):
+        raise RuntimeError("network down")
+
+    saved = kc._get_json
+    kc._cache.clear()
+    kc._get_json = boom
+    try:
+        headers = _phase44_headers("grace", f"gr-{_uuid.uuid4().hex[:6]}")
+        r = TestClient(app).get("/api/knowledge/country?name=Nowhereland", headers=headers)
+    finally:
+        kc._get_json = saved
+        kc._cache.clear()
+    # Nguồn lỗi -> KHÔNG 500; trả ok:false để FE fallback.
+    assert r.status_code == 200, f"phải 200 graceful, có {r.status_code}"
+    assert r.json()["ok"] is False
+
+
+def test_83_math_eval_text():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.knowledge import knowledge_client as kc
+    saved = kc._get_text
+    kc._cache.clear()
+    kc._get_text = lambda url, params=None: "4"
+    try:
+        headers = _phase44_headers("math", f"mt-{_uuid.uuid4().hex[:6]}")
+        r = TestClient(app).get("/api/knowledge/math?expr=2%2B2", headers=headers)
+    finally:
+        kc._get_text = saved
+        kc._cache.clear()
+    b = r.json()
+    assert r.status_code == 200 and b["ok"] is True and b["result"] == "4"
+
+
+def test_83_requires_auth():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    r = TestClient(app).get("/api/knowledge/iss")
+    assert r.status_code in (401, 403), f"phải chặn khi chưa đăng nhập, có {r.status_code}"
+
+
+test("83.1  /knowledge/status liệt kê nguồn no-key + nguồn cần key",            test_83_status_endpoint)
+test("83.2  Dictionary: parse định nghĩa + audio phát âm",                     test_83_dictionary_parse)
+test("83.3  JokeAPI: bật safe-mode + blacklist khi gọi",                       test_83_joke_safe_mode_params)
+test("83.4  Graceful: nguồn lỗi trả ok:false (không 500)",                     test_83_graceful_on_error)
+test("83.5  Math (MathJS) eval trả kết quả",                                   test_83_math_eval_text)
+test("83.6  Knowledge endpoints yêu cầu đăng nhập",                            test_83_requires_auth)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

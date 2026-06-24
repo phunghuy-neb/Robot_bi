@@ -57,6 +57,7 @@ from src.api.routers.eval_router import router as eval_router
 from src.api.routers.parent_chat_router import router as parent_chat_router
 from src.api.routers.learning_hub_router import router as learning_hub_router
 from src.api.routers.exam_router import router as exam_router
+from src.api.routers.knowledge_router import router as knowledge_router
 
 logger = logging.getLogger("api_server")
 
@@ -115,6 +116,7 @@ app.include_router(eval_router)
 app.include_router(parent_chat_router)
 app.include_router(learning_hub_router)
 app.include_router(exam_router)
+app.include_router(knowledge_router)
 app.include_router(persona_router)
 app.include_router(story_router)
 app.include_router(video_call_router)

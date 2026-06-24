@@ -15,6 +15,23 @@
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
+- **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
+  User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:
+  - `src/knowledge/knowledge_client.py` (MỚI): HTTP+timeout+cache TTL dùng chung, lọc text
+    qua `SafetyFilter`, **không bao giờ raise** (lỗi → `{"ok": false}`). Provider: dictionary,
+    country, number_fact, math (MathJS), trivia (OpenTDB, html-unescape, KHÔNG auto-seed),
+    books (Open Library), gutenberg (Gutendex), poem (PoetryDB), wiki, weather (Open-Meteo
+    geocode+forecast), iss (Open Notify), apod (NASA — `NASA_API_KEY` hoặc DEMO_KEY),
+    animal_fact (cat/dog), fun_fact, joke (JokeAPI **safe-mode + blacklist**), pokemon, disney.
+    Mọi call qua `_get_json`/`_get_text` (module-level) → test monkeypatch chạy offline.
+  - `src/api/routers/knowledge_router.py` (MỚI) + đăng ký trong `server.py`: 17 endpoint
+    `GET /api/knowledge/*` (+ `/api/entertainment/jokes`), đều `Depends(get_current_user)`.
+  - Test **Group 83** (6 test, stub HTTP): status, dictionary parse, joke safe-mode params,
+    graceful (lỗi→ok:false không 500), math eval, yêu-cầu-auth. Suite **652/652 PASS**.
+  - SYSTEM_MAP cập nhật. **Env tùy chọn**: `NASA_API_KEY` (mặc định DEMO_KEY),
+    `KNOWLEDGE_CACHE_TTL_SECONDS` (mặc định 1800). 16/17 nguồn no-key, dùng được ngay.
+  - **CÒN LẠI (tùy chọn)**: UI Parent App/Robot Display gọi các endpoint này; pipeline dịch
+    + nạp `trivia` vào `question_bank` (admin); Radio Browser (user chưa chọn — cần allowlist).
 - **Video lessons qua YouTube (allowlist kênh) — ✅ DONE (UNCOMMITTED phiên này):**
   Thay mock `mockVideoLessons` bằng nguồn thật từ YouTube nhưng AN TOÀN: chỉ lấy video từ
   DANH SÁCH KÊNH ĐÃ DUYỆT, không search mở.
