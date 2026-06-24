@@ -11,6 +11,14 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- 👉 **RESUME NGAY TẠI ĐÂY (bàn giao cho Codex/Claude, 2026-06-24)**: đang làm **Admin UI** theo
+  phase. **Đã xong + committed: Phase 1, 2, 3** (commit mới nhất `8cd0cd5`). **TIẾP THEO = Phase 4
+  (Kênh YouTube): admin sửa allowlist global + parent thêm kênh cho gia đình mình** (tận dụng
+  `scripts/resolve_youtube_channels.py` để tra channel_id). Toàn bộ code đã commit; test
+  `python tests/run_tests.py` = **669/669 PASS**; Vite build OK. Working tree chỉ còn 4 file docs
+  dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng.
+  Quyết định kiến trúc đã chốt với user (xem bullet "Admin UI" bên dưới). Lộ trình còn: P4 YouTube,
+  P5 An toàn, P6 (Radio/Video/Game, Knowledge toggle, Persona, Nhật ký, Thống kê).
 - **Active branch**: `003-web-search-integration`.
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
