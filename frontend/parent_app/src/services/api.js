@@ -696,6 +696,29 @@ export async function removeMyYoutubeChannel(channelId) {
   return apiFetch(`/api/entertainment/youtube/channels/${channelId}`, { method: 'DELETE' });
 }
 
+// —— Special Memories (Stage 2) — kỷ niệm đặc biệt, family-scoped ——
+export async function getSpecialMemories() {
+  const data = await apiFetch('/api/memories/special');
+  return data?.memories || [];
+}
+
+export async function addSpecialMemory({ title, kind = 'other', memory_date = '', note = '' }) {
+  return apiFetch('/api/memories/special', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, kind, memory_date, note }),
+  });
+}
+
+export async function deleteSpecialMemory(memoryId) {
+  return apiFetch(`/api/memories/special/${memoryId}`, { method: 'DELETE' });
+}
+
+// —— Radio Browser: admin tìm đài để duyệt (không phơi cho trẻ) ——
+export async function adminRadioSearch(q, limit = 15) {
+  const data = await apiFetch(`/api/admin/radio/search?q=${encodeURIComponent(q)}&limit=${limit}`);
+  return data?.stations || [];
+}
+
 // —— Knowledge: tra cứu API ngoài an toàn (auth-gated, degrade ok:false) ——
 export async function knowledgeQuery(name, params = {}) {
   const entries = Object.entries(params).filter(([, v]) => v !== '' && v != null);

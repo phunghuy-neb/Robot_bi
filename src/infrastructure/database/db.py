@@ -1631,6 +1631,21 @@ def init_db() -> None:
                 )
                 '''
             )
+            # special_memories: kỷ niệm đặc biệt theo gia đình (Stage 2) — sinh nhật,
+            # cột mốc, sở thích… robot ghi nhớ và có thể nhắc lại.
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS special_memories (
+                    memory_id TEXT PRIMARY KEY,
+                    family_id TEXT NOT NULL,
+                    kind TEXT NOT NULL DEFAULT 'other',
+                    title TEXT NOT NULL,
+                    memory_date TEXT NOT NULL DEFAULT '',
+                    note TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL
+                )
+                '''
+            )
             for index_sql in (
                 "CREATE INDEX IF NOT EXISTS idx_qbank_subject_track_status ON question_bank(subject, track, status)",
                 "CREATE INDEX IF NOT EXISTS idx_qbank_status ON question_bank(status)",
@@ -1641,6 +1656,7 @@ def init_db() -> None:
                 "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family ON exam_sessions(family_id, completed_at)",
                 "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family_paper ON exam_sessions(family_id, paper_id)",
                 "CREATE INDEX IF NOT EXISTS idx_youtube_channels_family ON youtube_channels(family_id)",
+                "CREATE INDEX IF NOT EXISTS idx_special_memories_family ON special_memories(family_id, created_at)",
             ):
                 conn.execute(index_sql)
 
@@ -2120,6 +2136,67 @@ def delete_family_youtube_channel(family_id: str, channel_id: str) -> bool:
         cur = conn.execute(
             "DELETE FROM youtube_channels WHERE family_id = ? AND channel_id = ?",
             (fid, cid),
+        )
+        conn.commit()
+    return cur.rowcount > 0
+
+
+_SPECIAL_MEMORY_KINDS = {"birthday", "milestone", "favorite", "other"}
+
+
+def _special_memory_to_dict(row) -> dict:
+    return {
+        "memory_id": row["memory_id"],
+        "kind": row["kind"],
+        "title": row["title"],
+        "memory_date": row["memory_date"],
+        "note": row["note"],
+        "created_at": row["created_at"],
+    }
+
+
+def list_special_memories(family_id: str) -> list[dict]:
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT memory_id, kind, title, memory_date, note, created_at
+            FROM special_memories WHERE family_id = ?
+            ORDER BY created_at DESC
+            """,
+            (fid,),
+        ).fetchall()
+    return [_special_memory_to_dict(r) for r in rows]
+
+
+def add_special_memory(family_id: str, title: str, kind: str = "other",
+                       memory_date: str = "", note: str = "") -> dict:
+    fid = _normalize_family_id(family_id)
+    k = kind if kind in _SPECIAL_MEMORY_KINDS else "other"
+    mid = uuid4().hex
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO special_memories
+                (memory_id, family_id, kind, title, memory_date, note, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (mid, fid, k, title.strip(), (memory_date or "").strip(), (note or "").strip(), _utc_now_iso()),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT memory_id, kind, title, memory_date, note, created_at FROM special_memories WHERE memory_id = ?",
+            (mid,),
+        ).fetchone()
+    return _special_memory_to_dict(row)
+
+
+def delete_special_memory(family_id: str, memory_id: str) -> bool:
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "DELETE FROM special_memories WHERE family_id = ? AND memory_id = ?",
+            (fid, str(memory_id)),
         )
         conn.commit()
     return cur.rowcount > 0

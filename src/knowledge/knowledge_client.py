@@ -404,6 +404,40 @@ def disney(name: str) -> dict:
     return _safe_call(f"disney:{name.lower()}", fetch)
 
 
+def radio_search(query: str, limit: int = 15) -> dict:
+    """Tìm đài radio trên radio-browser.info (CHO ADMIN duyệt thêm vào content_items).
+    KHÔNG phơi radio mở cho trẻ: chỉ trả ứng viên để admin xem xét. Lọc tên qua
+    SafetyFilter (bỏ tên không an toàn). Degrade mượt (lỗi → ok:false)."""
+    q = (query or "").strip()
+    if not q:
+        return {"ok": False, "error": "missing query"}
+    limit = max(1, min(int(limit or 15), 40))
+
+    def fetch():
+        rows = _get_json(
+            "https://de1.api.radio-browser.info/json/stations/search",
+            params={"name": q, "limit": limit, "hidebroken": "true", "order": "votes", "reverse": "true"},
+            headers={"User-Agent": "RobotBi/1.0"},
+        )
+        stations = []
+        for r in rows or []:
+            name = _clean(r.get("name", ""))  # SafetyFilter — tên không an toàn → bỏ
+            url = r.get("url_resolved") or r.get("url") or ""
+            if not name or not url:
+                continue
+            stations.append({
+                "name": name,
+                "url": url,
+                "country": r.get("country", ""),
+                "tags": [t for t in (r.get("tags", "") or "").split(",") if t][:6],
+                "favicon": r.get("favicon", ""),
+                "codec": r.get("codec", ""),
+            })
+        return {"stations": stations}
+
+    return _safe_call(f"radio_search:{q.lower()}:{limit}", fetch)
+
+
 def status() -> dict:
     """Liệt kê nguồn + nguồn nào cần key (không lộ key)."""
     return {

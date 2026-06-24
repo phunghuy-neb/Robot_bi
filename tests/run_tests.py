@@ -8607,6 +8607,106 @@ test("91.1  RBAC: non-admin bị chặn persona admin",                         
 test("91.2  Set persona global + gia đình mới kế thừa, gia đình cũ giữ riêng", test_91_set_and_inherit)
 test("91.3  Persona không hợp lệ / rỗng → 422",                              test_91_invalid_422)
 
+# == GROUP 92: Special Memories (Stage 2) ===================================
+print("\n[Group 92] Kỷ niệm đặc biệt — family-scoped + RAG best-effort")
+
+
+def test_92_crud_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("smA", f"smA-{_uuid.uuid4().hex[:6]}", False)
+    _, hb = _admin_mk_user("smB", f"smB-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    r = client.post("/api/memories/special",
+                    json={"title": "Sinh nhật bé Na", "kind": "birthday", "memory_date": "12/03", "note": "thích bánh kem"},
+                    headers=ha)
+    assert r.status_code == 200 and r.json()["ok"] is True, r.text
+    mid = r.json()["memory"]["memory_id"]
+    a_list = client.get("/api/memories/special", headers=ha).json()["memories"]
+    assert mid in [m["memory_id"] for m in a_list] and a_list[0]["kind"] == "birthday"
+    # cô lập gia đình
+    b_list = client.get("/api/memories/special", headers=hb).json()["memories"]
+    assert mid not in [m["memory_id"] for m in b_list], "gia đình B không được thấy kỷ niệm của A"
+    # B không xóa được của A (404 vì family-scoped)
+    assert client.delete(f"/api/memories/special/{mid}", headers=hb).status_code == 404
+    # A xóa được
+    assert client.delete(f"/api/memories/special/{mid}", headers=ha).status_code == 200
+    assert client.delete(f"/api/memories/special/{mid}", headers=ha).status_code == 404
+
+
+def test_92_kind_normalized_and_validation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("smk", f"smk-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    # kind lạ → chuẩn hóa về 'other'
+    r = client.post("/api/memories/special", json={"title": "X", "kind": "weird"}, headers=ha)
+    assert r.status_code == 200 and r.json()["memory"]["kind"] == "other"
+    # thiếu title → 422
+    assert client.post("/api/memories/special", json={"kind": "other"}, headers=ha).status_code == 422
+
+
+test("92.1  CRUD kỷ niệm + cô lập gia đình",                                  test_92_crud_and_isolation)
+test("92.2  kind chuẩn hóa về 'other' + thiếu title 422",                    test_92_kind_normalized_and_validation)
+
+# == GROUP 93: Radio Browser search + TTS offline ===========================
+print("\n[Group 93] Radio Browser (admin) + TTS offline switch")
+
+
+def test_93_radio_search_safe():
+    # kc.radio_search: stub HTTP, SafetyFilter bỏ tên không an toàn.
+    from src.knowledge import knowledge_client as kc
+    saved = kc._get_json
+    kc._get_json = lambda url, params=None, headers=None: [
+        {"name": "Kids Classical Radio", "url_resolved": "http://a/stream", "country": "VN", "tags": "kids,classical"},
+        {"name": "chiến tranh và vũ khí FM", "url": "http://b/stream", "country": "X", "tags": "news"},
+        {"name": "No URL Station", "url": "", "url_resolved": "", "country": "Y", "tags": ""},
+    ]
+    try:
+        out = kc.radio_search("kids", 10)
+    finally:
+        kc._get_json = saved
+    names = [s["name"] for s in out.get("stations", [])]
+    assert "Kids Classical Radio" in names, out
+    assert all("chiến tranh" not in n for n in names), "tên không an toàn phải bị bỏ"
+    assert all(s["url"] for s in out["stations"]), "đài không URL phải bị bỏ"
+
+
+def test_93_radio_search_rbac():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, hn = _admin_mk_user("rbusr", f"rbusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    assert client.get("/api/admin/radio/search?q=kids", headers=hn).status_code == 403
+
+
+def test_93_tts_offline_switch():
+    import os as _os
+    import asyncio as _asyncio
+    from src.audio.output.mouth_tts import MouthTTS, _tts_offline_only
+    saved_off = _os.environ.get("TTS_OFFLINE")
+    saved_eng = _os.environ.get("TTS_ENGINE")
+    try:
+        _os.environ.pop("TTS_OFFLINE", None); _os.environ.pop("TTS_ENGINE", None)
+        assert _tts_offline_only() is False
+        _os.environ["TTS_OFFLINE"] = "true"; assert _tts_offline_only() is True
+        _os.environ.pop("TTS_OFFLINE"); _os.environ["TTS_ENGINE"] = "pyttsx3"
+        assert _tts_offline_only() is True
+        # _generate_audio short-circuit sang pyttsx3 (không gọi edge-tts/mạng)
+        tts = MouthTTS()
+        tts._fallback_tts = lambda text, ci: "OFFLINE_SENTINEL"
+        out = _asyncio.run(tts._generate_audio("hello", 0))
+        assert out == "OFFLINE_SENTINEL", f"offline mode phải dùng fallback, có {out}"
+    finally:
+        _os.environ.pop("TTS_OFFLINE", None); _os.environ.pop("TTS_ENGINE", None)
+        if saved_off is not None: _os.environ["TTS_OFFLINE"] = saved_off
+        if saved_eng is not None: _os.environ["TTS_ENGINE"] = saved_eng
+
+
+test("93.1  radio_search: SafetyFilter bỏ tên xấu/đài thiếu URL",            test_93_radio_search_safe)
+test("93.2  /api/admin/radio/search RBAC (non-admin 403)",                   test_93_radio_search_rbac)
+test("93.3  TTS_OFFLINE/TTS_ENGINE → dùng pyttsx3 (short-circuit edge-tts)",  test_93_tts_offline_switch)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

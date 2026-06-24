@@ -35,12 +35,15 @@ from src.infrastructure.auth.auth import get_current_user
 from src.api.routers.conversation_router import _require_family
 from src.safety.safety_filter import get_global_policy
 from src.infrastructure.database.db import (
+    add_special_memory,
     create_parent_event_note,
     delete_parent_event_note,
+    delete_special_memory,
     ensure_family_exists,
     event_exists_for_family,
     get_db_connection,
     list_parent_event_notes,
+    list_special_memories,
     update_parent_event_note,
 )
 import src.infrastructure.sessions.state as _state
@@ -57,6 +60,13 @@ class MemoryIn(BaseModel):
 
 class MemoryUpdate(BaseModel):
     text: str
+
+
+class SpecialMemoryIn(BaseModel):
+    title: str = Field(..., min_length=1, max_length=160)
+    kind: str = Field(default="other", max_length=20)
+    memory_date: str = Field(default="", max_length=40)
+    note: str = Field(default="", max_length=500)
 
 
 class PuppetIn(BaseModel):
@@ -1478,6 +1488,50 @@ async def export_memories(current_user: dict = Depends(get_current_user)):
     if not _state._rag:
         return []
     return _state._rag.export_memories(family_id=family_id)
+
+
+# ── Special Memories (Stage 2) — kỷ niệm có cấu trúc, family-scoped ───────────
+# Khai báo TRƯỚC /{memory_id} để literal path không bị capture.
+_SPECIAL_KIND_LABELS = {
+    "birthday": "sinh nhật", "milestone": "cột mốc",
+    "favorite": "sở thích", "other": "kỷ niệm",
+}
+
+
+@router.get("/api/memories/special")
+async def list_special(current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(current_user)
+    return {"memories": list_special_memories(family_id)}
+
+
+@router.post("/api/memories/special")
+async def add_special(body: SpecialMemoryIn, current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(current_user)
+    mem = add_special_memory(
+        family_id, body.title, kind=body.kind,
+        memory_date=body.memory_date, note=body.note,
+    )
+    # Nạp vào RAG (best-effort) để robot có thể nhắc lại trong hội thoại.
+    if _state._rag:
+        try:
+            label = _SPECIAL_KIND_LABELS.get(mem["kind"], "kỷ niệm")
+            parts = [f"Kỷ niệm đặc biệt ({label}): {mem['title']}"]
+            if mem["memory_date"]:
+                parts.append(f"ngày {mem['memory_date']}")
+            if mem["note"]:
+                parts.append(mem["note"])
+            _state._rag.add_manual_memory(". ".join(parts), source="special", family_id=family_id)
+        except Exception:
+            logger.warning("[SpecialMemory] không nạp được vào RAG (bỏ qua)")
+    return {"ok": True, "memory": mem}
+
+
+@router.delete("/api/memories/special/{memory_id}")
+async def remove_special(memory_id: str, current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(current_user)
+    if not delete_special_memory(family_id, memory_id):
+        raise HTTPException(404, "Không tìm thấy kỷ niệm")
+    return {"ok": True, "memory_id": memory_id}
 
 
 @router.put("/api/memories/{memory_id}")

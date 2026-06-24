@@ -630,3 +630,16 @@ async def set_global_persona(body: GlobalPersonaIn, _admin: dict = Depends(requi
     if not manager.save(updates):
         raise HTTPException(status_code=422, detail="Persona không hợp lệ")
     return {"ok": True, "persona": manager.get_persona()}
+
+
+# ── Radio Browser: tìm đài để admin DUYỆT thêm vào nội dung (admin) ────────────
+@router.get("/api/admin/radio/search")
+async def admin_radio_search(
+    q: str = Query(..., min_length=1, max_length=80),
+    limit: int = Query(15, ge=1, le=40),
+    _admin: dict = Depends(require_admin),
+):
+    """Tìm ứng viên đài radio (radio-browser.info) để admin xem xét rồi tự thêm vào
+    /api/admin/content (type=radio). KHÔNG tự thêm — admin là người duyệt cuối."""
+    from src.knowledge import knowledge_client as kc
+    return kc.radio_search(q, limit)

@@ -37,6 +37,7 @@ TOGGLES = [
     {"name": "CAMERA_ENABLED",         "label": "Camera",                     "needs_restart": True},
     {"name": "CRY_DETECTION_ENABLED",  "label": "Phát hiện tiếng khóc",       "needs_restart": True},
     {"name": "KNOWLEDGE_ENABLED",      "label": "API tri thức",               "needs_restart": False},
+    {"name": "TTS_OFFLINE",            "label": "TTS offline (pyttsx3)",      "needs_restart": True},
 ]
 
 _PUBLIC_KEY_NAMES = {k["name"] for k in PUBLIC_KEYS}

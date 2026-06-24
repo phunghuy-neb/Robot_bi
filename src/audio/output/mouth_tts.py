@@ -34,6 +34,15 @@ import pygame
 _AUDIO_BACKEND_ERRORS = (pygame.error, OSError, RuntimeError)
 
 
+def _tts_offline_only() -> bool:
+    """True nếu cấu hình ép TTS chạy HOÀN TOÀN offline (pyttsx3), bỏ qua edge-tts.
+    Bật bằng `TTS_OFFLINE=true` hoặc `TTS_ENGINE=pyttsx3|offline` trong .env.
+    Đọc tại thời điểm gọi → đổi cấu hình + restart robot là có hiệu lực."""
+    if os.getenv("TTS_OFFLINE", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return True
+    return os.getenv("TTS_ENGINE", "").strip().lower() in {"pyttsx3", "offline"}
+
+
 class MouthTTS:
     def __init__(self):
         self.voice = "vi-VN-HoaiMyNeural"
@@ -98,6 +107,9 @@ class MouthTTS:
         Returns:
             Đường dẫn file MP3/WAV đã generate, hoặc None nếu cả hai TTS đều fail.
         """
+        # Chế độ offline-only: dùng thẳng pyttsx3, không gọi edge-tts (cần internet).
+        if _tts_offline_only():
+            return self._fallback_tts(text, chunk_index)
         filename = f"voice_chunk_{chunk_index}.mp3"
         for attempt in range(3):
             try:

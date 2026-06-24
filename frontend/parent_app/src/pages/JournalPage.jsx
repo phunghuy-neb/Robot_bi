@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getConversations, getConversation, getMonthlyEmotions, exportReport, showToast } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
 import FeatureBadge from '../components/FeatureBadge.jsx';
+import SpecialMemories from '../components/SpecialMemories.jsx';
 
 function fmtTime(ts) {
   if (!ts) return '';
@@ -102,6 +103,9 @@ export default function JournalPage() {
       </div>
 
       <div className="page-body">
+        {/* Kỷ niệm đặc biệt (Stage 2) */}
+        <SpecialMemories />
+
         {/* Filter bar */}
         <div className="filter-bar">
           <div className="pill-tabs">

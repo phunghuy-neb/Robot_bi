@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  adminListContent, adminCreateContent, adminUpdateContent, adminDeleteContent, showToast,
+  adminListContent, adminCreateContent, adminUpdateContent, adminDeleteContent,
+  adminRadioSearch, showToast,
 } from '../../services/api.js';
 
 const TYPES = [
@@ -23,6 +24,9 @@ export default function ContentAdminPage() {
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [radioQ, setRadioQ] = useState('');
+  const [radioResults, setRadioResults] = useState(null);
+  const [radioSearching, setRadioSearching] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,6 +63,25 @@ export default function ContentAdminPage() {
   async function toggleEnabled(it) {
     const res = await adminUpdateContent(it.content_id, { ...it, enabled: !it.enabled, tags: it.tags });
     if (res?.ok) load();
+  }
+
+  async function searchRadio(e) {
+    e?.preventDefault?.();
+    if (!radioQ.trim()) return;
+    setRadioSearching(true);
+    setRadioResults(await adminRadioSearch(radioQ.trim()));
+    setRadioSearching(false);
+  }
+
+  function useStation(st) {
+    setEditId(null);
+    setForm({
+      type: 'radio', title: st.name, description: st.country || '',
+      source_url: st.url, thumbnail_url: st.favicon || '', age_min: 5, age_max: 12,
+      language: 'vi', tags: (st.tags || []).join(', '), enabled: true, sort_order: 0,
+    });
+    showToast('Đã điền vào form — kiểm tra rồi bấm Thêm');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function del(it) {
@@ -101,6 +124,38 @@ export default function ContentAdminPage() {
           {editId && <button type="button" onClick={resetForm} style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: 'transparent', cursor: 'pointer' }}>Hủy</button>}
         </div>
       </form>
+
+      {/* Radio Browser — tìm đài để duyệt rồi điền vào form bên trên */}
+      <details style={{ ...card, marginBottom: 16 }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>🔎 Tìm đài radio (Radio Browser)</summary>
+        <p style={{ fontSize: 12, color: 'var(--muted,#64748b)', margin: '8px 0' }}>
+          Tìm ứng viên đài; bấm "Dùng" để điền vào form ở trên — bạn duyệt & lưu thủ công (an toàn cho trẻ).
+        </p>
+        <form onSubmit={searchRadio} style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          <input style={{ ...inp, flex: 1 }} value={radioQ} placeholder="VD: kids, classical, lullaby…"
+            onChange={e => setRadioQ(e.target.value)} />
+          <button type="submit" disabled={radioSearching} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+            {radioSearching ? 'Đang tìm…' : 'Tìm'}
+          </button>
+        </form>
+        {radioResults != null && (radioResults.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--muted,#64748b)' }}>Không tìm thấy đài phù hợp.</div>
+        ) : (
+          <div style={{ display: 'grid', gap: 6 }}>
+            {radioResults.map((st, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 8, background: 'var(--bg,#f5f6fa)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{st.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted,#64748b)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {[st.country, (st.tags || []).slice(0, 3).join(', ')].filter(Boolean).join(' · ')}
+                  </div>
+                </div>
+                <button onClick={() => useStation(st)} style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: 'transparent', cursor: 'pointer', fontSize: 12, whiteSpace: 'nowrap' }}>Dùng</button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </details>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <button onClick={() => setFilter('')} style={chip(filter === '')}>Tất cả</button>
