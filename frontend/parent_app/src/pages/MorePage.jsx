@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { apiFetch, getRadioChannels, getVideoLessons, getInteractiveGames, showToast } from '../services/api.js';
+import { apiFetch, getRadioChannels, getVideoLessons, getInteractiveGames, showToast,
+  getMyYoutubeChannels, addMyYoutubeChannel, removeMyYoutubeChannel } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
 import FeatureBadge from '../components/FeatureBadge.jsx';
+import YouTubeChannelManager from '../components/YouTubeChannelManager.jsx';
 
 const DEMO_SONGS = {
   kids_vn: [{ title: 'Cá vàng bơi', artist: 'Nhạc thiếu nhi VN', icon: '🐠' }, { title: 'Đàn vịt con', artist: 'Nhạc thiếu nhi VN', icon: '🦆' }],
@@ -19,6 +21,7 @@ export default function MorePage() {
   const [radioChannels, setRadioChannels] = useState([]);
   const [videoLessons, setVideoLessons] = useState([]);
   const [games, setGames] = useState([]);
+  const [showYtManager, setShowYtManager] = useState(false);
 
   useEffect(() => {
     loadRadio();
@@ -215,6 +218,28 @@ export default function MorePage() {
                 </button>
               </div>
             ))
+          )}
+        </div>
+
+        {/* Kênh YouTube của gia đình — phụ huynh tự thêm */}
+        <div className="card">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="card-title">📺 Kênh YouTube của gia đình</span>
+            <button className="btn-sm secondary" onClick={() => setShowYtManager(v => !v)}>
+              {showYtManager ? 'Thu gọn' : 'Quản lý'}
+            </button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--muted,#64748b)', padding: '0 4px 8px' }}>
+            Thêm kênh giáo dục bạn tin tưởng — chỉ <b>gia đình bạn</b> thấy video từ các kênh này.
+            Lấy Channel ID (UC…): mở kênh → <b>Share channel</b> → <b>Copy channel ID</b>.
+          </div>
+          {showYtManager && (
+            <YouTubeChannelManager
+              loadFn={getMyYoutubeChannels}
+              addFn={addMyYoutubeChannel}
+              removeFn={removeMyYoutubeChannel}
+              accent="#7c3aed"
+            />
           )}
         </div>
 

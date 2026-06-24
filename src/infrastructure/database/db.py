@@ -1613,6 +1613,24 @@ def init_db() -> None:
                 )
                 '''
             )
+            # youtube_channels: kênh YouTube DUYỆT theo gia đình (allowlist global
+            # giữ ở resources/youtube_channels.json; bảng này chỉ cho kênh family thêm).
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS youtube_channels (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    family_id TEXT NOT NULL,
+                    channel_id TEXT NOT NULL,
+                    label TEXT NOT NULL DEFAULT '',
+                    language TEXT NOT NULL DEFAULT 'vi',
+                    age_min INTEGER NOT NULL DEFAULT 5,
+                    age_max INTEGER NOT NULL DEFAULT 12,
+                    tags_json TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL,
+                    UNIQUE(family_id, channel_id)
+                )
+                '''
+            )
             for index_sql in (
                 "CREATE INDEX IF NOT EXISTS idx_qbank_subject_track_status ON question_bank(subject, track, status)",
                 "CREATE INDEX IF NOT EXISTS idx_qbank_status ON question_bank(status)",
@@ -1622,6 +1640,7 @@ def init_db() -> None:
                 "CREATE INDEX IF NOT EXISTS idx_exam_pq_paper ON exam_paper_questions(paper_id, order_index)",
                 "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family ON exam_sessions(family_id, completed_at)",
                 "CREATE INDEX IF NOT EXISTS idx_exam_sessions_family_paper ON exam_sessions(family_id, paper_id)",
+                "CREATE INDEX IF NOT EXISTS idx_youtube_channels_family ON youtube_channels(family_id)",
             ):
                 conn.execute(index_sql)
 
@@ -2020,6 +2039,90 @@ def create_family_record(family_id: str, display_name: str | None = None) -> dic
         if cur.rowcount == 0:
             return None
     return {"family_id": fid, "display_name": label}
+
+
+def _youtube_row_to_dict(row) -> dict:
+    try:
+        tags = json.loads(row["tags_json"] or "[]")
+        if not isinstance(tags, list):
+            tags = []
+    except Exception:
+        tags = []
+    return {
+        "channel_id": row["channel_id"],
+        "label": row["label"] or "",
+        "language": (row["language"] or "vi"),
+        "age_min": row["age_min"],
+        "age_max": row["age_max"],
+        "tags": [str(t).lower() for t in tags],
+        "created_at": row["created_at"],
+        "scope": "family",
+    }
+
+
+def list_family_youtube_channels(family_id: str) -> list[dict]:
+    """Kênh YouTube duyệt riêng cho 1 gia đình (không gồm allowlist global)."""
+    fid = _normalize_family_id(family_id)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT channel_id, label, language, age_min, age_max, tags_json, created_at
+            FROM youtube_channels WHERE family_id = ?
+            ORDER BY created_at ASC, id ASC
+            """,
+            (fid,),
+        ).fetchall()
+    return [_youtube_row_to_dict(r) for r in rows]
+
+
+def add_family_youtube_channel(
+    family_id: str,
+    channel_id: str,
+    label: str = "",
+    language: str = "vi",
+    age_min: int = 5,
+    age_max: int = 12,
+    tags: list | None = None,
+) -> dict:
+    """Thêm/cập nhật 1 kênh cho gia đình (UNIQUE family_id+channel_id → upsert)."""
+    fid = _normalize_family_id(family_id)
+    cid = str(channel_id or "").strip()
+    tags_norm = [str(t).lower() for t in (tags or [])]
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO youtube_channels
+                (family_id, channel_id, label, language, age_min, age_max, tags_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(family_id, channel_id) DO UPDATE SET
+                label=excluded.label, language=excluded.language,
+                age_min=excluded.age_min, age_max=excluded.age_max,
+                tags_json=excluded.tags_json
+            """,
+            (fid, cid, (label or "").strip(), (language or "vi").strip().lower() or "vi",
+             int(age_min), int(age_max), json.dumps(tags_norm, ensure_ascii=False), _utc_now_iso()),
+        )
+        conn.commit()
+        row = conn.execute(
+            """
+            SELECT channel_id, label, language, age_min, age_max, tags_json, created_at
+            FROM youtube_channels WHERE family_id = ? AND channel_id = ?
+            """,
+            (fid, cid),
+        ).fetchone()
+    return _youtube_row_to_dict(row)
+
+
+def delete_family_youtube_channel(family_id: str, channel_id: str) -> bool:
+    fid = _normalize_family_id(family_id)
+    cid = str(channel_id or "").strip()
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "DELETE FROM youtube_channels WHERE family_id = ? AND channel_id = ?",
+            (fid, cid),
+        )
+        conn.commit()
+    return cur.rowcount > 0
 
 
 def event_exists_for_family(family_id: str, event_id: str) -> bool:

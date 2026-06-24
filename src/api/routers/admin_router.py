@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from src.config import env_admin
+from src.entertainment.youtube_lessons import youtube_lessons
 from src.infrastructure.auth.auth import get_current_user, hash_password
 from src.infrastructure.database.db import (
     create_family_record,
@@ -322,3 +323,40 @@ async def set_toggle(name: str, body: ToggleValue, _admin: dict = Depends(requir
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"ok": True, "name": name, "enabled": body.enabled}
+
+
+# ── YouTube: allowlist GLOBAL (admin — mọi gia đình thấy) ──────────────────────
+class GlobalYouTubeChannel(BaseModel):
+    channel_id: str = Field(..., min_length=10, max_length=64)
+    label: str = Field(default="", max_length=120)
+    language: str = Field(default="vi", max_length=20)
+    age_min: int = Field(default=5, ge=0, le=18)
+    age_max: int = Field(default=12, ge=0, le=18)
+    tags: list[str] = Field(default_factory=list, max_length=12)
+
+
+@router.get("/api/admin/youtube/channels")
+async def admin_list_global_channels(_admin: dict = Depends(require_admin)):
+    """Allowlist kênh YouTube GLOBAL (mọi gia đình đều thấy video từ các kênh này)."""
+    return {
+        "channels": youtube_lessons.list_global_channels(),
+        "available": youtube_lessons.available,
+        "enabled": youtube_lessons.enabled,
+        "has_key": youtube_lessons._has_key,
+    }
+
+
+@router.post("/api/admin/youtube/channels")
+async def admin_add_global_channel(body: GlobalYouTubeChannel, _admin: dict = Depends(require_admin)):
+    try:
+        channel = youtube_lessons.add_global_channel(body.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return {"ok": True, "channel": channel}
+
+
+@router.delete("/api/admin/youtube/channels/{channel_id}")
+async def admin_remove_global_channel(channel_id: str, _admin: dict = Depends(require_admin)):
+    if not youtube_lessons.remove_global_channel(channel_id):
+        raise HTTPException(status_code=404, detail="Không tìm thấy kênh trong allowlist global")
+    return {"ok": True, "channel_id": channel_id.strip()}

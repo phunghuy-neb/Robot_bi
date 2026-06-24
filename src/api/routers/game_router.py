@@ -4,13 +4,19 @@ import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from src.api.routers.conversation_router import _require_family
 from src.entertainment.game_voice_quiz import VoiceQuizGame
 from src.entertainment.game_word_quiz import WordQuizGame
 from src.entertainment.youtube_lessons import youtube_lessons
 from src.infrastructure.auth.auth import get_current_user
-from src.infrastructure.database.db import get_db_connection
+from src.infrastructure.database.db import (
+    add_family_youtube_channel,
+    delete_family_youtube_channel,
+    get_db_connection,
+    list_family_youtube_channels,
+)
 
 router = APIRouter()
 _word_games: dict[str, WordQuizGame] = {}
@@ -171,10 +177,20 @@ def _augment_with_youtube(
     """Merge live video từ allowlist kênh YouTube vào danh sách video DB.
     No-op khi YouTube tắt/không cấu hình; dedup theo source_url; áp cùng
     bộ lọc chủ đề (blocked/allowed) như nội dung DB."""
-    if not youtube_lessons.enabled:
+    if not youtube_lessons.available:
         return items
     try:
-        yt = youtube_lessons.fetch_videos(language=language, min_age=min_age, max_age=max_age)
+        family_channels = list_family_youtube_channels(family_id)
+    except Exception:
+        family_channels = []
+    # No-op khi không có kênh nào (global rỗng + family rỗng).
+    if not youtube_lessons.list_global_channels() and not family_channels:
+        return items
+    try:
+        yt = youtube_lessons.fetch_videos(
+            language=language, min_age=min_age, max_age=max_age,
+            extra_channels=family_channels,
+        )
     except Exception:  # YouTube không bao giờ được phép làm hỏng endpoint
         return items
     if not yt:
@@ -190,6 +206,56 @@ def _augment_with_youtube(
         items.append(v)
         seen.add(v.get("source_url"))
     return items
+
+
+# ── Kênh YouTube của gia đình (parent tự thêm — chỉ gia đình mình thấy) ───────
+_MAX_FAMILY_CHANNELS = 30
+
+
+class FamilyYouTubeChannel(BaseModel):
+    channel_id: str = Field(..., min_length=10, max_length=64)
+    label: str = Field(default="", max_length=120)
+    language: str = Field(default="vi", max_length=20)
+    age_min: int = Field(default=5, ge=0, le=18)
+    age_max: int = Field(default=12, ge=0, le=18)
+    tags: list[str] = Field(default_factory=list, max_length=12)
+
+
+@router.get("/api/entertainment/youtube/channels")
+async def list_my_youtube_channels(current_user: dict = Depends(get_current_user)):
+    """Danh sách kênh YouTube DUYỆT riêng cho gia đình hiện tại."""
+    family_id = _require_family(current_user)
+    return {
+        "channels": list_family_youtube_channels(family_id),
+        "global_count": len(youtube_lessons.list_global_channels()),
+        "available": youtube_lessons.available,
+    }
+
+
+@router.post("/api/entertainment/youtube/channels")
+async def add_my_youtube_channel(
+    body: FamilyYouTubeChannel, current_user: dict = Depends(get_current_user)
+):
+    """Parent thêm 1 kênh cho gia đình mình (chỉ gia đình này thấy video kênh đó)."""
+    family_id = _require_family(current_user)
+    cid = body.channel_id.strip()
+    if not cid.startswith("UC") or len(cid) < 10:
+        raise HTTPException(status_code=422, detail="channel_id phải bắt đầu bằng UC… (mở kênh → Share → Copy channel ID)")
+    existing = list_family_youtube_channels(family_id)
+    if len(existing) >= _MAX_FAMILY_CHANNELS and cid not in {c["channel_id"] for c in existing}:
+        raise HTTPException(status_code=400, detail=f"Tối đa {_MAX_FAMILY_CHANNELS} kênh mỗi gia đình")
+    channel = add_family_youtube_channel(
+        family_id, cid, body.label, body.language, body.age_min, body.age_max, body.tags
+    )
+    return {"ok": True, "channel": channel}
+
+
+@router.delete("/api/entertainment/youtube/channels/{channel_id}")
+async def delete_my_youtube_channel(channel_id: str, current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(current_user)
+    if not delete_family_youtube_channel(family_id, channel_id.strip()):
+        raise HTTPException(status_code=404, detail="Không tìm thấy kênh của gia đình")
+    return {"ok": True, "channel_id": channel_id.strip()}
 
 
 @router.get("/api/entertainment/radio")

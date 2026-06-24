@@ -8079,6 +8079,120 @@ test("86.4  Câu hỏi sai (đáp án ∉ options) → 422",                    
 test("86.5  Quyền xóa: của mình OK, của người khác/pack 403",                  test_86_delete_permissions)
 test("86.6  Admin list papers RBAC",                                          test_86_admin_papers_rbac)
 
+# == GROUP 87: YouTube channels — admin global + parent family ==============
+print("\n[Group 87] Kênh YouTube — admin global allowlist + parent gia đình")
+
+
+def test_87_family_add_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    famA, famB = f"ytA-{_uuid.uuid4().hex[:6]}", f"ytB-{_uuid.uuid4().hex[:6]}"
+    _, ha = _admin_mk_user("ytcA", famA, False)
+    _, hb = _admin_mk_user("ytcB", famB, False)
+    client = TestClient(app)
+    cid = "UC" + _uuid.uuid4().hex[:14]
+    r = client.post("/api/entertainment/youtube/channels",
+                    json={"channel_id": cid, "label": "Kênh của A", "tags": ["Math"]}, headers=ha)
+    assert r.status_code == 200 and r.json()["channel"]["channel_id"] == cid
+    assert r.json()["channel"]["tags"] == ["math"], "tags phải lowercase"
+    a_list = client.get("/api/entertainment/youtube/channels", headers=ha).json()["channels"]
+    assert cid in [c["channel_id"] for c in a_list]
+    b_list = client.get("/api/entertainment/youtube/channels", headers=hb).json()["channels"]
+    assert cid not in [c["channel_id"] for c in b_list], "gia đình B không được thấy kênh của A"
+
+
+def test_87_family_invalid_channel_422():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("ytinv", f"ytinv-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    r = client.post("/api/entertainment/youtube/channels",
+                    json={"channel_id": "NOTUCXXXXXX", "label": "bad"}, headers=ha)
+    assert r.status_code == 422, f"channel_id không UC… phải 422, có {r.status_code}"
+
+
+def test_87_family_delete_and_upsert():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    _, ha = _admin_mk_user("ytdel", f"ytdel-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    cid = "UC" + _uuid.uuid4().hex[:14]
+    client.post("/api/entertainment/youtube/channels", json={"channel_id": cid, "label": "v1"}, headers=ha)
+    # upsert: thêm lại cùng channel_id → cập nhật label, KHÔNG nhân đôi
+    client.post("/api/entertainment/youtube/channels", json={"channel_id": cid, "label": "v2"}, headers=ha)
+    chans = client.get("/api/entertainment/youtube/channels", headers=ha).json()["channels"]
+    same = [c for c in chans if c["channel_id"] == cid]
+    assert len(same) == 1 and same[0]["label"] == "v2", "upsert: 1 kênh, label cập nhật"
+    assert client.delete(f"/api/entertainment/youtube/channels/{cid}", headers=ha).status_code == 200
+    assert client.delete(f"/api/entertainment/youtube/channels/{cid}", headers=ha).status_code == 404, "xóa lại phải 404"
+
+
+def test_87_admin_global_crud_rbac():
+    import json as _json
+    import tempfile
+    from pathlib import Path
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.entertainment import youtube_lessons as ytmod
+    _, hadm = _admin_mk_user("ytgadm", f"ytgadm-{_uuid.uuid4().hex[:6]}", True)
+    _, hn = _admin_mk_user("ytgusr", f"ytgusr-{_uuid.uuid4().hex[:6]}", False)
+    client = TestClient(app)
+    # non-admin bị chặn
+    assert client.get("/api/admin/youtube/channels", headers=hn).status_code == 403
+    # redirect allowlist sang file tạm để KHÔNG đụng resources/youtube_channels.json thật
+    tmp = Path(tempfile.mkdtemp()) / "ch.json"
+    tmp.write_text(_json.dumps({"channels": []}), encoding="utf-8")
+    saved_path = ytmod._CHANNELS_PATH
+    ytmod._CHANNELS_PATH = tmp
+    ytmod.youtube_lessons.reload()
+    try:
+        cid = "UC" + _uuid.uuid4().hex[:14]
+        r = client.post("/api/admin/youtube/channels",
+                        json={"channel_id": cid, "label": "Global", "tags": ["Science"]}, headers=hadm)
+        assert r.status_code == 200 and r.json()["channel"]["channel_id"] == cid
+        lst = client.get("/api/admin/youtube/channels", headers=hadm).json()["channels"]
+        assert cid in [c["channel_id"] for c in lst] and lst[0]["scope"] == "global"
+        # channel_id sai → 422
+        assert client.post("/api/admin/youtube/channels", json={"channel_id": "BADCHANNEL0"}, headers=hadm).status_code == 422
+        # xóa
+        assert client.delete(f"/api/admin/youtube/channels/{cid}", headers=hadm).status_code == 200
+        assert client.delete(f"/api/admin/youtube/channels/{cid}", headers=hadm).status_code == 404
+    finally:
+        ytmod._CHANNELS_PATH = saved_path
+        ytmod.youtube_lessons.reload()
+
+
+def test_87_fetch_merges_family_when_global_empty():
+    # available=True nhưng global rỗng → vẫn fetch được kênh family (extra_channels).
+    from src.entertainment.youtube_lessons import YouTubeLessons
+    yt = YouTubeLessons()
+    yt._explicitly_disabled = False
+    yt._has_key = True
+    yt._channels = []  # global rỗng
+    seen = {"ids": []}
+
+    def fake_channel(ch):
+        seen["ids"].append(ch["channel_id"])
+        return [{"content_id": f"yt-{ch['channel_id']}", "type": "video", "title": "t",
+                 "source_url": f"u-{ch['channel_id']}", "duration": "5 phút",
+                 "channel": ch["label"], "enabled": True}]
+
+    yt._fetch_channel = fake_channel
+    fam = [{"channel_id": "UC" + "a" * 12, "label": "fam", "language": "vi",
+            "age_min": 5, "age_max": 12, "tags": []}]
+    out = yt.fetch_videos(extra_channels=fam)
+    assert len(out) == 1, "kênh family phải được fetch dù global rỗng"
+    assert seen["ids"] == ["UC" + "a" * 12]
+    # global rỗng + không family → []
+    assert yt.fetch_videos() == [], "global rỗng + không family phải trả []"
+
+
+test("87.1  Parent thêm kênh family + cô lập gia đình",                        test_87_family_add_and_isolation)
+test("87.2  Parent thêm channel_id không UC… → 422",                          test_87_family_invalid_channel_422)
+test("87.3  Parent xóa + upsert (không nhân đôi)",                            test_87_family_delete_and_upsert)
+test("87.4  Admin CRUD allowlist global + RBAC",                              test_87_admin_global_crud_rbac)
+test("87.5  fetch_videos merge kênh family khi global rỗng",                  test_87_fetch_merges_family_when_global_empty)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

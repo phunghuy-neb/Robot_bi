@@ -11,14 +11,32 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
-- 👉 **RESUME NGAY TẠI ĐÂY (bàn giao cho Codex/Claude, 2026-06-24)**: đang làm **Admin UI** theo
-  phase. **Đã xong + committed: Phase 1, 2, 3** (commit mới nhất `8cd0cd5`). **TIẾP THEO = Phase 4
-  (Kênh YouTube): admin sửa allowlist global + parent thêm kênh cho gia đình mình** (tận dụng
-  `scripts/resolve_youtube_channels.py` để tra channel_id). Toàn bộ code đã commit; test
-  `python tests/run_tests.py` = **669/669 PASS**; Vite build OK. Working tree chỉ còn 4 file docs
-  dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng.
-  Quyết định kiến trúc đã chốt với user (xem bullet "Admin UI" bên dưới). Lộ trình còn: P4 YouTube,
-  P5 An toàn, P6 (Radio/Video/Game, Knowledge toggle, Persona, Nhật ký, Thống kê).
+- 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: đang làm **Admin UI** theo phase.
+  **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`). **Phase 4 (Kênh YouTube) = ✅ DONE phiên
+  này (UNCOMMITTED — sắp commit)**. **TIẾP THEO = Phase 5 (An toàn): SafetyFilter, lọc tuổi/giờ/child
+  content trong Admin UI.** Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **674/674 PASS**;
+  Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/
+  `CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test
+  bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định
+  kiến trúc đã chốt với user (xem bullet "Admin UI"). Lộ trình còn: P5 An toàn, P6 (Radio/Video/Game,
+  Knowledge toggle, Persona, Nhật ký, Thống kê).
+- **Phase 4 (Kênh YouTube) — ✅ DONE (UNCOMMITTED phiên này):** admin sửa allowlist GLOBAL + parent
+  thêm kênh cho GIA ĐÌNH mình.
+  - **Backend**: bảng DB mới `youtube_channels` (family-scoped) + helper trong `db.py`
+    (`list_family_youtube_channels`/`add_family_youtube_channel` upsert/`delete_family_youtube_channel`).
+    `youtube_lessons.py`: tách `available` (có key, không bị tắt) khỏi `enabled` (có kênh global) →
+    kênh family chạy được dù allowlist global rỗng; `fetch_videos(..., extra_channels=...)` merge
+    global+family dedup theo channel_id; thêm `list_global_channels/add_global_channel/remove_global_channel/reload`
+    (ghi `resources/youtube_channels.json` an toàn, giữ `_doc`/`_schema`). `admin_router.py`:
+    `/api/admin/youtube/channels` GET/POST/DELETE (`require_admin`). `game_router.py`:
+    `/api/entertainment/youtube/channels` GET/POST/DELETE (family, max 30/family, validate UC…),
+    `_augment_with_youtube` nay gate trên `available` + nạp kênh family.
+  - **Frontend**: component dùng chung `components/YouTubeChannelManager.jsx`; admin
+    `pages/admin/YouTubeAdminPage.jsx` (mục 'youtube' trong AdminApp = ready); parent: card "Kênh
+    YouTube của gia đình" trong `MorePage.jsx` (nút Quản lý). `api.js` thêm 6 helper (admin* + my*).
+  - **Test Group 87** (5): cô lập family, channel_id sai→422, xóa+upsert, admin global CRUD+RBAC
+    (redirect `_CHANNELS_PATH` sang temp để KHÔNG đụng file thật), fetch merge family khi global rỗng.
+    Suite **674/674 PASS** (trước 669). SYSTEM_MAP cập nhật.
 - **Active branch**: `003-web-search-integration`.
 - **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
@@ -51,8 +69,9 @@
     tạo đề chung + xóa), và LearningHubPage exam mode thêm "➕ Tạo đề của tôi" + nút 🗑️ trên đề custom của mình.
     Test **Group 86** (6): cô lập family, admin global hiện cho mọi nhà, non-admin không tạo global,
     422 đáp-án-sai, quyền xóa, admin list RBAC. Suite **669/669 PASS**, build OK.
-  - **Phase còn lại (chưa làm)**: P4 Kênh YouTube
-    (admin global + parent gia đình). P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
+  - **Phase 4 (DONE — UNCOMMITTED phiên này)**: Kênh YouTube (admin global + parent gia đình) —
+    xem bullet "Phase 4 (Kênh YouTube)" ở trên.
+  - **Phase còn lại (chưa làm)**: P5 An toàn (SafetyFilter, lọc tuổi/giờ/child content).
     P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
 - **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
   User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:

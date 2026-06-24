@@ -39,6 +39,30 @@ _PLACEHOLDER_KEYS = {"your_youtube_api_key_here", ""}
 _ISO8601_DURATION = re.compile(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?")
 
 
+def _coerce_int(value, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _normalize_channel(ch: dict) -> dict | None:
+    """Chuẩn hóa 1 entry kênh; trả None nếu channel_id không hợp lệ (phải UC…)."""
+    if not isinstance(ch, dict):
+        return None
+    cid = str(ch.get("channel_id") or "").strip()
+    if not cid.startswith("UC") or len(cid) < 10:
+        return None
+    return {
+        "channel_id": cid,
+        "label": str(ch.get("label") or "").strip(),
+        "language": (str(ch.get("language") or "vi").strip().lower() or "vi"),
+        "age_min": _coerce_int(ch.get("age_min"), 5),
+        "age_max": _coerce_int(ch.get("age_max"), 12),
+        "tags": [str(t).lower() for t in (ch.get("tags") or [])],
+    }
+
+
 def _fmt_duration(iso: str) -> str:
     """ISO8601 (PT#H#M#S) -> chuỗi tiếng Việt ngắn, vd '12 phút', '1 giờ 5 phút'."""
     if not iso:
@@ -82,12 +106,15 @@ class YouTubeLessons:
             logger.info("[YouTubeLessons] Active: %d kênh allowlist", len(self._channels))
 
     @property
+    def available(self) -> bool:
+        """Có thể fetch bất kỳ kênh nào (global hoặc family): có key + không bị tắt.
+        Tách khỏi `enabled` để kênh gia đình vẫn chạy khi allowlist global rỗng."""
+        return not self._explicitly_disabled and self._has_key
+
+    @property
     def enabled(self) -> bool:
-        return (
-            not self._explicitly_disabled
-            and self._has_key
-            and bool(self._channels)
-        )
+        """Allowlist GLOBAL đang hoạt động (có key + có ít nhất 1 kênh global)."""
+        return self.available and bool(self._channels)
 
     def _load_channels(self) -> list[dict]:
         if not _CHANNELS_PATH.exists():
@@ -99,23 +126,72 @@ class YouTubeLessons:
             return []
         out = []
         for ch in data.get("channels") or []:
-            cid = str(ch.get("channel_id") or "").strip()
-            if not cid.startswith("UC") or len(cid) < 10:
-                continue  # chỉ chấp nhận channel id hợp lệ (UC…)
-            out.append({
-                "channel_id": cid,
-                "label": str(ch.get("label") or "").strip(),
-                "language": str(ch.get("language") or "vi").strip().lower(),
-                "age_min": ch.get("age_min", 5),
-                "age_max": ch.get("age_max", 12),
-                "tags": [str(t).lower() for t in (ch.get("tags") or [])],
-            })
+            norm = _normalize_channel(ch)
+            if norm:  # chỉ chấp nhận channel id hợp lệ (UC…)
+                out.append(norm)
         return out
+
+    # ── Quản lý allowlist GLOBAL (admin) ──────────────────────────────────────
+    def _read_raw(self) -> dict:
+        if not _CHANNELS_PATH.exists():
+            return {}
+        try:
+            data = json.loads(_CHANNELS_PATH.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def _write_raw(self, data: dict) -> None:
+        _CHANNELS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _CHANNELS_PATH.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+
+    def reload(self) -> None:
+        """Đọc lại allowlist global từ file (sau khi admin sửa)."""
+        self._channels = self._load_channels()
+        self._cache.clear()
+
+    def list_global_channels(self) -> list[dict]:
+        return [dict(c) | {"scope": "global"} for c in self._channels]
+
+    def add_global_channel(self, ch: dict) -> dict:
+        """Thêm/cập nhật 1 kênh vào allowlist global (ghi file + reload)."""
+        norm = _normalize_channel(ch)
+        if not norm:
+            raise ValueError("channel_id phải bắt đầu bằng UC… và hợp lệ")
+        data = self._read_raw()
+        chans = data.get("channels")
+        if not isinstance(chans, list):
+            chans = []
+        chans = [c for c in chans if str(c.get("channel_id") or "").strip() != norm["channel_id"]]
+        chans.append({
+            "channel_id": norm["channel_id"], "label": norm["label"],
+            "language": norm["language"], "age_min": norm["age_min"],
+            "age_max": norm["age_max"], "tags": norm["tags"],
+        })
+        data["channels"] = chans
+        self._write_raw(data)
+        self.reload()
+        return norm
+
+    def remove_global_channel(self, channel_id: str) -> bool:
+        cid = str(channel_id or "").strip()
+        data = self._read_raw()
+        chans = data.get("channels") or []
+        new = [c for c in chans if str(c.get("channel_id") or "").strip() != cid]
+        if len(new) == len(chans):
+            return False
+        data["channels"] = new
+        self._write_raw(data)
+        self.reload()
+        return True
 
     def get_status(self) -> dict:
         """Trạng thái an toàn (không lộ key)."""
         return {
             "enabled": self.enabled,
+            "available": self.available,
             "has_key": self._has_key,
             "channels": len(self._channels),
             "max_per_channel": self._max_per_channel,
@@ -136,26 +212,39 @@ class YouTubeLessons:
             self._cache[key] = (time.monotonic(), items)
 
     # ── Fetch ────────────────────────────────────────────────────────────────
-    def fetch_videos(self, language=None, min_age=None, max_age=None) -> list[dict]:
-        """Trả về list video (shape content_items) từ allowlist, đã cache.
-        Không bao giờ raise — lỗi => []."""
-        if not self.enabled:
+    def fetch_videos(self, language=None, min_age=None, max_age=None, extra_channels=None) -> list[dict]:
+        """Trả về list video (shape content_items) từ allowlist global + (tùy chọn)
+        kênh gia đình `extra_channels`. Đã cache. Không bao giờ raise — lỗi => []."""
+        if not self.available:
             return []
-        key = f"{(language or '').lower()}|{min_age}|{max_age}"
+        channels = list(self._channels)
+        if extra_channels:
+            seen = {c["channel_id"] for c in channels}
+            for raw in extra_channels:
+                norm = _normalize_channel(raw)
+                if norm and norm["channel_id"] not in seen:
+                    channels.append(norm)
+                    seen.add(norm["channel_id"])
+        if not channels:
+            return []
+        key = "{}|{}|{}|{}".format(
+            (language or "").lower(), min_age, max_age,
+            ",".join(sorted(c["channel_id"] for c in channels)),
+        )
         cached = self._get_cached(key)
         if cached is not None:
             return cached
         try:
-            items = self._fetch_uncached(language, min_age, max_age)
+            items = self._fetch_uncached(channels, language, min_age, max_age)
         except Exception as e:  # network/quota/parse — không phá endpoint
             logger.warning("[YouTubeLessons] fetch lỗi: %s", e)
             return []
         self._set_cached(key, items)
         return items
 
-    def _fetch_uncached(self, language, min_age, max_age) -> list[dict]:
+    def _fetch_uncached(self, channels, language, min_age, max_age) -> list[dict]:
         out: list[dict] = []
-        for ch in self._channels:
+        for ch in channels:
             if language and ch["language"] != language.strip().lower():
                 continue
             if min_age is not None and ch["age_max"] is not None and ch["age_max"] < min_age:

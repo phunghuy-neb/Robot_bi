@@ -671,3 +671,37 @@ export async function adminSetToggle(name, enabled) {
     body: JSON.stringify({ enabled }),
   });
 }
+
+// —— YouTube: allowlist GLOBAL (admin — mọi gia đình thấy) ——
+export async function adminGetYoutubeChannels() {
+  const data = await apiFetch('/api/admin/youtube/channels');
+  return data || { channels: [], available: false, enabled: false, has_key: false };
+}
+
+export async function adminAddYoutubeChannel(channel) {
+  return apiFetch('/api/admin/youtube/channels', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(channel),
+  });
+}
+
+export async function adminRemoveYoutubeChannel(channelId) {
+  return apiFetch(`/api/admin/youtube/channels/${channelId}`, { method: 'DELETE' });
+}
+
+// —— YouTube: kênh của GIA ĐÌNH (parent tự thêm) ——
+export async function getMyYoutubeChannels() {
+  const data = await apiFetch('/api/entertainment/youtube/channels');
+  return data || { channels: [], global_count: 0, available: false };
+}
+
+export async function addMyYoutubeChannel(channel) {
+  return apiFetch('/api/entertainment/youtube/channels', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(channel),
+  });
+}
+
+export async function removeMyYoutubeChannel(channelId) {
+  return apiFetch(`/api/entertainment/youtube/channels/${channelId}`, { method: 'DELETE' });
+}
