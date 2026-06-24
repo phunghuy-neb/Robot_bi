@@ -15,15 +15,32 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **689/689 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
+  = **698/698 PASS**; Vite build OK. Working tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore`
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
-  **BACKLOG NON-HARDWARE ĐÃ DỌN GẦN HẾT phiên này** (xem bullet "Dọn backlog non-hardware" ngay dưới):
+  **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
   Knowledge UI Parent App ✅, TOEIC audio server ✅, lọc title YouTube ✅, Persona admin-global ✅,
-  gỡ mock fallback Parent App ✅. **CÒN LẠI (defer có lý do, KHÔNG tự làm)**: Stage 2 Special Memories
-  (PROJECT.md cấm tự khởi động), Radio Browser (cần quyết định curation an toàn trẻ), TTS offline
-  (đụng Protected Fix audio, rework lớn), Robot Display gọi Knowledge (file vanilla 61KB, cần thiết kế
-  UX + không test tự động được). Track phần cứng ESP32-S3 vẫn chờ thiết bị.
+  gỡ mock fallback ✅, **Stage 2 Special Memories ✅** (user bật đèn xanh), **Radio Browser ✅** (helper
+  admin tìm đài), **TTS offline ✅** (công tắc). **CHỈ CÒN PHẦN CỨNG**: ESP32-S3 audio transport/firmware,
+  motor/camera thật, wake-word validate bằng mic thật.
+  - **Robot Display gọi Knowledge = BỎ có chủ đích**: `index.html` là màn hình MẶT robot (output-only,
+    animation do runtime điều khiển), không phải nơi gõ truy vấn → tri thức đã trả qua giọng/hội thoại.
+  - **Settings save stubs = không có stub thực**: settings tuổi/giờ/ngủ đã persist; phần `disabled`/
+    coming-soon (lọc thiết bị, game tương tác) là placeholder cố ý.
+- **Nhóm 2 backlog (2026-06-24) — ✅ DONE phiên này:**
+  - **Stage 2 — Special Memories**: bảng `special_memories` (family-scoped) + helper db.py
+    (list/add/delete); routes `GET/POST/DELETE /api/memories/special` trong `control_router.py` (đặt
+    TRƯỚC `/{memory_id}`), POST nạp thêm vào RAG qua `add_manual_memory(source="special")` (best-effort).
+    FE `components/SpecialMemories.jsx` trong JournalPage (thêm/xóa, 4 loại: birthday/milestone/favorite/
+    other). Test **Group 92** (2): CRUD+cô lập, kind chuẩn hóa + thiếu title 422.
+  - **Radio Browser**: `kc.radio_search()` (radio-browser.info, lọc tên qua SafetyFilter, bỏ đài thiếu
+    URL, never raise) + `GET /api/admin/radio/search` (`require_admin`). FE: panel "🔎 Tìm đài" trong
+    ContentAdminPage → click "Dùng" điền form radio (admin duyệt & lưu thủ công — KHÔNG phơi radio mở
+    cho trẻ). Test **Group 93.1/93.2**.
+  - **TTS offline**: `mouth_tts._tts_offline_only()` (env `TTS_OFFLINE`/`TTS_ENGINE=pyttsx3`) → `_generate_audio`
+    short-circuit sang pyttsx3, KHÔNG đụng playback/streaming/channel (Protected Fix giữ nguyên). Thêm
+    toggle `TTS_OFFLINE` vào `env_admin.TOGGLES` (needs_restart). Test **Group 93.3**.
+  - Suite **698/698 PASS** (trước 693); Vite build OK; SYSTEM_MAP cập nhật.
 - **Dọn backlog non-hardware (2026-06-24) — ✅ DONE phiên này:**
   - **Lọc title YouTube qua SafetyFilter** (`youtube_lessons.py`): `_title_is_safe()` (lazy SafetyFilter,
     lỗi→coi an toàn) trong `_fetch_channel` → bỏ video có tiêu đề bị chặn. Test **82.6**.
@@ -326,7 +343,7 @@
 - Stage 1 manual validation: robot audio is blocked until the ESP32-S3 microphone hardware test passes and production audio transport is implemented.
 - Stage 1.5 body expression: software landed (`movement_emotion.py`); pending real motor-hardware validation.
 - Learning Hub: Phase 1 + Phase 2 complete (24 subjects). Phase 3 — HSG/exam packs (22 môn) DONE + committed; TOEIC S&W backend + content pack DONE (frontend UI + audio STT còn lại).
-- Stage 2 Special Memories: not started.
+- Stage 2 Special Memories: MVP DONE (special_memories table + parent CRUD + RAG seeding + JournalPage UI). Mở rộng (proactive nhắc dịp, lịch nhắc) để sau.
 
 ## Known Issues / Deferred Work
 
