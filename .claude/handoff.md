@@ -131,7 +131,7 @@
   - **Phase 6 (DONE + committed `27994b3`)**: Nội dung global + Nhật ký + Thống kê + công tắc tri
     thức — xem bullet "Phase 6" ở trên. Persona/Role admin-global DEFER có chủ đích.
   - **✅ HẾT PHASE Admin UI**: cả 6 phase đã hoàn tất, 8 mục sidebar đều ready.
-- **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE (UNCOMMITTED phiên này):**
+- **Lớp Knowledge — 15 API ngoài an toàn (no-key) — ✅ DONE + committed `6766ebd`:**
   User chọn 15 API (4 nhóm; KHÔNG chọn Radio Browser). Gom thành 1 lớp thống nhất:
   - `src/knowledge/knowledge_client.py` (MỚI): HTTP+timeout+cache TTL dùng chung, lọc text
     qua `SafetyFilter`, **không bao giờ raise** (lỗi → `{"ok": false}`). Provider: dictionary,
@@ -148,7 +148,7 @@
     `KNOWLEDGE_CACHE_TTL_SECONDS` (mặc định 1800). 16/17 nguồn no-key, dùng được ngay.
   - **CÒN LẠI (tùy chọn)**: UI Parent App/Robot Display gọi các endpoint này; pipeline dịch
     + nạp `trivia` vào `question_bank` (admin); Radio Browser (user chưa chọn — cần allowlist).
-- **Video lessons qua YouTube (allowlist kênh) — ✅ DONE (UNCOMMITTED phiên này):**
+- **Video lessons qua YouTube (allowlist kênh) — ✅ DONE + committed `338796b` (+ fix cache/seed `d532796`):**
   Thay mock `mockVideoLessons` bằng nguồn thật từ YouTube nhưng AN TOÀN: chỉ lấy video từ
   DANH SÁCH KÊNH ĐÃ DUYỆT, không search mở.
   - `src/entertainment/youtube_lessons.py` (MỚI): class `YouTubeLessons` + singleton. Đọc
@@ -197,7 +197,7 @@
       để không bắt nhầm câu tự luận S&W.
     - Đã verify: `init_db()` seed 6 paper / 14 câu S&W (0 câu lọt thành mcq); `_grade_toeic_sw_attempt`
       chấm end-to-end trên item seed thật OK; `python tests/run_tests.py` **637/637 PASS**, fresh DB.
-  - **Frontend UI — ✅ DONE (UNCOMMITTED phiên này):** `frontend/parent_app/src/services/api.js`
+  - **Frontend UI — ✅ DONE + committed `4c7a8e0`:** `frontend/parent_app/src/services/api.js`
     thêm `submitToeicSW(paperId, {responses, transcripts, timeSpentSeconds})`.
     `frontend/parent_app/src/pages/LearningHubPage.jsx`: trong exam mode, paper `subject==='toeic_sw'`
     rẽ sang luồng tự luận — playing-SW (1 task/màn, nav dots, textarea + đếm từ; Speaking có nút
@@ -207,7 +207,7 @@
     (responses cho writing, transcripts cho speaking). Vite build OK; verify HTTP roundtrip qua
     TestClient: list 6 đề → detail (qtypes đúng, options rỗng) → submit writing & speaking đều 200
     (estimated_200 + disclaimer) → submit-speaking rỗng = 422.
-  - **Test trong `run_tests.py` — ✅ DONE (UNCOMMITTED phiên này):** thêm **Group 81** (5 test)
+  - **Test trong `run_tests.py` — ✅ DONE + committed `a6facda`:** thêm **Group 81** (5 test)
     — loader seed ≥6 đề toeic_sw đúng question_type & 0 câu mcq; grader offline bounds; HTTP
     submit-toeic-sw writing (est200 + disclaimer); HTTP speaking + submit-speaking rỗng=422;
     đề không phải toeic_sw bị từ chối 422. Suite: **642/642 PASS** (trước 637). `test_toeic_sw.py`
