@@ -19,9 +19,9 @@
   CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`) — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TIẾP THEO (gợi ý)**: (a) DEFER có chủ đích — Persona/Role admin-global (xem Phase 6 bullet);
-  (b) ✅ TOEIC S&W audio thật server-side = ĐÃ XONG phiên này (xem bullet "TOEIC Speaking audio
+  (b) ✅ TOEIC S&W audio thật server-side = ĐÃ XONG + committed `b38ec25` (xem bullet "TOEIC Speaking audio
   server" ngay dưới); (c) track phần cứng ESP32-S3.
-- **TOEIC Speaking audio server (multipart + STT) — ✅ DONE (UNCOMMITTED phiên này):**
+- **TOEIC Speaking audio server (multipart + STT) — ✅ DONE + committed `b38ec25`:**
   - `src/audio/input/transcribe_file.py` (MỚI): STT cho FILE (không import sounddevice như ear_stt) —
     lazy faster-whisper, GPU(cuda float16)→fallback CPU(`WHISPER_CPU_MODEL`, int8) giữ đúng Protected
     Fix; `transcribe_file(path, language)` không raise (lỗi→"").
