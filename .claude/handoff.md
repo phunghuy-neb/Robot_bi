@@ -13,14 +13,14 @@
 
 - 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: đang làm **Admin UI** theo phase.
   **Đã xong + committed: Phase 1, 2, 3** (commit `8cd0cd5`), **Phase 4 (Kênh YouTube)** (`363a6ce`),
-  **Phase 5 (An toàn) = ✅ DONE phiên này (UNCOMMITTED — sắp commit)**. **TIẾP THEO = Phase 6**:
+  **Phase 5 (An toàn)** (`0dcba21`). **TIẾP THEO = Phase 6**:
   Radio/Video/Game metadata (admin), Knowledge toggles, Persona/Role, Nhật ký&kiểm toán, Thống kê.
   Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`) = **680/680 PASS**; Vite build OK. Working
   tree còn 4 file docs dirty CỐ Ý từ trước (`.gitignore` CRLF + `AGENTS.md`/`CLAUDE.md`/`PROJECT.md`)
   — KHÔNG đụng. **LƯU Ý MÔI TRƯỜNG**: dep nằm trong `.venv/` — chạy test bằng
   `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb). Quyết định kiến
   trúc đã chốt với user (xem bullet "Admin UI").
-- **Phase 5 (An toàn trẻ — admin global) — ✅ DONE (UNCOMMITTED phiên này):** user chọn cả 4 mảng.
+- **Phase 5 (An toàn trẻ — admin global) — ✅ DONE + committed `0dcba21`:** user chọn cả 4 mảng.
   - **Backend** `src/safety/safety_filter.py`: GIỮ NGUYÊN 3 lớp hardcode (Protected Fix), THÊM lớp
     global module-level đọc `resources/safety_config.json` (MỚI): `blocklist_words` (thay bằng "…"),
     `blocked_topics` (refusal, khớp cả có dấu/không dấu qua normalize_vi), `policy` (age/time/sleep).
@@ -89,7 +89,7 @@
     422 đáp-án-sai, quyền xóa, admin list RBAC. Suite **669/669 PASS**, build OK.
   - **Phase 4 (DONE + committed `363a6ce`)**: Kênh YouTube (admin global + parent gia đình) —
     xem bullet "Phase 4 (Kênh YouTube)" ở trên.
-  - **Phase 5 (DONE — UNCOMMITTED phiên này)**: An toàn trẻ (admin global blocklist/topics/policy/stats)
+  - **Phase 5 (DONE + committed `0dcba21`)**: An toàn trẻ (admin global blocklist/topics/policy/stats)
     — xem bullet "Phase 5 (An toàn trẻ)" ở trên.
   - **Phase còn lại (chưa làm)**: P6 Radio/Video/Game metadata, Knowledge toggles, Persona/Role,
     Nhật ký&kiểm toán, Thống kê.
