@@ -2395,9 +2395,25 @@ def delete_family_record(family_id: str) -> bool:
             "robot_location_metadata",
             "parent_chat_sessions",
             "parent_chat_messages",
+            # Bảng family-scoped bị bỏ sót trước đây → orphan khi xóa gia đình
+            # (gia đình mới trùng family_id sẽ kế thừa data trẻ cũ). Bổ sung:
+            "special_memories",
+            "youtube_channels",
+            "exam_sessions",
+            "exam_papers",
+            "question_bank",
+            "learning_progress",
+            "learning_streaks",
         })
         for table_name in (
             "learning_schedules",
+            "special_memories",
+            "youtube_channels",
+            "exam_sessions",
+            "exam_papers",
+            "question_bank",
+            "learning_progress",
+            "learning_streaks",
             "emotion_logs",
             "emotion_journal",
             "emotion_alerts",

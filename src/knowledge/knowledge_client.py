@@ -58,8 +58,15 @@ def _get_cached(key: str):
     return None
 
 
+_CACHE_MAX = 500  # chặn cache phình vô hạn (key chứa input user) → tránh OOM
+
+
 def _set_cached(key: str, value: dict) -> None:
     if _CACHE_TTL > 0 and key and value:
+        if len(_cache) >= _CACHE_MAX:
+            # Bỏ ~10% mục cũ nhất theo thời điểm lưu.
+            for old_key in sorted(_cache, key=lambda k: _cache[k][0])[: _CACHE_MAX // 10 + 1]:
+                _cache.pop(old_key, None)
         _cache[key] = (time.monotonic(), value)
 
 
@@ -71,7 +78,8 @@ def _safe_call(key: str, fetch) -> dict:
     try:
         data = fetch()
     except Exception as e:  # noqa: BLE001 — mọi lỗi đều degrade mượt
-        logger.warning("[knowledge] %s lỗi: %s", key, e)
+        # Chỉ log LOẠI lỗi, không log str(e) (có thể chứa URL kèm api_key — NASA key leak).
+        logger.warning("[knowledge] %s lỗi: %s", key, type(e).__name__)
         return {"ok": False, "error": "unavailable"}
     out = {"ok": True, **data}
     _set_cached(key, out)
@@ -100,7 +108,7 @@ def dictionary(word: str, lang: str = "en") -> dict:
         audio = next((p.get("audio") for p in phonetics if p.get("audio")), "")
         meanings = []
         for m in (entry.get("meanings", []) or [])[:3]:
-            defs = [d.get("definition", "") for d in (m.get("definitions", []) or [])[:2]]
+            defs = [c for c in (_clean(d.get("definition", "")) for d in (m.get("definitions", []) or [])[:2]) if c]
             meanings.append({"part_of_speech": m.get("partOfSpeech", ""), "definitions": defs})
         return {
             "word": entry.get("word", word),
@@ -139,7 +147,7 @@ def number_fact(number=None) -> dict:
 
     def fetch():
         text = _get_text(f"http://numbersapi.com/{quote(token)}")
-        return {"number": token, "fact": text}
+        return {"number": token, "fact": _clean(text)}
 
     return _safe_call(f"numfact:{token}", fetch)
 
@@ -240,7 +248,7 @@ def poem(author: str = "", title: str = "") -> dict:
         return {
             "title": p.get("title", ""),
             "author": p.get("author", ""),
-            "lines": lines[:30],
+            "lines": [c for c in (_clean(l) for l in lines[:30]) if c],
         }
 
     return _safe_call(f"poem:{author.lower()}:{title.lower()}", fetch)
@@ -313,7 +321,7 @@ def apod() -> dict:
         return {
             "title": data.get("title", ""),
             "date": data.get("date", ""),
-            "explanation": (data.get("explanation", "") or "")[:600],
+            "explanation": _clean((data.get("explanation", "") or "")[:600]),
             "media_type": data.get("media_type", ""),
             "url": data.get("url", ""),
         }

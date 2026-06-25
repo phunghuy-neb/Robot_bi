@@ -86,7 +86,8 @@ def extract_task_goal(text: str) -> Optional[str]:
             idx = t.find(kw) + len(kw)
             rest = text[idx:].strip(" ,.")
             if rest and len(rest) > 1:
-                return rest[:80]
+                # Collapse newline/space → tránh chèn cấu trúc lệnh vào system context.
+                return " ".join(rest[:80].split())
     return None
 
 
@@ -151,7 +152,7 @@ class RoleManager:
         """Set vai trò từ ngoài (phụ huynh qua Parent App hoặc API layer)."""
         self.state.current_role = role
         if task_goal:
-            self.state.task_goal = task_goal
+            self.state.task_goal = " ".join(str(task_goal)[:200].split())
         if time_limit_seconds:
             self.state.time_limit_seconds = time_limit_seconds
             self.state.time_started = time.time()

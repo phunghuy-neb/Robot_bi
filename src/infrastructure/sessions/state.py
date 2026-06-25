@@ -38,32 +38,38 @@ def _normalize_family_id(family_id: Optional[str] = None) -> str:
 # ── WebSocket Connection Manager ──────────────────────────────────────────────
 
 class ConnectionManager:
-    """Thread-safe manager cho danh sách WebSocket clients."""
+    """Quản lý danh sách WebSocket clients. Mọi coroutine ở đây chạy trên 1 event
+    loop API duy nhất; broadcast từ thread khác đi qua run_coroutine_threadsafe."""
 
     def __init__(self):
         self._clients: list[WebSocket] = []
-        self._client_families: dict[int, str] = {}
+        # Khóa bằng CHÍNH object WebSocket (không phải id()) → tránh id-reuse aliasing
+        # gán nhầm family cho client mới sau khi object cũ bị GC.
+        self._client_families: dict[WebSocket, str] = {}
 
     async def connect(self, ws: WebSocket, family_id: Optional[str] = None) -> None:
         await ws.accept()
         self._clients.append(ws)
-        self._client_families[id(ws)] = _normalize_family_id(family_id)
+        self._client_families[ws] = _normalize_family_id(family_id)
         logger.info("[WS] Client kết nối. Tổng: %d", len(self._clients))
 
     def disconnect(self, ws: WebSocket) -> None:
         if ws in self._clients:
             self._clients.remove(ws)
-        self._client_families.pop(id(ws), None)
+        self._client_families.pop(ws, None)
         logger.info("[WS] Client ngắt kết nối. Tổng: %d", len(self._clients))
 
     async def broadcast(self, data: dict, family_id: Optional[str] = None) -> None:
-        """Gửi JSON tới tất cả clients; tự loại bỏ client chết."""
+        """Gửi JSON tới clients CỦA ĐÚNG GIA ĐÌNH; tự loại bỏ client chết.
+        FAIL-CLOSED: thiếu family_id → KHÔNG phát (tránh rò nội dung sang gia đình khác)."""
+        raw_family = family_id or data.get("family_id")
+        if not raw_family:
+            logger.warning("[WS] broadcast thiếu family_id → bỏ qua (fail-closed)")
+            return
+        target_family = _normalize_family_id(raw_family)
         dead = []
-        target_family = _normalize_family_id(family_id or data.get("family_id")) if (
-            family_id or data.get("family_id")
-        ) else None
         for client in list(self._clients):
-            if target_family and self._client_families.get(id(client)) != target_family:
+            if self._client_families.get(client) != target_family:
                 continue
             try:
                 await client.send_json(data)
@@ -72,7 +78,7 @@ class ConnectionManager:
         for c in dead:
             if c in self._clients:
                 self._clients.remove(c)
-            self._client_families.pop(id(c), None)
+            self._client_families.pop(c, None)
 
     @property
     def count(self) -> int:

@@ -15,7 +15,7 @@
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
   Cả 8 mục sidebar AdminApp nay đều `ready`. Test `tests/run_tests.py` (chạy bằng `.venv/bin/python`)
-  = **710/710 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
+  = **716/716 PASS**; Vite build OK. PROJECT.md đã dọn + sync (`4b3fc56`); `.gitignore` đã chuẩn hóa LF
   (`9ab8ae5`). **Working tree SẠCH HOÀN TOÀN** (không còn file dirty). **LƯU Ý MÔI TRƯỜNG**: dep trong `.venv/`
   — chạy test bằng `.venv/bin/python tests/run_tests.py` (python3 hệ thống KHÔNG có fastapi/chromadb).
   **TOÀN BỘ BACKLOG NON-HARDWARE ĐÃ XONG** (user duyệt làm hết nhóm 2, tự chọn phương án an toàn):
@@ -75,7 +75,33 @@
     không-dấu+English), L-NEW-5 ("không được" đã bị loại khỏi blacklist), H-NEW-1/M2/L-NEW-6 (round 36 đã
     POSSIBLY_FIXED).
   - Suite **704/704 PASS** (trước 698); Vite build OK; SYSTEM_MAP cập nhật.
-- **Round 36 review (06:48) + FIX 2 issue mới — ✅ DONE phiên này (UNCOMMITTED → commit):**
+- **Review THỦ CÔNG 5 file lõi (2026-06-25, "review luôn đi") — ✅ DONE phiên này (UNCOMMITTED → commit):**
+  Mình giao 5 agent đọc-only (main/server, rag/ai_engine/role, db.py, knowledge_client, state/notifier),
+  verify từng finding trên code thật rồi FIX bug thật:
+  - **db.py `delete_family_record` (HIGH/isolation)**: bỏ sót dọn `special_memories, youtube_channels,
+    exam_sessions, exam_papers, question_bank, learning_progress, learning_streaks` → orphan, gia đình
+    mới trùng `family_id` kế thừa data trẻ cũ. **ĐÃ thêm vào allowlist + loop dọn**. Test 97.1.
+  - **rag_manager (HIGH+MED, Protected Fix)**: `add_manual_memory` KHÔNG enforce `_MAX_MEMORIES`; prune
+    xóa entry TÙY Ý không phải cũ nhất. **ĐÃ thêm `_prune_to_capacity` (xóa cũ nhất theo timestamp) +
+    gọi ở mọi đường thêm + collapse-whitespace fact (anti prompt-injection)**. Test 97.6.
+  - **state.py WS (HIGH/isolation)**: `broadcast` FAIL-OPEN khi thiếu family_id → gửi mọi nhà; key bằng
+    `id(ws)` (id-reuse). **ĐÃ fail-closed + key bằng object WebSocket**. (connect dùng JWT family — đã ổn).
+    Test 97.4.
+  - **auth (HIGH/security)**: refresh token reuse → chỉ 401, không thu hồi. **ĐÃ thêm reuse-detection**:
+    replay token đã xoay → `revoke_all_tokens_for_user` (bump token_version, vô hiệu cả access). Test 97.5.
+  - **knowledge_client (HIGH child-safety)**: `number_fact/poem/apod/dictionary` trả text KHÔNG qua
+    SafetyFilter (trái docstring). **ĐÃ bọc `_clean`** + **cache cap `_CACHE_MAX=500`** (chống OOM) +
+    **không log `str(e)`** (tránh rò NASA key trong URL). Test 97.3.
+  - **role_manager (MED)**: `task_goal` chèn vào system context không strip newline. **ĐÃ collapse**. Test 97.2.
+  - **✅ VERIFIED ỔN (không fix)**: cô lập gia đình RAG + IDOR guard; SQL injection (db.py parameterized +
+    table-name allowlist); SSRF knowledge (host hardcoded); math (mathjs remote, không eval); WS connect
+    dùng JWT family; pipeline an toàn input (risk trước PII), web search sau PII, chunk lock, static mount,
+    HTTPS autogen. HIGH-1 (main.py is_safe) = FAIL-SAFE vì `check()` trả refusal khi unsafe.
+  - **CÒN OPEN (defer/minor)**: ConnectionManager chưa có lock thật (rủi ro thấp, 1 loop); chat transcript
+    lưu đầy đủ trong `events.metadata_json` (by-design, có 500-row cap — quyết định product); main.py
+    branch-on-is_safe (defense-in-depth, hiện fail-safe); puppet chưa qua ManipulationGuard (nguồn parent).
+  - Suite **716/716 PASS** (trước 710); SYSTEM_MAP cập nhật.
+- **Round 36 review (06:48) + FIX 2 issue mới — ✅ DONE phiên này (committed cùng đợt trước):**
   - Review loop chạy xong round 36 (vẫn parse-error nên report không merge, nhưng stdout
     `failures/round-36-…064824…stdout.txt` là bản review CHÍNH XÁC trên code hiện tại).
   - **Round 36 XÁC NHẬN 6 fix của mình ĐÚNG → POSSIBLY_FIXED**: H-NEW-1, M-NEW-1, L-NEW-1, M1, H-NEW-3, L-NEW-7.

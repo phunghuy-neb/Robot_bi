@@ -224,6 +224,32 @@ class RAGManager:
             logger.warning("[RAG] Count theo family failed: %s", e)
             return 0
 
+    def _prune_to_capacity(self, family_id: str | None = None, incoming: int = 1) -> None:
+        """Xóa các memory CŨ NHẤT (theo metadata timestamp) của family đến khi đủ chỗ
+        cho `incoming` mục, giữ trần `_MAX_MEMORIES`. Áp dụng cho MỌI đường thêm."""
+        try:
+            current = self._count_memories(family_id)
+            if current + incoming <= _MAX_MEMORIES:
+                return
+            rows = self._collection.get(
+                where=self._family_where(family_id),
+                include=["metadatas"],
+            )
+            ids = rows.get("ids") or []
+            metas = rows.get("metadatas") or []
+            # Sort tăng dần theo timestamp → cũ nhất trước (get() KHÔNG đảm bảo thứ tự).
+            paired = sorted(
+                zip(ids, metas),
+                key=lambda im: ((im[1] or {}).get("timestamp") or ""),
+            )
+            n_remove = (current + incoming) - _MAX_MEMORIES
+            victims = [i for i, _m in paired[: max(0, n_remove)]]
+            if victims:
+                self._collection.delete(ids=victims)
+                logger.debug("[RAG] Quota %d: pruned %d oldest", _MAX_MEMORIES, len(victims))
+        except Exception as e:
+            logger.warning("[RAG] prune_to_capacity failed: %s", e)
+
     def _memory_belongs_to_family(self, memory_id: str, family_id: str | None = None) -> bool:
         results = self._collection.get(
             ids=[memory_id],
@@ -376,24 +402,7 @@ class RAGManager:
             })
 
         try:
-            current_count = self._count_memories(family_id)
-            while current_count + len(ids) > _MAX_MEMORIES:
-                oldest = self._collection.get(
-                    where=self._family_where(family_id),
-                    limit=1,
-                    include=["documents", "metadatas"],
-                )
-                if not oldest or not oldest.get("ids"):
-                    break
-                oldest_id = oldest["ids"][0]
-                try:
-                    self._collection.delete(ids=[oldest_id])
-                    current_count -= 1
-                except Exception as e:
-                    logger.warning("[RAG] Prune delete failed: %s", e)
-                    break
-                logger.debug("[RAG] Quota %d reached, pruned oldest entry", _MAX_MEMORIES)
-
+            self._prune_to_capacity(family_id, len(ids))  # xóa cũ nhất trước nếu vượt trần
             self._collection.add(
                 ids=ids,
                 embeddings=embeddings,
@@ -577,9 +586,12 @@ class RAGManager:
             logger.warning("add_manual_memory: fact quá ngắn hoặc rỗng")
             return False
 
-        fact = fact.strip()
+        # Collapse newline/khoảng trắng → vô hiệu cấu trúc prompt-injection nhiều dòng
+        # (memory được nối vào system prompt sau này); cap độ dài hợp lý.
+        fact = re.sub(r"\s+", " ", fact.strip())[:500]
         try:
             family_id = _normalize_family_id(family_id)
+            self._prune_to_capacity(family_id, 1)  # enforce trần _MAX_MEMORIES (mọi đường thêm)
             fact_id = str(uuid.uuid4())
             self._collection.add(
                 ids=[fact_id],
