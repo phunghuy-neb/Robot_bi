@@ -11,15 +11,15 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
-- 🧹 **REPO CLEANUP + SKILL (2026-06-25, ✅ ĐÃ MERGE vào local `main` — CHƯA push)**:
+- 🧹 **REPO CLEANUP + SKILL (2026-06-25, ✅ ĐÃ MERGE + PUSH lên `origin/main` = `14aeec6`)**:
   - `chore/repo-cleanup`: `900b3ce` (untrack ngrok.exe 32MB, xóa scratch_generate_games.py,
     run_tests.py tự quét rác `runtime/_*_test_db_*`/`_debug_rag_tmp*` lúc khởi động) +
     `70ebfc6` (gỡ `notebooklm_export/` khỏi git + gitignore, xóa `.env.bak`). Test **716/716 PASS**.
     Đã dọn ~3.4GB rác `runtime/` trên đĩa.
   - `chore/lean-code-discipline`: `9793a62` thêm mục "Lean Code — thang quyết định 7 bậc" vào
     `robot-bi-dev/SKILL.md` (Protected Fixes & child-safety override). Chỉ sửa skill, không đụng code.
-  - Đã merge cả 2 vào local `main` (đã ff `main`=`origin/main`/`4c19a84` trước). Suite **716/716 PASS**.
-    NEXT: `git push origin main` (chờ user duyệt).
+  - Đã merge cả 2 vào `main` (ff `main`=`4c19a84` trước) + **push `origin/main`=`14aeec6`**. Suite **716/716 PASS**.
+    Branch `chore/repo-cleanup` + `chore/lean-code-discipline` đã merge xong (có thể xóa local nếu muốn).
 - 🚀 **ĐÃ MERGE LÊN MAIN (2026-06-25)**: PR #2 merged → `main` HEAD `4c19a84` (merge commit, giữ nguyên
   141 commit). `origin/main` nay chứa toàn bộ work. Branch `003-web-search-integration` đã land. Việc mới
   nên nhánh từ `main`. CÒN LẠI: phần cứng + kiểm thử thiết bị thật (xem cuối resume anchor).
