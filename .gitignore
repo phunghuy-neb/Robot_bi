@@ -63,6 +63,9 @@ runtime/
 !runtime/wakeword/
 !runtime/wakeword/.gitkeep
 
+# NotebookLM export (artifact sinh lại được bằng build_notebooklm.py — không track)
+notebooklm_export/
+
 # Legacy (đã chuyển sang runtime/)
 event_queue.json
 tasks.json
