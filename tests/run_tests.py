@@ -37,6 +37,19 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 init_db()
 
+# Don rac tu cac lan test truoc: ChromaDB giu lock file tren Windows nen rmtree()
+# trong finally co the that bai am tham -> thu muc DB tam tich luy trong runtime/.
+# Quet sach theo prefix da biet khi khoi dong (ignore_errors -> khong lam fail suite).
+import glob as _glob
+import shutil as _shutil
+for _stale in (
+    _glob.glob("runtime/_family_delete_test_db_*")
+    + _glob.glob("runtime/_debug_rag_tmp*")
+    + _glob.glob("runtime/_audit_test_db*")
+    + _glob.glob("runtime/_test_db*")
+):
+    _shutil.rmtree(_stale, ignore_errors=True)
+
 passed = []
 failed = []
 logging.getLogger("src.vision.camera_stream").setLevel(logging.ERROR)
