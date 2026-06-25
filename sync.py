@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from datetime import datetime
 
 
@@ -82,9 +83,27 @@ WARNING: Any manual changes will be overwritten
     with open("AGENTS.md", "w", encoding="utf-8") as f:
         f.write(agents_md)
 
+    # Mirror skills: .claude/skills/ (ban goc) -> .agents/skills/ (mirror local cho Codex).
+    # .agents/ la mirror gitignore -> chi sua skill o .claude/, chay sync.py la Codex tu cap nhat.
+    n_skills = mirror_skills()
+
     print(f"[OK] Da sync thanh cong luc {datetime.now().strftime('%H:%M:%S')}")
     print(" -> CLAUDE.md (cho Claude Code)")
     print(" -> AGENTS.md (cho Codex CLI)")
+    if n_skills is not None:
+        print(f" -> .agents/skills/ (mirror {n_skills} skill cho Codex)")
+
+
+def mirror_skills(src=".claude/skills", dst=".agents/skills"):
+    """Mirror src -> dst (exact parity, xoa skill thua o dst). Tra ve so skill, hoac None neu bo qua."""
+    if not os.path.isdir(src):
+        print(f"[WARN] Bo qua mirror skills: khong thay {src}")
+        return None
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    if os.path.isdir(dst):
+        shutil.rmtree(dst)
+    shutil.copytree(src, dst)
+    return sum(1 for e in os.scandir(dst) if e.is_dir())
 
 
 if __name__ == "__main__":
