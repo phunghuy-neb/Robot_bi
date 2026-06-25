@@ -36,6 +36,42 @@ python tests/run_tests.py
 
 ---
 
+## 0.5. Lean Code — Thang quyết định 7 bậc (trước khi viết code)
+
+Mục tiêu: code không thừa, không rác, không phình. Code tốt nhất là code không phải viết.
+Áp dụng cho **mọi** task sinh/sửa code, ngay sau Session Start, trước TDD.
+
+> ⚠️ **GIỚI HẠN TỐI THƯỢNG — đọc trước:**
+> Tinh thần "lười" KHÔNG được phép đụng tới:
+> - **PROTECTED FIXES** trong PROJECT.md (resample 16k→44.1k, `pygame.Channel(7)`,
+>   RAG threshold 0.62, chain 5 provider, JWT/auth, family isolation, DB path...).
+>   Những chỗ này giữ NGUYÊN, không "đơn giản hóa", không "gộp", không "xóa cho gọn".
+> - **Child safety / privacy**, validation, error handling, security, accessibility.
+>   Không bao giờ cắt để code ngắn hơn.
+> Khi mâu thuẫn: Protected Fixes & child-safety LUÔN thắng thang quyết định này.
+
+Trước khi viết một đoạn code mới, tự hỏi theo thứ tự — dừng ở bậc đầu tiên trả lời được:
+
+1. **Cần tồn tại không?** — Task này có thật sự cần code mới không, hay chỉ là yêu cầu mơ hồ?
+   Nếu chưa rõ → hỏi lại user thay vì viết.
+2. **Tái dùng được không?** — Đã có hàm/module trong `src/` làm việc này chưa?
+   (dùng codegraph/grep tìm trước khi viết). Sửa/mở rộng cái cũ > viết mới.
+3. **Có trong stdlib không?** — Python standard library giải quyết được không?
+4. **Có native/framework không?** — FastAPI / SQLite / pygame... đã có sẵn tính năng?
+5. **Có dependency hiện có không?** — Lib đã cài trong requirements giải quyết được?
+   (KHÔNG thêm dependency mới chỉ để tiết kiệm vài dòng.)
+6. **One-liner được không?** — Giải pháp tối giản nhưng vẫn rõ ràng, không "clever" khó đọc.
+7. **Minimal solution** — Chỉ khi 6 bậc trên đều không → viết giải pháp tối thiểu đủ dùng,
+   kèm đủ validation/error handling/test.
+
+**Quy tắc kèm theo:**
+- "Lười viết" nhưng **siêng đọc**: luôn hiểu context trước, không đoán.
+- Không viết code "phòng xa" cho tính năng chưa ai yêu cầu (no speculative generality).
+- Không thêm file/module mới nếu sửa file cũ là đủ (theo File Creation Policy).
+- Khi xóa/gộp code để gọn: kiểm tra callers (codegraph) + chạy test, không xóa mù.
+
+---
+
 ## 1. Implement Feature Mới — TDD Loop
 
 *Từ `tdd` (mattpocock) + `diagnose` (mattpocock)*
