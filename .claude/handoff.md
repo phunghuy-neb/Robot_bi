@@ -11,6 +11,9 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- 🚀 **ĐÃ MERGE LÊN MAIN (2026-06-25)**: PR #2 merged → `main` HEAD `4c19a84` (merge commit, giữ nguyên
+  141 commit). `origin/main` nay chứa toàn bộ work. Branch `003-web-search-integration` đã land. Việc mới
+  nên nhánh từ `main`. CÒN LẠI: phần cứng + kiểm thử thiết bị thật (xem cuối resume anchor).
 - 👉 **RESUME NGAY TẠI ĐÂY (2026-06-24)**: **Admin UI ĐÃ XONG TOÀN BỘ 6 PHASE** —
   Phase 1/2/3 (`8cd0cd5`), Phase 4 Kênh YouTube (`363a6ce`), Phase 5 An toàn (`0dcba21`),
   **Phase 6** (`27994b3`).
