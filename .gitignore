@@ -6,6 +6,8 @@ env/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Python cache
 __pycache__/
@@ -26,6 +28,7 @@ runtime/_family_*_test_db/
 
 # Temporary & log files
 logs/
+.claude-review/
 *.log
 *.log.*
 tmp_*
@@ -35,6 +38,8 @@ tmp_*
 ssl/
 *.pem
 cloudflared.exe
+ngrok.exe
+*.exe
 
 # OS generated files
 .DS_Store
@@ -48,12 +53,36 @@ Thumbs.db
 !.claude/skills/robot-bi-dev/SKILL.md
 !.claude/hooks/
 !.claude/hooks/block-dangerous-git.sh
+
+# Codex desktop local skill mirror; authoritative tracked copies live in .claude/skills/
+.agents/
+
 # Runtime directory (DB, chroma, logs, caches)
 runtime/
 !runtime/.gitkeep
+!runtime/wakeword/
+!runtime/wakeword/.gitkeep
 
 # Legacy (đã chuyển sang runtime/)
 event_queue.json
 tasks.json
 robot_bi.db
 data/
+!data/wakeword/
+!data/wakeword/positive/
+!data/wakeword/positive/.gitkeep
+!data/wakeword/negative/
+!data/wakeword/negative/.gitkeep
+
+# Frontend build artifacts
+node_modules/
+dist/
+frontend/parent_app/node_modules/
+frontend/parent_app/dist/
+
+# CodeGraph local index (not tracked)
+.codegraph/
+.aider*
+
+# SSL self-signed (tự sinh khi chạy — không commit private key)
+ssl/*.pem

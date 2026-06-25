@@ -1,0 +1,683 @@
+{
+  "subject": "vietnamese",
+  "exams": [
+    {
+      "paper_id": "vietnamese_exam_grade6_1",
+      "title": "Tiếng Việt — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_co_ban",
+      "questions": [
+        {
+          "question": "Từ nào sau đây viết đúng chính tả?",
+          "question_vi": "",
+          "emoji": "✍️",
+          "options": [
+            "xuất sắc",
+            "suất sắc",
+            "xuất xắc",
+            "suất xắc"
+          ],
+          "answer": "xuất sắc",
+          "explanation": "Viết đúng là “xuất sắc” (x đứng đầu cả hai tiếng).",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ trái nghĩa với “siêng năng” là từ nào?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "lười biếng",
+            "chăm chỉ",
+            "cần cù",
+            "chịu khó"
+          ],
+          "answer": "lười biếng",
+          "explanation": "“Siêng năng” trái nghĩa với “lười biếng”; ba từ còn lại đều đồng nghĩa với siêng năng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào sau đây đồng nghĩa với “dũng cảm”?",
+          "question_vi": "",
+          "emoji": "🦁",
+          "options": [
+            "gan dạ",
+            "nhút nhát",
+            "hèn nhát",
+            "rụt rè"
+          ],
+          "answer": "gan dạ",
+          "explanation": "“Gan dạ” đồng nghĩa với “dũng cảm”; ba từ còn lại trái nghĩa.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trong câu “Bé chạy rất nhanh.”, từ “chạy” thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": [
+            "động từ",
+            "danh từ",
+            "tính từ",
+            "đại từ"
+          ],
+          "answer": "động từ",
+          "explanation": "“Chạy” chỉ hoạt động nên là động từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ nào sau đây là từ láy?",
+          "question_vi": "",
+          "emoji": "🌟",
+          "options": [
+            "lung linh",
+            "bàn ghế",
+            "nhà cửa",
+            "sách vở"
+          ],
+          "answer": "lung linh",
+          "explanation": "“Lung linh” láy âm đầu “l”; ba từ còn lại là từ ghép.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thành ngữ “Học một biết mười” nói về điều gì?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "sự thông minh, sáng dạ",
+            "sự lười biếng",
+            "sự chậm chạp",
+            "tính kiêu ngạo"
+          ],
+          "answer": "sự thông minh, sáng dạ",
+          "explanation": "“Học một biết mười” ca ngợi người thông minh, suy luận giỏi.",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu “Ông trời mặc áo giáp đen ra trận.” sử dụng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "⛈️",
+          "options": [
+            "nhân hóa",
+            "so sánh",
+            "ẩn dụ",
+            "điệp ngữ"
+          ],
+          "answer": "nhân hóa",
+          "explanation": "Trời được gán hành động của con người (mặc áo giáp, ra trận) nên là nhân hóa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu “Đàn chim bay về tổ.”, bộ phận chủ ngữ là gì?",
+          "question_vi": "",
+          "emoji": "🐦",
+          "options": [
+            "Đàn chim",
+            "bay về tổ",
+            "về tổ",
+            "bay"
+          ],
+          "answer": "Đàn chim",
+          "explanation": "Chủ ngữ trả lời cho câu hỏi “Ai/Con gì?” — ở đây là “Đàn chim”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dấu câu nào thường dùng để kết thúc một câu hỏi?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "dấu chấm hỏi (?)",
+            "dấu chấm (.)",
+            "dấu phẩy (,)",
+            "dấu chấm than (!)"
+          ],
+          "answer": "dấu chấm hỏi (?)",
+          "explanation": "Câu hỏi (câu nghi vấn) kết thúc bằng dấu chấm hỏi “?”.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_exam_grade10_1",
+      "title": "Tiếng Việt — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_thcs",
+      "questions": [
+        {
+          "question": "Câu thơ “Mặt trời xuống biển như hòn lửa” (Đoàn thuyền đánh cá) dùng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "🌅",
+          "options": [
+            "so sánh",
+            "nhân hóa",
+            "hoán dụ",
+            "nói quá"
+          ],
+          "answer": "so sánh",
+          "explanation": "Có từ so sánh “như”: mặt trời được so sánh với hòn lửa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ nào sau đây là từ Hán Việt?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "giang sơn",
+            "sông núi",
+            "đất nước",
+            "quê hương"
+          ],
+          "answer": "giang sơn",
+          "explanation": "“Giang sơn” gồm các yếu tố Hán Việt (giang = sông, sơn = núi).",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu “Chao ôi, cảnh đẹp quá!”, cụm “Chao ôi” là thành phần biệt lập nào?",
+          "question_vi": "",
+          "emoji": "😮",
+          "options": [
+            "cảm thán",
+            "gọi đáp",
+            "phụ chú",
+            "tình thái"
+          ],
+          "answer": "cảm thán",
+          "explanation": "“Chao ôi” bộc lộ cảm xúc nên là thành phần cảm thán.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phương thức biểu đạt chính của một văn bản giới thiệu về danh lam thắng cảnh là gì?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "thuyết minh",
+            "tự sự",
+            "miêu tả",
+            "biểu cảm"
+          ],
+          "answer": "thuyết minh",
+          "explanation": "Văn bản trình bày, giới thiệu tri thức khách quan thuộc phương thức thuyết minh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hàm ý của câu là gì?",
+          "question_vi": "",
+          "emoji": "💭",
+          "options": [
+            "phần thông báo không nói trực tiếp bằng từ ngữ nhưng có thể suy ra",
+            "nghĩa hiển hiện trực tiếp trên câu chữ",
+            "nghĩa của từ ghi trong từ điển",
+            "cách phát âm của từ"
+          ],
+          "answer": "phần thông báo không nói trực tiếp bằng từ ngữ nhưng có thể suy ra",
+          "explanation": "Hàm ý là phần thông báo tuy không được diễn đạt trực tiếp nhưng có thể suy ra từ câu nói.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong câu “Về môn Toán thì nó học rất giỏi.”, cụm “Về môn Toán” là thành phần gì?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": [
+            "khởi ngữ",
+            "chủ ngữ",
+            "vị ngữ",
+            "trạng ngữ"
+          ],
+          "answer": "khởi ngữ",
+          "explanation": "Khởi ngữ nêu lên đề tài được nói đến, đứng trước chủ ngữ; ở đây là “Về môn Toán”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phép liên kết nào dùng việc lặp lại từ ngữ ở câu sau giống câu trước?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": [
+            "phép lặp",
+            "phép thế",
+            "phép nối",
+            "phép liên tưởng"
+          ],
+          "answer": "phép lặp",
+          "explanation": "Phép lặp dùng lại từ ngữ đã xuất hiện ở câu trước để liên kết.",
+          "difficulty": 2
+        },
+        {
+          "question": "“Áo chàm đưa buổi phân li” — “Áo chàm” chỉ người dân Việt Bắc. Đây là biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "🧣",
+          "options": [
+            "hoán dụ",
+            "ẩn dụ",
+            "so sánh",
+            "nhân hóa"
+          ],
+          "answer": "hoán dụ",
+          "explanation": "Lấy dấu hiệu (áo chàm) để chỉ người mặc — đó là hoán dụ.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_exam_thpt_1",
+      "title": "Tiếng Việt — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_thpt",
+      "questions": [
+        {
+          "question": "Một bản tin thời sự trên báo thuộc phong cách ngôn ngữ nào?",
+          "question_vi": "",
+          "emoji": "📰",
+          "options": [
+            "báo chí",
+            "nghệ thuật",
+            "khoa học",
+            "hành chính"
+          ],
+          "answer": "báo chí",
+          "explanation": "Tin tức trên báo thuộc phong cách ngôn ngữ báo chí.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thao tác lập luận nào dùng lí lẽ và dẫn chứng để làm rõ một vấn đề được thừa nhận là đúng?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "chứng minh",
+            "giải thích",
+            "bình luận",
+            "bác bỏ"
+          ],
+          "answer": "chứng minh",
+          "explanation": "Chứng minh dùng dẫn chứng, lí lẽ để khẳng định tính đúng đắn của vấn đề.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu “Bác đã đi rồi sao, Bác ơi!”, từ “đi” sử dụng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "nói giảm nói tránh",
+            "nói quá",
+            "ẩn dụ",
+            "điệp ngữ"
+          ],
+          "answer": "nói giảm nói tránh",
+          "explanation": "Dùng “đi” thay cho “mất” để giảm nhẹ sự đau thương — đó là nói giảm nói tránh.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu thơ “Sóng gợn tràng giang buồn điệp điệp” thiên về phương thức biểu đạt nào?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "biểu cảm",
+            "tự sự",
+            "thuyết minh",
+            "nghị luận"
+          ],
+          "answer": "biểu cảm",
+          "explanation": "Câu thơ bộc lộ cảm xúc (nỗi buồn) nên thiên về phương thức biểu cảm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu “Học, học nữa, học mãi” nổi bật biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "điệp ngữ",
+            "ẩn dụ",
+            "hoán dụ",
+            "so sánh"
+          ],
+          "answer": "điệp ngữ",
+          "explanation": "Từ “học” được lặp lại nhiều lần để nhấn mạnh — đó là điệp ngữ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thao tác lập luận bác bỏ là gì?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "dùng lí lẽ, dẫn chứng để gạt bỏ quan điểm, ý kiến sai lệch",
+            "trình bày khái niệm để người đọc hiểu rõ",
+            "đưa dẫn chứng làm sáng tỏ vấn đề đúng đắn",
+            "đối chiếu hai đối tượng để thấy điểm giống và khác"
+          ],
+          "answer": "dùng lí lẽ, dẫn chứng để gạt bỏ quan điểm, ý kiến sai lệch",
+          "explanation": "Bác bỏ là dùng lí lẽ và dẫn chứng để phủ nhận, gạt bỏ ý kiến sai.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phong cách ngôn ngữ sinh hoạt thể hiện rõ nhất ở đâu?",
+          "question_vi": "",
+          "emoji": "🗣️",
+          "options": [
+            "lời ăn tiếng nói hằng ngày",
+            "văn bản pháp luật",
+            "công trình nghiên cứu khoa học",
+            "bản tin thời sự"
+          ],
+          "answer": "lời ăn tiếng nói hằng ngày",
+          "explanation": "Phong cách sinh hoạt gắn với giao tiếp hằng ngày, tự nhiên, mang dấu ấn cá nhân.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_hsg_school_1",
+      "title": "Tiếng Việt — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_nang_cao",
+      "questions": [
+        {
+          "question": "Từ “lấp lánh” thuộc loại từ láy nào?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": [
+            "láy âm đầu",
+            "láy vần",
+            "láy toàn bộ",
+            "không phải từ láy"
+          ],
+          "answer": "láy âm đầu",
+          "explanation": "“Lấp lánh” lặp lại phụ âm đầu “l” nên là từ láy âm đầu.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ “hoa hồng” (tên một loài hoa) là từ ghép loại nào?",
+          "question_vi": "",
+          "emoji": "🌹",
+          "options": [
+            "từ ghép chính phụ",
+            "từ ghép đẳng lập",
+            "từ láy",
+            "từ đơn"
+          ],
+          "answer": "từ ghép chính phụ",
+          "explanation": "“Hoa” là tiếng chính, “hồng” là tiếng phụ bổ nghĩa nên là từ ghép chính phụ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu “Mũi thuyền rẽ sóng ra khơi.”, từ “mũi” được dùng theo nghĩa nào?",
+          "question_vi": "",
+          "emoji": "🚤",
+          "options": [
+            "nghĩa chuyển",
+            "nghĩa gốc",
+            "nghĩa đối lập",
+            "nghĩa khái quát"
+          ],
+          "answer": "nghĩa chuyển",
+          "explanation": "Nghĩa gốc của “mũi” là bộ phận trên mặt; ở đây “mũi thuyền” là nghĩa chuyển.",
+          "difficulty": 3
+        },
+        {
+          "question": "“Thuyền về có nhớ bến chăng / Bến thì một dạ khăng khăng đợi thuyền.” — “thuyền” và “bến” là biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "⛵",
+          "options": [
+            "ẩn dụ",
+            "hoán dụ",
+            "so sánh",
+            "nhân hóa"
+          ],
+          "answer": "ẩn dụ",
+          "explanation": "“Thuyền”, “bến” ngầm chỉ người đi xa và người ở lại — đó là ẩn dụ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thành ngữ “Nước đổ lá khoai” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🍃",
+          "options": [
+            "khuyên bảo nhưng không có tác dụng",
+            "làm việc rất chăm chỉ",
+            "đoàn kết một lòng",
+            "giàu có, sung túc"
+          ],
+          "answer": "khuyên bảo nhưng không có tác dụng",
+          "explanation": "Nước đổ trên lá khoai trôi tuột đi — ví lời khuyên không thấm, không có tác dụng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong câu “Trên cành cây, những chú chim hót líu lo.”, trạng ngữ là gì?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "Trên cành cây",
+            "những chú chim",
+            "hót líu lo",
+            "chú chim"
+          ],
+          "answer": "Trên cành cây",
+          "explanation": "“Trên cành cây” chỉ nơi chốn, đứng đầu câu nên là trạng ngữ.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_hsg_district_1",
+      "title": "Tiếng Việt — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_nang_cao",
+      "questions": [
+        {
+          "question": "Cặp từ nào sau đây là từ đồng âm?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "đường (con đường) – đường (đường ăn)",
+            "to – lớn",
+            "đẹp – xinh",
+            "nhanh – chậm"
+          ],
+          "answer": "đường (con đường) – đường (đường ăn)",
+          "explanation": "Hai từ “đường” đọc giống nhau nhưng nghĩa khác hẳn — đó là từ đồng âm.",
+          "difficulty": 3
+        },
+        {
+          "question": "Yếu tố “thiên” trong từ “thiên thư” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": [
+            "trời",
+            "nghìn",
+            "nghiêng",
+            "dời chuyển"
+          ],
+          "answer": "trời",
+          "explanation": "“Thiên thư” nghĩa là sách trời; “thiên” ở đây nghĩa là trời.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong đoạn “Tôi rất thích đọc sách. Vì vậy, tôi hay đến thư viện.”, cụm “Vì vậy” thể hiện phép liên kết nào?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": [
+            "phép nối",
+            "phép lặp",
+            "phép thế",
+            "phép đồng nghĩa"
+          ],
+          "answer": "phép nối",
+          "explanation": "“Vì vậy” là quan hệ từ nối hai câu — đó là phép nối.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu “Có lẽ trời sắp mưa.”, từ “Có lẽ” là thành phần biệt lập nào?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": [
+            "tình thái",
+            "cảm thán",
+            "gọi đáp",
+            "phụ chú"
+          ],
+          "answer": "tình thái",
+          "explanation": "“Có lẽ” thể hiện độ tin cậy của người nói đối với sự việc — thành phần tình thái.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu nào sau đây là câu ghép?",
+          "question_vi": "",
+          "emoji": "🧩",
+          "options": [
+            "Trời mưa to nên đường rất trơn.",
+            "Những bông hoa nở rộ trong vườn.",
+            "Em bé đang ngủ rất ngon.",
+            "Chú mèo nằm trên chiếc ghế."
+          ],
+          "answer": "Trời mưa to nên đường rất trơn.",
+          "explanation": "Câu này có hai cụm chủ–vị (trời mưa to / đường rất trơn) nối bằng “nên” — là câu ghép.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu tục ngữ “Gần mực thì đen, gần đèn thì sáng” khuyên ta điều gì?",
+          "question_vi": "",
+          "emoji": "💡",
+          "options": [
+            "môi trường, bạn bè ảnh hưởng đến nhân cách con người",
+            "phải chăm chỉ học hành",
+            "cần biết tiết kiệm",
+            "nên dậy sớm tập thể dục"
+          ],
+          "answer": "môi trường, bạn bè ảnh hưởng đến nhân cách con người",
+          "explanation": "Câu tục ngữ nhắc nhở: hoàn cảnh, bạn bè xung quanh tác động đến tính cách con người.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_hsg_province_1",
+      "title": "Tiếng Việt — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_viet_chuyen_sau",
+      "questions": [
+        {
+          "question": "“Tiếng rơi rất mỏng như là rơi nghiêng” — cách nói “tiếng rơi rất mỏng” dùng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "🍂",
+          "options": [
+            "ẩn dụ chuyển đổi cảm giác",
+            "nhân hóa",
+            "hoán dụ",
+            "nói quá"
+          ],
+          "answer": "ẩn dụ chuyển đổi cảm giác",
+          "explanation": "Âm thanh (nghe) được miêu tả bằng cảm giác xúc giác (“mỏng”) — ẩn dụ chuyển đổi cảm giác.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong câu ca dao “Ai làm cho bể kia đầy”, từ “Ai” thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "đại từ",
+            "danh từ",
+            "động từ",
+            "tính từ"
+          ],
+          "answer": "đại từ",
+          "explanation": "“Ai” dùng để hỏi/phiếm chỉ người nên là đại từ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đặc trưng nào KHÔNG phải của phong cách ngôn ngữ khoa học?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "tính cá thể",
+            "tính khái quát, trừu tượng",
+            "tính lí trí, logic",
+            "tính chính xác, khách quan"
+          ],
+          "answer": "tính cá thể",
+          "explanation": "Phong cách khoa học mang tính khách quan; “tính cá thể” là đặc trưng của phong cách nghệ thuật/sinh hoạt.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu “Trời ơi, chỉ còn có năm phút!” (Lặng lẽ Sa Pa) hàm ý điều gì?",
+          "question_vi": "",
+          "emoji": "⏱️",
+          "options": [
+            "sự tiếc nuối vì thời gian gặp gỡ quá ngắn ngủi",
+            "sự vui mừng vì sắp được nghỉ ngơi",
+            "lời nhắc nhở mọi người về giờ giấc",
+            "sự lo lắng vì sắp bị trễ giờ"
+          ],
+          "answer": "sự tiếc nuối vì thời gian gặp gỡ quá ngắn ngủi",
+          "explanation": "Anh thanh niên tiếc nuối vì cuộc gặp gỡ chỉ còn năm phút — đó là hàm ý của câu.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Bà già đi chợ Cầu Đông / Bói xem một quẻ lấy chồng lợi chăng” — từ “lợi” được dùng theo lối nào?",
+          "question_vi": "",
+          "emoji": "😄",
+          "options": [
+            "chơi chữ (dùng từ đồng âm)",
+            "ẩn dụ",
+            "hoán dụ",
+            "nói quá"
+          ],
+          "answer": "chơi chữ (dùng từ đồng âm)",
+          "explanation": "“Lợi” vừa nghĩa “lợi ích” vừa nghĩa “lợi (răng)” — đây là lối chơi chữ bằng từ đồng âm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu “Bạn có thể đóng giúp mình cửa sổ không?” thuộc kiểu câu gì xét theo mục đích nói?",
+          "question_vi": "",
+          "emoji": "🪟",
+          "options": [
+            "câu nghi vấn dùng để cầu khiến",
+            "câu cầu khiến",
+            "câu cảm thán",
+            "câu trần thuật"
+          ],
+          "answer": "câu nghi vấn dùng để cầu khiến",
+          "explanation": "Hình thức là câu hỏi nhưng mục đích là yêu cầu (cầu khiến) — câu nghi vấn dùng để cầu khiến.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

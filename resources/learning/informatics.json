@@ -1,0 +1,257 @@
+{
+  "subject": "informatics",
+  "exams": [
+    {
+      "paper_id": "informatics_hardware_1",
+      "title": "Tin học — Phần cứng (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "hardware",
+      "questions": [
+        {
+          "question": "Thiết bị nào được xem là 'bộ não' của máy tính?",
+          "question_vi": "",
+          "emoji": "💻",
+          "options": ["CPU", "Màn hình", "Chuột", "Loa"],
+          "answer": "CPU",
+          "explanation": "CPU (bộ xử lý trung tâm) thực hiện các phép tính và điều khiển hoạt động, nên được ví như bộ não của máy tính.",
+          "difficulty": 1
+        },
+        {
+          "question": "RAM là loại bộ nhớ có đặc điểm gì?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": ["Lưu dữ liệu tạm thời, mất khi tắt máy", "Lưu dữ liệu vĩnh viễn", "Chỉ đọc, không ghi được", "Là thiết bị nhập liệu"],
+          "answer": "Lưu dữ liệu tạm thời, mất khi tắt máy",
+          "explanation": "RAM là bộ nhớ truy cập ngẫu nhiên, lưu dữ liệu tạm thời và sẽ mất khi tắt nguồn máy tính.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thiết bị nào sau đây dùng để lưu trữ dữ liệu lâu dài?",
+          "question_vi": "",
+          "emoji": "💾",
+          "options": ["Ổ cứng", "RAM", "CPU", "Chuột"],
+          "answer": "Ổ cứng",
+          "explanation": "Ổ cứng (HDD/SSD) lưu trữ dữ liệu lâu dài, dữ liệu vẫn còn khi tắt máy.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thiết bị nào sau đây là thiết bị nhập (vào)?",
+          "question_vi": "",
+          "emoji": "⌨️",
+          "options": ["Bàn phím", "Màn hình", "Máy in", "Loa"],
+          "answer": "Bàn phím",
+          "explanation": "Bàn phím là thiết bị nhập (input) dùng để đưa dữ liệu vào máy tính.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thiết bị nào sau đây là thiết bị xuất (ra)?",
+          "question_vi": "",
+          "emoji": "🖨️",
+          "options": ["Máy in", "Bàn phím", "Chuột", "Micro"],
+          "answer": "Máy in",
+          "explanation": "Máy in là thiết bị xuất (output) dùng để đưa kết quả ra ngoài dưới dạng giấy.",
+          "difficulty": 1
+        },
+        {
+          "question": "Đơn vị nào sau đây lớn nhất khi đo dung lượng bộ nhớ?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": ["Gigabyte (GB)", "Megabyte (MB)", "Kilobyte (KB)", "Byte"],
+          "answer": "Gigabyte (GB)",
+          "explanation": "Thứ tự tăng dần: Byte < KB < MB < GB, nên GB là lớn nhất trong các đơn vị trên.",
+          "difficulty": 2
+        },
+        {
+          "question": "SSD có ưu điểm gì so với ổ cứng HDD truyền thống?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["Tốc độ đọc/ghi nhanh hơn", "Dung lượng luôn lớn hơn", "Giá luôn rẻ hơn", "Chỉ đọc được dữ liệu"],
+          "answer": "Tốc độ đọc/ghi nhanh hơn",
+          "explanation": "SSD dùng bộ nhớ flash, không có bộ phận cơ học quay nên truy xuất dữ liệu nhanh hơn HDD.",
+          "difficulty": 3
+        },
+        {
+          "question": "Card màn hình (GPU) có chức năng chính là gì?",
+          "question_vi": "",
+          "emoji": "🎮",
+          "options": ["Xử lý và hiển thị hình ảnh, đồ họa", "Lưu trữ dữ liệu lâu dài", "Kết nối Internet", "Phát âm thanh"],
+          "answer": "Xử lý và hiển thị hình ảnh, đồ họa",
+          "explanation": "GPU (card đồ họa) chuyên xử lý hình ảnh và đồ họa để hiển thị lên màn hình.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_software_internet_1",
+      "title": "Tin học — Phần mềm & Internet (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_7",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "software_internet",
+      "questions": [
+        {
+          "question": "Phần mềm nào sau đây là hệ điều hành?",
+          "question_vi": "",
+          "emoji": "🖥️",
+          "options": ["Windows", "Microsoft Word", "Google Chrome", "Photoshop"],
+          "answer": "Windows",
+          "explanation": "Windows là hệ điều hành quản lý phần cứng và các phần mềm khác; Word, Chrome, Photoshop là phần mềm ứng dụng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chức năng chính của trình duyệt web là gì?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": ["Truy cập và hiển thị các trang web", "Soạn thảo văn bản", "Chỉnh sửa ảnh", "Quản lý phần cứng"],
+          "answer": "Truy cập và hiển thị các trang web",
+          "explanation": "Trình duyệt web (như Chrome, Firefox) dùng để mở và hiển thị nội dung các trang web trên Internet.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trong địa chỉ web https://www.example.com, phần 'https' thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": ["Giao thức truyền dữ liệu có mã hóa", "Tên miền của website", "Tên file cần mở", "Mật khẩu truy cập"],
+          "answer": "Giao thức truyền dữ liệu có mã hóa",
+          "explanation": "HTTPS là giao thức truyền siêu văn bản có mã hóa, giúp bảo mật dữ liệu giữa trình duyệt và máy chủ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một địa chỉ email hợp lệ thường có dạng nào?",
+          "question_vi": "",
+          "emoji": "📧",
+          "options": ["tennguoidung@tenmien.com", "www.tenmien.com", "tenmien.com/email", "http://tenmien"],
+          "answer": "tennguoidung@tenmien.com",
+          "explanation": "Địa chỉ email gồm tên người dùng, ký tự @ và tên miền, ví dụ banbe@gmail.com.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phần mềm soạn thảo văn bản phổ biến là phần mềm nào?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": ["Microsoft Word", "Windows", "Android", "Chrome"],
+          "answer": "Microsoft Word",
+          "explanation": "Microsoft Word là phần mềm ứng dụng dùng để soạn thảo và định dạng văn bản.",
+          "difficulty": 1
+        },
+        {
+          "question": "Phần mềm hệ thống và phần mềm ứng dụng khác nhau ở điểm nào?",
+          "question_vi": "",
+          "emoji": "⚙️",
+          "options": ["Phần mềm hệ thống quản lý máy tính, phần mềm ứng dụng phục vụ công việc cụ thể", "Cả hai đều là hệ điều hành", "Phần mềm ứng dụng quản lý phần cứng", "Không có sự khác biệt"],
+          "answer": "Phần mềm hệ thống quản lý máy tính, phần mềm ứng dụng phục vụ công việc cụ thể",
+          "explanation": "Phần mềm hệ thống (như hệ điều hành) điều khiển máy tính; phần mềm ứng dụng giúp người dùng làm các việc cụ thể như soạn thảo, vẽ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tên miền (domain) trong URL có vai trò gì?",
+          "question_vi": "",
+          "emoji": "🏷️",
+          "options": ["Xác định địa chỉ của website trên Internet", "Lưu trữ file trên máy tính", "Là mật khẩu của trang web", "Là phần mềm trình duyệt"],
+          "answer": "Xác định địa chỉ của website trên Internet",
+          "explanation": "Tên miền là tên dễ nhớ giúp xác định và truy cập một website, ví dụ google.com.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để gửi cùng một email cho nhiều người, ta nhập các địa chỉ vào ô nào?",
+          "question_vi": "",
+          "emoji": "📨",
+          "options": ["To (Đến) hoặc Cc", "Subject (Tiêu đề)", "Body (Nội dung)", "Attachment (Tệp đính kèm)"],
+          "answer": "To (Đến) hoặc Cc",
+          "explanation": "Ô 'To' và 'Cc' chứa địa chỉ người nhận; tiêu đề và nội dung là phần khác của email.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_network_safety_1",
+      "title": "Tin học — An toàn mạng (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "network_safety",
+      "questions": [
+        {
+          "question": "Mật khẩu nào sau đây được xem là mạnh nhất?",
+          "question_vi": "",
+          "emoji": "🔐",
+          "options": ["Xy7#mK9!pL2q", "123456", "password", "ngaysinh2010"],
+          "answer": "Xy7#mK9!pL2q",
+          "explanation": "Mật khẩu mạnh dài, kết hợp chữ hoa, chữ thường, số và ký tự đặc biệt, không dùng thông tin dễ đoán.",
+          "difficulty": 2
+        },
+        {
+          "question": "Virus máy tính là gì?",
+          "question_vi": "",
+          "emoji": "🦠",
+          "options": ["Chương trình độc hại có thể lây lan và gây hại", "Một loại phần cứng", "Một trình duyệt web", "Một loại email hợp lệ"],
+          "answer": "Chương trình độc hại có thể lây lan và gây hại",
+          "explanation": "Virus máy tính là phần mềm độc hại có khả năng tự nhân bản, lây lan và phá hoại dữ liệu, hệ thống.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi nhận email lạ yêu cầu cung cấp mật khẩu ngân hàng, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🎣",
+          "options": ["Không trả lời và xóa email vì có thể là lừa đảo", "Gửi ngay mật khẩu để xác minh", "Mở mọi liên kết trong email", "Chuyển tiếp cho bạn bè"],
+          "answer": "Không trả lời và xóa email vì có thể là lừa đảo",
+          "explanation": "Đây là dấu hiệu lừa đảo (phishing). Không bao giờ cung cấp mật khẩu qua email lạ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phần mềm nào giúp phát hiện và loại bỏ virus máy tính?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": ["Phần mềm diệt virus (antivirus)", "Trình duyệt web", "Phần mềm soạn thảo", "Trò chơi điện tử"],
+          "answer": "Phần mềm diệt virus (antivirus)",
+          "explanation": "Phần mềm diệt virus quét, phát hiện và loại bỏ các phần mềm độc hại trên máy tính.",
+          "difficulty": 1
+        },
+        {
+          "question": "Phishing (lừa đảo trực tuyến) thường nhằm mục đích gì?",
+          "question_vi": "",
+          "emoji": "⚠️",
+          "options": ["Đánh cắp thông tin cá nhân như mật khẩu, tài khoản", "Tăng tốc độ máy tính", "Dọn dẹp ổ cứng", "Cập nhật phần mềm"],
+          "answer": "Đánh cắp thông tin cá nhân như mật khẩu, tài khoản",
+          "explanation": "Phishing là hành vi giả mạo để lừa người dùng tiết lộ thông tin cá nhân, tài khoản, mật khẩu.",
+          "difficulty": 2
+        },
+        {
+          "question": "Xác thực hai yếu tố (2FA) giúp ích gì cho tài khoản?",
+          "question_vi": "",
+          "emoji": "🔑",
+          "options": ["Tăng bảo mật bằng cách yêu cầu thêm một bước xác minh", "Làm máy tính chạy nhanh hơn", "Tự động xóa virus", "Tăng dung lượng ổ cứng"],
+          "answer": "Tăng bảo mật bằng cách yêu cầu thêm một bước xác minh",
+          "explanation": "2FA yêu cầu yếu tố thứ hai (như mã OTP) ngoài mật khẩu, giúp bảo vệ tài khoản tốt hơn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Việc nào sau đây giúp bảo vệ thông tin cá nhân khi dùng mạng xã hội?",
+          "question_vi": "",
+          "emoji": "🔒",
+          "options": ["Hạn chế chia sẻ thông tin cá nhân công khai", "Đăng số điện thoại, địa chỉ nhà công khai", "Dùng chung một mật khẩu cho mọi tài khoản", "Nhận lời kết bạn từ tất cả người lạ"],
+          "answer": "Hạn chế chia sẻ thông tin cá nhân công khai",
+          "explanation": "Hạn chế công khai thông tin cá nhân giúp giảm nguy cơ bị lợi dụng, lừa đảo hay đánh cắp danh tính.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tại sao không nên dùng cùng một mật khẩu cho nhiều tài khoản?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": ["Nếu một tài khoản bị lộ, các tài khoản khác cũng dễ bị xâm nhập", "Mật khẩu sẽ tự đổi", "Máy tính chạy chậm hơn", "Email không gửi được"],
+          "answer": "Nếu một tài khoản bị lộ, các tài khoản khác cũng dễ bị xâm nhập",
+          "explanation": "Dùng chung mật khẩu khiến kẻ xấu chỉ cần biết một mật khẩu là truy cập được nhiều tài khoản của bạn.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

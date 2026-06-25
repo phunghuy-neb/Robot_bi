@@ -35,7 +35,8 @@ WiFiMulti    wifiMulti;
 Preferences  preferences;
 WebSocketsServer wsServer(WS_PORT);
 
-unsigned long lastCmdTime = 0;
+unsigned long lastCmdTime  = 0;
+unsigned long motorStopAt  = 0;   // millis() target for timed motor stop (0 = not active)
 const unsigned long WATCHDOG_MS = 2000;
 
 // ── Server registration ───────────────────────
@@ -199,59 +200,39 @@ String scanWifiJson() {
 }
 
 // ── Motor command handlers ────────────────────
-void cmdForward(String raw) {
+// Non-blocking timed motor command: set direction+speed and schedule auto-stop.
+// loop() checks motorStopAt each iteration so the WS event handler stays free.
+void _timedMotorCmd(int spdA, bool fwdA, int spdB, bool fwdB, int dur, const char* tag) {
   lastCmdTime = millis();
+  setMotorA(fwdA, spdA);
+  setMotorB(fwdB, spdB);
+  motorStopAt = millis() + (unsigned long)dur;
+  Serial.println(tag);
+}
+
+void cmdForward(String raw) {
   int spd = toPWM(parseSpeed(raw));
-  int dur = parseDuration(raw);
-  setMotorA(true, spd);
-  setMotorB(true, spd);
-  delay(dur);
-  motorStop();
-  Serial.println("OK:forward");
+  _timedMotorCmd(spd, true, spd, true, parseDuration(raw), "OK:forward");
 }
 
 void cmdBackward(String raw) {
-  lastCmdTime = millis();
   int spd = toPWM(parseSpeed(raw));
-  int dur = parseDuration(raw);
-  setMotorA(false, spd);
-  setMotorB(false, spd);
-  delay(dur);
-  motorStop();
-  Serial.println("OK:backward");
+  _timedMotorCmd(spd, false, spd, false, parseDuration(raw), "OK:backward");
 }
 
 void cmdLeft(String raw) {
-  lastCmdTime = millis();
-  int deg = parseDegrees(raw);
-  int dur = map(deg, 0, 360, 0, 2000);
-  setMotorA(false, 180);
-  setMotorB(true,  180);
-  delay(dur);
-  motorStop();
-  Serial.println("OK:turn_left");
+  int dur = map(parseDegrees(raw), 0, 360, 0, 2000);
+  _timedMotorCmd(180, false, 180, true, dur, "OK:turn_left");
 }
 
 void cmdRight(String raw) {
-  lastCmdTime = millis();
-  int deg = parseDegrees(raw);
-  int dur = map(deg, 0, 360, 0, 2000);
-  setMotorA(true,  180);
-  setMotorB(false, 180);
-  delay(dur);
-  motorStop();
-  Serial.println("OK:turn_right");
+  int dur = map(parseDegrees(raw), 0, 360, 0, 2000);
+  _timedMotorCmd(180, true, 180, false, dur, "OK:turn_right");
 }
 
 void cmdSpin(String raw) {
-  lastCmdTime = millis();
   int spd = toPWM(parseSpeed(raw));
-  int dur = parseDuration(raw);
-  setMotorA(true,  spd);
-  setMotorB(false, spd);
-  delay(dur);
-  motorStop();
-  Serial.println("OK:spin");
+  _timedMotorCmd(spd, true, spd, false, parseDuration(raw), "OK:spin");
 }
 
 void cmdDrive(String raw) {
@@ -295,8 +276,8 @@ void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
   else if (line.startsWith("turn_left"))  cmdLeft(line);
   else if (line.startsWith("turn_right")) cmdRight(line);
   else if (line.startsWith("spin"))       cmdSpin(line);
-  else if (line.startsWith("stop"))       { motorStop(); lastCmdTime = 0; wsServer.sendTXT(num, "OK:stop"); }
-  else if (line.startsWith("go_home"))    { motorStop(); lastCmdTime = 0; wsServer.sendTXT(num, "OK:go_home"); }
+  else if (line.startsWith("stop"))       { motorStop(); motorStopAt = 0; lastCmdTime = 0; wsServer.sendTXT(num, "OK:stop"); }
+  else if (line.startsWith("go_home"))    { motorStop(); motorStopAt = 0; lastCmdTime = 0; wsServer.sendTXT(num, "OK:go_home"); }
   else if (line.startsWith("add_wifi")) {
     // Format: add_wifi:{'ssid': 'TenWifi', 'password': 'MatKhau'}
     int ssid_idx = line.indexOf("'ssid': '");
@@ -306,6 +287,8 @@ void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
       String pass = line.substring(pass_idx + 13, line.indexOf("'", pass_idx + 13));
       bool ok = saveWifi(ssid, pass);
       wsServer.sendTXT(num, ok ? "OK:add_wifi" : "ERR:add_wifi_save");
+      motorStop();   // L3: halt motors before reboot
+      motorStopAt = 0;
       delay(500);
       ESP.restart();
     } else {
@@ -368,6 +351,12 @@ void setup() {
 void loop() {
   wsServer.loop();
 
+  // H1: Non-blocking timed motor stop
+  if (motorStopAt > 0 && millis() >= motorStopAt) {
+    motorStop();
+    motorStopAt = 0;
+  }
+
   // Register khi boot (retry 15s), sau đó keepalive mỗi 60s
   static unsigned long lastRegister = 0;
   static bool registeredOnce = false;
@@ -401,7 +390,7 @@ void loop() {
   else if (line.startsWith("turn_left"))  cmdLeft(line);
   else if (line.startsWith("turn_right")) cmdRight(line);
   else if (line.startsWith("spin"))       cmdSpin(line);
-  else if (line.startsWith("stop"))       { motorStop(); lastCmdTime = 0; Serial.println("OK:stop"); }
-  else if (line.startsWith("go_home"))    { motorStop(); lastCmdTime = 0; Serial.println("OK:go_home"); }
+  else if (line.startsWith("stop"))       { motorStop(); motorStopAt = 0; lastCmdTime = 0; Serial.println("OK:stop"); }
+  else if (line.startsWith("go_home"))    { motorStop(); motorStopAt = 0; lastCmdTime = 0; Serial.println("OK:go_home"); }
   else                                    { Serial.println("ERR:unknown"); }
 }

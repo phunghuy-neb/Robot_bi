@@ -1,0 +1,683 @@
+{
+  "subject": "chinese",
+  "exams": [
+    {
+      "paper_id": "chinese_exam_grade6_1",
+      "title": "Tiếng Trung — Sơ cấp (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_so_cap",
+      "questions": [
+        {
+          "question": "“你好” (nǐ hǎo) trong tiếng Trung có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "Xin chào",
+            "Tạm biệt",
+            "Cảm ơn",
+            "Xin lỗi"
+          ],
+          "answer": "Xin chào",
+          "explanation": "“你好” (nǐ hǎo) nghĩa là “Xin chào”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“谢谢” (xièxie) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn",
+            "Xin chào",
+            "Tạm biệt",
+            "Không"
+          ],
+          "answer": "Cảm ơn",
+          "explanation": "“谢谢” (xièxie) nghĩa là “Cảm ơn”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ “一” trong tiếng Trung là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": [
+            "số 1 (một)",
+            "số 2",
+            "số 3",
+            "số 10"
+          ],
+          "answer": "số 1 (một)",
+          "explanation": "“一” (yī) là số 1.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ “二” là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": [
+            "số 2 (hai)",
+            "số 1",
+            "số 3",
+            "số 5"
+          ],
+          "answer": "số 2 (hai)",
+          "explanation": "“二” (èr) là số 2.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ “三” là số mấy?",
+          "question_vi": "",
+          "emoji": "3️⃣",
+          "options": [
+            "số 3 (ba)",
+            "số 2",
+            "số 4",
+            "số 8"
+          ],
+          "answer": "số 3 (ba)",
+          "explanation": "“三” (sān) là số 3.",
+          "difficulty": 1
+        },
+        {
+          "question": "“再见” (zàijiàn) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "Tạm biệt",
+            "Xin chào",
+            "Cảm ơn",
+            "Vâng"
+          ],
+          "answer": "Tạm biệt",
+          "explanation": "“再见” (zàijiàn) nghĩa là “Tạm biệt”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hệ thống phiên âm chữ Hán bằng chữ Latinh trong tiếng Trung gọi là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "Pinyin (Bính âm)",
+            "Romaji",
+            "Hangul",
+            "Kanji"
+          ],
+          "answer": "Pinyin (Bính âm)",
+          "explanation": "Pinyin (Bính âm) là hệ phiên âm chữ Hán bằng chữ Latinh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ “人” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🧍",
+          "options": [
+            "người",
+            "trời",
+            "nước",
+            "lửa"
+          ],
+          "answer": "người",
+          "explanation": "“人” (rén) nghĩa là “người”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ “水” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "nước",
+            "lửa",
+            "đất",
+            "cây"
+          ],
+          "answer": "nước",
+          "explanation": "“水” (shuǐ) nghĩa là “nước”.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_exam_grade10_1",
+      "title": "Tiếng Trung — Sơ–trung cấp (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_trung_cap",
+      "questions": [
+        {
+          "question": "“我” (wǒ) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙋",
+          "options": [
+            "tôi",
+            "bạn",
+            "anh ấy",
+            "chúng tôi"
+          ],
+          "answer": "tôi",
+          "explanation": "“我” (wǒ) nghĩa là “tôi”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“你” (nǐ) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👉",
+          "options": [
+            "bạn",
+            "tôi",
+            "nó",
+            "họ"
+          ],
+          "answer": "bạn",
+          "explanation": "“你” (nǐ) nghĩa là “bạn”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tiếng Trung phổ thông (Quan thoại) có bao nhiêu thanh điệu cơ bản?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "4 thanh (và 1 thanh nhẹ)",
+            "6 thanh",
+            "2 thanh",
+            "không có thanh điệu"
+          ],
+          "answer": "4 thanh (và 1 thanh nhẹ)",
+          "explanation": "Tiếng phổ thông có 4 thanh điệu cơ bản và một thanh nhẹ.",
+          "difficulty": 3
+        },
+        {
+          "question": "“中国” (Zhōngguó) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🇨🇳",
+          "options": [
+            "Trung Quốc",
+            "Việt Nam",
+            "Nhật Bản",
+            "Hàn Quốc"
+          ],
+          "answer": "Trung Quốc",
+          "explanation": "“中国” (Zhōngguó) nghĩa là “Trung Quốc”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ “大” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🔠",
+          "options": [
+            "to, lớn",
+            "nhỏ",
+            "cao",
+            "dài"
+          ],
+          "answer": "to, lớn",
+          "explanation": "“大” (dà) nghĩa là “to, lớn”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chữ “小” có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🔡",
+          "options": [
+            "nhỏ",
+            "to",
+            "dài",
+            "ngắn"
+          ],
+          "answer": "nhỏ",
+          "explanation": "“小” (xiǎo) nghĩa là “nhỏ”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“学生” (xuésheng) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🎒",
+          "options": [
+            "học sinh",
+            "giáo viên",
+            "bác sĩ",
+            "bạn bè"
+          ],
+          "answer": "học sinh",
+          "explanation": "“学生” (xuésheng) nghĩa là “học sinh”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“老师” (lǎoshī) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👩‍🏫",
+          "options": [
+            "giáo viên",
+            "học sinh",
+            "bố mẹ",
+            "bạn"
+          ],
+          "answer": "giáo viên",
+          "explanation": "“老师” (lǎoshī) nghĩa là “giáo viên”.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_exam_thpt_1",
+      "title": "Tiếng Trung — Trung cấp (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_thpt",
+      "questions": [
+        {
+          "question": "“谢谢你” (xièxie nǐ) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn bạn",
+            "Xin chào bạn",
+            "Tạm biệt bạn",
+            "Bạn tên gì"
+          ],
+          "answer": "Cảm ơn bạn",
+          "explanation": "“谢谢你” (xièxie nǐ) nghĩa là “Cảm ơn bạn”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu “你叫什么名字?” (Nǐ jiào shénme míngzi?) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "Bạn tên là gì?",
+            "Bạn bao nhiêu tuổi?",
+            "Bạn khỏe không?",
+            "Bạn ở đâu?"
+          ],
+          "answer": "Bạn tên là gì?",
+          "explanation": "Câu này hỏi “Bạn tên là gì?”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đơn vị tiền tệ của Trung Quốc là gì?",
+          "question_vi": "",
+          "emoji": "💴",
+          "options": [
+            "Nhân dân tệ (RMB/CNY)",
+            "Yên",
+            "Won",
+            "Đô la"
+          ],
+          "answer": "Nhân dân tệ (RMB/CNY)",
+          "explanation": "Đơn vị tiền tệ của Trung Quốc là Nhân dân tệ (CNY/RMB).",
+          "difficulty": 3
+        },
+        {
+          "question": "Chữ Hán còn được gọi là gì trong tiếng Trung?",
+          "question_vi": "",
+          "emoji": "🈶",
+          "options": [
+            "汉字 (Hànzì)",
+            "Kana",
+            "Hangul",
+            "Romaji"
+          ],
+          "answer": "汉字 (Hànzì)",
+          "explanation": "Chữ Hán trong tiếng Trung gọi là 汉字 (Hànzì).",
+          "difficulty": 3
+        },
+        {
+          "question": "“今天” (jīntiān) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📅",
+          "options": [
+            "hôm nay",
+            "hôm qua",
+            "ngày mai",
+            "buổi sáng"
+          ],
+          "answer": "hôm nay",
+          "explanation": "“今天” (jīntiān) nghĩa là “hôm nay”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“明天” (míngtiān) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "📆",
+          "options": [
+            "ngày mai",
+            "hôm nay",
+            "hôm qua",
+            "buổi tối"
+          ],
+          "answer": "ngày mai",
+          "explanation": "“明天” (míngtiān) nghĩa là “ngày mai”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để hỏi “bao nhiêu tiền?” trong tiếng Trung ta nói thế nào?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": [
+            "多少钱? (duōshao qián?)",
+            "你好吗?",
+            "再见",
+            "谢谢"
+          ],
+          "answer": "多少钱? (duōshao qián?)",
+          "explanation": "“多少钱?” (duōshao qián?) nghĩa là “bao nhiêu tiền?”.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_hsg_school_1",
+      "title": "Tiếng Trung — Nâng cao cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_nang_cao",
+      "questions": [
+        {
+          "question": "Câu “我是学生” (Wǒ shì xuésheng) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🎓",
+          "options": [
+            "Tôi là học sinh",
+            "Bạn là giáo viên",
+            "Tôi yêu bạn",
+            "Anh ấy đi học"
+          ],
+          "answer": "Tôi là học sinh",
+          "explanation": "“我是学生” nghĩa là “Tôi là học sinh”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trợ từ “吗” (ma) đặt cuối câu dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "tạo câu hỏi (nghi vấn)",
+            "phủ định",
+            "ra lệnh",
+            "cảm thán"
+          ],
+          "answer": "tạo câu hỏi (nghi vấn)",
+          "explanation": "“吗” đặt cuối câu trần thuật để biến nó thành câu hỏi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Chữ “好” trong “你好” có nghĩa gốc là gì?",
+          "question_vi": "",
+          "emoji": "👍",
+          "options": [
+            "tốt",
+            "đẹp",
+            "xấu",
+            "to"
+          ],
+          "answer": "tốt",
+          "explanation": "“好” (hǎo) nghĩa gốc là “tốt”.",
+          "difficulty": 3
+        },
+        {
+          "question": "“喜欢” (xǐhuan) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "thích",
+            "ghét",
+            "ăn",
+            "đi"
+          ],
+          "answer": "thích",
+          "explanation": "“喜欢” (xǐhuan) nghĩa là “thích”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trật tự câu cơ bản trong tiếng Trung là gì?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "Chủ ngữ – Động từ – Tân ngữ (S–V–O)",
+            "S–O–V",
+            "V–S–O",
+            "O–S–V"
+          ],
+          "answer": "Chủ ngữ – Động từ – Tân ngữ (S–V–O)",
+          "explanation": "Tiếng Trung có trật tự cơ bản là Chủ ngữ – Động từ – Tân ngữ (S–V–O).",
+          "difficulty": 4
+        },
+        {
+          "question": "Số “十” (shí) trong tiếng Trung là số mấy?",
+          "question_vi": "",
+          "emoji": "🔟",
+          "options": [
+            "10 (mười)",
+            "4",
+            "100",
+            "1000"
+          ],
+          "answer": "10 (mười)",
+          "explanation": "“十” (shí) là số 10.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_hsg_district_1",
+      "title": "Tiếng Trung — Nâng cao cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_nang_cao",
+      "questions": [
+        {
+          "question": "Từ phủ định “不” (bù) trong tiếng Trung có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "không",
+            "có",
+            "rất",
+            "và"
+          ],
+          "answer": "không",
+          "explanation": "“不” (bù) là từ phủ định, nghĩa là “không”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu “现在几点?” (Xiànzài jǐ diǎn?) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🕐",
+          "options": [
+            "Bây giờ là mấy giờ?",
+            "Hôm nay thứ mấy?",
+            "Bạn tên gì?",
+            "Bao nhiêu tiền?"
+          ],
+          "answer": "Bây giờ là mấy giờ?",
+          "explanation": "“现在几点?” hỏi “Bây giờ là mấy giờ?”.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lượng từ (量词) trong tiếng Trung dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "đứng giữa số từ và danh từ để chỉ đơn vị",
+            "thay thế động từ",
+            "tạo câu hỏi",
+            "biểu thị thì"
+          ],
+          "answer": "đứng giữa số từ và danh từ để chỉ đơn vị",
+          "explanation": "Lượng từ đứng giữa số từ và danh từ để chỉ đơn vị đếm (ví dụ 一个人).",
+          "difficulty": 4
+        },
+        {
+          "question": "Chữ “爱” (ài) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "yêu",
+            "ghét",
+            "sợ",
+            "vui"
+          ],
+          "answer": "yêu",
+          "explanation": "“爱” (ài) nghĩa là “yêu”.",
+          "difficulty": 3
+        },
+        {
+          "question": "“中文” (Zhōngwén) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🈳",
+          "options": [
+            "tiếng Trung (Hán ngữ)",
+            "tiếng Anh",
+            "tiếng Việt",
+            "tiếng Nhật"
+          ],
+          "answer": "tiếng Trung (Hán ngữ)",
+          "explanation": "“中文” (Zhōngwén) nghĩa là “tiếng Trung”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Kỳ thi đánh giá năng lực tiếng Trung quốc tế phổ biến có tên là gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "HSK",
+            "TOEIC",
+            "JLPT",
+            "TOPIK"
+          ],
+          "answer": "HSK",
+          "explanation": "HSK (Hán ngữ Thủy bình Khảo thí) là kỳ thi năng lực tiếng Trung quốc tế.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "chinese_hsg_province_1",
+      "title": "Tiếng Trung — Nâng cao cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_trung_chuyen_sau",
+      "questions": [
+        {
+          "question": "Chữ Hán thuộc loại hình văn tự nào?",
+          "question_vi": "",
+          "emoji": "🈶",
+          "options": [
+            "chữ tượng hình/biểu ý (chữ khối vuông)",
+            "chữ cái ghi âm (alphabet)",
+            "chữ tượng thanh thuần túy",
+            "chữ số"
+          ],
+          "answer": "chữ tượng hình/biểu ý (chữ khối vuông)",
+          "explanation": "Chữ Hán là văn tự biểu ý (tượng hình), mỗi chữ là một khối vuông.",
+          "difficulty": 4
+        },
+        {
+          "question": "“成语” (chéngyǔ) trong tiếng Trung là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "thành ngữ (thường gồm 4 chữ)",
+            "một loại số đếm",
+            "một dấu câu",
+            "một loại chữ viết tắt"
+          ],
+          "answer": "thành ngữ (thường gồm 4 chữ)",
+          "explanation": "“成语” (chéngyǔ) là thành ngữ, thường gồm 4 chữ Hán.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bộ thủ (部首) trong chữ Hán có vai trò gì?",
+          "question_vi": "",
+          "emoji": "🔎",
+          "options": [
+            "giúp phân loại và tra cứu chữ Hán theo thành phần ý nghĩa",
+            "biểu thị thanh điệu",
+            "chỉ để đếm số nét",
+            "ghi ngày tháng"
+          ],
+          "answer": "giúp phân loại và tra cứu chữ Hán theo thành phần ý nghĩa",
+          "explanation": "Bộ thủ giúp phân loại, tra cứu chữ Hán theo bộ phận biểu ý.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Phồn thể” và “giản thể” là hai dạng của cái gì?",
+          "question_vi": "",
+          "emoji": "🖌️",
+          "options": [
+            "chữ Hán (cách viết chữ)",
+            "thanh điệu",
+            "phiên âm pinyin",
+            "dấu câu"
+          ],
+          "answer": "chữ Hán (cách viết chữ)",
+          "explanation": "Phồn thể và giản thể là hai cách viết chữ Hán.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu “他不是中国人” (Tā bú shì Zhōngguó rén) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙅",
+          "options": [
+            "Anh ấy không phải là người Trung Quốc",
+            "Anh ấy là người Trung Quốc",
+            "Tôi là người Việt Nam",
+            "Bạn là học sinh"
+          ],
+          "answer": "Anh ấy không phải là người Trung Quốc",
+          "explanation": "Câu này nghĩa là “Anh ấy không phải là người Trung Quốc”.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong pinyin, dấu thanh thứ nhất (ˉ) biểu thị thanh điệu thế nào?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "thanh cao và bằng (ngang)",
+            "đi lên",
+            "xuống rồi lên",
+            "đi xuống"
+          ],
+          "answer": "thanh cao và bằng (ngang)",
+          "explanation": "Thanh 1 trong pinyin là thanh cao, bằng phẳng (ngang).",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

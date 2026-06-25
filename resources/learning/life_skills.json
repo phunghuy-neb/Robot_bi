@@ -1,0 +1,203 @@
+{
+  "subject": "life_skills",
+  "exams": [
+    {
+      "paper_id": "life_skills_safety_1",
+      "title": "Kỹ năng sống — An toàn cá nhân (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "personal_safety",
+      "questions": [
+        {
+          "question": "Số điện thoại gọi cứu hỏa ở Việt Nam là số nào?",
+          "question_vi": "",
+          "emoji": "🚒",
+          "options": ["114", "113", "115", "111"],
+          "answer": "114",
+          "explanation": "114 là số gọi cứu hỏa; 113 công an, 115 cấp cứu y tế, 111 tổng đài bảo vệ trẻ em.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi bị đau bụng nặng và cần xe cấp cứu, em nên gọi số nào?",
+          "question_vi": "",
+          "emoji": "🚑",
+          "options": ["115", "113", "114", "112"],
+          "answer": "115",
+          "explanation": "115 là số cấp cứu y tế, gọi khi cần xe cứu thương; 113 là công an, 114 là cứu hỏa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi thấy có người đột nhập trộm cắp trong nhà, em nên gọi số nào?",
+          "question_vi": "",
+          "emoji": "👮",
+          "options": ["113", "115", "114", "116"],
+          "answer": "113",
+          "explanation": "113 là số gọi công an để báo về trật tự, an ninh; 115 cấp cứu, 114 cứu hỏa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi bị bắt nạt hoặc xâm hại, trẻ em có thể gọi đến tổng đài bảo vệ trẻ em số nào?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": ["111", "113", "115", "114"],
+          "answer": "111",
+          "explanation": "111 là Tổng đài quốc gia bảo vệ trẻ em, miễn phí, hoạt động 24/7.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một người lạ rủ em đi theo và hứa cho kẹo. Em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🚷",
+          "options": ["Từ chối và đi tìm bố mẹ hoặc người tin cậy", "Đi theo để lấy kẹo", "Lên xe của người đó", "Giữ bí mật không nói với ai"],
+          "answer": "Từ chối và đi tìm bố mẹ hoặc người tin cậy",
+          "explanation": "Không đi theo người lạ dù được dụ dỗ; hãy từ chối và báo ngay cho người lớn tin cậy.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi tay em đang ướt, em KHÔNG nên làm gì để tránh bị điện giật?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["Chạm vào ổ cắm hoặc thiết bị điện", "Lau khô tay bằng khăn", "Tránh xa ổ điện", "Báo cho người lớn"],
+          "answer": "Chạm vào ổ cắm hoặc thiết bị điện",
+          "explanation": "Nước dẫn điện, chạm vào ổ điện khi tay ướt rất dễ bị điện giật. Phải lau khô tay trước.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_communication_1",
+      "title": "Kỹ năng sống — Giao tiếp và ứng xử (Đề 1)",
+      "track": "practice",
+      "level": "grade_2",
+      "age_group": "6-7",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "communication",
+      "questions": [
+        {
+          "question": "Khi gặp thầy cô giáo vào buổi sáng, em nên nói gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": ["Em chào thầy/cô ạ!", "Im lặng đi qua", "Quay mặt đi chỗ khác", "Cười to và bỏ chạy"],
+          "answer": "Em chào thầy/cô ạ!",
+          "explanation": "Chào hỏi lễ phép là cách ứng xử lịch sự khi gặp người lớn và thầy cô.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi được bạn giúp đỡ, em nên nói lời gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": ["Cảm ơn bạn!", "Kệ bạn", "Đó là việc của bạn", "Không nói gì"],
+          "answer": "Cảm ơn bạn!",
+          "explanation": "Nói lời cảm ơn khi được giúp đỡ thể hiện sự lịch sự và biết ơn.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi em lỡ làm bạn đau, em nên làm gì trước tiên?",
+          "question_vi": "",
+          "emoji": "😟",
+          "options": ["Xin lỗi bạn", "Đổ lỗi cho bạn khác", "Bỏ chạy", "Giả vờ không thấy"],
+          "answer": "Xin lỗi bạn",
+          "explanation": "Khi làm sai hoặc làm người khác đau, lời xin lỗi chân thành là cách ứng xử đúng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi làm việc nhóm, cách ứng xử nào là tốt nhất?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": ["Cùng nhau bàn bạc và chia việc công bằng", "Một mình làm hết, không nghe ai", "Tranh giành phần dễ", "Để mặc bạn làm tất cả"],
+          "answer": "Cùng nhau bàn bạc và chia việc công bằng",
+          "explanation": "Làm việc nhóm cần hợp tác, lắng nghe và chia việc công bằng để cùng đạt kết quả tốt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi bạn đang nói, em nên làm gì để thể hiện sự lắng nghe?",
+          "question_vi": "",
+          "emoji": "👂",
+          "options": ["Nhìn bạn và chú ý nghe, không ngắt lời", "Ngắt lời liên tục", "Nhìn điện thoại", "Nói chuyện riêng với người khác"],
+          "answer": "Nhìn bạn và chú ý nghe, không ngắt lời",
+          "explanation": "Lắng nghe tốt là nhìn vào người nói, tập trung và không ngắt lời.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi em muốn mượn đồ của bạn, em nên nói thế nào cho lịch sự?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": ["Cho mình mượn nhé, cảm ơn bạn!", "Lấy luôn không hỏi", "Giật khỏi tay bạn", "Đòi bạn phải cho"],
+          "answer": "Cho mình mượn nhé, cảm ơn bạn!",
+          "explanation": "Hỏi mượn lịch sự và nói cảm ơn thể hiện sự tôn trọng người khác.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "life_skills_emotions_1",
+      "title": "Kỹ năng sống — Cảm xúc (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "emotions",
+      "questions": [
+        {
+          "question": "Khi được điểm cao và bố mẹ khen, em thường cảm thấy thế nào?",
+          "question_vi": "",
+          "emoji": "😄",
+          "options": ["Vui", "Buồn", "Sợ hãi", "Tức giận"],
+          "answer": "Vui",
+          "explanation": "Được khen ngợi và đạt kết quả tốt thường mang lại cảm xúc vui vẻ, hạnh phúc.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi mất một món đồ chơi yêu thích, em thường cảm thấy cảm xúc nào?",
+          "question_vi": "",
+          "emoji": "😢",
+          "options": ["Buồn", "Vui", "Hào hứng", "Tự hào"],
+          "answer": "Buồn",
+          "explanation": "Mất đi thứ mình yêu quý là tình huống thường khiến chúng ta cảm thấy buồn.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi em đang rất tức giận, cách nào giúp em bình tĩnh lại tốt nhất?",
+          "question_vi": "",
+          "emoji": "😤",
+          "options": ["Hít thở sâu và đếm từ 1 đến 10", "Đập phá đồ đạc", "La hét vào người khác", "Đánh bạn"],
+          "answer": "Hít thở sâu và đếm từ 1 đến 10",
+          "explanation": "Hít thở sâu và đếm chậm giúp cơ thể thư giãn và bình tĩnh trở lại khi tức giận.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi em cảm thấy buồn hoặc lo lắng, điều nên làm là gì?",
+          "question_vi": "",
+          "emoji": "💬",
+          "options": ["Chia sẻ cảm xúc với bố mẹ hoặc người tin cậy", "Giấu kín và không nói với ai", "Tự làm đau mình", "Cáu gắt với mọi người"],
+          "answer": "Chia sẻ cảm xúc với bố mẹ hoặc người tin cậy",
+          "explanation": "Chia sẻ cảm xúc với người tin cậy giúp em được an ủi và giải tỏa nỗi buồn, lo lắng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi ở một mình trong bóng tối và nghe tiếng động lạ, em cảm thấy cảm xúc nào?",
+          "question_vi": "",
+          "emoji": "😨",
+          "options": ["Sợ hãi", "Vui sướng", "Tự hào", "Buồn cười"],
+          "answer": "Sợ hãi",
+          "explanation": "Bóng tối và tiếng động lạ thường gây ra cảm giác sợ hãi; đây là cảm xúc bình thường.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi thấy bạn đang khóc vì buồn, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🤗",
+          "options": ["Hỏi thăm và an ủi bạn", "Cười nhạo bạn", "Bỏ đi chỗ khác", "Mách với cả lớp để trêu bạn"],
+          "answer": "Hỏi thăm và an ủi bạn",
+          "explanation": "Quan tâm, hỏi thăm và an ủi bạn thể hiện sự đồng cảm và lòng tốt.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

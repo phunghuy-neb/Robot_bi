@@ -1,0 +1,683 @@
+{
+  "subject": "informatics",
+  "exams": [
+    {
+      "paper_id": "informatics_exam_grade6_1",
+      "title": "Tin học — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_co_ban",
+      "questions": [
+        {
+          "question": "Thiết bị nào dùng để nhập văn bản vào máy tính?",
+          "question_vi": "",
+          "emoji": "⌨️",
+          "options": [
+            "bàn phím",
+            "màn hình",
+            "loa",
+            "máy in"
+          ],
+          "answer": "bàn phím",
+          "explanation": "Bàn phím là thiết bị nhập (gõ chữ, số) vào máy tính.",
+          "difficulty": 1
+        },
+        {
+          "question": "Bộ phận nào của máy tính được ví như “bộ não”, dùng để xử lý thông tin?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": [
+            "CPU (bộ xử lý trung tâm)",
+            "màn hình",
+            "chuột",
+            "loa"
+          ],
+          "answer": "CPU (bộ xử lý trung tâm)",
+          "explanation": "CPU là bộ xử lý trung tâm, ví như bộ não của máy tính.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thiết bị nào dùng để hiển thị thông tin cho người dùng xem?",
+          "question_vi": "",
+          "emoji": "🖥️",
+          "options": [
+            "màn hình",
+            "bàn phím",
+            "chuột",
+            "micro"
+          ],
+          "answer": "màn hình",
+          "explanation": "Màn hình là thiết bị xuất, hiển thị thông tin.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chuột máy tính dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🖱️",
+          "options": [
+            "di chuyển con trỏ và chọn đối tượng",
+            "gõ chữ",
+            "in giấy",
+            "phát âm thanh"
+          ],
+          "answer": "di chuyển con trỏ và chọn đối tượng",
+          "explanation": "Chuột dùng để di chuyển con trỏ và chọn, nhấp vào các đối tượng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thông tin trong máy tính được lưu trữ dưới dạng nào?",
+          "question_vi": "",
+          "emoji": "💾",
+          "options": [
+            "dãy số 0 và 1 (nhị phân)",
+            "chữ viết tay",
+            "hình vẽ trên giấy",
+            "âm thanh thuần túy"
+          ],
+          "answer": "dãy số 0 và 1 (nhị phân)",
+          "explanation": "Máy tính lưu trữ thông tin dưới dạng dãy bit 0 và 1.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phần mềm nào dùng để soạn thảo văn bản?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "Microsoft Word",
+            "máy tính bỏ túi",
+            "loa ngoài",
+            "webcam"
+          ],
+          "answer": "Microsoft Word",
+          "explanation": "Microsoft Word là phần mềm soạn thảo văn bản.",
+          "difficulty": 1
+        },
+        {
+          "question": "Để tắt máy tính đúng cách, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🔌",
+          "options": [
+            "chọn lệnh Shut down rồi chờ máy tắt",
+            "rút điện đột ngột",
+            "đập vào thân máy",
+            "chỉ đóng màn hình lại"
+          ],
+          "answer": "chọn lệnh Shut down rồi chờ máy tắt",
+          "explanation": "Tắt máy đúng cách là chọn lệnh Shut down để máy lưu và tắt an toàn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Internet dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "kết nối và trao đổi thông tin trên toàn cầu",
+            "nấu ăn",
+            "giặt quần áo",
+            "đo nhiệt độ phòng"
+          ],
+          "answer": "kết nối và trao đổi thông tin trên toàn cầu",
+          "explanation": "Internet là mạng kết nối toàn cầu để trao đổi, chia sẻ thông tin.",
+          "difficulty": 1
+        },
+        {
+          "question": "Để bảo vệ mắt khi dùng máy tính lâu, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "👀",
+          "options": [
+            "nghỉ ngơi, nhìn ra xa sau mỗi 20–30 phút",
+            "nhìn sát màn hình liên tục",
+            "tắt hết đèn trong phòng",
+            "dùng máy suốt đêm"
+          ],
+          "answer": "nghỉ ngơi, nhìn ra xa sau mỗi 20–30 phút",
+          "explanation": "Nên nghỉ và nhìn xa định kỳ để mắt đỡ mỏi khi dùng máy tính lâu.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_exam_grade10_1",
+      "title": "Tin học — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_thcs",
+      "questions": [
+        {
+          "question": "1 byte bằng bao nhiêu bit?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "8 bit",
+            "4 bit",
+            "16 bit",
+            "1024 bit"
+          ],
+          "answer": "8 bit",
+          "explanation": "1 byte = 8 bit.",
+          "difficulty": 2
+        },
+        {
+          "question": "Sắp các đơn vị lưu trữ theo thứ tự tăng dần là?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": [
+            "KB < MB < GB",
+            "GB < MB < KB",
+            "MB < KB < GB",
+            "KB < GB < MB"
+          ],
+          "answer": "KB < MB < GB",
+          "explanation": "Thứ tự tăng dần: KB < MB < GB.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hệ điều hành là gì?",
+          "question_vi": "",
+          "emoji": "🖥️",
+          "options": [
+            "phần mềm quản lý và điều khiển hoạt động của máy tính",
+            "một thiết bị phần cứng",
+            "một loại virus",
+            "một trang web"
+          ],
+          "answer": "phần mềm quản lý và điều khiển hoạt động của máy tính",
+          "explanation": "Hệ điều hành là phần mềm quản lý, điều khiển hoạt động của máy tính (ví dụ Windows).",
+          "difficulty": 3
+        },
+        {
+          "question": "Phần mềm nào sau đây là trình duyệt web?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "Google Chrome",
+            "Microsoft Excel",
+            "Notepad",
+            "Paint"
+          ],
+          "answer": "Google Chrome",
+          "explanation": "Google Chrome là trình duyệt web.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tệp có phần mở rộng .jpg thường là loại dữ liệu gì?",
+          "question_vi": "",
+          "emoji": "🖼️",
+          "options": [
+            "hình ảnh",
+            "văn bản thuần",
+            "âm thanh",
+            "video"
+          ],
+          "answer": "hình ảnh",
+          "explanation": "Phần mở rộng .jpg là định dạng tệp hình ảnh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thuật toán là gì?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "một dãy hữu hạn các bước nhằm giải quyết một bài toán",
+            "một loại máy tính",
+            "một thiết bị mạng",
+            "một trang web"
+          ],
+          "answer": "một dãy hữu hạn các bước nhằm giải quyết một bài toán",
+          "explanation": "Thuật toán là một dãy hữu hạn các bước rõ ràng để giải một bài toán.",
+          "difficulty": 3
+        },
+        {
+          "question": "Để bảo vệ tài khoản, mật khẩu nên được đặt như thế nào?",
+          "question_vi": "",
+          "emoji": "🔒",
+          "options": [
+            "đủ mạnh (kết hợp chữ, số, ký tự đặc biệt) và giữ bí mật",
+            "dùng ngày sinh cho dễ nhớ",
+            "dùng dãy “123456”",
+            "chia sẻ cho nhiều người"
+          ],
+          "answer": "đủ mạnh (kết hợp chữ, số, ký tự đặc biệt) và giữ bí mật",
+          "explanation": "Mật khẩu nên đủ mạnh và được giữ bí mật để bảo vệ tài khoản.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong bảng tính (Excel), một công thức thường bắt đầu bằng dấu nào?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": [
+            "dấu bằng (=)",
+            "dấu cộng (+)",
+            "dấu chấm (.)",
+            "dấu hỏi (?)"
+          ],
+          "answer": "dấu bằng (=)",
+          "explanation": "Công thức trong Excel bắt đầu bằng dấu “=”.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_exam_thpt_1",
+      "title": "Tin học — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_thpt",
+      "questions": [
+        {
+          "question": "Trong hệ nhị phân, số thập phân 2 được biểu diễn là gì?",
+          "question_vi": "",
+          "emoji": "💻",
+          "options": [
+            "10",
+            "2",
+            "11",
+            "01"
+          ],
+          "answer": "10",
+          "explanation": "Số 2 trong hệ thập phân viết là 10 trong hệ nhị phân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Ngôn ngữ lập trình nào phổ biến trong dạy học và khoa học dữ liệu?",
+          "question_vi": "",
+          "emoji": "🐍",
+          "options": [
+            "Python",
+            "HTML thuần",
+            "CSS",
+            "định dạng PDF"
+          ],
+          "answer": "Python",
+          "explanation": "Python là ngôn ngữ lập trình phổ biến cho giáo dục và khoa học dữ liệu; HTML/CSS là ngôn ngữ đánh dấu/định kiểu.",
+          "difficulty": 3
+        },
+        {
+          "question": "CPU thực hiện các phép tính số học và logic ở bộ phận nào?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": [
+            "bộ số học – logic (ALU)",
+            "ổ cứng",
+            "màn hình",
+            "bàn phím"
+          ],
+          "answer": "bộ số học – logic (ALU)",
+          "explanation": "ALU (Arithmetic Logic Unit) trong CPU thực hiện các phép tính số học và logic.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bộ nhớ nào bị mất dữ liệu khi tắt máy tính?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": [
+            "RAM",
+            "ổ cứng (HDD/SSD)",
+            "USB",
+            "đĩa CD"
+          ],
+          "answer": "RAM",
+          "explanation": "RAM là bộ nhớ tạm thời, mất dữ liệu khi mất điện/tắt máy.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một địa chỉ IP dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "định danh một thiết bị trong mạng máy tính",
+            "lưu hình ảnh",
+            "đo tốc độ CPU",
+            "in tài liệu"
+          ],
+          "answer": "định danh một thiết bị trong mạng máy tính",
+          "explanation": "Địa chỉ IP định danh thiết bị trên mạng để truyền nhận dữ liệu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trí tuệ nhân tạo (AI) là lĩnh vực nghiên cứu về điều gì?",
+          "question_vi": "",
+          "emoji": "🤖",
+          "options": [
+            "tạo ra máy móc có khả năng thực hiện các nhiệm vụ cần trí thông minh của con người",
+            "sửa chữa phần cứng",
+            "vẽ tranh bằng tay",
+            "lắp ráp ô tô"
+          ],
+          "answer": "tạo ra máy móc có khả năng thực hiện các nhiệm vụ cần trí thông minh của con người",
+          "explanation": "AI nghiên cứu cách tạo máy móc thực hiện những việc cần trí thông minh như con người.",
+          "difficulty": 4
+        },
+        {
+          "question": "Việc sao lưu (backup) dữ liệu nhằm mục đích gì?",
+          "question_vi": "",
+          "emoji": "🗄️",
+          "options": [
+            "phòng tránh mất mát dữ liệu khi có sự cố",
+            "làm máy chạy nhanh hơn",
+            "tăng dung lượng màn hình",
+            "tự động xóa virus"
+          ],
+          "answer": "phòng tránh mất mát dữ liệu khi có sự cố",
+          "explanation": "Sao lưu giúp khôi phục dữ liệu khi hỏng hóc, mất mát hay bị tấn công.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_hsg_school_1",
+      "title": "Tin học — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Số thập phân 5 trong hệ nhị phân là gì?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "101",
+            "100",
+            "110",
+            "111"
+          ],
+          "answer": "101",
+          "explanation": "5 = 4 + 1 = 101 trong hệ nhị phân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong lập trình, cấu trúc lặp dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "thực hiện lặp đi lặp lại một khối lệnh",
+            "chỉ chạy đúng một lần",
+            "kết thúc chương trình",
+            "khai báo biến"
+          ],
+          "answer": "thực hiện lặp đi lặp lại một khối lệnh",
+          "explanation": "Cấu trúc lặp (for, while) cho phép lặp lại một khối lệnh nhiều lần.",
+          "difficulty": 4
+        },
+        {
+          "question": "Biến trong lập trình là gì?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": [
+            "một vùng nhớ dùng để lưu trữ dữ liệu có thể thay đổi",
+            "một dòng lệnh in ra màn hình",
+            "một thiết bị phần cứng",
+            "một loại virus"
+          ],
+          "answer": "một vùng nhớ dùng để lưu trữ dữ liệu có thể thay đổi",
+          "explanation": "Biến là vùng nhớ có tên dùng để lưu dữ liệu có thể thay đổi trong chương trình.",
+          "difficulty": 4
+        },
+        {
+          "question": "1 KB bằng bao nhiêu byte (theo cách tính thông dụng trong tin học)?",
+          "question_vi": "",
+          "emoji": "💾",
+          "options": [
+            "1024 byte",
+            "1000 byte",
+            "8 byte",
+            "100 byte"
+          ],
+          "answer": "1024 byte",
+          "explanation": "Theo cách tính nhị phân thông dụng, 1 KB = 1024 byte.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thuật toán sắp xếp dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "sắp xếp các phần tử theo một thứ tự nhất định",
+            "xóa toàn bộ dữ liệu",
+            "kết nối mạng",
+            "vẽ đồ thị"
+          ],
+          "answer": "sắp xếp các phần tử theo một thứ tự nhất định",
+          "explanation": "Thuật toán sắp xếp sắp lại các phần tử theo thứ tự tăng hoặc giảm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hệ nhị phân chỉ sử dụng những chữ số nào?",
+          "question_vi": "",
+          "emoji": "0️⃣",
+          "options": [
+            "0 và 1",
+            "0 đến 9",
+            "1 và 2",
+            "0 và 2"
+          ],
+          "answer": "0 và 1",
+          "explanation": "Hệ nhị phân (cơ số 2) chỉ dùng hai chữ số 0 và 1.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_hsg_district_1",
+      "title": "Tin học — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Cấu trúc rẽ nhánh (if – else) trong lập trình dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": [
+            "thực hiện các lệnh khác nhau tùy điều kiện đúng hay sai",
+            "lặp lại một lệnh",
+            "khai báo hằng số",
+            "kết nối Internet"
+          ],
+          "answer": "thực hiện các lệnh khác nhau tùy điều kiện đúng hay sai",
+          "explanation": "Rẽ nhánh if – else chọn nhánh lệnh để thực hiện dựa trên điều kiện đúng/sai.",
+          "difficulty": 4
+        },
+        {
+          "question": "Mảng (array) trong lập trình là gì?",
+          "question_vi": "",
+          "emoji": "🗃️",
+          "options": [
+            "tập hợp nhiều phần tử cùng kiểu, lưu liên tiếp và truy cập qua chỉ số",
+            "một biến đơn lẻ",
+            "một câu lệnh in",
+            "một thiết bị mạng"
+          ],
+          "answer": "tập hợp nhiều phần tử cùng kiểu, lưu liên tiếp và truy cập qua chỉ số",
+          "explanation": "Mảng là tập hợp các phần tử cùng kiểu, truy cập qua chỉ số.",
+          "difficulty": 4
+        },
+        {
+          "question": "Số nhị phân 1010 có giá trị thập phân bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "10",
+            "8",
+            "12",
+            "4"
+          ],
+          "answer": "10",
+          "explanation": "1010₂ = 8 + 0 + 2 + 0 = 10.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong mạng máy tính, “băng thông” (bandwidth) thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "📶",
+          "options": [
+            "lượng dữ liệu truyền được trong một đơn vị thời gian",
+            "dung lượng ổ cứng",
+            "độ phân giải màn hình",
+            "số lượng máy in"
+          ],
+          "answer": "lượng dữ liệu truyền được trong một đơn vị thời gian",
+          "explanation": "Băng thông là lượng dữ liệu có thể truyền qua mạng trong một đơn vị thời gian.",
+          "difficulty": 4
+        },
+        {
+          "question": "Mã ASCII dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔡",
+          "options": [
+            "mã hóa các ký tự (chữ, số, ký hiệu) thành số để máy tính xử lý",
+            "đo tốc độ mạng",
+            "nén ảnh",
+            "diệt virus"
+          ],
+          "answer": "mã hóa các ký tự (chữ, số, ký hiệu) thành số để máy tính xử lý",
+          "explanation": "ASCII là bảng mã chuẩn để biểu diễn ký tự bằng số trong máy tính.",
+          "difficulty": 4
+        },
+        {
+          "question": "Độ phức tạp thời gian của thuật toán cho biết điều gì?",
+          "question_vi": "",
+          "emoji": "⏱️",
+          "options": [
+            "số phép tính cần thực hiện thay đổi thế nào theo kích thước dữ liệu đầu vào",
+            "màu sắc giao diện",
+            "dung lượng pin",
+            "kích thước màn hình"
+          ],
+          "answer": "số phép tính cần thực hiện thay đổi thế nào theo kích thước dữ liệu đầu vào",
+          "explanation": "Độ phức tạp thời gian mô tả số phép tính (thời gian chạy) tăng ra sao theo kích thước đầu vào.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "informatics_hsg_province_1",
+      "title": "Tin học — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tin_hoc_chuyen_sau",
+      "questions": [
+        {
+          "question": "Thuật toán tìm kiếm nhị phân (binary search) yêu cầu dữ liệu phải như thế nào?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": [
+            "đã được sắp xếp theo thứ tự",
+            "hoàn toàn ngẫu nhiên",
+            "là hình ảnh",
+            "đã được mã hóa"
+          ],
+          "answer": "đã được sắp xếp theo thứ tự",
+          "explanation": "Tìm kiếm nhị phân chỉ áp dụng trên dãy đã được sắp xếp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong lập trình hướng đối tượng, “lớp” (class) là gì?",
+          "question_vi": "",
+          "emoji": "🧱",
+          "options": [
+            "khuôn mẫu để tạo ra các đối tượng",
+            "một biến số nguyên",
+            "một vòng lặp",
+            "một thiết bị mạng"
+          ],
+          "answer": "khuôn mẫu để tạo ra các đối tượng",
+          "explanation": "Lớp (class) là khuôn mẫu mô tả thuộc tính và hành vi để tạo ra các đối tượng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hệ cơ số 16 (thập lục phân) sử dụng những ký tự nào?",
+          "question_vi": "",
+          "emoji": "🔠",
+          "options": [
+            "0–9 và A–F",
+            "chỉ 0 và 1",
+            "0–7",
+            "chỉ 0–9"
+          ],
+          "answer": "0–9 và A–F",
+          "explanation": "Hệ thập lục phân dùng 16 ký tự: 0–9 và A–F.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đệ quy (recursion) trong lập trình là gì?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "kỹ thuật trong đó một hàm gọi lại chính nó",
+            "một loại vòng lặp vô hạn bắt buộc",
+            "một thiết bị lưu trữ",
+            "một giao thức mạng"
+          ],
+          "answer": "kỹ thuật trong đó một hàm gọi lại chính nó",
+          "explanation": "Đệ quy là kỹ thuật một hàm tự gọi lại chính nó để giải bài toán.",
+          "difficulty": 4
+        },
+        {
+          "question": "Giao thức nào được dùng phổ biến để truyền trang web trên Internet?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "HTTP/HTTPS",
+            "SMTP",
+            "chuẩn USB",
+            "Bluetooth"
+          ],
+          "answer": "HTTP/HTTPS",
+          "explanation": "HTTP/HTTPS là giao thức truyền siêu văn bản (trang web) trên Internet.",
+          "difficulty": 4
+        },
+        {
+          "question": "Mã hóa (encryption) dữ liệu nhằm mục đích chính nào?",
+          "question_vi": "",
+          "emoji": "🔐",
+          "options": [
+            "bảo mật, giữ cho dữ liệu không bị đọc trộm",
+            "tăng tốc độ CPU",
+            "làm đẹp giao diện",
+            "giảm tiêu hao pin"
+          ],
+          "answer": "bảo mật, giữ cho dữ liệu không bị đọc trộm",
+          "explanation": "Mã hóa biến dữ liệu thành dạng không đọc được nếu không có khóa, nhằm bảo mật thông tin.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

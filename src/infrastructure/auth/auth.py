@@ -102,7 +102,7 @@ def get_user_by_username(username: str) -> dict | None:
     """Lay user theo username. Tra None neu khong tim thay."""
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, username, password_hash, family_name, created_at, is_active "
+            "SELECT user_id, username, password_hash, family_name, created_at, is_active, is_admin "
             "FROM users WHERE username = ?",
             (username,),
         ).fetchone()
@@ -126,6 +126,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
         "user_id": user["user_id"],
         "username": user["username"],
         "family_name": user["family_name"],
+        "is_admin": bool(user.get("is_admin")),
     }
 
 
@@ -306,6 +307,15 @@ def rotate_refresh_token(old_raw_token: str) -> tuple[str, str, str]:
             raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
         if row["is_revoked"]:
+            # Token reuse detection (OAuth BCP / RFC 6819): một refresh token ĐÃ XOAY
+            # mà bị dùng lại = dấu hiệu bị đánh cắp → thu hồi TOÀN BỘ token của user
+            # (bump token_version vô hiệu cả access token) thay vì chỉ từ chối lần này.
+            try:
+                from src.infrastructure.database.db import revoke_all_tokens_for_user
+                revoke_all_tokens_for_user(str(row["user_id"]))
+                logger.warning("[Auth] Refresh token reuse phát hiện cho user %s — đã thu hồi toàn bộ token", row["user_id"])
+            except Exception:
+                pass
             raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
         expires_at_str = row["expires_at"]

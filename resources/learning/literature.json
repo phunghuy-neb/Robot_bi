@@ -1,0 +1,341 @@
+{
+  "subject": "literature",
+  "exams": [
+    {
+      "paper_id": "literature_g9_tacgia_tacpham_1",
+      "title": "Ngữ văn — Tác giả & Tác phẩm (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "author_work",
+      "questions": [
+        {
+          "question": "Tác phẩm 'Truyện Kiều' là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Nguyễn Du", "Nguyễn Trãi", "Hồ Xuân Hương", "Nguyễn Đình Chiểu"],
+          "answer": "Nguyễn Du",
+          "explanation": "'Truyện Kiều' (Đoạn trường tân thanh) là kiệt tác của đại thi hào Nguyễn Du.",
+          "difficulty": 2
+        },
+        {
+          "question": "Truyện ngắn 'Lão Hạc' là của nhà văn nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Nam Cao", "Ngô Tất Tố", "Nguyễn Công Hoan", "Thạch Lam"],
+          "answer": "Nam Cao",
+          "explanation": "'Lão Hạc' là truyện ngắn nổi tiếng của Nam Cao về người nông dân trước Cách mạng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tiểu thuyết 'Tắt đèn' là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Ngô Tất Tố", "Nam Cao", "Vũ Trọng Phụng", "Nguyên Hồng"],
+          "answer": "Ngô Tất Tố",
+          "explanation": "'Tắt đèn' với nhân vật chị Dậu là tác phẩm của Ngô Tất Tố.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bài thơ 'Bánh trôi nước' là của nữ sĩ nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Hồ Xuân Hương", "Bà Huyện Thanh Quan", "Đoàn Thị Điểm", "Xuân Quỳnh"],
+          "answer": "Hồ Xuân Hương",
+          "explanation": "'Bánh trôi nước' là bài thơ nổi tiếng của Hồ Xuân Hương, được mệnh danh 'Bà chúa thơ Nôm'.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đoạn trích 'Tức nước vỡ bờ' được trích từ tác phẩm nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Tắt đèn", "Lão Hạc", "Số đỏ", "Bỉ vỏ"],
+          "answer": "Tắt đèn",
+          "explanation": "'Tức nước vỡ bờ' là đoạn trích trong tiểu thuyết 'Tắt đèn' của Ngô Tất Tố.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bài thơ 'Qua Đèo Ngang' là của tác giả nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Bà Huyện Thanh Quan", "Hồ Xuân Hương", "Nguyễn Khuyến", "Tú Xương"],
+          "answer": "Bà Huyện Thanh Quan",
+          "explanation": "'Qua Đèo Ngang' là bài thơ nổi tiếng của Bà Huyện Thanh Quan.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tác phẩm 'Hịch tướng sĩ' do ai sáng tác?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Trần Quốc Tuấn", "Nguyễn Trãi", "Lý Thường Kiệt", "Lê Lợi"],
+          "answer": "Trần Quốc Tuấn",
+          "explanation": "'Hịch tướng sĩ' do Hưng Đạo Đại Vương Trần Quốc Tuấn viết để khích lệ binh sĩ chống quân Nguyên - Mông.",
+          "difficulty": 4
+        },
+        {
+          "question": "'Bình Ngô đại cáo' là áng thiên cổ hùng văn của tác giả nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": ["Nguyễn Trãi", "Nguyễn Du", "Trần Quốc Tuấn", "Nguyễn Bỉnh Khiêm"],
+          "answer": "Nguyễn Trãi",
+          "explanation": "'Bình Ngô đại cáo' do Nguyễn Trãi thừa lệnh Lê Lợi soạn thảo, tuyên cáo độc lập sau chiến thắng quân Minh.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_g8_bienphap_tutu_1",
+      "title": "Ngữ văn — Biện pháp tu từ (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "rhetoric",
+      "questions": [
+        {
+          "question": "Câu 'Trẻ em như búp trên cành' sử dụng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["so sánh", "ẩn dụ", "nhân hóa", "hoán dụ"],
+          "answer": "so sánh",
+          "explanation": "Câu dùng từ 'như' để so sánh trẻ em với búp trên cành, đó là biện pháp so sánh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu 'Ông trời mặc áo giáp đen ra trận' sử dụng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["nhân hóa", "so sánh", "hoán dụ", "điệp ngữ"],
+          "answer": "nhân hóa",
+          "explanation": "Trời được gán hành động của con người (mặc áo giáp, ra trận) nên là nhân hóa.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong câu 'Thuyền về có nhớ bến chăng', 'thuyền' và 'bến' là hình ảnh ẩn dụ chỉ ai?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["người đi và người ở (tình yêu đôi lứa)", "phương tiện giao thông", "cảnh sông nước", "người lái đò"],
+          "answer": "người đi và người ở (tình yêu đôi lứa)",
+          "explanation": "Đây là ẩn dụ: 'thuyền' chỉ người đi, 'bến' chỉ người ở lại trong tình cảm lứa đôi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu 'Áo nâu cùng với áo xanh / Nông thôn cùng với thị thành đứng lên' dùng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["hoán dụ", "so sánh", "nói quá", "chơi chữ"],
+          "answer": "hoán dụ",
+          "explanation": "'Áo nâu', 'áo xanh' là hoán dụ lấy trang phục để chỉ người nông dân và công nhân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Biện pháp tu từ gọi tên sự vật, hiện tượng này bằng tên sự vật, hiện tượng khác có nét tương đồng được gọi là gì?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["ẩn dụ", "hoán dụ", "so sánh", "nhân hóa"],
+          "answer": "ẩn dụ",
+          "explanation": "Ẩn dụ dựa trên nét tương đồng giữa hai sự vật; hoán dụ dựa trên quan hệ gần gũi.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu 'Lỗ mũi mười tám gánh lông' sử dụng biện pháp tu từ nào?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["nói quá (phóng đại)", "nói giảm nói tránh", "so sánh", "ẩn dụ"],
+          "answer": "nói quá (phóng đại)",
+          "explanation": "Câu phóng đại mức độ để gây ấn tượng, đó là biện pháp nói quá.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu 'Bác đã đi rồi sao Bác ơi' dùng cách nói nào để chỉ cái chết?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["nói giảm nói tránh", "nói quá", "so sánh", "hoán dụ"],
+          "answer": "nói giảm nói tránh",
+          "explanation": "Dùng từ 'đi' thay cho 'mất' để giảm nhẹ sự đau buồn, đó là nói giảm nói tránh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu 'Mặt trời của bắp thì nằm trên đồi / Mặt trời của mẹ, em nằm trên lưng' — 'mặt trời của mẹ' là biện pháp gì?",
+          "question_vi": "",
+          "emoji": "✨",
+          "options": ["ẩn dụ", "hoán dụ", "so sánh", "điệp ngữ"],
+          "answer": "ẩn dụ",
+          "explanation": "'Mặt trời của mẹ' là ẩn dụ chỉ đứa con — nguồn sống, niềm tin của người mẹ.",
+          "difficulty": 5
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_g10_theloai_1",
+      "title": "Ngữ văn — Thể loại văn học (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "genre",
+      "questions": [
+        {
+          "question": "'Truyện Kiều' của Nguyễn Du được viết theo thể thơ nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["lục bát", "thất ngôn bát cú", "song thất lục bát", "tự do"],
+          "answer": "lục bát",
+          "explanation": "'Truyện Kiều' gồm 3254 câu thơ lục bát.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thể thơ Đường luật 'thất ngôn bát cú' gồm bao nhiêu câu, mỗi câu bao nhiêu chữ?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["8 câu, mỗi câu 7 chữ", "4 câu, mỗi câu 7 chữ", "8 câu, mỗi câu 8 chữ", "7 câu, mỗi câu 8 chữ"],
+          "answer": "8 câu, mỗi câu 7 chữ",
+          "explanation": "Thất ngôn bát cú Đường luật gồm 8 câu, mỗi câu 7 chữ.",
+          "difficulty": 3
+        },
+        {
+          "question": "'Tấm Cám' thuộc thể loại văn học dân gian nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["truyện cổ tích", "truyền thuyết", "ngụ ngôn", "truyện cười"],
+          "answer": "truyện cổ tích",
+          "explanation": "'Tấm Cám' là truyện cổ tích thần kì tiêu biểu của Việt Nam.",
+          "difficulty": 2
+        },
+        {
+          "question": "'Sơn Tinh, Thủy Tinh' thuộc thể loại văn học dân gian nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["truyền thuyết", "cổ tích", "ngụ ngôn", "tục ngữ"],
+          "answer": "truyền thuyết",
+          "explanation": "'Sơn Tinh, Thủy Tinh' là truyền thuyết giải thích hiện tượng lũ lụt và ngợi ca công cuộc trị thủy.",
+          "difficulty": 3
+        },
+        {
+          "question": "'Ếch ngồi đáy giếng' thuộc thể loại văn học dân gian nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["truyện ngụ ngôn", "cổ tích", "truyền thuyết", "thần thoại"],
+          "answer": "truyện ngụ ngôn",
+          "explanation": "'Ếch ngồi đáy giếng' là truyện ngụ ngôn nhằm rút ra bài học về thái độ chủ quan, hiểu biết hạn hẹp.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tác phẩm tự sự bằng văn xuôi có dung lượng lớn, nhiều nhân vật và tuyến truyện được gọi là thể loại gì?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["tiểu thuyết", "truyện ngắn", "tùy bút", "thơ trữ tình"],
+          "answer": "tiểu thuyết",
+          "explanation": "Tiểu thuyết là thể loại tự sự cỡ lớn, phản ánh đời sống qua nhiều nhân vật và sự kiện.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thể loại nào dùng để bộc lộ trực tiếp tình cảm, cảm xúc của tác giả qua ngôn ngữ giàu nhịp điệu?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["thơ trữ tình", "kịch", "tiểu thuyết", "ký sự"],
+          "answer": "thơ trữ tình",
+          "explanation": "Thơ trữ tình thiên về biểu hiện cảm xúc, tâm trạng qua ngôn ngữ giàu hình ảnh và nhịp điệu.",
+          "difficulty": 3
+        },
+        {
+          "question": "'Chữ người tử tù' của Nguyễn Tuân thuộc thể loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["truyện ngắn", "tiểu thuyết", "tùy bút", "thơ"],
+          "answer": "truyện ngắn",
+          "explanation": "'Chữ người tử tù' là truyện ngắn trong tập 'Vang bóng một thời' của Nguyễn Tuân.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "literature_g11_noidung_ynghia_1",
+      "title": "Ngữ văn — Nội dung & Ý nghĩa tác phẩm (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_11",
+      "age_group": "15-18",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "content_meaning",
+      "questions": [
+        {
+          "question": "Nhân vật Chí Phèo trong tác phẩm cùng tên của Nam Cao tiêu biểu cho điều gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["người nông dân bị tha hóa, lưu manh hóa trong xã hội cũ", "người trí thức nghèo", "người lính cách mạng", "người phụ nữ tài hoa bạc mệnh"],
+          "answer": "người nông dân bị tha hóa, lưu manh hóa trong xã hội cũ",
+          "explanation": "Chí Phèo là điển hình cho người nông dân lương thiện bị xã hội thực dân nửa phong kiến đẩy vào con đường tha hóa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bài thơ 'Bánh trôi nước' của Hồ Xuân Hương ca ngợi điều gì ở người phụ nữ?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["vẻ đẹp và phẩm chất thủy chung dù số phận lận đận", "tài nấu ăn khéo léo", "sự giàu sang phú quý", "khả năng làm thơ"],
+          "answer": "vẻ đẹp và phẩm chất thủy chung dù số phận lận đận",
+          "explanation": "Qua hình ảnh bánh trôi, tác giả ngợi ca vẻ đẹp, phẩm chất son sắt của người phụ nữ dù 'bảy nổi ba chìm'.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đoạn trích 'Tức nước vỡ bờ' thể hiện chân lí nào về người nông dân?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["có áp bức thì có đấu tranh, bị dồn nén sẽ vùng lên", "phải cam chịu số phận", "luôn nhẫn nhịn để yên ổn", "chỉ biết trông chờ vào quan lại"],
+          "answer": "có áp bức thì có đấu tranh, bị dồn nén sẽ vùng lên",
+          "explanation": "Hành động chị Dậu chống lại cai lệ minh họa quy luật 'tức nước vỡ bờ' — có áp bức thì có đấu tranh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tác phẩm 'Lão Hạc' của Nam Cao phản ánh chủ yếu điều gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["số phận đau khổ và nhân cách cao đẹp của người nông dân nghèo", "cuộc sống vui vẻ ở nông thôn", "tình yêu đôi lứa", "cuộc chiến tranh chống ngoại xâm"],
+          "answer": "số phận đau khổ và nhân cách cao đẹp của người nông dân nghèo",
+          "explanation": "'Lão Hạc' khắc họa bi kịch và lòng tự trọng, tình thương con của người nông dân trước Cách mạng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Giá trị nhân đạo nổi bật trong 'Truyện Kiều' của Nguyễn Du là gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["tiếng nói cảm thương cho số phận con người và đề cao quyền sống", "ca ngợi chiến công đánh giặc", "miêu tả cảnh thiên nhiên", "phê phán mê tín dị đoan"],
+          "answer": "tiếng nói cảm thương cho số phận con người và đề cao quyền sống",
+          "explanation": "'Truyện Kiều' mang giá trị nhân đạo sâu sắc: thương xót thân phận người phụ nữ và đề cao khát vọng tự do, hạnh phúc.",
+          "difficulty": 5
+        },
+        {
+          "question": "Hình tượng người lái đò trong tùy bút 'Người lái đò Sông Đà' của Nguyễn Tuân tượng trưng cho điều gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["vẻ đẹp tài hoa, dũng cảm của người lao động", "sự nghèo khổ của dân chài", "thiên nhiên hung dữ", "cuộc sống đô thị"],
+          "answer": "vẻ đẹp tài hoa, dũng cảm của người lao động",
+          "explanation": "Nguyễn Tuân khắc họa ông lái đò như một nghệ sĩ tài hoa, người anh hùng lao động trên sông nước.",
+          "difficulty": 5
+        },
+        {
+          "question": "Bài thơ 'Sóng' của Xuân Quỳnh thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["khát vọng tình yêu mãnh liệt, thủy chung của người phụ nữ", "cảnh biển buổi sáng", "nỗi nhớ quê hương", "tình yêu thiên nhiên"],
+          "answer": "khát vọng tình yêu mãnh liệt, thủy chung của người phụ nữ",
+          "explanation": "Mượn hình tượng sóng, Xuân Quỳnh bộc lộ vẻ đẹp tâm hồn và khát vọng yêu thương chân thành, thủy chung của người phụ nữ.",
+          "difficulty": 5
+        },
+        {
+          "question": "Tuyên ngôn Độc lập (1945) do ai soạn thảo và đọc tại Quảng trường Ba Đình?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["Hồ Chí Minh", "Trường Chinh", "Phạm Văn Đồng", "Võ Nguyên Giáp"],
+          "answer": "Hồ Chí Minh",
+          "explanation": "Bản 'Tuyên ngôn Độc lập' do Chủ tịch Hồ Chí Minh soạn thảo và đọc ngày 2-9-1945, khai sinh nước Việt Nam Dân chủ Cộng hòa.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

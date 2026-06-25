@@ -1,0 +1,509 @@
+{
+  "subject": "en",
+  "exams": [
+    {
+      "paper_id": "en_g1_vocab_1",
+      "title": "Tiếng Anh Lớp 1 — Từ vựng: Màu sắc, con vật, đồ ăn (Đề 1)",
+      "track": "practice",
+      "level": "grade_1",
+      "age_group": "6-7",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "vocabulary",
+      "questions": [
+        {
+          "question": "What color is the sky?",
+          "question_vi": "Bầu trời màu gì?",
+          "emoji": "🌈",
+          "options": ["Blue", "Red", "Green", "Yellow"],
+          "answer": "Blue",
+          "explanation": "Bầu trời màu xanh dương = blue.",
+          "difficulty": 1
+        },
+        {
+          "question": "What color is a banana?",
+          "question_vi": "Quả chuối màu gì?",
+          "emoji": "🍌",
+          "options": ["Yellow", "Blue", "Purple", "Black"],
+          "answer": "Yellow",
+          "explanation": "Quả chuối màu vàng = yellow.",
+          "difficulty": 1
+        },
+        {
+          "question": "Which animal says 'meow'?",
+          "question_vi": "Con vật nào kêu 'meo meo'?",
+          "emoji": "🐱",
+          "options": ["Cat", "Dog", "Cow", "Duck"],
+          "answer": "Cat",
+          "explanation": "Con mèo (cat) kêu meow.",
+          "difficulty": 1
+        },
+        {
+          "question": "Which animal says 'woof'?",
+          "question_vi": "Con vật nào kêu 'gâu gâu'?",
+          "emoji": "🐶",
+          "options": ["Dog", "Fish", "Bird", "Pig"],
+          "answer": "Dog",
+          "explanation": "Con chó (dog) kêu woof.",
+          "difficulty": 1
+        },
+        {
+          "question": "What color is grass?",
+          "question_vi": "Cỏ màu gì?",
+          "emoji": "🌱",
+          "options": ["Green", "Pink", "Orange", "White"],
+          "answer": "Green",
+          "explanation": "Cỏ màu xanh lá = green.",
+          "difficulty": 1
+        },
+        {
+          "question": "Which food is a fruit?",
+          "question_vi": "Món nào là trái cây?",
+          "emoji": "🍎",
+          "options": ["Apple", "Bread", "Rice", "Egg"],
+          "answer": "Apple",
+          "explanation": "Quả táo (apple) là trái cây.",
+          "difficulty": 1
+        },
+        {
+          "question": "What color is milk?",
+          "question_vi": "Sữa màu gì?",
+          "emoji": "🥛",
+          "options": ["White", "Green", "Blue", "Red"],
+          "answer": "White",
+          "explanation": "Sữa màu trắng = white.",
+          "difficulty": 1
+        },
+        {
+          "question": "Which animal can fly?",
+          "question_vi": "Con vật nào biết bay?",
+          "emoji": "🐦",
+          "options": ["Bird", "Fish", "Cat", "Dog"],
+          "answer": "Bird",
+          "explanation": "Con chim (bird) biết bay.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "en_g1_numbers_1",
+      "title": "Tiếng Anh Lớp 1 — Số đếm và thời gian (Đề 1)",
+      "track": "practice",
+      "level": "grade_1",
+      "age_group": "6-7",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "numbers",
+      "questions": [
+        {
+          "question": "What number comes after 'two'?",
+          "question_vi": "Số nào đứng sau 'hai'?",
+          "emoji": "🔢",
+          "options": ["Three", "One", "Five", "Four"],
+          "answer": "Three",
+          "explanation": "Sau two (2) là three (3).",
+          "difficulty": 1
+        },
+        {
+          "question": "How do you say '5' in English?",
+          "question_vi": "Số 5 đọc là gì?",
+          "emoji": "✋",
+          "options": ["Five", "Four", "Six", "Nine"],
+          "answer": "Five",
+          "explanation": "5 = five.",
+          "difficulty": 1
+        },
+        {
+          "question": "How many legs does a dog have?",
+          "question_vi": "Con chó có mấy chân?",
+          "emoji": "🐕",
+          "options": ["Four", "Two", "Six", "Eight"],
+          "answer": "Four",
+          "explanation": "Con chó có 4 chân = four legs.",
+          "difficulty": 1
+        },
+        {
+          "question": "What number is 'ten'?",
+          "question_vi": "'Ten' là số mấy?",
+          "emoji": "🔟",
+          "options": ["10", "2", "7", "12"],
+          "answer": "10",
+          "explanation": "Ten = 10.",
+          "difficulty": 1
+        },
+        {
+          "question": "What comes before 'eight'?",
+          "question_vi": "Số nào đứng trước 'tám'?",
+          "emoji": "7️⃣",
+          "options": ["Seven", "Nine", "Six", "Ten"],
+          "answer": "Seven",
+          "explanation": "Trước eight (8) là seven (7).",
+          "difficulty": 2
+        },
+        {
+          "question": "When do we see the sun?",
+          "question_vi": "Khi nào ta thấy mặt trời?",
+          "emoji": "☀️",
+          "options": ["Day", "Night", "Never", "Midnight"],
+          "answer": "Day",
+          "explanation": "Ban ngày (day) ta thấy mặt trời.",
+          "difficulty": 1
+        },
+        {
+          "question": "How many days are in one week?",
+          "question_vi": "Một tuần có mấy ngày?",
+          "emoji": "📅",
+          "options": ["Seven", "Five", "Ten", "Three"],
+          "answer": "Seven",
+          "explanation": "Một tuần có 7 ngày = seven days.",
+          "difficulty": 2
+        },
+        {
+          "question": "What do we say when we count '1, 2, 3'?",
+          "question_vi": "Đếm '1, 2, 3' đọc thế nào?",
+          "emoji": "🧮",
+          "options": ["One, two, three", "Three, two, one", "Ten, nine, eight", "Four, five, six"],
+          "answer": "One, two, three",
+          "explanation": "1, 2, 3 = one, two, three.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "en_g2_grammar_1",
+      "title": "Tiếng Anh Lớp 2 — Ngữ pháp: a/an, số nhiều, this/that (Đề 1)",
+      "track": "practice",
+      "level": "grade_2",
+      "age_group": "6-7",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "grammar",
+      "questions": [
+        {
+          "question": "Choose the correct word: ___ apple.",
+          "question_vi": "Chọn từ đúng: ___ apple.",
+          "emoji": "🍎",
+          "options": ["An", "A", "The two", "Some a"],
+          "answer": "An",
+          "explanation": "'apple' bắt đầu bằng nguyên âm nên dùng 'an'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the correct word: ___ dog.",
+          "question_vi": "Chọn từ đúng: ___ dog.",
+          "emoji": "🐶",
+          "options": ["A", "An", "Two an", "An a"],
+          "answer": "A",
+          "explanation": "'dog' bắt đầu bằng phụ âm nên dùng 'a'.",
+          "difficulty": 2
+        },
+        {
+          "question": "What is the plural of 'cat'?",
+          "question_vi": "Số nhiều của 'cat' là gì?",
+          "emoji": "🐱",
+          "options": ["Cats", "Cat", "Cates", "Caties"],
+          "answer": "Cats",
+          "explanation": "Số nhiều thêm -s: cat → cats.",
+          "difficulty": 2
+        },
+        {
+          "question": "What is the plural of 'box'?",
+          "question_vi": "Số nhiều của 'box' là gì?",
+          "emoji": "📦",
+          "options": ["Boxes", "Boxs", "Box", "Boxies"],
+          "answer": "Boxes",
+          "explanation": "Từ kết thúc bằng -x thêm -es: box → boxes.",
+          "difficulty": 3
+        },
+        {
+          "question": "Use the right word for something near you: ___ is my book.",
+          "question_vi": "Dùng từ chỉ vật ở gần: ___ is my book.",
+          "emoji": "📖",
+          "options": ["This", "That", "Those", "These"],
+          "answer": "This",
+          "explanation": "Vật ở gần dùng 'this'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Use the right word for something far away: ___ is a star.",
+          "question_vi": "Dùng từ chỉ vật ở xa: ___ is a star.",
+          "emoji": "⭐",
+          "options": ["That", "This", "These", "Here"],
+          "answer": "That",
+          "explanation": "Vật ở xa dùng 'that'.",
+          "difficulty": 2
+        },
+        {
+          "question": "What is the plural of 'baby'?",
+          "question_vi": "Số nhiều của 'baby' là gì?",
+          "emoji": "👶",
+          "options": ["Babies", "Babys", "Baby", "Babyes"],
+          "answer": "Babies",
+          "explanation": "Phụ âm + y đổi y thành ies: baby → babies.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct word: ___ orange.",
+          "question_vi": "Chọn từ đúng: ___ orange.",
+          "emoji": "🍊",
+          "options": ["An", "A", "Two", "The an"],
+          "answer": "An",
+          "explanation": "'orange' bắt đầu bằng nguyên âm nên dùng 'an'.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "en_g3_family_body_1",
+      "title": "Tiếng Anh Lớp 3 — Gia đình và cơ thể (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "family_body",
+      "questions": [
+        {
+          "question": "What do you call your father's mother?",
+          "question_vi": "Mẹ của bố bạn gọi là gì?",
+          "emoji": "👵",
+          "options": ["Grandmother", "Sister", "Aunt", "Daughter"],
+          "answer": "Grandmother",
+          "explanation": "Bà nội = grandmother.",
+          "difficulty": 2
+        },
+        {
+          "question": "Which part of the body do you use to see?",
+          "question_vi": "Bộ phận nào dùng để nhìn?",
+          "emoji": "👁️",
+          "options": ["Eyes", "Ears", "Nose", "Feet"],
+          "answer": "Eyes",
+          "explanation": "Ta nhìn bằng mắt = eyes.",
+          "difficulty": 1
+        },
+        {
+          "question": "Which part of the body do you use to hear?",
+          "question_vi": "Bộ phận nào dùng để nghe?",
+          "emoji": "👂",
+          "options": ["Ears", "Eyes", "Mouth", "Hands"],
+          "answer": "Ears",
+          "explanation": "Ta nghe bằng tai = ears.",
+          "difficulty": 1
+        },
+        {
+          "question": "Your parents' son is your...",
+          "question_vi": "Con trai của bố mẹ bạn là...",
+          "emoji": "👦",
+          "options": ["Brother", "Father", "Uncle", "Cousin"],
+          "answer": "Brother",
+          "explanation": "Anh/em trai = brother.",
+          "difficulty": 2
+        },
+        {
+          "question": "What do you call your mother's sister?",
+          "question_vi": "Em/chị gái của mẹ bạn gọi là gì?",
+          "emoji": "👩",
+          "options": ["Aunt", "Uncle", "Grandfather", "Nephew"],
+          "answer": "Aunt",
+          "explanation": "Dì/cô = aunt.",
+          "difficulty": 3
+        },
+        {
+          "question": "Which part of the body do you use to smell?",
+          "question_vi": "Bộ phận nào dùng để ngửi?",
+          "emoji": "👃",
+          "options": ["Nose", "Eyes", "Hands", "Knees"],
+          "answer": "Nose",
+          "explanation": "Ta ngửi bằng mũi = nose.",
+          "difficulty": 1
+        },
+        {
+          "question": "How many fingers are on one hand?",
+          "question_vi": "Một bàn tay có mấy ngón?",
+          "emoji": "🖐️",
+          "options": ["Five", "Four", "Ten", "Two"],
+          "answer": "Five",
+          "explanation": "Một bàn tay có 5 ngón = five fingers.",
+          "difficulty": 2
+        },
+        {
+          "question": "Your father's brother is your...",
+          "question_vi": "Anh/em trai của bố bạn là...",
+          "emoji": "👨",
+          "options": ["Uncle", "Aunt", "Grandmother", "Sister"],
+          "answer": "Uncle",
+          "explanation": "Chú/bác = uncle.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "en_g4_verbs_actions_1",
+      "title": "Tiếng Anh Lớp 4 — Động từ và hành động (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "verbs",
+      "questions": [
+        {
+          "question": "Which word is a verb (an action)?",
+          "question_vi": "Từ nào là động từ (hành động)?",
+          "emoji": "🏃",
+          "options": ["Run", "Table", "Happy", "Blue"],
+          "answer": "Run",
+          "explanation": "'Run' (chạy) là động từ chỉ hành động.",
+          "difficulty": 2
+        },
+        {
+          "question": "What is the past tense of 'play'?",
+          "question_vi": "Quá khứ của 'play' là gì?",
+          "emoji": "⚽",
+          "options": ["Played", "Plaied", "Plays", "Playing"],
+          "answer": "Played",
+          "explanation": "Động từ thường thêm -ed: play → played.",
+          "difficulty": 3
+        },
+        {
+          "question": "What is the past tense of 'go'?",
+          "question_vi": "Quá khứ của 'go' là gì?",
+          "emoji": "🚶",
+          "options": ["Went", "Goed", "Gone", "Going"],
+          "answer": "Went",
+          "explanation": "'Go' là động từ bất quy tắc: go → went.",
+          "difficulty": 3
+        },
+        {
+          "question": "Complete: She ___ to school every day.",
+          "question_vi": "Hoàn thành: She ___ to school every day.",
+          "emoji": "🏫",
+          "options": ["walks", "walk", "walking", "walked"],
+          "answer": "walks",
+          "explanation": "Chủ ngữ 'she' ở hiện tại đơn thêm -s: walks.",
+          "difficulty": 3
+        },
+        {
+          "question": "Which verb means to eat slowly with your teeth?",
+          "question_vi": "Động từ nào nghĩa là nhai?",
+          "emoji": "🍪",
+          "options": ["Chew", "Sing", "Jump", "Read"],
+          "answer": "Chew",
+          "explanation": "'Chew' nghĩa là nhai.",
+          "difficulty": 2
+        },
+        {
+          "question": "What is the -ing form of 'swim'?",
+          "question_vi": "Dạng -ing của 'swim' là gì?",
+          "emoji": "🏊",
+          "options": ["Swimming", "Swiming", "Swimm", "Swims"],
+          "answer": "Swimming",
+          "explanation": "Gấp đôi 'm' rồi thêm -ing: swim → swimming.",
+          "difficulty": 4
+        },
+        {
+          "question": "Complete: They are ___ a book now.",
+          "question_vi": "Hoàn thành: They are ___ a book now.",
+          "emoji": "📚",
+          "options": ["reading", "read", "reads", "readed"],
+          "answer": "reading",
+          "explanation": "Sau 'are' dùng động từ -ing: reading.",
+          "difficulty": 3
+        },
+        {
+          "question": "What is the past tense of 'eat'?",
+          "question_vi": "Quá khứ của 'eat' là gì?",
+          "emoji": "🍽️",
+          "options": ["Ate", "Eated", "Eaten", "Eats"],
+          "answer": "Ate",
+          "explanation": "'Eat' là động từ bất quy tắc: eat → ate.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "en_g5_classroom_school_1",
+      "title": "Tiếng Anh Lớp 5 — Lớp học và trường học (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "school",
+      "questions": [
+        {
+          "question": "What do you use to write on a blackboard?",
+          "question_vi": "Bạn dùng gì để viết lên bảng đen?",
+          "emoji": "🖍️",
+          "options": ["Chalk", "Spoon", "Pillow", "Plate"],
+          "answer": "Chalk",
+          "explanation": "Viết lên bảng đen bằng phấn = chalk.",
+          "difficulty": 2
+        },
+        {
+          "question": "Who teaches students in a classroom?",
+          "question_vi": "Ai dạy học sinh trong lớp?",
+          "emoji": "👩‍🏫",
+          "options": ["Teacher", "Doctor", "Driver", "Farmer"],
+          "answer": "Teacher",
+          "explanation": "Giáo viên = teacher.",
+          "difficulty": 1
+        },
+        {
+          "question": "Where do you borrow books at school?",
+          "question_vi": "Ở trường bạn mượn sách ở đâu?",
+          "emoji": "📚",
+          "options": ["Library", "Kitchen", "Garage", "Bedroom"],
+          "answer": "Library",
+          "explanation": "Mượn sách ở thư viện = library.",
+          "difficulty": 3
+        },
+        {
+          "question": "What do you use to erase a pencil mark?",
+          "question_vi": "Bạn dùng gì để tẩy vết bút chì?",
+          "emoji": "✏️",
+          "options": ["Eraser", "Ruler", "Glue", "Scissors"],
+          "answer": "Eraser",
+          "explanation": "Tẩy vết bút chì bằng cục tẩy = eraser.",
+          "difficulty": 2
+        },
+        {
+          "question": "What do you use to measure a straight line?",
+          "question_vi": "Bạn dùng gì để kẻ đường thẳng?",
+          "emoji": "📏",
+          "options": ["Ruler", "Eraser", "Crayon", "Bag"],
+          "answer": "Ruler",
+          "explanation": "Kẻ đường thẳng bằng thước = ruler.",
+          "difficulty": 2
+        },
+        {
+          "question": "What subject is about numbers and counting?",
+          "question_vi": "Môn học nào nói về số và tính toán?",
+          "emoji": "➗",
+          "options": ["Math", "Music", "Art", "History"],
+          "answer": "Math",
+          "explanation": "Toán = Math.",
+          "difficulty": 3
+        },
+        {
+          "question": "Where do students sit to study in class?",
+          "question_vi": "Học sinh ngồi học ở đâu trong lớp?",
+          "emoji": "🪑",
+          "options": ["Desk", "Stove", "Sink", "Roof"],
+          "answer": "Desk",
+          "explanation": "Học sinh ngồi học ở bàn = desk.",
+          "difficulty": 2
+        },
+        {
+          "question": "What do you carry your school books in?",
+          "question_vi": "Bạn đựng sách vở trong cái gì?",
+          "emoji": "🎒",
+          "options": ["Backpack", "Bottle", "Clock", "Lamp"],
+          "answer": "Backpack",
+          "explanation": "Đựng sách vở trong cặp/balô = backpack.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

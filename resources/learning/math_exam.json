@@ -1,0 +1,473 @@
+{
+  "subject": "math",
+  "exams": [
+    {
+      "paper_id": "math_exam_grade6_1",
+      "title": "Toán — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "arithmetic",
+      "questions": [
+        {
+          "question": "Kết quả của phép tính 125 × 8 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["1000", "800", "1025", "960"],
+          "answer": "1000",
+          "explanation": "125 × 8 = 1000.",
+          "difficulty": 1
+        },
+        {
+          "question": "Phân số nào sau đây bằng phân số 1/2?",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": ["4/8", "2/5", "3/8", "5/12"],
+          "answer": "4/8",
+          "explanation": "4/8 rút gọn bằng cách chia cả tử và mẫu cho 4, được 1/2.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một cửa hàng có 240 kg gạo, đã bán 3/4 số gạo đó. Hỏi còn lại bao nhiêu ki-lô-gam gạo?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": ["60 kg", "180 kg", "80 kg", "120 kg"],
+          "answer": "60 kg",
+          "explanation": "Đã bán 240 × 3/4 = 180 kg, nên còn lại 240 − 180 = 60 kg.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một hình chữ nhật có chiều dài 8 cm và chiều rộng 5 cm. Chu vi hình chữ nhật đó là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["26 cm", "40 cm", "13 cm", "18 cm"],
+          "answer": "26 cm",
+          "explanation": "Chu vi = (chiều dài + chiều rộng) × 2 = (8 + 5) × 2 = 26 cm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Diện tích của hình chữ nhật có chiều dài 8 cm và chiều rộng 5 cm là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🟦",
+          "options": ["40 cm²", "26 cm²", "13 cm²", "45 cm²"],
+          "answer": "40 cm²",
+          "explanation": "Diện tích = chiều dài × chiều rộng = 8 × 5 = 40 cm².",
+          "difficulty": 2
+        },
+        {
+          "question": "Tìm 25% của 80.",
+          "question_vi": "",
+          "emoji": "💯",
+          "options": ["20", "25", "40", "16"],
+          "answer": "20",
+          "explanation": "25% của 80 = 80 × 25/100 = 20.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trung bình cộng của ba số 12, 15 và 18 là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["15", "45", "14", "16"],
+          "answer": "15",
+          "explanation": "Trung bình cộng = (12 + 15 + 18) ÷ 3 = 45 ÷ 3 = 15.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho dãy số 2, 5, 8, 11, ... Số tiếp theo của dãy là số nào?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": ["14", "13", "15", "12"],
+          "answer": "14",
+          "explanation": "Mỗi số hơn số liền trước 3 đơn vị, nên số tiếp theo là 11 + 3 = 14.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tính 1/4 + 1/2.",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": ["3/4", "2/6", "1/3", "2/4"],
+          "answer": "3/4",
+          "explanation": "Quy đồng: 1/2 = 2/4, nên 1/4 + 2/4 = 3/4.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "math_exam_grade10_1",
+      "title": "Toán — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "algebra",
+      "questions": [
+        {
+          "question": "Nghiệm của phương trình 2x − 6 = 0 là:",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["x = 3", "x = -3", "x = 6", "x = 2"],
+          "answer": "x = 3",
+          "explanation": "2x − 6 = 0 ⇒ 2x = 6 ⇒ x = 3.",
+          "difficulty": 1
+        },
+        {
+          "question": "Phương trình x² − 5x + 6 = 0 có tập nghiệm là:",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["x = 2 và x = 3", "x = -2 và x = -3", "x = 1 và x = 6", "x = -1 và x = 6"],
+          "answer": "x = 2 và x = 3",
+          "explanation": "x² − 5x + 6 = (x − 2)(x − 3) = 0 ⇒ x = 2 hoặc x = 3.",
+          "difficulty": 3
+        },
+        {
+          "question": "Biệt thức Δ của phương trình x² − 4x + 4 = 0 bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔺",
+          "options": ["0", "16", "-16", "8"],
+          "answer": "0",
+          "explanation": "Δ = b² − 4ac = (−4)² − 4·1·4 = 16 − 16 = 0 (phương trình có nghiệm kép).",
+          "difficulty": 3
+        },
+        {
+          "question": "Tam giác vuông có hai cạnh góc vuông dài 3 cm và 4 cm. Độ dài cạnh huyền là:",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["5 cm", "7 cm", "6 cm", "25 cm"],
+          "answer": "5 cm",
+          "explanation": "Theo định lý Pythagore: cạnh huyền = √(3² + 4²) = √25 = 5 cm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hệ phương trình x + y = 5 và x − y = 1 có nghiệm là:",
+          "question_vi": "",
+          "emoji": "🧩",
+          "options": ["x = 3, y = 2", "x = 2, y = 3", "x = 4, y = 1", "x = 1, y = 4"],
+          "answer": "x = 3, y = 2",
+          "explanation": "Cộng hai phương trình: 2x = 6 ⇒ x = 3, suy ra y = 5 − 3 = 2.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giá trị của biểu thức √16 + √9 là:",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["7", "5", "25", "12"],
+          "answer": "7",
+          "explanation": "√16 = 4 và √9 = 3, nên √16 + √9 = 4 + 3 = 7.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cho hàm số y = 2x + 1. Khi x = 3 thì y bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": ["7", "6", "5", "3"],
+          "answer": "7",
+          "explanation": "Thay x = 3: y = 2·3 + 1 = 7.",
+          "difficulty": 1
+        },
+        {
+          "question": "Phân tích đa thức x² − 9 thành nhân tử:",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["(x − 3)(x + 3)", "(x − 3)²", "(x + 3)²", "(x − 9)(x + 1)"],
+          "answer": "(x − 3)(x + 3)",
+          "explanation": "Hằng đẳng thức hiệu hai bình phương: x² − 9 = x² − 3² = (x − 3)(x + 3).",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "math_exam_thpt_1",
+      "title": "Toán — Thi THPT & Đại học (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "derivatives",
+      "questions": [
+        {
+          "question": "Đạo hàm của hàm số y = x³ là:",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["3x²", "x²", "3x", "x⁴/4"],
+          "answer": "3x²",
+          "explanation": "Theo công thức (xⁿ)′ = n·xⁿ⁻¹, ta có (x³)′ = 3x².",
+          "difficulty": 2
+        },
+        {
+          "question": "Nghiệm của phương trình log₂(x) = 3 là:",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["8", "6", "9", "3"],
+          "answer": "8",
+          "explanation": "log₂(x) = 3 ⇒ x = 2³ = 8.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá trị của tích phân ∫ từ 0 đến 1 của 2x dx là:",
+          "question_vi": "",
+          "emoji": "∫",
+          "options": ["1", "2", "1/2", "0"],
+          "answer": "1",
+          "explanation": "∫2x dx = x²; tính từ 0 đến 1: 1² − 0² = 1.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cho cấp số cộng có u₁ = 2 và công sai d = 3. Số hạng u₅ bằng:",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": ["14", "12", "17", "11"],
+          "answer": "14",
+          "explanation": "uₙ = u₁ + (n − 1)d ⇒ u₅ = 2 + 4·3 = 14.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phương trình 2ˣ = 8 có nghiệm là:",
+          "question_vi": "",
+          "emoji": "🟰",
+          "options": ["x = 3", "x = 4", "x = 2", "x = 8"],
+          "answer": "x = 3",
+          "explanation": "2ˣ = 8 = 2³ ⇒ x = 3.",
+          "difficulty": 1
+        },
+        {
+          "question": "Số phức z = 3 + 4i có môđun bằng:",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["5", "7", "25", "√7"],
+          "answer": "5",
+          "explanation": "|z| = √(3² + 4²) = √25 = 5.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giới hạn lim (x→2) của (x² − 4)/(x − 2) bằng:",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": ["4", "2", "0", "Không tồn tại"],
+          "answer": "4",
+          "explanation": "(x² − 4)/(x − 2) = (x − 2)(x + 2)/(x − 2) = x + 2 → 2 + 2 = 4 khi x → 2.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "math_hsg_school_1",
+      "title": "Toán — HSG cấp trường THCS (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "arithmetic",
+      "questions": [
+        {
+          "question": "Tìm số tự nhiên nhỏ nhất khác 0 chia hết cho cả 4, 6 và 9.",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["36", "72", "18", "12"],
+          "answer": "36",
+          "explanation": "BCNN(4, 6, 9) = 36.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tổng của 5 số tự nhiên liên tiếp bằng 100. Số lớn nhất trong 5 số đó là:",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": ["22", "20", "24", "18"],
+          "answer": "22",
+          "explanation": "Số ở giữa = 100 ÷ 5 = 20, nên năm số là 18, 19, 20, 21, 22; số lớn nhất là 22.",
+          "difficulty": 3
+        },
+        {
+          "question": "Một số có hai chữ số, chữ số hàng chục gấp đôi chữ số hàng đơn vị và tổng hai chữ số bằng 12. Số đó là:",
+          "question_vi": "",
+          "emoji": "🔟",
+          "options": ["84", "48", "63", "82"],
+          "answer": "84",
+          "explanation": "Gọi hàng đơn vị là a thì hàng chục là 2a; a + 2a = 12 ⇒ a = 4. Số đó là 84.",
+          "difficulty": 3
+        },
+        {
+          "question": "Giá trị của tổng 1 + 2 + 3 + ... + 100 bằng:",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["5050", "5000", "10100", "2550"],
+          "answer": "5050",
+          "explanation": "Tổng = 100 × 101 ÷ 2 = 5050.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiện nay tuổi mẹ gấp 3 lần tuổi con. Sau 12 năm nữa tuổi mẹ gấp 2 lần tuổi con. Tuổi con hiện nay là:",
+          "question_vi": "",
+          "emoji": "👨‍👩‍👧",
+          "options": ["12", "10", "15", "8"],
+          "answer": "12",
+          "explanation": "Gọi tuổi con là c, tuổi mẹ là 3c. Sau 12 năm: 3c + 12 = 2(c + 12) ⇒ c = 12.",
+          "difficulty": 4
+        },
+        {
+          "question": "Một hình vuông có chu vi 36 cm. Diện tích của hình vuông đó là:",
+          "question_vi": "",
+          "emoji": "🟥",
+          "options": ["81 cm²", "324 cm²", "36 cm²", "18 cm²"],
+          "answer": "81 cm²",
+          "explanation": "Cạnh = 36 ÷ 4 = 9 cm; diện tích = 9 × 9 = 81 cm².",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "math_hsg_district_1",
+      "title": "Toán — HSG cấp huyện THCS (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "algebra",
+      "questions": [
+        {
+          "question": "Chữ số tận cùng của 2²⁰²⁴ là:",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["6", "2", "4", "8"],
+          "answer": "6",
+          "explanation": "Chữ số tận cùng của lũy thừa của 2 lặp theo chu kỳ 2, 4, 8, 6. Vì 2024 chia hết cho 4 nên tận cùng là 6.",
+          "difficulty": 4
+        },
+        {
+          "question": "Số dư khi chia 7¹⁰⁰ cho 5 là:",
+          "question_vi": "",
+          "emoji": "➗",
+          "options": ["1", "2", "3", "4"],
+          "answer": "1",
+          "explanation": "7 ≡ 2 (mod 5); lũy thừa của 2 mod 5 lặp 2, 4, 3, 1 chu kỳ 4. Vì 100 chia hết cho 4 nên 7¹⁰⁰ ≡ 1 (mod 5).",
+          "difficulty": 5
+        },
+        {
+          "question": "Cho a + b = 10 và ab = 21. Giá trị của a² + b² là:",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["58", "142", "79", "100"],
+          "answer": "58",
+          "explanation": "a² + b² = (a + b)² − 2ab = 10² − 2·21 = 100 − 42 = 58.",
+          "difficulty": 4
+        },
+        {
+          "question": "Một người đi từ A đến B với vận tốc 40 km/h, lúc về đi với vận tốc 60 km/h. Vận tốc trung bình cả đi lẫn về là:",
+          "question_vi": "",
+          "emoji": "🚗",
+          "options": ["48 km/h", "50 km/h", "52 km/h", "45 km/h"],
+          "answer": "48 km/h",
+          "explanation": "Vận tốc trung bình = 2·40·60 ÷ (40 + 60) = 4800 ÷ 100 = 48 km/h.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tổng các nghiệm của phương trình x² − 7x + 10 = 0 là:",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["7", "-7", "10", "3"],
+          "answer": "7",
+          "explanation": "Theo định lý Vi-ét, tổng hai nghiệm = −b/a = 7.",
+          "difficulty": 3
+        },
+        {
+          "question": "Có bao nhiêu số tự nhiên có 3 chữ số khác nhau được lập từ các chữ số 1, 2, 3, 4?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": ["24", "12", "64", "18"],
+          "answer": "24",
+          "explanation": "Số cách = 4 × 3 × 2 = 24 (chọn lần lượt cho hàng trăm, chục, đơn vị, không lặp).",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "math_hsg_province_1",
+      "title": "Toán — HSG cấp tỉnh THCS (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "algebra",
+      "questions": [
+        {
+          "question": "Cho x + 1/x = 3. Giá trị của x² + 1/x² là:",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["7", "9", "11", "5"],
+          "answer": "7",
+          "explanation": "x² + 1/x² = (x + 1/x)² − 2 = 3² − 2 = 7.",
+          "difficulty": 5
+        },
+        {
+          "question": "Số cặp nghiệm nguyên dương (x; y) của phương trình x + y = 5 là:",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["4", "5", "6", "3"],
+          "answer": "4",
+          "explanation": "Các cặp (1;4), (2;3), (3;2), (4;1) — tất cả 4 cặp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Giá trị nhỏ nhất của biểu thức x² − 6x + 11 là:",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": ["2", "11", "-7", "3"],
+          "answer": "2",
+          "explanation": "x² − 6x + 11 = (x − 3)² + 2 ≥ 2; nhỏ nhất bằng 2 khi x = 3.",
+          "difficulty": 5
+        },
+        {
+          "question": "Cho tam giác ABC vuông tại A, AB = 6 cm, AC = 8 cm. Độ dài đường cao AH hạ từ A xuống cạnh BC là:",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["4,8 cm", "5 cm", "6 cm", "7,2 cm"],
+          "answer": "4,8 cm",
+          "explanation": "BC = √(6² + 8²) = 10 cm; AH = AB·AC ÷ BC = 48 ÷ 10 = 4,8 cm.",
+          "difficulty": 5
+        },
+        {
+          "question": "Chữ số tận cùng của tổng 1! + 2! + 3! + ... + 100! là:",
+          "question_vi": "",
+          "emoji": "🔚",
+          "options": ["3", "0", "5", "1"],
+          "answer": "3",
+          "explanation": "1! + 2! + 3! + 4! = 33 (tận cùng 3); từ 5! trở đi mọi giai thừa đều tận cùng bằng 0, nên tổng tận cùng là 3.",
+          "difficulty": 5
+        },
+        {
+          "question": "Cho đa thức P(x) = x³ − 2x² + 3x − 1. Giá trị P(1) bằng:",
+          "question_vi": "",
+          "emoji": "✖️",
+          "options": ["1", "0", "2", "-1"],
+          "answer": "1",
+          "explanation": "P(1) = 1 − 2 + 3 − 1 = 1.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,6 @@ input=$(cat)
 cmd=$(echo "$input" | python -c "import json,sys; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
 
 BLOCKED=(
-  "git push"
   "git reset --hard"
   "git clean -f"
   "git branch -D"

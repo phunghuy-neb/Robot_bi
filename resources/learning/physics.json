@@ -1,0 +1,257 @@
+{
+  "subject": "physics",
+  "exams": [
+    {
+      "paper_id": "physics_thcs_force_1",
+      "title": "Vật lý THCS — Lực & Chuyển động (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "force_motion",
+      "questions": [
+        {
+          "question": "Đơn vị đo lực trong hệ SI là gì?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": ["Niu-tơn (N)", "Jun (J)", "Oát (W)", "Pascal (Pa)"],
+          "answer": "Niu-tơn (N)",
+          "explanation": "Lực được đo bằng Niu-tơn (N) trong hệ SI.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đại lượng nào cho biết một vật nặng hay nhẹ (lượng chất chứa trong vật)?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": ["Khối lượng", "Thể tích", "Vận tốc", "Nhiệt độ"],
+          "answer": "Khối lượng",
+          "explanation": "Khối lượng đo lượng chất chứa trong vật, đơn vị là kilôgam (kg).",
+          "difficulty": 2
+        },
+        {
+          "question": "Công thức tính vận tốc trong chuyển động đều là gì?",
+          "question_vi": "",
+          "emoji": "🏎️",
+          "options": ["v = s / t", "v = s × t", "v = t / s", "v = s + t"],
+          "answer": "v = s / t",
+          "explanation": "Vận tốc bằng quãng đường chia thời gian: v = s/t.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lực hút của Trái Đất tác dụng lên vật gọi là gì?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": ["Trọng lực", "Lực ma sát", "Lực đàn hồi", "Lực đẩy"],
+          "answer": "Trọng lực",
+          "explanation": "Trọng lực là lực hút của Trái Đất tác dụng lên mọi vật.",
+          "difficulty": 2
+        },
+        {
+          "question": "Một vật có khối lượng 2 kg thì trọng lượng xấp xỉ bao nhiêu (lấy g ≈ 10 N/kg)?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["20 N", "2 N", "200 N", "0,2 N"],
+          "answer": "20 N",
+          "explanation": "Trọng lượng P = m × g = 2 × 10 = 20 N.",
+          "difficulty": 3
+        },
+        {
+          "question": "Lực nào cản trở chuyển động khi hai bề mặt trượt lên nhau?",
+          "question_vi": "",
+          "emoji": "🛞",
+          "options": ["Lực ma sát", "Trọng lực", "Lực điện", "Lực từ"],
+          "answer": "Lực ma sát",
+          "explanation": "Lực ma sát xuất hiện ở bề mặt tiếp xúc và cản trở chuyển động.",
+          "difficulty": 2
+        },
+        {
+          "question": "Theo định luật I Niu-tơn, một vật đang đứng yên sẽ thế nào nếu không có lực tác dụng?",
+          "question_vi": "",
+          "emoji": "🧊",
+          "options": ["Tiếp tục đứng yên", "Tự chuyển động nhanh dần", "Tự rơi xuống", "Tự quay tròn"],
+          "answer": "Tiếp tục đứng yên",
+          "explanation": "Theo quán tính, vật giữ nguyên trạng thái đứng yên nếu không có lực tác dụng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Áp suất được tính bằng công thức nào?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": ["p = F / S", "p = F × S", "p = S / F", "p = F + S"],
+          "answer": "p = F / S",
+          "explanation": "Áp suất bằng áp lực chia diện tích bị ép: p = F/S.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_thcs_electric_1",
+      "title": "Vật lý THCS — Điện học & Quang học (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "electricity_optics",
+      "questions": [
+        {
+          "question": "Đơn vị đo cường độ dòng điện là gì?",
+          "question_vi": "",
+          "emoji": "🔌",
+          "options": ["Ampe (A)", "Vôn (V)", "Ôm (Ω)", "Oát (W)"],
+          "answer": "Ampe (A)",
+          "explanation": "Cường độ dòng điện đo bằng Ampe (A).",
+          "difficulty": 2
+        },
+        {
+          "question": "Đơn vị đo hiệu điện thế là gì?",
+          "question_vi": "",
+          "emoji": "🔋",
+          "options": ["Vôn (V)", "Ampe (A)", "Ôm (Ω)", "Jun (J)"],
+          "answer": "Vôn (V)",
+          "explanation": "Hiệu điện thế (điện áp) đo bằng Vôn (V).",
+          "difficulty": 2
+        },
+        {
+          "question": "Định luật Ôm có biểu thức nào?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["I = U / R", "I = U × R", "I = R / U", "I = U + R"],
+          "answer": "I = U / R",
+          "explanation": "Theo định luật Ôm, I = U/R (cường độ bằng hiệu điện thế chia điện trở).",
+          "difficulty": 3
+        },
+        {
+          "question": "Điện trở được đo bằng đơn vị nào?",
+          "question_vi": "",
+          "emoji": "🧰",
+          "options": ["Ôm (Ω)", "Vôn (V)", "Ampe (A)", "Hertz (Hz)"],
+          "answer": "Ôm (Ω)",
+          "explanation": "Điện trở đo bằng Ôm (Ω).",
+          "difficulty": 2
+        },
+        {
+          "question": "Ánh sáng truyền trong môi trường trong suốt và đồng tính theo đường nào?",
+          "question_vi": "",
+          "emoji": "💡",
+          "options": ["Đường thẳng", "Đường cong", "Đường gấp khúc", "Đường tròn"],
+          "answer": "Đường thẳng",
+          "explanation": "Trong môi trường trong suốt, đồng tính, ánh sáng truyền theo đường thẳng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hiện tượng ánh sáng đổi hướng khi gặp gương phẳng gọi là gì?",
+          "question_vi": "",
+          "emoji": "🪞",
+          "options": ["Phản xạ ánh sáng", "Khúc xạ ánh sáng", "Tán sắc ánh sáng", "Nhiễu xạ"],
+          "answer": "Phản xạ ánh sáng",
+          "explanation": "Ánh sáng dội lại khi gặp gương phẳng gọi là phản xạ ánh sáng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thấu kính nào có phần rìa mỏng hơn phần giữa?",
+          "question_vi": "",
+          "emoji": "🔍",
+          "options": ["Thấu kính hội tụ", "Thấu kính phân kì", "Gương phẳng", "Lăng kính"],
+          "answer": "Thấu kính hội tụ",
+          "explanation": "Thấu kính hội tụ (lồi) dày ở giữa, mỏng ở rìa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Công suất điện được đo bằng đơn vị nào?",
+          "question_vi": "",
+          "emoji": "💪",
+          "options": ["Oát (W)", "Jun (J)", "Vôn (V)", "Ôm (Ω)"],
+          "answer": "Oát (W)",
+          "explanation": "Công suất đo bằng Oát (W); 1 W = 1 J/s.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "physics_thpt_heat_energy_1",
+      "title": "Vật lý THPT — Nhiệt học & Năng lượng (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 35,
+      "pass_percent": 60,
+      "topic": "heat_energy",
+      "questions": [
+        {
+          "question": "Đơn vị đo năng lượng (công) trong hệ SI là gì?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": ["Jun (J)", "Oát (W)", "Niu-tơn (N)", "Pascal (Pa)"],
+          "answer": "Jun (J)",
+          "explanation": "Năng lượng và công đo bằng Jun (J).",
+          "difficulty": 2
+        },
+        {
+          "question": "Công thức tính công cơ học khi lực cùng hướng chuyển động là gì?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": ["A = F × s", "A = F / s", "A = s / F", "A = F + s"],
+          "answer": "A = F × s",
+          "explanation": "Công A bằng lực nhân quãng đường dịch chuyển cùng phương: A = F·s.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhiệt độ là đại lượng đặc trưng cho điều gì?",
+          "question_vi": "",
+          "emoji": "🌡️",
+          "options": ["Mức độ nóng lạnh của vật", "Khối lượng của vật", "Thể tích của vật", "Trọng lượng của vật"],
+          "answer": "Mức độ nóng lạnh của vật",
+          "explanation": "Nhiệt độ đặc trưng cho độ nóng lạnh, liên quan động năng trung bình các phân tử.",
+          "difficulty": 2
+        },
+        {
+          "question": "Quá trình truyền nhiệt nào xảy ra chủ yếu trong chất rắn?",
+          "question_vi": "",
+          "emoji": "🪨",
+          "options": ["Dẫn nhiệt", "Đối lưu", "Bức xạ nhiệt", "Bay hơi"],
+          "answer": "Dẫn nhiệt",
+          "explanation": "Trong chất rắn, nhiệt truyền chủ yếu bằng dẫn nhiệt.",
+          "difficulty": 3
+        },
+        {
+          "question": "Năng lượng của một vật đang chuyển động gọi là gì?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": ["Động năng", "Thế năng", "Nhiệt năng", "Quang năng"],
+          "answer": "Động năng",
+          "explanation": "Vật chuyển động có động năng, phụ thuộc khối lượng và vận tốc.",
+          "difficulty": 2
+        },
+        {
+          "question": "Theo định luật bảo toàn năng lượng, năng lượng có thể bị tiêu diệt không?",
+          "question_vi": "",
+          "emoji": "♻️",
+          "options": ["Không, chỉ chuyển hóa từ dạng này sang dạng khác", "Có, năng lượng tự mất đi", "Có, khi vật dừng lại", "Có, khi trời lạnh"],
+          "answer": "Không, chỉ chuyển hóa từ dạng này sang dạng khác",
+          "explanation": "Năng lượng không tự sinh ra hay mất đi, chỉ chuyển hóa hoặc truyền sang vật khác.",
+          "difficulty": 4
+        },
+        {
+          "question": "Công suất là đại lượng cho biết điều gì?",
+          "question_vi": "",
+          "emoji": "⏱️",
+          "options": ["Công thực hiện trong một đơn vị thời gian", "Tổng quãng đường đi được", "Khối lượng của vật", "Nhiệt độ của vật"],
+          "answer": "Công thực hiện trong một đơn vị thời gian",
+          "explanation": "Công suất P = A/t, đo tốc độ thực hiện công.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhiệt lượng cần để làm nóng vật được tính theo công thức nào?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["Q = m × c × Δt", "Q = m / c", "Q = c × Δt / m", "Q = m + c + Δt"],
+          "answer": "Q = m × c × Δt",
+          "explanation": "Nhiệt lượng Q = m·c·Δt với m khối lượng, c nhiệt dung riêng, Δt độ tăng nhiệt.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

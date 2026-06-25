@@ -12,18 +12,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+_MAX_DURATION_MS = 5000  # safety cap: no single command runs the motor longer than 5 s
+
+
 @router.post("/api/motor/forward")
 async def motor_forward(payload: dict | None = None, _current_user: dict = Depends(get_current_user)):
     """Move forward."""
     payload = payload or {}
-    return {"ok": get_shared_motor().forward(payload.get("speed", 50), payload.get("duration_ms", 1000))}
+    return {"ok": get_shared_motor().forward(payload.get("speed", 50), min(int(payload.get("duration_ms", 1000)), _MAX_DURATION_MS))}
 
 
 @router.post("/api/motor/backward")
 async def motor_backward(payload: dict | None = None, _current_user: dict = Depends(get_current_user)):
     """Move backward."""
     payload = payload or {}
-    return {"ok": get_shared_motor().backward(payload.get("speed", 50), payload.get("duration_ms", 1000))}
+    return {"ok": get_shared_motor().backward(payload.get("speed", 50), min(int(payload.get("duration_ms", 1000)), _MAX_DURATION_MS))}
 
 
 @router.post("/api/motor/left")
@@ -78,7 +81,7 @@ async def motor_joystick(payload: dict | None = None, _current_user: dict = Depe
 async def motor_spin(payload: dict | None = None, _current_user: dict = Depends(get_current_user)):
     """Spin in place."""
     payload = payload or {}
-    return {"ok": get_shared_motor().spin(payload.get("speed", 50), payload.get("duration_ms", 2000))}
+    return {"ok": get_shared_motor().spin(payload.get("speed", 50), min(int(payload.get("duration_ms", 2000)), _MAX_DURATION_MS))}
 
 
 @router.get("/api/motor/status")

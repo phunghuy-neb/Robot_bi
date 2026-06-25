@@ -1,0 +1,257 @@
+{
+  "subject": "health",
+  "exams": [
+    {
+      "paper_id": "health_food_groups_1",
+      "title": "Dinh dưỡng & Sức khỏe — Nhóm thực phẩm (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "food_groups",
+      "questions": [
+        {
+          "question": "Chất dinh dưỡng nào giúp cơ thể xây dựng cơ bắp và lớn lên?",
+          "question_vi": "",
+          "emoji": "🍗",
+          "options": ["Chất đạm (protein)", "Đường tinh luyện", "Nước lọc", "Muối"],
+          "answer": "Chất đạm (protein)",
+          "explanation": "Chất đạm có nhiều trong thịt, cá, trứng, đậu; giúp xây dựng và sửa chữa cơ bắp, giúp cơ thể lớn lên.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nhóm chất bột đường (tinh bột) cung cấp gì chính cho cơ thể?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": ["Năng lượng", "Vi khuẩn", "Màu da", "Nước mắt"],
+          "answer": "Năng lượng",
+          "explanation": "Chất bột đường (có trong cơm, bánh mì, khoai) là nguồn cung cấp năng lượng chính cho hoạt động hằng ngày.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thực phẩm nào sau đây giàu chất đạm?",
+          "question_vi": "",
+          "emoji": "🥚",
+          "options": ["Trứng", "Kẹo", "Nước ngọt", "Dầu ăn"],
+          "answer": "Trứng",
+          "explanation": "Trứng là nguồn chất đạm chất lượng cao; kẹo và nước ngọt chủ yếu là đường, dầu ăn là chất béo.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong tháp dinh dưỡng, nhóm thực phẩm nào nên ăn ÍT nhất (ở đỉnh tháp)?",
+          "question_vi": "",
+          "emoji": "🍰",
+          "options": ["Đường và chất béo", "Rau xanh", "Cơm và ngũ cốc", "Nước lọc"],
+          "answer": "Đường và chất béo",
+          "explanation": "Trên đỉnh tháp dinh dưỡng là đường, muối và chất béo — nhóm nên dùng hạn chế nhất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chất béo tốt cho cơ thể có nhiều trong thực phẩm nào?",
+          "question_vi": "",
+          "emoji": "🥑",
+          "options": ["Quả bơ và các loại hạt", "Kẹo dẻo", "Nước có ga", "Bánh quy ngọt"],
+          "answer": "Quả bơ và các loại hạt",
+          "explanation": "Quả bơ, các loại hạt và cá béo chứa chất béo lành mạnh tốt cho tim và não.",
+          "difficulty": 3
+        },
+        {
+          "question": "Để khỏe mạnh, mỗi bữa ăn nên có nhiều màu sắc từ thực phẩm nào?",
+          "question_vi": "",
+          "emoji": "🥗",
+          "options": ["Rau củ và trái cây", "Chỉ thịt", "Chỉ cơm trắng", "Chỉ kẹo"],
+          "answer": "Rau củ và trái cây",
+          "explanation": "Rau củ và trái cây nhiều màu sắc cung cấp vitamin, khoáng chất và chất xơ giúp cơ thể khỏe mạnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Chất xơ (có nhiều trong rau và trái cây) giúp ích gì cho cơ thể?",
+          "question_vi": "",
+          "emoji": "🥦",
+          "options": ["Giúp tiêu hóa tốt", "Làm răng đen", "Làm cao thêm ngay", "Làm tóc dài nhanh"],
+          "answer": "Giúp tiêu hóa tốt",
+          "explanation": "Chất xơ hỗ trợ hệ tiêu hóa hoạt động trơn tru và giúp phòng táo bón.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bữa ăn cân đối nên kết hợp các nhóm chất nào?",
+          "question_vi": "",
+          "emoji": "🍱",
+          "options": ["Đạm, bột đường, béo, vitamin và khoáng chất", "Chỉ một loại đường", "Chỉ nước ngọt", "Chỉ bánh kẹo"],
+          "answer": "Đạm, bột đường, béo, vitamin và khoáng chất",
+          "explanation": "Một bữa ăn cân đối cần đủ các nhóm chất: đạm, bột đường, chất béo, vitamin và khoáng chất.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "health_good_habits_1",
+      "title": "Dinh dưỡng & Sức khỏe — Thói quen tốt (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "healthy_habits",
+      "questions": [
+        {
+          "question": "Trước khi ăn, em nên làm việc gì để giữ vệ sinh?",
+          "question_vi": "",
+          "emoji": "🧼",
+          "options": ["Rửa tay bằng xà phòng", "Xem tivi", "Chạy nhảy", "Ngủ một giấc"],
+          "answer": "Rửa tay bằng xà phòng",
+          "explanation": "Rửa tay với xà phòng trước khi ăn giúp loại bỏ vi khuẩn, phòng tránh bệnh đường ruột.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trẻ em trong độ tuổi đi học nên ngủ khoảng bao nhiêu giờ mỗi đêm?",
+          "question_vi": "",
+          "emoji": "😴",
+          "options": ["Khoảng 9–11 giờ", "Khoảng 2 giờ", "Khoảng 24 giờ", "Không cần ngủ"],
+          "answer": "Khoảng 9–11 giờ",
+          "explanation": "Trẻ em tuổi đi học cần khoảng 9 đến 11 giờ ngủ mỗi đêm để cơ thể và trí não phát triển tốt.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hoạt động nào giúp cơ thể khỏe mạnh và dẻo dai?",
+          "question_vi": "",
+          "emoji": "🏃",
+          "options": ["Tập thể dục mỗi ngày", "Ngồi xem điện thoại cả ngày", "Bỏ bữa sáng", "Thức khuya"],
+          "answer": "Tập thể dục mỗi ngày",
+          "explanation": "Vận động và tập thể dục thường xuyên giúp tim, cơ và xương khỏe mạnh.",
+          "difficulty": 1
+        },
+        {
+          "question": "Mỗi ngày cơ thể cần được cung cấp đủ thứ gì để hoạt động tốt?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["Nước", "Khói thuốc", "Nước ngọt có ga thật nhiều", "Cà phê đậm"],
+          "answer": "Nước",
+          "explanation": "Uống đủ nước mỗi ngày giúp cơ thể điều hòa nhiệt độ, vận chuyển dưỡng chất và hoạt động bình thường.",
+          "difficulty": 1
+        },
+        {
+          "question": "Em nên đánh răng bao nhiêu lần mỗi ngày để giữ răng chắc khỏe?",
+          "question_vi": "",
+          "emoji": "🪥",
+          "options": ["Ít nhất 2 lần (sáng và tối)", "Một tuần một lần", "Không cần đánh răng", "Chỉ khi đau răng"],
+          "answer": "Ít nhất 2 lần (sáng và tối)",
+          "explanation": "Đánh răng ít nhất 2 lần mỗi ngày, sáng và tối, giúp phòng sâu răng và giữ răng chắc khỏe.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi ho hoặc hắt hơi, em nên làm gì để tránh lây bệnh cho người khác?",
+          "question_vi": "",
+          "emoji": "🤧",
+          "options": ["Che miệng và mũi bằng khuỷu tay hoặc khăn giấy", "Quay vào mặt bạn", "Hắt hơi thật to", "Không làm gì cả"],
+          "answer": "Che miệng và mũi bằng khuỷu tay hoặc khăn giấy",
+          "explanation": "Che miệng, mũi khi ho hắt hơi giúp ngăn vi khuẩn, vi rút phát tán ra không khí và lây cho người khác.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bữa ăn nào trong ngày được xem là quan trọng để bắt đầu một ngày học tập?",
+          "question_vi": "",
+          "emoji": "🍳",
+          "options": ["Bữa sáng", "Bữa ăn vặt lúc nửa đêm", "Không ăn gì cả", "Chỉ uống nước ngọt"],
+          "answer": "Bữa sáng",
+          "explanation": "Bữa sáng cung cấp năng lượng cho buổi học buổi sáng, giúp tập trung và học tốt hơn.",
+          "difficulty": 1
+        },
+        {
+          "question": "Để bảo vệ mắt khi học và đọc sách, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "👀",
+          "options": ["Ngồi học nơi đủ ánh sáng và nghỉ mắt thường xuyên", "Đọc sách trong bóng tối", "Nhìn sát màn hình hàng giờ liền", "Dụi mắt bằng tay bẩn"],
+          "answer": "Ngồi học nơi đủ ánh sáng và nghỉ mắt thường xuyên",
+          "explanation": "Học nơi đủ sáng và cho mắt nghỉ ngơi giúp phòng mỏi mắt và cận thị.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "health_vitamins_minerals_1",
+      "title": "Dinh dưỡng & Sức khỏe — Vitamin & Khoáng chất (Đề 1)",
+      "track": "practice",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "vitamins_minerals",
+      "questions": [
+        {
+          "question": "Vitamin C có nhiều trong loại quả nào sau đây?",
+          "question_vi": "",
+          "emoji": "🍊",
+          "options": ["Cam", "Bánh mì trắng", "Dầu ăn", "Đường cát"],
+          "answer": "Cam",
+          "explanation": "Cam và các loại trái cây họ cam quýt rất giàu vitamin C, giúp tăng sức đề kháng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vitamin A, tốt cho mắt, có nhiều trong loại củ nào?",
+          "question_vi": "",
+          "emoji": "🥕",
+          "options": ["Cà rốt", "Khoai tây chiên", "Kẹo", "Muối"],
+          "answer": "Cà rốt",
+          "explanation": "Cà rốt giàu beta-caroten mà cơ thể chuyển thành vitamin A, tốt cho thị lực.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khoáng chất nào giúp xương và răng chắc khỏe?",
+          "question_vi": "",
+          "emoji": "🦴",
+          "options": ["Canxi", "Đường", "Khói bụi", "Bột màu"],
+          "answer": "Canxi",
+          "explanation": "Canxi (có nhiều trong sữa, phô mai, cá nhỏ) là khoáng chất quan trọng giúp xương và răng chắc khỏe.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khoáng chất sắt rất cần thiết cho cơ thể vì nó giúp:",
+          "question_vi": "",
+          "emoji": "🩸",
+          "options": ["Tạo máu (hồng cầu) vận chuyển oxy", "Làm răng trắng hơn", "Làm tóc xoăn", "Làm da rám nắng"],
+          "answer": "Tạo máu (hồng cầu) vận chuyển oxy",
+          "explanation": "Sắt là thành phần của hemoglobin trong hồng cầu, giúp máu vận chuyển oxy đi khắp cơ thể; thiếu sắt gây thiếu máu.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thiếu vitamin C kéo dài có thể gây ra vấn đề gì?",
+          "question_vi": "",
+          "emoji": "🦷",
+          "options": ["Chảy máu chân răng, dễ mệt và ốm", "Cao thêm rất nhanh", "Mắt sáng hơn", "Răng mọc thừa"],
+          "answer": "Chảy máu chân răng, dễ mệt và ốm",
+          "explanation": "Thiếu vitamin C làm giảm sức đề kháng, gây chảy máu chân răng và mệt mỏi (nặng có thể gây bệnh scorbut).",
+          "difficulty": 3
+        },
+        {
+          "question": "Loại thực phẩm nào giàu chất sắt giúp phòng thiếu máu?",
+          "question_vi": "",
+          "emoji": "🥬",
+          "options": ["Thịt đỏ và rau lá xanh đậm", "Nước ngọt có ga", "Kẹo bông", "Snack khoai tây"],
+          "answer": "Thịt đỏ và rau lá xanh đậm",
+          "explanation": "Thịt đỏ, gan và rau lá xanh đậm (như rau bina) là nguồn sắt tốt giúp phòng thiếu máu.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vitamin D, giúp cơ thể hấp thụ canxi, được tạo ra trên da khi tiếp xúc với gì?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": ["Ánh nắng mặt trời", "Bóng tối", "Nước đá", "Khói"],
+          "answer": "Ánh nắng mặt trời",
+          "explanation": "Da tạo ra vitamin D khi tiếp xúc với ánh nắng; vitamin D giúp cơ thể hấp thụ canxi cho xương chắc khỏe.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vì sao nên ăn đa dạng nhiều loại rau củ quả nhiều màu sắc?",
+          "question_vi": "",
+          "emoji": "🌈",
+          "options": ["Để nhận được nhiều loại vitamin và khoáng chất khác nhau", "Để trang trí cho đẹp", "Để ăn ít hơn", "Vì rau không có dinh dưỡng"],
+          "answer": "Để nhận được nhiều loại vitamin và khoáng chất khác nhau",
+          "explanation": "Mỗi màu rau củ quả thường chứa các vitamin và khoáng chất khác nhau, nên ăn đa dạng giúp cơ thể đủ chất.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

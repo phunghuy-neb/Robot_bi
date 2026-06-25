@@ -1,0 +1,341 @@
+{
+  "subject": "vietnamese",
+  "exams": [
+    {
+      "paper_id": "vietnamese_g2_tuvung_1",
+      "title": "Tiếng Việt Lớp 2 — Từ vựng (Đề 1)",
+      "track": "practice",
+      "level": "grade_2",
+      "age_group": "6-7",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "vocabulary",
+      "questions": [
+        {
+          "question": "Từ nào trái nghĩa với 'cao'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["thấp", "to", "dài", "rộng"],
+          "answer": "thấp",
+          "explanation": "Trái nghĩa của 'cao' là 'thấp'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào đồng nghĩa với 'siêng năng'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["chăm chỉ", "lười biếng", "buồn bã", "vui vẻ"],
+          "answer": "chăm chỉ",
+          "explanation": "'Siêng năng' và 'chăm chỉ' đều chỉ sự cần cù làm việc.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào trái nghĩa với 'nóng'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["lạnh", "ấm", "khô", "ướt"],
+          "answer": "lạnh",
+          "explanation": "Trái nghĩa của 'nóng' là 'lạnh'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào đồng nghĩa với 'to'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["lớn", "bé", "nhỏ", "thấp"],
+          "answer": "lớn",
+          "explanation": "'To' và 'lớn' có nghĩa giống nhau.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào trái nghĩa với 'nhanh'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["chậm", "vội", "gấp", "lẹ"],
+          "answer": "chậm",
+          "explanation": "Trái nghĩa của 'nhanh' là 'chậm'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ nào đồng nghĩa với 'vui'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["mừng", "buồn", "giận", "khóc"],
+          "answer": "mừng",
+          "explanation": "'Vui' và 'mừng' đều chỉ tâm trạng phấn khởi.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ nào trái nghĩa với 'sạch'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["bẩn", "thơm", "mới", "đẹp"],
+          "answer": "bẩn",
+          "explanation": "Trái nghĩa của 'sạch' là 'bẩn'.",
+          "difficulty": 1
+        },
+        {
+          "question": "Từ nào đồng nghĩa với 'mẹ'?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": ["má", "bố", "ông", "anh"],
+          "answer": "má",
+          "explanation": "'Mẹ' và 'má' đều dùng để gọi người sinh ra mình.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_g3_tuloai_1",
+      "title": "Tiếng Việt Lớp 3 — Từ loại (Đề 1)",
+      "track": "practice",
+      "level": "grade_3",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "word_class",
+      "questions": [
+        {
+          "question": "Từ 'chạy' thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["động từ", "danh từ", "tính từ", "số từ"],
+          "answer": "động từ",
+          "explanation": "'Chạy' chỉ hoạt động nên là động từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ 'bàn' thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["danh từ", "động từ", "tính từ", "đại từ"],
+          "answer": "danh từ",
+          "explanation": "'Bàn' chỉ sự vật nên là danh từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ 'đẹp' thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["tính từ", "danh từ", "động từ", "quan hệ từ"],
+          "answer": "tính từ",
+          "explanation": "'Đẹp' chỉ đặc điểm, tính chất nên là tính từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong các từ sau, từ nào là danh từ?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["cây", "hát", "vui", "đi"],
+          "answer": "cây",
+          "explanation": "'Cây' chỉ sự vật nên là danh từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong các từ sau, từ nào là động từ?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["nhảy", "sách", "xanh", "núi"],
+          "answer": "nhảy",
+          "explanation": "'Nhảy' chỉ hoạt động nên là động từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong các từ sau, từ nào là tính từ?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["vàng", "chạy", "trường", "viết"],
+          "answer": "vàng",
+          "explanation": "'Vàng' chỉ màu sắc, đặc điểm nên là tính từ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Từ 'học sinh' thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["danh từ", "động từ", "tính từ", "số từ"],
+          "answer": "danh từ",
+          "explanation": "'Học sinh' chỉ người nên là danh từ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Từ 'cao lớn' thuộc từ loại nào?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": ["tính từ", "danh từ", "động từ", "đại từ"],
+          "answer": "tính từ",
+          "explanation": "'Cao lớn' chỉ đặc điểm hình dáng nên là tính từ.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_g4_daucau_1",
+      "title": "Tiếng Việt Lớp 4 — Dấu câu (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "punctuation",
+      "questions": [
+        {
+          "question": "Câu hỏi thường kết thúc bằng dấu gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["dấu chấm hỏi", "dấu chấm", "dấu phẩy", "dấu hai chấm"],
+          "answer": "dấu chấm hỏi",
+          "explanation": "Cuối câu hỏi dùng dấu chấm hỏi (?).",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu kể (câu trần thuật) thường kết thúc bằng dấu gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["dấu chấm", "dấu chấm hỏi", "dấu chấm than", "dấu phẩy"],
+          "answer": "dấu chấm",
+          "explanation": "Cuối câu kể dùng dấu chấm (.).",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu cảm thán bộc lộ cảm xúc thường kết thúc bằng dấu gì?",
+          "question_vi": "",
+          "emoji": "❗",
+          "options": ["dấu chấm than", "dấu chấm", "dấu phẩy", "dấu chấm hỏi"],
+          "answer": "dấu chấm than",
+          "explanation": "Cuối câu cảm thán dùng dấu chấm than (!).",
+          "difficulty": 2
+        },
+        {
+          "question": "Dấu nào dùng để ngăn cách các bộ phận cùng loại trong câu?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["dấu phẩy", "dấu chấm", "dấu chấm hỏi", "dấu chấm than"],
+          "answer": "dấu phẩy",
+          "explanation": "Dấu phẩy (,) dùng để ngăn cách các bộ phận cùng loại.",
+          "difficulty": 3
+        },
+        {
+          "question": "Dấu nào thường đặt trước lời nói trực tiếp hoặc phần liệt kê?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["dấu hai chấm", "dấu phẩy", "dấu chấm", "dấu chấm hỏi"],
+          "answer": "dấu hai chấm",
+          "explanation": "Dấu hai chấm (:) báo hiệu phần giải thích, liệt kê hoặc lời nói.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu 'Hôm nay trời đẹp quá' nên kết thúc bằng dấu gì?",
+          "question_vi": "",
+          "emoji": "❗",
+          "options": ["dấu chấm than", "dấu chấm hỏi", "dấu phẩy", "dấu hai chấm"],
+          "answer": "dấu chấm than",
+          "explanation": "Câu bộc lộ cảm xúc nên dùng dấu chấm than.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu 'Bạn tên là gì' nên kết thúc bằng dấu gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["dấu chấm hỏi", "dấu chấm", "dấu chấm than", "dấu phẩy"],
+          "answer": "dấu chấm hỏi",
+          "explanation": "Đây là câu hỏi nên kết thúc bằng dấu chấm hỏi.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dấu gạch ngang (—) ở đầu dòng thường dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": ["đánh dấu lời nói trực tiếp của nhân vật", "kết thúc câu kể", "ngăn cách câu hỏi", "đặt cuối câu cảm"],
+          "answer": "đánh dấu lời nói trực tiếp của nhân vật",
+          "explanation": "Dấu gạch ngang đầu dòng dùng để đánh dấu lời nói trực tiếp của nhân vật trong đoạn hội thoại.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "vietnamese_g5_thanhngu_dochieu_1",
+      "title": "Tiếng Việt Lớp 5 — Thành ngữ & Đọc hiểu (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "idiom_reading",
+      "questions": [
+        {
+          "question": "Thành ngữ 'Ăn quả nhớ kẻ trồng cây' khuyên chúng ta điều gì?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": ["biết ơn người đã giúp đỡ mình", "phải trồng nhiều cây", "ăn nhiều quả ngọt", "chăm sóc vườn cây"],
+          "answer": "biết ơn người đã giúp đỡ mình",
+          "explanation": "Câu này dạy lòng biết ơn với người đã làm ra thành quả cho mình hưởng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu tục ngữ 'Có công mài sắt, có ngày nên kim' nói về điều gì?",
+          "question_vi": "",
+          "emoji": "🪡",
+          "options": ["sự kiên trì sẽ thành công", "phải mài sắt hằng ngày", "kim rất sắc bén", "thợ rèn rất giỏi"],
+          "answer": "sự kiên trì sẽ thành công",
+          "explanation": "Câu này ca ngợi đức tính kiên trì, nhẫn nại thì việc khó cũng thành.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thành ngữ 'Lá lành đùm lá rách' khuyên ta điều gì?",
+          "question_vi": "",
+          "emoji": "🍃",
+          "options": ["giúp đỡ người gặp khó khăn", "gói bánh bằng lá", "giữ gìn lá cây", "chọn lá lành để dùng"],
+          "answer": "giúp đỡ người gặp khó khăn",
+          "explanation": "Câu này dạy tinh thần tương thân tương ái, người khá giúp người khó khăn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Câu tục ngữ 'Tốt gỗ hơn tốt nước sơn' đề cao điều gì?",
+          "question_vi": "",
+          "emoji": "🪵",
+          "options": ["phẩm chất bên trong quan trọng hơn vẻ ngoài", "gỗ tốt thì đắt tiền", "nên sơn nhà đẹp", "chọn gỗ để làm bàn"],
+          "answer": "phẩm chất bên trong quan trọng hơn vẻ ngoài",
+          "explanation": "Câu này coi trọng giá trị thật, bản chất hơn hình thức bên ngoài.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đọc câu: 'Buổi sáng, đàn chim hót líu lo trên cành cây.' Đàn chim đang làm gì?",
+          "question_vi": "",
+          "emoji": "🐦",
+          "options": ["hót líu lo", "bay đi xa", "tìm thức ăn", "làm tổ"],
+          "answer": "hót líu lo",
+          "explanation": "Câu cho biết đàn chim hót líu lo trên cành cây.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đọc câu: 'Lan chăm chỉ học bài nên được cô giáo khen.' Vì sao Lan được khen?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": ["vì Lan chăm chỉ học bài", "vì Lan hát hay", "vì Lan chạy nhanh", "vì Lan vẽ đẹp"],
+          "answer": "vì Lan chăm chỉ học bài",
+          "explanation": "Câu nêu rõ Lan được khen vì chăm chỉ học bài.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đọc câu: 'Mưa to suốt đêm khiến con đường ngập nước.' Điều gì làm con đường ngập nước?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": ["mưa to suốt đêm", "nắng nóng", "gió mạnh", "tuyết rơi"],
+          "answer": "mưa to suốt đêm",
+          "explanation": "Nguyên nhân con đường ngập là do mưa to suốt đêm.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thành ngữ 'Học thầy không tày học bạn' có ý nghĩa gì?",
+          "question_vi": "",
+          "emoji": "👫",
+          "options": ["học hỏi từ bạn bè cũng rất quý", "không cần học thầy", "bạn giỏi hơn thầy", "chỉ nên học một mình"],
+          "answer": "học hỏi từ bạn bè cũng rất quý",
+          "explanation": "Câu đề cao việc học hỏi lẫn nhau giữa bạn bè, bổ sung cho việc học thầy.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@ cryptography==46.0.7
 pygame==2.6.1
 fastapi==0.135.3
 uvicorn[standard]==0.44.0
+python-multipart==0.0.20
 websockets==16.0
 websocket-client>=1.6.0
 sounddevice==0.5.5
@@ -34,11 +35,12 @@ pyttsx3==2.99
 argon2-cffi==23.1.0
 python-jose[cryptography]==3.3.0
 
-# Phase 2+ (sẽ thêm sau)
-# openwakeword
+# Wake Word Training (Sprint 0.4 — chạy 1 lần để train model)
+scikit-learn>=1.4.0
+# openwakeword  # (future — cần dataset lớn để train từ đầu)
 
 # WebRTC — cài trên Ubuntu: pip install aiortc
 # aiortc==1.9.0
 
 # pywebpush
-# pyserial
+pyserial==3.5

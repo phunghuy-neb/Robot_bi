@@ -1,0 +1,683 @@
+{
+  "subject": "civics",
+  "exams": [
+    {
+      "paper_id": "civics_exam_grade6_1",
+      "title": "Giáo dục công dân — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "dao_duc_co_ban",
+      "questions": [
+        {
+          "question": "Khi gặp người lớn tuổi, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "chào hỏi lễ phép",
+            "làm ngơ đi qua",
+            "trêu chọc",
+            "quay mặt đi"
+          ],
+          "answer": "chào hỏi lễ phép",
+          "explanation": "Chào hỏi lễ phép thể hiện sự kính trọng người lớn tuổi.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hành vi nào thể hiện tính trung thực?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "nhặt được của rơi trả lại người mất",
+            "nói dối để khỏi bị phạt",
+            "chép bài của bạn",
+            "giấu lỗi của mình"
+          ],
+          "answer": "nhặt được của rơi trả lại người mất",
+          "explanation": "Trả lại của rơi cho người mất là biểu hiện của tính trung thực.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để bảo vệ môi trường, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "bỏ rác đúng nơi quy định",
+            "vứt rác xuống sông",
+            "chặt phá cây xanh",
+            "đốt rác bừa bãi"
+          ],
+          "answer": "bỏ rác đúng nơi quy định",
+          "explanation": "Bỏ rác đúng nơi quy định giúp giữ gìn môi trường sạch đẹp.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi đi xe máy, mọi người bắt buộc phải làm gì?",
+          "question_vi": "",
+          "emoji": "🪖",
+          "options": [
+            "đội mũ bảo hiểm",
+            "đi ngược chiều",
+            "vượt đèn đỏ",
+            "phóng thật nhanh"
+          ],
+          "answer": "đội mũ bảo hiểm",
+          "explanation": "Đội mũ bảo hiểm khi đi xe máy là quy định bắt buộc để bảo vệ an toàn.",
+          "difficulty": 1
+        },
+        {
+          "question": "Biểu hiện của lòng biết ơn là gì?",
+          "question_vi": "",
+          "emoji": "💖",
+          "options": [
+            "ghi nhớ và đền đáp công ơn của người đã giúp mình",
+            "quên ngay sau khi được giúp",
+            "đòi hỏi được giúp thêm",
+            "coi việc được giúp là đương nhiên"
+          ],
+          "answer": "ghi nhớ và đền đáp công ơn của người đã giúp mình",
+          "explanation": "Biết ơn là ghi nhớ và tìm cách đền đáp công ơn người đã giúp đỡ mình.",
+          "difficulty": 2
+        },
+        {
+          "question": "Siêng năng, kiên trì trong học tập sẽ giúp em điều gì?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "đạt kết quả tốt và tiến bộ",
+            "mệt mỏi vô ích",
+            "bị bạn bè xa lánh",
+            "lãng phí thời gian"
+          ],
+          "answer": "đạt kết quả tốt và tiến bộ",
+          "explanation": "Siêng năng, kiên trì giúp em vượt khó và đạt kết quả tốt trong học tập.",
+          "difficulty": 1
+        },
+        {
+          "question": "Khi thấy bạn bị bắt nạt, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": [
+            "báo cho thầy cô hoặc người lớn để giúp đỡ",
+            "hùa theo trêu bạn",
+            "làm ngơ bỏ đi",
+            "quay video chế giễu bạn"
+          ],
+          "answer": "báo cho thầy cô hoặc người lớn để giúp đỡ",
+          "explanation": "Khi thấy bạn bị bắt nạt nên báo người lớn để bảo vệ bạn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tiết kiệm là gì?",
+          "question_vi": "",
+          "emoji": "🐷",
+          "options": [
+            "sử dụng hợp lý, đúng mức của cải, thời gian, công sức",
+            "tiêu xài hoang phí",
+            "keo kiệt, không dám dùng gì",
+            "không bao giờ chi tiêu"
+          ],
+          "answer": "sử dụng hợp lý, đúng mức của cải, thời gian, công sức",
+          "explanation": "Tiết kiệm là dùng hợp lý, đúng mức của cải, thời gian, công sức.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hành vi nào thể hiện sự tôn trọng kỷ luật ở trường?",
+          "question_vi": "",
+          "emoji": "🏫",
+          "options": [
+            "đi học đúng giờ, làm bài đầy đủ",
+            "đi học muộn thường xuyên",
+            "nói chuyện riêng trong giờ",
+            "bỏ học đi chơi"
+          ],
+          "answer": "đi học đúng giờ, làm bài đầy đủ",
+          "explanation": "Đi học đúng giờ, làm bài đầy đủ là biểu hiện tôn trọng kỷ luật.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "civics_exam_grade10_1",
+      "title": "Giáo dục công dân — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "gdcd_thcs",
+      "questions": [
+        {
+          "question": "Quyền cơ bản của trẻ em bao gồm những quyền nào?",
+          "question_vi": "",
+          "emoji": "🧒",
+          "options": [
+            "quyền được sống, được bảo vệ, được chăm sóc và giáo dục",
+            "chỉ quyền được vui chơi",
+            "chỉ quyền được ăn uống",
+            "trẻ em không có quyền nào"
+          ],
+          "answer": "quyền được sống, được bảo vệ, được chăm sóc và giáo dục",
+          "explanation": "Trẻ em có các nhóm quyền cơ bản: được sống, được bảo vệ, được chăm sóc và được giáo dục.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hiến pháp là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "luật cơ bản của Nhà nước, có hiệu lực pháp lý cao nhất",
+            "một loại sách giáo khoa",
+            "quy định riêng của nhà trường",
+            "nội quy của gia đình"
+          ],
+          "answer": "luật cơ bản của Nhà nước, có hiệu lực pháp lý cao nhất",
+          "explanation": "Hiến pháp là luật cơ bản của Nhà nước, có hiệu lực pháp lý cao nhất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công dân Việt Nam có nghĩa vụ nào đối với Nhà nước?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": [
+            "tuân theo Hiến pháp và pháp luật, nộp thuế, bảo vệ Tổ quốc",
+            "được tự do làm mọi việc mình thích",
+            "không phải làm gì cả",
+            "chỉ cần học giỏi là đủ"
+          ],
+          "answer": "tuân theo Hiến pháp và pháp luật, nộp thuế, bảo vệ Tổ quốc",
+          "explanation": "Công dân có nghĩa vụ tuân theo Hiến pháp, pháp luật, nộp thuế, bảo vệ Tổ quốc…",
+          "difficulty": 3
+        },
+        {
+          "question": "Hành vi nào sau đây vi phạm pháp luật?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "trộm cắp tài sản của người khác",
+            "giúp đỡ người gặp khó khăn",
+            "tham gia giao thông đúng luật",
+            "đóng thuế đầy đủ"
+          ],
+          "answer": "trộm cắp tài sản của người khác",
+          "explanation": "Trộm cắp tài sản là hành vi vi phạm pháp luật.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bình đẳng trước pháp luật nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "mọi công dân đều bình đẳng về quyền và nghĩa vụ",
+            "người giàu có nhiều quyền hơn",
+            "người có chức quyền được miễn trừ",
+            "trẻ em không có quyền gì"
+          ],
+          "answer": "mọi công dân đều bình đẳng về quyền và nghĩa vụ",
+          "explanation": "Bình đẳng trước pháp luật: mọi công dân đều bình đẳng về quyền và nghĩa vụ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hành vi nào thể hiện sống và làm việc có kế hoạch?",
+          "question_vi": "",
+          "emoji": "🗓️",
+          "options": [
+            "lập thời gian biểu và thực hiện nghiêm túc",
+            "để mọi việc tùy hứng",
+            "luôn trì hoãn công việc",
+            "làm việc không có mục tiêu"
+          ],
+          "answer": "lập thời gian biểu và thực hiện nghiêm túc",
+          "explanation": "Sống có kế hoạch là biết sắp xếp, lập thời gian biểu và thực hiện nghiêm túc.",
+          "difficulty": 2
+        },
+        {
+          "question": "Để phòng chống tệ nạn xã hội, học sinh nên làm gì?",
+          "question_vi": "",
+          "emoji": "🙅",
+          "options": [
+            "tránh xa, không tham gia và tuyên truyền phòng chống",
+            "thử cho biết một lần",
+            "rủ bạn cùng tham gia",
+            "giấu giếm khi biết bạn vi phạm"
+          ],
+          "answer": "tránh xa, không tham gia và tuyên truyền phòng chống",
+          "explanation": "Học sinh cần tránh xa tệ nạn, không tham gia và tích cực tuyên truyền phòng chống.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quyền tự do ngôn luận của công dân được thực hiện trong khuôn khổ nào?",
+          "question_vi": "",
+          "emoji": "🗣️",
+          "options": [
+            "trong khuôn khổ pháp luật cho phép",
+            "muốn nói gì cũng được",
+            "được xúc phạm người khác tùy ý",
+            "được vu khống tự do"
+          ],
+          "answer": "trong khuôn khổ pháp luật cho phép",
+          "explanation": "Tự do ngôn luận phải thực hiện trong khuôn khổ pháp luật, không xâm phạm quyền người khác.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "civics_exam_thpt_1",
+      "title": "Giáo dục công dân — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "gdcd_thpt",
+      "questions": [
+        {
+          "question": "Pháp luật là gì?",
+          "question_vi": "",
+          "emoji": "📖",
+          "options": [
+            "hệ thống các quy tắc xử sự chung do Nhà nước ban hành và bảo đảm thực hiện",
+            "những lời khuyên về đạo đức",
+            "phong tục, tập quán của địa phương",
+            "ý muốn của mỗi cá nhân"
+          ],
+          "answer": "hệ thống các quy tắc xử sự chung do Nhà nước ban hành và bảo đảm thực hiện",
+          "explanation": "Pháp luật là hệ thống quy tắc xử sự chung, do Nhà nước ban hành và bảo đảm thực hiện.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vi phạm pháp luật hình sự (tội phạm) là hành vi như thế nào?",
+          "question_vi": "",
+          "emoji": "⚠️",
+          "options": [
+            "hành vi nguy hiểm cho xã hội được quy định trong Bộ luật Hình sự",
+            "vi phạm nội quy lớp học",
+            "vi phạm hợp đồng dân sự nhỏ",
+            "đi học muộn vài phút"
+          ],
+          "answer": "hành vi nguy hiểm cho xã hội được quy định trong Bộ luật Hình sự",
+          "explanation": "Tội phạm là hành vi nguy hiểm cho xã hội được quy định trong Bộ luật Hình sự.",
+          "difficulty": 4
+        },
+        {
+          "question": "Công dân đủ bao nhiêu tuổi trở lên có quyền bầu cử đại biểu Quốc hội và Hội đồng nhân dân?",
+          "question_vi": "",
+          "emoji": "🗳️",
+          "options": [
+            "đủ 18 tuổi",
+            "đủ 15 tuổi",
+            "đủ 16 tuổi",
+            "đủ 21 tuổi"
+          ],
+          "answer": "đủ 18 tuổi",
+          "explanation": "Công dân đủ 18 tuổi trở lên có quyền bầu cử.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công dân đủ bao nhiêu tuổi trở lên có quyền ứng cử đại biểu Quốc hội?",
+          "question_vi": "",
+          "emoji": "📋",
+          "options": [
+            "đủ 21 tuổi",
+            "đủ 18 tuổi",
+            "đủ 25 tuổi",
+            "đủ 16 tuổi"
+          ],
+          "answer": "đủ 21 tuổi",
+          "explanation": "Công dân đủ 21 tuổi trở lên có quyền ứng cử đại biểu Quốc hội, Hội đồng nhân dân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quyền và nghĩa vụ lao động của công dân nhằm mục đích gì?",
+          "question_vi": "",
+          "emoji": "💼",
+          "options": [
+            "tạo ra của cải, nuôi sống bản thân và đóng góp cho xã hội",
+            "chỉ để giải trí",
+            "không có mục đích rõ ràng",
+            "gây áp lực cho người khác"
+          ],
+          "answer": "tạo ra của cải, nuôi sống bản thân và đóng góp cho xã hội",
+          "explanation": "Lao động tạo ra của cải vật chất, nuôi sống bản thân và đóng góp cho xã hội.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bảo vệ Tổ quốc là gì đối với công dân?",
+          "question_vi": "",
+          "emoji": "🛡️",
+          "options": [
+            "quyền và nghĩa vụ thiêng liêng, cao quý của công dân",
+            "chỉ là việc của quân đội",
+            "việc tự nguyện, không bắt buộc",
+            "trách nhiệm của riêng người lớn tuổi"
+          ],
+          "answer": "quyền và nghĩa vụ thiêng liêng, cao quý của công dân",
+          "explanation": "Bảo vệ Tổ quốc là quyền và nghĩa vụ thiêng liêng, cao quý của mỗi công dân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tham nhũng là hành vi như thế nào?",
+          "question_vi": "",
+          "emoji": "🚯",
+          "options": [
+            "lợi dụng chức vụ, quyền hạn để vụ lợi cá nhân",
+            "làm việc chăm chỉ vì tập thể",
+            "đóng góp từ thiện cho xã hội",
+            "tiết kiệm chi tiêu công"
+          ],
+          "answer": "lợi dụng chức vụ, quyền hạn để vụ lợi cá nhân",
+          "explanation": "Tham nhũng là hành vi lợi dụng chức vụ, quyền hạn để vụ lợi cá nhân.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "civics_hsg_school_1",
+      "title": "Giáo dục công dân — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "gdcd_nang_cao",
+      "questions": [
+        {
+          "question": "Đạo đức và pháp luật có mối quan hệ như thế nào?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": [
+            "bổ sung, hỗ trợ lẫn nhau trong việc điều chỉnh hành vi con người",
+            "hoàn toàn đối lập nhau",
+            "không liên quan gì đến nhau",
+            "pháp luật thay thế hoàn toàn đạo đức"
+          ],
+          "answer": "bổ sung, hỗ trợ lẫn nhau trong việc điều chỉnh hành vi con người",
+          "explanation": "Đạo đức và pháp luật bổ sung, hỗ trợ nhau trong điều chỉnh hành vi con người.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quyền bất khả xâm phạm về thân thể của công dân nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "không ai bị bắt nếu không có quyết định của Tòa án hoặc phê chuẩn của Viện kiểm sát (trừ phạm tội quả tang)",
+            "ai cũng có thể bắt giữ người khác",
+            "công an được bắt người tùy ý",
+            "công dân không có quyền này"
+          ],
+          "answer": "không ai bị bắt nếu không có quyết định của Tòa án hoặc phê chuẩn của Viện kiểm sát (trừ phạm tội quả tang)",
+          "explanation": "Không ai bị bắt nếu không có quyết định của Tòa án hoặc phê chuẩn của Viện kiểm sát, trừ trường hợp phạm tội quả tang.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hành vi nào thể hiện tôn trọng lẽ phải?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "ủng hộ, bảo vệ điều đúng đắn dù gặp khó khăn",
+            "im lặng trước cái sai để yên thân",
+            "hùa theo số đông dù biết sai",
+            "bao che cho cái xấu"
+          ],
+          "answer": "ủng hộ, bảo vệ điều đúng đắn dù gặp khó khăn",
+          "explanation": "Tôn trọng lẽ phải là ủng hộ, bảo vệ điều đúng đắn dù khó khăn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khoan dung là gì?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "rộng lòng tha thứ cho người khác khi họ biết lỗi và sửa chữa",
+            "nhu nhược chấp nhận mọi cái sai",
+            "dung túng cho tội ác",
+            "thờ ơ với lỗi lầm của người khác"
+          ],
+          "answer": "rộng lòng tha thứ cho người khác khi họ biết lỗi và sửa chữa",
+          "explanation": "Khoan dung là rộng lòng tha thứ cho người khác khi họ nhận ra và sửa lỗi.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quyền tự do tín ngưỡng, tôn giáo của công dân nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🛐",
+          "options": [
+            "công dân có quyền theo hoặc không theo một tôn giáo nào",
+            "bắt buộc phải theo một tôn giáo",
+            "Nhà nước cấm mọi tôn giáo",
+            "chỉ người lớn mới có quyền này"
+          ],
+          "answer": "công dân có quyền theo hoặc không theo một tôn giáo nào",
+          "explanation": "Công dân có quyền theo hoặc không theo bất kỳ tôn giáo nào.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hợp tác cùng phát triển dựa trên nguyên tắc nào?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "bình đẳng, hai bên cùng có lợi, không xâm phạm lợi ích của nhau",
+            "một bên áp đặt bên kia",
+            "lợi dụng lẫn nhau",
+            "cạnh tranh thù địch"
+          ],
+          "answer": "bình đẳng, hai bên cùng có lợi, không xâm phạm lợi ích của nhau",
+          "explanation": "Hợp tác cùng phát triển dựa trên bình đẳng, đôi bên cùng có lợi, không xâm phạm lợi ích của nhau.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "civics_hsg_district_1",
+      "title": "Giáo dục công dân — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "gdcd_nang_cao",
+      "questions": [
+        {
+          "question": "Nhà nước Cộng hòa XHCN Việt Nam là nhà nước của ai?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": [
+            "của Nhân dân, do Nhân dân, vì Nhân dân",
+            "của một nhóm người",
+            "của riêng cán bộ",
+            "của người giàu"
+          ],
+          "answer": "của Nhân dân, do Nhân dân, vì Nhân dân",
+          "explanation": "Nhà nước ta là nhà nước của Nhân dân, do Nhân dân, vì Nhân dân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quyền khiếu nại, tố cáo của công dân nhằm mục đích gì?",
+          "question_vi": "",
+          "emoji": "📣",
+          "options": [
+            "bảo vệ quyền, lợi ích hợp pháp và đấu tranh chống hành vi vi phạm pháp luật",
+            "gây rối trật tự công cộng",
+            "vu khống người khác",
+            "trốn tránh nghĩa vụ"
+          ],
+          "answer": "bảo vệ quyền, lợi ích hợp pháp và đấu tranh chống hành vi vi phạm pháp luật",
+          "explanation": "Khiếu nại, tố cáo nhằm bảo vệ quyền lợi hợp pháp và chống các hành vi vi phạm pháp luật.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lao động là quyền hay nghĩa vụ của công dân?",
+          "question_vi": "",
+          "emoji": "💼",
+          "options": [
+            "vừa là quyền vừa là nghĩa vụ",
+            "chỉ là quyền",
+            "chỉ là nghĩa vụ bắt buộc",
+            "không phải cả hai"
+          ],
+          "answer": "vừa là quyền vừa là nghĩa vụ",
+          "explanation": "Lao động vừa là quyền vừa là nghĩa vụ của công dân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quyền tham gia quản lý nhà nước và xã hội của công dân được thực hiện bằng hình thức nào?",
+          "question_vi": "",
+          "emoji": "🗳️",
+          "options": [
+            "trực tiếp và gián tiếp",
+            "chỉ trực tiếp",
+            "chỉ thông qua người khác",
+            "không có hình thức nào"
+          ],
+          "answer": "trực tiếp và gián tiếp",
+          "explanation": "Công dân tham gia quản lý nhà nước, xã hội bằng cả hình thức trực tiếp và gián tiếp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sống giản dị là gì?",
+          "question_vi": "",
+          "emoji": "🌿",
+          "options": [
+            "sống phù hợp với điều kiện, hoàn cảnh, không xa hoa lãng phí",
+            "sống khắc khổ thái quá",
+            "keo kiệt với mọi người",
+            "chạy theo hình thức bên ngoài"
+          ],
+          "answer": "sống phù hợp với điều kiện, hoàn cảnh, không xa hoa lãng phí",
+          "explanation": "Sống giản dị là sống phù hợp hoàn cảnh, không xa hoa, lãng phí, không cầu kỳ hình thức.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vì sao phải bảo vệ hòa bình?",
+          "question_vi": "",
+          "emoji": "🕊️",
+          "options": [
+            "vì hòa bình đem lại cuộc sống ấm no, hạnh phúc, còn chiến tranh gây đau thương, chết chóc",
+            "vì hòa bình không quan trọng",
+            "vì chiến tranh có lợi",
+            "vì đó là việc riêng của các nước lớn"
+          ],
+          "answer": "vì hòa bình đem lại cuộc sống ấm no, hạnh phúc, còn chiến tranh gây đau thương, chết chóc",
+          "explanation": "Bảo vệ hòa bình vì hòa bình mang lại cuộc sống ấm no, hạnh phúc; chiến tranh gây đau thương, mất mát.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "civics_hsg_province_1",
+      "title": "Giáo dục công dân — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "gdcd_chuyen_sau",
+      "questions": [
+        {
+          "question": "Theo Hiến pháp, quyền lực nhà nước ở Việt Nam thuộc về ai?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "Nhân dân",
+            "Quốc hội duy nhất",
+            "Chính phủ",
+            "một cá nhân lãnh đạo"
+          ],
+          "answer": "Nhân dân",
+          "explanation": "Theo Hiến pháp, tất cả quyền lực nhà nước thuộc về Nhân dân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nguyên tắc tổ chức quyền lực của bộ máy nhà nước ta là gì?",
+          "question_vi": "",
+          "emoji": "⚙️",
+          "options": [
+            "quyền lực nhà nước là thống nhất, có sự phân công, phối hợp và kiểm soát giữa các cơ quan",
+            "tam quyền phân lập tuyệt đối",
+            "mỗi cơ quan hoạt động độc lập không liên hệ",
+            "quyền lực tập trung vào một người"
+          ],
+          "answer": "quyền lực nhà nước là thống nhất, có sự phân công, phối hợp và kiểm soát giữa các cơ quan",
+          "explanation": "Quyền lực nhà nước là thống nhất, có sự phân công, phối hợp và kiểm soát giữa các cơ quan thực hiện các quyền lập pháp, hành pháp, tư pháp.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Công bằng xã hội” trong định hướng phát triển đất nước có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "mọi người đều có cơ hội phát triển và được hưởng thành quả tương xứng với cống hiến",
+            "chia đều tuyệt đối mọi thứ cho tất cả",
+            "người giàu phải nghèo đi",
+            "không quan tâm người yếu thế"
+          ],
+          "answer": "mọi người đều có cơ hội phát triển và được hưởng thành quả tương xứng với cống hiến",
+          "explanation": "Công bằng xã hội: mọi người có cơ hội phát triển và hưởng thành quả tương xứng với cống hiến.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trách nhiệm pháp lý là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "nghĩa vụ mà chủ thể vi phạm pháp luật phải gánh chịu hậu quả bất lợi do hành vi của mình",
+            "phần thưởng cho người làm tốt",
+            "nghĩa vụ đạo đức tự nguyện",
+            "việc riêng của tòa án"
+          ],
+          "answer": "nghĩa vụ mà chủ thể vi phạm pháp luật phải gánh chịu hậu quả bất lợi do hành vi của mình",
+          "explanation": "Trách nhiệm pháp lý là nghĩa vụ mà chủ thể vi phạm pháp luật phải gánh chịu hậu quả bất lợi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quyền con người (nhân quyền) khác quyền công dân ở điểm cơ bản nào?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "quyền con người gắn với mọi cá nhân là con người, còn quyền công dân gắn với tư cách công dân của một quốc gia",
+            "hai khái niệm hoàn toàn giống nhau",
+            "quyền con người chỉ dành cho người lớn",
+            "quyền công dân luôn rộng hơn quyền con người"
+          ],
+          "answer": "quyền con người gắn với mọi cá nhân là con người, còn quyền công dân gắn với tư cách công dân của một quốc gia",
+          "explanation": "Quyền con người gắn với mọi cá nhân với tư cách là con người; quyền công dân gắn với tư cách công dân của một quốc gia.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ý nghĩa của tính tự chủ đối với mỗi người là gì?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": [
+            "giúp con người làm chủ suy nghĩ, tình cảm, hành vi, đứng vững trước cám dỗ và khó khăn",
+            "khiến con người trở nên bảo thủ",
+            "làm mất sự sáng tạo",
+            "gây cô lập với xã hội"
+          ],
+          "answer": "giúp con người làm chủ suy nghĩ, tình cảm, hành vi, đứng vững trước cám dỗ và khó khăn",
+          "explanation": "Tự chủ giúp con người làm chủ bản thân, đứng vững trước cám dỗ, khó khăn trong cuộc sống.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

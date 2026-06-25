@@ -1,0 +1,69 @@
+{
+  "_doc": "Allowlist kênh YouTube giáo dục cho video bài học của Robot Bi. CHỈ video từ các kênh ở đây mới được hiển thị (không search mở YouTube) — đây là ranh giới an toàn cho trẻ. Cần YOUTUBE_API_KEY trong .env để kích hoạt. Lấy channel_id (dạng UC...): dùng scripts/resolve_youtube_channels.py \"tên kênh\", hoặc mở kênh → Share channel → Copy channel ID.",
+  "_schema": {
+    "channel_id": "UC... (bắt buộc, phải bắt đầu bằng UC)",
+    "label": "Tên hiển thị nguồn",
+    "language": "vi | en | ...",
+    "age_min": 5,
+    "age_max": 12,
+    "tags": ["english", "math", "..."]
+  },
+  "channels": [
+    {
+      "channel_id": "UC5ezaYrzZpyItPSRG27MLpg",
+      "label": "POPS Kids",
+      "language": "vi",
+      "age_min": 5,
+      "age_max": 9,
+      "tags": ["entertainment", "education"]
+    },
+    {
+      "channel_id": "UC4UAH6zMxtCbQJ1mTCCeMTA",
+      "label": "Bút chì TV",
+      "language": "vi",
+      "age_min": 5,
+      "age_max": 10,
+      "tags": ["skills", "science"]
+    },
+    {
+      "channel_id": "UCUXtsNE0Npi8aoEoyfQpyLw",
+      "label": "Học Tiếng Anh Cùng Emma",
+      "language": "vi",
+      "age_min": 6,
+      "age_max": 11,
+      "tags": ["english"]
+    },
+    {
+      "channel_id": "UC-QC8RxGB7MBg15bSpoMDYw",
+      "label": "Thầy Mùa - Toán Tư Duy",
+      "language": "vi",
+      "age_min": 6,
+      "age_max": 12,
+      "tags": ["math"]
+    },
+    {
+      "channel_id": "UCdOm44eWmGXr78d9i3X-PtA",
+      "label": "Dr.Binocs - Khám phá Khoa học",
+      "language": "vi",
+      "age_min": 6,
+      "age_max": 12,
+      "tags": ["science"]
+    },
+    {
+      "channel_id": "UCp6Wtl0GXrqAnC_OEZmzudA",
+      "label": "Chun Chin - Chill cùng bé iu",
+      "language": "vi",
+      "age_min": 3,
+      "age_max": 8,
+      "tags": ["cartoon", "music"]
+    },
+    {
+      "channel_id": "UC5_mjTuvrZpDX34CZvqfQ9Q",
+      "label": "Cảnh Sát Trưởng Labrador",
+      "language": "vi",
+      "age_min": 4,
+      "age_max": 9,
+      "tags": ["cartoon", "stories"]
+    }
+  ]
+}

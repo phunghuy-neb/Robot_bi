@@ -1,0 +1,683 @@
+{
+  "subject": "science",
+  "exams": [
+    {
+      "paper_id": "science_exam_grade6_1",
+      "title": "Khoa học — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "khoa_hoc_tieu_hoc",
+      "questions": [
+        {
+          "question": "Ở điều kiện thường, nước sôi ở nhiệt độ nào?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "100°C",
+            "0°C",
+            "50°C",
+            "200°C"
+          ],
+          "answer": "100°C",
+          "explanation": "Ở áp suất khí quyển bình thường, nước sôi ở 100°C.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cây xanh quang hợp hút vào khí nào?",
+          "question_vi": "",
+          "emoji": "🌿",
+          "options": [
+            "khí các-bô-níc (CO₂)",
+            "khí ô-xi (O₂)",
+            "khí ni-tơ (N₂)",
+            "hơi nước"
+          ],
+          "answer": "khí các-bô-níc (CO₂)",
+          "explanation": "Khi quang hợp, cây hút khí CO₂ và nhả ra khí O₂.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cơ quan nào giúp con người hô hấp?",
+          "question_vi": "",
+          "emoji": "🫁",
+          "options": [
+            "phổi",
+            "dạ dày",
+            "gan",
+            "thận"
+          ],
+          "answer": "phổi",
+          "explanation": "Phổi là cơ quan chính của hệ hô hấp, giúp trao đổi khí.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vật nào sau đây dẫn nhiệt tốt nhất?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "thanh nhôm",
+            "miếng gỗ",
+            "miếng nhựa",
+            "tấm vải"
+          ],
+          "answer": "thanh nhôm",
+          "explanation": "Kim loại như nhôm dẫn nhiệt tốt; gỗ, nhựa, vải dẫn nhiệt kém.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nước có thể tồn tại ở mấy thể?",
+          "question_vi": "",
+          "emoji": "❄️",
+          "options": [
+            "ba thể: rắn, lỏng, khí",
+            "hai thể",
+            "một thể",
+            "bốn thể"
+          ],
+          "answer": "ba thể: rắn, lỏng, khí",
+          "explanation": "Nước tồn tại ở ba thể: rắn (nước đá), lỏng, và khí (hơi nước).",
+          "difficulty": 2
+        },
+        {
+          "question": "Bộ phận nào của cây hút nước và muối khoáng từ đất?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": [
+            "rễ",
+            "lá",
+            "hoa",
+            "quả"
+          ],
+          "answer": "rễ",
+          "explanation": "Rễ hút nước và muối khoáng hòa tan từ đất nuôi cây.",
+          "difficulty": 1
+        },
+        {
+          "question": "Buổi sáng, Mặt Trời mọc ở hướng nào?",
+          "question_vi": "",
+          "emoji": "🌅",
+          "options": [
+            "hướng Đông",
+            "hướng Tây",
+            "hướng Nam",
+            "hướng Bắc"
+          ],
+          "answer": "hướng Đông",
+          "explanation": "Mặt Trời mọc ở hướng Đông và lặn ở hướng Tây.",
+          "difficulty": 1
+        },
+        {
+          "question": "Loài vật nào sau đây đẻ trứng?",
+          "question_vi": "",
+          "emoji": "🐔",
+          "options": [
+            "gà",
+            "chó",
+            "mèo",
+            "bò"
+          ],
+          "answer": "gà",
+          "explanation": "Gà là loài đẻ trứng; chó, mèo, bò đẻ con.",
+          "difficulty": 1
+        },
+        {
+          "question": "Để giữ vệ sinh răng miệng, em nên làm gì?",
+          "question_vi": "",
+          "emoji": "🦷",
+          "options": [
+            "đánh răng ít nhất hai lần mỗi ngày",
+            "ăn nhiều kẹo trước khi ngủ",
+            "không bao giờ đánh răng",
+            "chỉ súc miệng bằng nước ngọt"
+          ],
+          "answer": "đánh răng ít nhất hai lần mỗi ngày",
+          "explanation": "Đánh răng ít nhất hai lần mỗi ngày giúp răng chắc khỏe, phòng sâu răng.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "science_exam_grade10_1",
+      "title": "Khoa học tự nhiên — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "khtn_thcs",
+      "questions": [
+        {
+          "question": "Đơn vị cấu tạo cơ bản của cơ thể sống là gì?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "tế bào",
+            "mô",
+            "cơ quan",
+            "hệ cơ quan"
+          ],
+          "answer": "tế bào",
+          "explanation": "Tế bào là đơn vị cấu tạo và chức năng cơ bản của mọi cơ thể sống.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lực hút của Trái Đất tác dụng lên vật được gọi là gì?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "trọng lực",
+            "lực ma sát",
+            "lực đàn hồi",
+            "lực đẩy"
+          ],
+          "answer": "trọng lực",
+          "explanation": "Lực hút của Trái Đất lên vật chính là trọng lực.",
+          "difficulty": 2
+        },
+        {
+          "question": "Quá trình cây xanh tạo chất hữu cơ và khí ô-xi nhờ ánh sáng gọi là gì?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": [
+            "quang hợp",
+            "hô hấp",
+            "thoát hơi nước",
+            "tiêu hóa"
+          ],
+          "answer": "quang hợp",
+          "explanation": "Quang hợp là quá trình cây dùng ánh sáng tổng hợp chất hữu cơ và thải O₂.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nước được tạo thành từ hai nguyên tố hóa học nào?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "hi-đro và ô-xi",
+            "các-bon và ô-xi",
+            "ni-tơ và hi-đro",
+            "lưu huỳnh và ô-xi"
+          ],
+          "answer": "hi-đro và ô-xi",
+          "explanation": "Phân tử nước H₂O gồm hai nguyên tố hi-đro (H) và ô-xi (O).",
+          "difficulty": 2
+        },
+        {
+          "question": "Đơn vị đo lực trong hệ SI là gì?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "Niu-tơn (N)",
+            "ki-lô-gam (kg)",
+            "mét (m)",
+            "giây (s)"
+          ],
+          "answer": "Niu-tơn (N)",
+          "explanation": "Lực được đo bằng đơn vị Niu-tơn (N).",
+          "difficulty": 2
+        },
+        {
+          "question": "Hệ cơ quan nào vận chuyển máu đi khắp cơ thể?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "hệ tuần hoàn",
+            "hệ hô hấp",
+            "hệ tiêu hóa",
+            "hệ thần kinh"
+          ],
+          "answer": "hệ tuần hoàn",
+          "explanation": "Hệ tuần hoàn (tim và mạch máu) vận chuyển máu nuôi cơ thể.",
+          "difficulty": 2
+        },
+        {
+          "question": "Sự chuyển từ thể lỏng sang thể khí gọi là gì?",
+          "question_vi": "",
+          "emoji": "♨️",
+          "options": [
+            "sự bay hơi",
+            "sự nóng chảy",
+            "sự đông đặc",
+            "sự ngưng tụ"
+          ],
+          "answer": "sự bay hơi",
+          "explanation": "Lỏng → khí là sự bay hơi; khí → lỏng là ngưng tụ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiện tượng nào sau đây là biến đổi hóa học?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": [
+            "sắt bị gỉ",
+            "nước đá tan",
+            "xé tờ giấy",
+            "hòa tan đường vào nước"
+          ],
+          "answer": "sắt bị gỉ",
+          "explanation": "Sắt gỉ tạo chất mới (oxit sắt) nên là biến đổi hóa học; các hiện tượng còn lại là biến đổi vật lý.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "science_exam_thpt_1",
+      "title": "Khoa học tự nhiên — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "khtn_thpt",
+      "questions": [
+        {
+          "question": "Đơn vị đo công suất là gì?",
+          "question_vi": "",
+          "emoji": "💡",
+          "options": [
+            "oát (W)",
+            "jun (J)",
+            "niu-tơn (N)",
+            "oát giờ (Wh)"
+          ],
+          "answer": "oát (W)",
+          "explanation": "Công suất đo bằng oát (W); jun là đơn vị công/năng lượng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bào quan nào được coi là “nhà máy năng lượng” của tế bào?",
+          "question_vi": "",
+          "emoji": "🔋",
+          "options": [
+            "ti thể",
+            "nhân",
+            "ribôxôm",
+            "không bào"
+          ],
+          "answer": "ti thể",
+          "explanation": "Ti thể là nơi diễn ra hô hấp tế bào, tạo ra phần lớn ATP cho tế bào.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công thức hóa học của muối ăn là gì?",
+          "question_vi": "",
+          "emoji": "🧂",
+          "options": [
+            "NaCl",
+            "H₂O",
+            "CO₂",
+            "CaCO₃"
+          ],
+          "answer": "NaCl",
+          "explanation": "Muối ăn là natri clorua, công thức NaCl.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tốc độ ánh sáng trong chân không xấp xỉ bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🌟",
+          "options": [
+            "300 000 km/s",
+            "3 000 km/s",
+            "30 000 km/s",
+            "3 000 000 km/s"
+          ],
+          "answer": "300 000 km/s",
+          "explanation": "Tốc độ ánh sáng trong chân không khoảng 300 000 km/s.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khí nào chiếm tỉ lệ lớn nhất trong không khí?",
+          "question_vi": "",
+          "emoji": "🌬️",
+          "options": [
+            "ni-tơ (N₂)",
+            "ô-xi (O₂)",
+            "các-bô-níc (CO₂)",
+            "hi-đro (H₂)"
+          ],
+          "answer": "ni-tơ (N₂)",
+          "explanation": "Không khí chứa khoảng 78% ni-tơ, 21% ô-xi.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hô hấp tế bào giải phóng năng lượng chủ yếu dưới dạng phân tử nào?",
+          "question_vi": "",
+          "emoji": "⚡",
+          "options": [
+            "ATP",
+            "ADN",
+            "ARN",
+            "prôtêin"
+          ],
+          "answer": "ATP",
+          "explanation": "Năng lượng từ hô hấp tế bào được tích trữ chủ yếu trong phân tử ATP.",
+          "difficulty": 4
+        },
+        {
+          "question": "Định luật bảo toàn khối lượng do nhà khoa học nào phát biểu?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "La-voa-die (Lavoisier)",
+            "Niu-tơn",
+            "Anh-xtanh",
+            "Đác-uyn"
+          ],
+          "answer": "La-voa-die (Lavoisier)",
+          "explanation": "Định luật bảo toàn khối lượng gắn với nhà hóa học Lavoisier.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "science_hsg_school_1",
+      "title": "Khoa học tự nhiên — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "khtn_nang_cao",
+      "questions": [
+        {
+          "question": "Đại lượng đặc trưng cho mức quán tính của vật là gì?",
+          "question_vi": "",
+          "emoji": "🏋️",
+          "options": [
+            "khối lượng",
+            "trọng lượng",
+            "thể tích",
+            "vận tốc"
+          ],
+          "answer": "khối lượng",
+          "explanation": "Khối lượng càng lớn thì quán tính càng lớn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong nguyên tử, hạt nào mang điện tích âm?",
+          "question_vi": "",
+          "emoji": "⚛️",
+          "options": [
+            "electron",
+            "proton",
+            "nơtron",
+            "hạt nhân"
+          ],
+          "answer": "electron",
+          "explanation": "Electron mang điện âm, proton mang điện dương, nơtron không mang điện.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quá trình phân bào tạo giao tử với bộ NST giảm đi một nửa gọi là gì?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "giảm phân",
+            "nguyên phân",
+            "thụ tinh",
+            "phân bào trực tiếp"
+          ],
+          "answer": "giảm phân",
+          "explanation": "Giảm phân tạo giao tử có bộ NST giảm còn một nửa (n).",
+          "difficulty": 4
+        },
+        {
+          "question": "Hiện tượng khúc xạ ánh sáng là gì?",
+          "question_vi": "",
+          "emoji": "🔦",
+          "options": [
+            "ánh sáng bị gãy khúc khi truyền xiên qua mặt phân cách hai môi trường trong suốt",
+            "ánh sáng bị hắt trở lại môi trường cũ",
+            "ánh sáng bị hấp thụ hoàn toàn",
+            "ánh sáng tách thành nhiều màu"
+          ],
+          "answer": "ánh sáng bị gãy khúc khi truyền xiên qua mặt phân cách hai môi trường trong suốt",
+          "explanation": "Khúc xạ là hiện tượng tia sáng bị gãy khúc khi truyền xiên qua mặt phân cách hai môi trường trong suốt.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị đo điện trở là gì?",
+          "question_vi": "",
+          "emoji": "🔌",
+          "options": [
+            "ôm (Ω)",
+            "vôn (V)",
+            "ampe (A)",
+            "oát (W)"
+          ],
+          "answer": "ôm (Ω)",
+          "explanation": "Điện trở đo bằng ôm (Ω); vôn đo hiệu điện thế, ampe đo cường độ dòng điện.",
+          "difficulty": 3
+        },
+        {
+          "question": "Phản ứng giữa axit và bazơ tạo thành muối và nước gọi là phản ứng gì?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": [
+            "phản ứng trung hòa",
+            "phản ứng phân hủy",
+            "phản ứng thế",
+            "phản ứng hóa hợp"
+          ],
+          "answer": "phản ứng trung hòa",
+          "explanation": "Axit + bazơ → muối + nước là phản ứng trung hòa.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "science_hsg_district_1",
+      "title": "Khoa học tự nhiên — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "khtn_nang_cao",
+      "questions": [
+        {
+          "question": "Công thức tính công cơ học khi lực không đổi cùng hướng chuyển động là gì?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": [
+            "A = F × s",
+            "A = m × v",
+            "A = F / s",
+            "A = s / F"
+          ],
+          "answer": "A = F × s",
+          "explanation": "Công cơ học A bằng lực F nhân quãng đường s theo phương của lực: A = F × s.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong bảng tuần hoàn, các nguyên tố được sắp xếp theo chiều tăng dần của đại lượng nào?",
+          "question_vi": "",
+          "emoji": "📋",
+          "options": [
+            "điện tích hạt nhân",
+            "khối lượng riêng",
+            "nhiệt độ sôi",
+            "hóa trị"
+          ],
+          "answer": "điện tích hạt nhân",
+          "explanation": "Các nguyên tố được sắp theo chiều tăng dần điện tích hạt nhân (số proton).",
+          "difficulty": 4
+        },
+        {
+          "question": "Cấu trúc xoắn kép của ADN được hai nhà khoa học nào công bố?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "Oát-xơn và Crick (Watson & Crick)",
+            "Men-đen và Moóc-gan",
+            "Đác-uyn và La-mác",
+            "Pa-xtơ và Cốc"
+          ],
+          "answer": "Oát-xơn và Crick (Watson & Crick)",
+          "explanation": "Mô hình xoắn kép ADN được Watson và Crick công bố năm 1953.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị đo nhiệt lượng trong hệ SI là gì?",
+          "question_vi": "",
+          "emoji": "🌡️",
+          "options": [
+            "jun (J)",
+            "oát (W)",
+            "niu-tơn (N)",
+            "độ C"
+          ],
+          "answer": "jun (J)",
+          "explanation": "Nhiệt lượng là một dạng năng lượng, đo bằng jun (J).",
+          "difficulty": 3
+        },
+        {
+          "question": "Khí nào là tác nhân chính gây hiệu ứng nhà kính?",
+          "question_vi": "",
+          "emoji": "🏭",
+          "options": [
+            "các-bô-níc (CO₂)",
+            "ô-xi (O₂)",
+            "ni-tơ (N₂)",
+            "hê-li (He)"
+          ],
+          "answer": "các-bô-níc (CO₂)",
+          "explanation": "CO₂ là khí nhà kính chủ yếu do hoạt động đốt nhiên liệu hóa thạch.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiện tượng nào chứng tỏ ánh sáng trắng là tập hợp nhiều ánh sáng màu?",
+          "question_vi": "",
+          "emoji": "🌈",
+          "options": [
+            "sự tán sắc ánh sáng qua lăng kính",
+            "sự phản xạ ánh sáng trên gương",
+            "hiện tượng nhật thực",
+            "sự truyền thẳng của ánh sáng"
+          ],
+          "answer": "sự tán sắc ánh sáng qua lăng kính",
+          "explanation": "Khi qua lăng kính, ánh sáng trắng bị tán sắc thành dải nhiều màu, chứng tỏ nó là tập hợp các ánh sáng màu.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "science_hsg_province_1",
+      "title": "Khoa học tự nhiên — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "khtn_chuyen_sau",
+      "questions": [
+        {
+          "question": "“Năng lượng không tự sinh ra hoặc mất đi mà chỉ chuyển hóa” là nội dung định luật nào?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "định luật bảo toàn năng lượng",
+            "định luật vạn vật hấp dẫn",
+            "định luật Ôm",
+            "định luật Húc"
+          ],
+          "answer": "định luật bảo toàn năng lượng",
+          "explanation": "Đây là nội dung định luật bảo toàn và chuyển hóa năng lượng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Liên kết hóa học hình thành do hai nguyên tử dùng chung cặp electron gọi là gì?",
+          "question_vi": "",
+          "emoji": "⚛️",
+          "options": [
+            "liên kết cộng hóa trị",
+            "liên kết ion",
+            "liên kết kim loại",
+            "liên kết hi-đro"
+          ],
+          "answer": "liên kết cộng hóa trị",
+          "explanation": "Dùng chung cặp electron là đặc trưng của liên kết cộng hóa trị.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị mang thông tin di truyền quy định một tính trạng gọi là gì?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "gen",
+            "nhiễm sắc thể",
+            "prôtêin",
+            "ribôxôm"
+          ],
+          "answer": "gen",
+          "explanation": "Gen là một đoạn ADN mang thông tin quy định một tính trạng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Lực ma sát trượt xuất hiện trong trường hợp nào?",
+          "question_vi": "",
+          "emoji": "🛷",
+          "options": [
+            "khi một vật trượt trên bề mặt của vật khác",
+            "khi vật cô lập, không tiếp xúc",
+            "khi vật rơi tự do trong chân không",
+            "khi vật đứng yên tuyệt đối trong không gian"
+          ],
+          "answer": "khi một vật trượt trên bề mặt của vật khác",
+          "explanation": "Ma sát trượt xuất hiện ở mặt tiếp xúc khi một vật trượt trên bề mặt vật khác.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong phản ứng oxi hóa – khử, chất khử là chất như thế nào?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "chất nhường (cho) electron",
+            "chất nhận electron",
+            "chất không thay đổi số oxi hóa",
+            "chất luôn là kim loại"
+          ],
+          "answer": "chất nhường (cho) electron",
+          "explanation": "Chất khử là chất nhường electron (số oxi hóa tăng); chất oxi hóa nhận electron.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hệ sinh thái bao gồm những thành phần nào?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "quần xã sinh vật và môi trường sống của chúng",
+            "chỉ các loài động vật",
+            "chỉ các loài thực vật",
+            "chỉ các yếu tố vô sinh"
+          ],
+          "answer": "quần xã sinh vật và môi trường sống của chúng",
+          "explanation": "Hệ sinh thái gồm quần xã sinh vật và môi trường sống (sinh cảnh) tương tác với nhau.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

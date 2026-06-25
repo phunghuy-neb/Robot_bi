@@ -1,0 +1,683 @@
+{
+  "subject": "chemistry",
+  "exams": [
+    {
+      "paper_id": "chemistry_exam_grade6_1",
+      "title": "Hóa học — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_co_ban",
+      "questions": [
+        {
+          "question": "Ở nhiệt độ phòng, nước tồn tại ở thể nào?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "thể lỏng",
+            "thể rắn",
+            "thể khí",
+            "không xác định"
+          ],
+          "answer": "thể lỏng",
+          "explanation": "Ở nhiệt độ phòng nước ở thể lỏng.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hỗn hợp nào sau đây có thể tách ra bằng cách lọc?",
+          "question_vi": "",
+          "emoji": "🧪",
+          "options": [
+            "nước và cát",
+            "nước và muối ăn",
+            "nước và đường",
+            "rượu và nước"
+          ],
+          "answer": "nước và cát",
+          "explanation": "Cát không tan nên lọc được khỏi nước; muối, đường, rượu tan nên không lọc được.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khí nào cần cho sự cháy?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "khí ô-xi",
+            "khí ni-tơ",
+            "khí các-bô-níc",
+            "khí hi-đro"
+          ],
+          "answer": "khí ô-xi",
+          "explanation": "Sự cháy cần khí ô-xi để duy trì.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hòa tan muối ăn vào nước, ta thu được gì?",
+          "question_vi": "",
+          "emoji": "🧂",
+          "options": [
+            "một dung dịch",
+            "một chất tinh khiết",
+            "một chất rắn mới",
+            "một chất khí"
+          ],
+          "answer": "một dung dịch",
+          "explanation": "Muối tan trong nước tạo thành dung dịch nước muối.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nước đá tan thành nước lỏng là biến đổi gì?",
+          "question_vi": "",
+          "emoji": "❄️",
+          "options": [
+            "biến đổi vật lý",
+            "biến đổi hóa học",
+            "phản ứng cháy",
+            "sự phân hủy"
+          ],
+          "answer": "biến đổi vật lý",
+          "explanation": "Chỉ thay đổi thể, không tạo chất mới nên là biến đổi vật lý.",
+          "difficulty": 2
+        },
+        {
+          "question": "Chất nào sau đây tan tốt trong nước?",
+          "question_vi": "",
+          "emoji": "🥄",
+          "options": [
+            "muối ăn",
+            "cát",
+            "dầu ăn",
+            "bột sắt"
+          ],
+          "answer": "muối ăn",
+          "explanation": "Muối ăn tan tốt trong nước; cát, dầu, bột sắt không tan.",
+          "difficulty": 1
+        },
+        {
+          "question": "Để tách muối ra khỏi nước biển, người ta thường làm cách nào?",
+          "question_vi": "",
+          "emoji": "🏖️",
+          "options": [
+            "phơi nắng cho nước bay hơi",
+            "lọc qua giấy lọc",
+            "dùng nam châm hút",
+            "để yên cho lắng xuống"
+          ],
+          "answer": "phơi nắng cho nước bay hơi",
+          "explanation": "Phơi nắng cho nước bay hơi, muối kết tinh ở lại (làm muối).",
+          "difficulty": 2
+        },
+        {
+          "question": "Không khí là gì?",
+          "question_vi": "",
+          "emoji": "🌬️",
+          "options": [
+            "một hỗn hợp nhiều chất khí",
+            "một chất tinh khiết",
+            "một chất lỏng",
+            "một kim loại"
+          ],
+          "answer": "một hỗn hợp nhiều chất khí",
+          "explanation": "Không khí là hỗn hợp gồm ni-tơ, ô-xi, CO₂, hơi nước…",
+          "difficulty": 2
+        },
+        {
+          "question": "Đốt cháy một tờ giấy thành tro là biến đổi gì?",
+          "question_vi": "",
+          "emoji": "📄",
+          "options": [
+            "biến đổi hóa học",
+            "biến đổi vật lý",
+            "sự nóng chảy",
+            "sự bay hơi"
+          ],
+          "answer": "biến đổi hóa học",
+          "explanation": "Giấy cháy tạo ra chất mới (tro, khí) nên là biến đổi hóa học.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_exam_grade10_1",
+      "title": "Hóa học — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_thcs",
+      "questions": [
+        {
+          "question": "Kí hiệu hóa học của nguyên tố ô-xi là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "O",
+            "Ô",
+            "Ox",
+            "Oy"
+          ],
+          "answer": "O",
+          "explanation": "Nguyên tố ô-xi có kí hiệu hóa học là O.",
+          "difficulty": 1
+        },
+        {
+          "question": "Công thức hóa học của khí các-bô-níc là gì?",
+          "question_vi": "",
+          "emoji": "🫧",
+          "options": [
+            "CO₂",
+            "CO",
+            "O₂",
+            "C"
+          ],
+          "answer": "CO₂",
+          "explanation": "Khí các-bô-níc có công thức CO₂.",
+          "difficulty": 2
+        },
+        {
+          "question": "Axit clohiđric có công thức hóa học là gì?",
+          "question_vi": "",
+          "emoji": "🧪",
+          "options": [
+            "HCl",
+            "H₂SO₄",
+            "NaOH",
+            "NaCl"
+          ],
+          "answer": "HCl",
+          "explanation": "Axit clohiđric là HCl.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dung dịch nào làm quỳ tím hóa đỏ?",
+          "question_vi": "",
+          "emoji": "🟥",
+          "options": [
+            "axit",
+            "bazơ",
+            "muối ăn",
+            "nước cất"
+          ],
+          "answer": "axit",
+          "explanation": "Dung dịch axit làm quỳ tím chuyển sang màu đỏ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kim loại nào nhẹ và thường được dùng làm vỏ máy bay?",
+          "question_vi": "",
+          "emoji": "✈️",
+          "options": [
+            "nhôm",
+            "sắt",
+            "đồng",
+            "chì"
+          ],
+          "answer": "nhôm",
+          "explanation": "Nhôm nhẹ, bền nên được dùng làm vỏ máy bay.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phản ứng hóa học là quá trình gì?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": [
+            "biến đổi chất này thành chất khác",
+            "thay đổi trạng thái mà không tạo chất mới",
+            "hòa tan đơn thuần",
+            "chỉ làm nóng chất"
+          ],
+          "answer": "biến đổi chất này thành chất khác",
+          "explanation": "Phản ứng hóa học là quá trình biến đổi chất này thành chất khác.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong một phản ứng hóa học, tổng khối lượng sản phẩm so với tổng khối lượng chất phản ứng thì?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": [
+            "bằng nhau",
+            "lớn hơn",
+            "nhỏ hơn",
+            "không xác định"
+          ],
+          "answer": "bằng nhau",
+          "explanation": "Theo định luật bảo toàn khối lượng, tổng khối lượng được bảo toàn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Kim loại phổ biến nhất trong vỏ Trái Đất là kim loại nào?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "nhôm",
+            "sắt",
+            "vàng",
+            "đồng"
+          ],
+          "answer": "nhôm",
+          "explanation": "Nhôm là kim loại phổ biến nhất trong vỏ Trái Đất.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_exam_thpt_1",
+      "title": "Hóa học — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_thpt",
+      "questions": [
+        {
+          "question": "Số hiệu nguyên tử của một nguyên tố bằng số gì?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "số proton trong hạt nhân",
+            "số nơtron",
+            "tổng số hạt",
+            "số phân tử"
+          ],
+          "answer": "số proton trong hạt nhân",
+          "explanation": "Số hiệu nguyên tử Z bằng số proton trong hạt nhân (cũng bằng số electron khi trung hòa).",
+          "difficulty": 3
+        },
+        {
+          "question": "Liên kết ion thường hình thành như thế nào?",
+          "question_vi": "",
+          "emoji": "➕",
+          "options": [
+            "giữa kim loại điển hình và phi kim điển hình bằng sự cho – nhận electron",
+            "bằng cách dùng chung cặp electron",
+            "giữa hai phi kim giống nhau",
+            "không liên quan đến electron"
+          ],
+          "answer": "giữa kim loại điển hình và phi kim điển hình bằng sự cho – nhận electron",
+          "explanation": "Liên kết ion hình thành do nguyên tử cho – nhận electron, thường giữa kim loại và phi kim điển hình.",
+          "difficulty": 4
+        },
+        {
+          "question": "pH của một dung dịch trung tính (ở 25°C) bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "7",
+            "0",
+            "14",
+            "1"
+          ],
+          "answer": "7",
+          "explanation": "Dung dịch trung tính có pH = 7 ở 25°C.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chất nào sau đây là hợp chất hữu cơ?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "metan (CH₄)",
+            "nước (H₂O)",
+            "muối ăn (NaCl)",
+            "khí ô-xi (O₂)"
+          ],
+          "answer": "metan (CH₄)",
+          "explanation": "Metan CH₄ là hợp chất hữu cơ (chứa cacbon liên kết hiđro).",
+          "difficulty": 3
+        },
+        {
+          "question": "Phản ứng đốt cháy nhiên liệu thuộc loại phản ứng nào?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "phản ứng oxi hóa – khử (tỏa nhiệt)",
+            "phản ứng trung hòa",
+            "phản ứng trao đổi đơn thuần",
+            "phản ứng phân hủy không tỏa nhiệt"
+          ],
+          "answer": "phản ứng oxi hóa – khử (tỏa nhiệt)",
+          "explanation": "Đốt cháy nhiên liệu là phản ứng oxi hóa – khử, tỏa nhiều nhiệt.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nguyên tử khối của nguyên tố cacbon (C) xấp xỉ bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "⚫",
+          "options": [
+            "12",
+            "1",
+            "16",
+            "23"
+          ],
+          "answer": "12",
+          "explanation": "Nguyên tử khối của cacbon ≈ 12.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khí nào gây mưa axit khi thải nhiều vào khí quyển?",
+          "question_vi": "",
+          "emoji": "🌧️",
+          "options": [
+            "SO₂ (lưu huỳnh đioxit)",
+            "O₂",
+            "N₂",
+            "He"
+          ],
+          "answer": "SO₂ (lưu huỳnh đioxit)",
+          "explanation": "SO₂ (và NOx) hòa tan trong nước mưa tạo axit gây mưa axit.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_hsg_school_1",
+      "title": "Hóa học — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Đồng vị là các nguyên tử của cùng một nguyên tố nhưng khác nhau về số gì?",
+          "question_vi": "",
+          "emoji": "⚛️",
+          "options": [
+            "số nơtron",
+            "số proton",
+            "số electron khi trung hòa",
+            "điện tích hạt nhân"
+          ],
+          "answer": "số nơtron",
+          "explanation": "Đồng vị có cùng số proton nhưng khác số nơtron.",
+          "difficulty": 4
+        },
+        {
+          "question": "Dãy hoạt động hóa học của kim loại sắp xếp theo chiều giảm dần của tính chất nào?",
+          "question_vi": "",
+          "emoji": "📉",
+          "options": [
+            "mức độ hoạt động hóa học",
+            "khối lượng riêng",
+            "nhiệt độ nóng chảy",
+            "màu sắc"
+          ],
+          "answer": "mức độ hoạt động hóa học",
+          "explanation": "Dãy hoạt động hóa học sắp xếp kim loại theo chiều giảm dần độ hoạt động.",
+          "difficulty": 3
+        },
+        {
+          "question": "Mol là đơn vị đo đại lượng nào?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "lượng chất",
+            "khối lượng",
+            "thể tích",
+            "nhiệt độ"
+          ],
+          "answer": "lượng chất",
+          "explanation": "Mol là đơn vị đo lượng chất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Số A-vô-ga-đrô (Avogadro) xấp xỉ bằng bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "6,02 × 10²³",
+            "3 × 10⁸",
+            "9,8",
+            "1,6 × 10⁻¹⁹"
+          ],
+          "answer": "6,02 × 10²³",
+          "explanation": "Số Avogadro ≈ 6,02 × 10²³ hạt trong 1 mol.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bazơ tan trong nước (kiềm) làm quỳ tím chuyển sang màu gì?",
+          "question_vi": "",
+          "emoji": "🟦",
+          "options": [
+            "xanh",
+            "đỏ",
+            "vàng",
+            "không đổi màu"
+          ],
+          "answer": "xanh",
+          "explanation": "Dung dịch kiềm làm quỳ tím hóa xanh.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hóa trị của nhóm hiđroxit (OH) trong hợp chất là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧮",
+          "options": [
+            "I",
+            "II",
+            "III",
+            "IV"
+          ],
+          "answer": "I",
+          "explanation": "Nhóm OH có hóa trị I.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_hsg_district_1",
+      "title": "Hóa học — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Trong một chu kì của bảng tuần hoàn, đi từ trái sang phải, tính kim loại biến đổi như thế nào?",
+          "question_vi": "",
+          "emoji": "📋",
+          "options": [
+            "giảm dần",
+            "tăng dần",
+            "không đổi",
+            "tăng rồi giảm"
+          ],
+          "answer": "giảm dần",
+          "explanation": "Trong một chu kì, từ trái sang phải tính kim loại giảm, tính phi kim tăng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Phản ứng nào sau đây là phản ứng thế?",
+          "question_vi": "",
+          "emoji": "🔁",
+          "options": [
+            "Fe + 2HCl → FeCl₂ + H₂",
+            "NaOH + HCl → NaCl + H₂O",
+            "CaCO₃ → CaO + CO₂",
+            "2H₂ + O₂ → 2H₂O"
+          ],
+          "answer": "Fe + 2HCl → FeCl₂ + H₂",
+          "explanation": "Đơn chất Fe thế chỗ hiđro trong axit nên là phản ứng thế.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nồng độ phần trăm (C%) của dung dịch cho biết điều gì?",
+          "question_vi": "",
+          "emoji": "💯",
+          "options": [
+            "số gam chất tan trong 100 gam dung dịch",
+            "số mol chất tan trong 1 lít dung dịch",
+            "số gam chất tan trong 1 lít nước",
+            "thể tích chất tan"
+          ],
+          "answer": "số gam chất tan trong 100 gam dung dịch",
+          "explanation": "C% là số gam chất tan có trong 100 gam dung dịch.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khí hiđro được thu bằng cách đẩy nước vì hiđro có tính chất gì?",
+          "question_vi": "",
+          "emoji": "🫧",
+          "options": [
+            "ít tan trong nước",
+            "tan tốt trong nước",
+            "nặng hơn nước",
+            "là chất lỏng"
+          ],
+          "answer": "ít tan trong nước",
+          "explanation": "Hiđro ít tan trong nước nên có thể thu bằng phương pháp đẩy nước.",
+          "difficulty": 3
+        },
+        {
+          "question": "Oxit nào sau đây là oxit axit?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": [
+            "CO₂",
+            "CaO",
+            "Na₂O",
+            "MgO"
+          ],
+          "answer": "CO₂",
+          "explanation": "CO₂ là oxit axit (tác dụng với bazơ tạo muối); CaO, Na₂O, MgO là oxit bazơ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Để nhận biết khí CO₂, dẫn khí qua dung dịch nào thì thấy vẩn đục?",
+          "question_vi": "",
+          "emoji": "🧫",
+          "options": [
+            "nước vôi trong (Ca(OH)₂)",
+            "nước muối",
+            "nước cất",
+            "dung dịch đường"
+          ],
+          "answer": "nước vôi trong (Ca(OH)₂)",
+          "explanation": "CO₂ làm nước vôi trong vẩn đục do tạo kết tủa CaCO₃.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_hsg_province_1",
+      "title": "Hóa học — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "hoa_hoc_chuyen_sau",
+      "questions": [
+        {
+          "question": "Chất xúc tác trong phản ứng hóa học có vai trò gì?",
+          "question_vi": "",
+          "emoji": "🧪",
+          "options": [
+            "làm tăng tốc độ phản ứng nhưng không bị tiêu hao sau phản ứng",
+            "bị tiêu hao hoàn toàn",
+            "làm giảm khối lượng sản phẩm",
+            "không có tác dụng gì"
+          ],
+          "answer": "làm tăng tốc độ phản ứng nhưng không bị tiêu hao sau phản ứng",
+          "explanation": "Chất xúc tác làm tăng tốc độ phản ứng và được bảo toàn sau phản ứng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sắt bị gỉ khi tiếp xúc với không khí ẩm chủ yếu là quá trình gì?",
+          "question_vi": "",
+          "emoji": "🦠",
+          "options": [
+            "oxi hóa – khử",
+            "trung hòa",
+            "đime hóa",
+            "thăng hoa"
+          ],
+          "answer": "oxi hóa – khử",
+          "explanation": "Sự ăn mòn sắt là quá trình oxi hóa – khử (sắt bị oxi hóa).",
+          "difficulty": 4
+        },
+        {
+          "question": "Phản ứng tỏa nhiệt là phản ứng như thế nào?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "giải phóng năng lượng ra môi trường",
+            "thu năng lượng từ môi trường",
+            "không kèm thay đổi năng lượng",
+            "chỉ xảy ra khi đun nóng liên tục"
+          ],
+          "answer": "giải phóng năng lượng ra môi trường",
+          "explanation": "Phản ứng tỏa nhiệt giải phóng năng lượng (thường dạng nhiệt) ra môi trường.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong một nhóm A của bảng tuần hoàn, đi từ trên xuống dưới, bán kính nguyên tử biến đổi như thế nào?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "tăng dần",
+            "giảm dần",
+            "không đổi",
+            "giảm rồi tăng"
+          ],
+          "answer": "tăng dần",
+          "explanation": "Trong một nhóm A, từ trên xuống dưới số lớp electron tăng nên bán kính nguyên tử tăng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hợp chất nào sau đây là chất lưỡng tính (tác dụng được cả với axit và bazơ)?",
+          "question_vi": "",
+          "emoji": "🔀",
+          "options": [
+            "Al₂O₃ (nhôm oxit)",
+            "Na₂O",
+            "CO₂",
+            "HCl"
+          ],
+          "answer": "Al₂O₃ (nhôm oxit)",
+          "explanation": "Al₂O₃ là oxit lưỡng tính, tác dụng được cả với axit và bazơ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Phản ứng este hóa là phản ứng giữa axit hữu cơ (axit cacboxylic) và chất nào?",
+          "question_vi": "",
+          "emoji": "🍶",
+          "options": [
+            "ancol (rượu)",
+            "kim loại",
+            "bazơ kiềm",
+            "muối ăn"
+          ],
+          "answer": "ancol (rượu)",
+          "explanation": "Este hóa là phản ứng giữa axit cacboxylic và ancol tạo este và nước.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

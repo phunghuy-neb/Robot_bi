@@ -1,0 +1,683 @@
+{
+  "subject": "geography",
+  "exams": [
+    {
+      "paper_id": "geography_exam_grade6_1",
+      "title": "Địa lý — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_co_ban",
+      "questions": [
+        {
+          "question": "Việt Nam nằm ở châu lục nào?",
+          "question_vi": "",
+          "emoji": "🌏",
+          "options": [
+            "châu Á",
+            "châu Âu",
+            "châu Phi",
+            "châu Mỹ"
+          ],
+          "answer": "châu Á",
+          "explanation": "Việt Nam thuộc khu vực Đông Nam Á của châu Á.",
+          "difficulty": 1
+        },
+        {
+          "question": "Thủ đô của Việt Nam là thành phố nào?",
+          "question_vi": "",
+          "emoji": "🏙️",
+          "options": [
+            "Hà Nội",
+            "TP. Hồ Chí Minh",
+            "Đà Nẵng",
+            "Huế"
+          ],
+          "answer": "Hà Nội",
+          "explanation": "Hà Nội là thủ đô của Việt Nam.",
+          "difficulty": 1
+        },
+        {
+          "question": "Lãnh thổ Việt Nam có hình dạng giống chữ gì?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": [
+            "chữ S",
+            "chữ O",
+            "chữ U",
+            "chữ L"
+          ],
+          "answer": "chữ S",
+          "explanation": "Lãnh thổ Việt Nam kéo dài, cong như hình chữ S.",
+          "difficulty": 1
+        },
+        {
+          "question": "Vùng biển ở phía đông nước ta có tên là gì?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "Biển Đông",
+            "Đại Tây Dương",
+            "Ấn Độ Dương",
+            "Bắc Băng Dương"
+          ],
+          "answer": "Biển Đông",
+          "explanation": "Phía đông nước ta giáp Biển Đông (thuộc Thái Bình Dương).",
+          "difficulty": 2
+        },
+        {
+          "question": "Trái Đất có mấy châu lục?",
+          "question_vi": "",
+          "emoji": "🗺️",
+          "options": [
+            "6 châu lục",
+            "5 châu lục",
+            "4 châu lục",
+            "7 châu lục"
+          ],
+          "answer": "6 châu lục",
+          "explanation": "Trái Đất có 6 châu lục: Á, Âu, Phi, Mỹ, Đại Dương và Nam Cực.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đỉnh núi cao nhất Việt Nam là đỉnh nào?",
+          "question_vi": "",
+          "emoji": "⛰️",
+          "options": [
+            "Phan-xi-păng",
+            "Bạch Mã",
+            "Tản Viên",
+            "Ngọc Linh"
+          ],
+          "answer": "Phan-xi-păng",
+          "explanation": "Phan-xi-păng cao 3143 m, là đỉnh cao nhất nước ta và Đông Dương.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khí hậu đặc trưng của nước ta là gì?",
+          "question_vi": "",
+          "emoji": "🌦️",
+          "options": [
+            "nhiệt đới gió mùa",
+            "hàn đới",
+            "ôn đới lạnh",
+            "hoang mạc khô"
+          ],
+          "answer": "nhiệt đới gió mùa",
+          "explanation": "Việt Nam có khí hậu nhiệt đới gió mùa, nóng ẩm, mưa nhiều.",
+          "difficulty": 2
+        },
+        {
+          "question": "Thành phố nào lớn nhất và đông dân nhất nước ta?",
+          "question_vi": "",
+          "emoji": "🌆",
+          "options": [
+            "TP. Hồ Chí Minh",
+            "Hà Nội",
+            "Hải Phòng",
+            "Cần Thơ"
+          ],
+          "answer": "TP. Hồ Chí Minh",
+          "explanation": "TP. Hồ Chí Minh là thành phố lớn và đông dân nhất nước ta.",
+          "difficulty": 1
+        },
+        {
+          "question": "Sông nào bồi đắp nên đồng bằng lớn nhất ở miền Nam nước ta?",
+          "question_vi": "",
+          "emoji": "🏞️",
+          "options": [
+            "sông Mê Công (Cửu Long)",
+            "sông Hồng",
+            "sông Đà",
+            "sông Mã"
+          ],
+          "answer": "sông Mê Công (Cửu Long)",
+          "explanation": "Sông Mê Công (Cửu Long) bồi đắp nên đồng bằng sông Cửu Long.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "geography_exam_grade10_1",
+      "title": "Địa lý — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_thcs",
+      "questions": [
+        {
+          "question": "Đồng bằng nào lớn nhất nước ta?",
+          "question_vi": "",
+          "emoji": "🌾",
+          "options": [
+            "đồng bằng sông Cửu Long",
+            "đồng bằng sông Hồng",
+            "đồng bằng Thanh – Nghệ – Tĩnh",
+            "đồng bằng duyên hải miền Trung"
+          ],
+          "answer": "đồng bằng sông Cửu Long",
+          "explanation": "Đồng bằng sông Cửu Long là đồng bằng lớn nhất nước ta.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trên đất liền, Việt Nam tiếp giáp với những quốc gia nào?",
+          "question_vi": "",
+          "emoji": "🧭",
+          "options": [
+            "Trung Quốc, Lào, Campuchia",
+            "Trung Quốc và Hàn Quốc",
+            "Thái Lan và Mianma",
+            "chỉ riêng Lào"
+          ],
+          "answer": "Trung Quốc, Lào, Campuchia",
+          "explanation": "Việt Nam giáp Trung Quốc (bắc), Lào và Campuchia (tây).",
+          "difficulty": 3
+        },
+        {
+          "question": "Loại gió thổi theo mùa, gây ra hai mùa mưa – khô rõ rệt ở nước ta là gì?",
+          "question_vi": "",
+          "emoji": "🌬️",
+          "options": [
+            "gió mùa",
+            "gió Tây ôn đới",
+            "gió Tín phong duy nhất",
+            "gió đất – gió biển"
+          ],
+          "answer": "gió mùa",
+          "explanation": "Gió mùa tạo nên hai mùa mưa và khô rõ rệt ở nước ta.",
+          "difficulty": 3
+        },
+        {
+          "question": "Châu lục nào có diện tích lớn nhất thế giới?",
+          "question_vi": "",
+          "emoji": "🌏",
+          "options": [
+            "châu Á",
+            "châu Phi",
+            "châu Mỹ",
+            "châu Âu"
+          ],
+          "answer": "châu Á",
+          "explanation": "Châu Á có diện tích lớn nhất trong các châu lục.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đường Xích đạo chia Trái Đất thành hai nửa cầu nào?",
+          "question_vi": "",
+          "emoji": "🌐",
+          "options": [
+            "bán cầu Bắc và bán cầu Nam",
+            "bán cầu Đông và bán cầu Tây",
+            "hai vùng cực",
+            "bốn phần bằng nhau"
+          ],
+          "answer": "bán cầu Bắc và bán cầu Nam",
+          "explanation": "Xích đạo (vĩ độ 0°) chia Trái Đất thành bán cầu Bắc và bán cầu Nam.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khoáng sản nhiên liệu nào được khai thác nhiều ở vùng biển Đông Nam Bộ?",
+          "question_vi": "",
+          "emoji": "🛢️",
+          "options": [
+            "dầu mỏ",
+            "vàng",
+            "kim cương",
+            "bô-xít"
+          ],
+          "answer": "dầu mỏ",
+          "explanation": "Vùng biển Đông Nam Bộ có trữ lượng dầu mỏ lớn (mỏ Bạch Hổ, Rồng…).",
+          "difficulty": 3
+        },
+        {
+          "question": "Sông Hồng bồi đắp nên đồng bằng nào?",
+          "question_vi": "",
+          "emoji": "🏞️",
+          "options": [
+            "đồng bằng sông Hồng (Bắc Bộ)",
+            "đồng bằng sông Cửu Long",
+            "đồng bằng duyên hải miền Trung",
+            "cao nguyên Đắk Lắk"
+          ],
+          "answer": "đồng bằng sông Hồng (Bắc Bộ)",
+          "explanation": "Sông Hồng bồi đắp nên đồng bằng Bắc Bộ (đồng bằng sông Hồng).",
+          "difficulty": 2
+        },
+        {
+          "question": "Đại dương lớn nhất thế giới là đại dương nào?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "Thái Bình Dương",
+            "Đại Tây Dương",
+            "Ấn Độ Dương",
+            "Bắc Băng Dương"
+          ],
+          "answer": "Thái Bình Dương",
+          "explanation": "Thái Bình Dương là đại dương lớn nhất thế giới.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "geography_exam_thpt_1",
+      "title": "Địa lý — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_thpt",
+      "questions": [
+        {
+          "question": "Phần lớn lãnh thổ Việt Nam nằm trong vành đai khí hậu nào?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": [
+            "nhiệt đới",
+            "ôn đới",
+            "hàn đới",
+            "cận cực"
+          ],
+          "answer": "nhiệt đới",
+          "explanation": "Việt Nam nằm trong vành đai khí hậu nhiệt đới của bán cầu Bắc.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vùng nào là vựa lúa lớn nhất cả nước?",
+          "question_vi": "",
+          "emoji": "🌾",
+          "options": [
+            "Đồng bằng sông Cửu Long",
+            "Tây Nguyên",
+            "Đông Nam Bộ",
+            "Trung du miền núi Bắc Bộ"
+          ],
+          "answer": "Đồng bằng sông Cửu Long",
+          "explanation": "Đồng bằng sông Cửu Long là vùng sản xuất lúa gạo lớn nhất nước ta.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tây Nguyên là vùng chuyên canh cây công nghiệp nào nổi tiếng nhất?",
+          "question_vi": "",
+          "emoji": "☕",
+          "options": [
+            "cà phê",
+            "lúa nước",
+            "chè (trà)",
+            "lúa mì"
+          ],
+          "answer": "cà phê",
+          "explanation": "Tây Nguyên là vùng trồng cà phê lớn nhất nước ta nhờ đất đỏ ba-zan.",
+          "difficulty": 3
+        },
+        {
+          "question": "Ranh giới tự nhiên giữa châu Á và châu Âu chủ yếu là dãy núi nào?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": [
+            "dãy U-ran (Ural)",
+            "dãy An-pơ",
+            "dãy Hi-ma-lay-a",
+            "dãy An-đet"
+          ],
+          "answer": "dãy U-ran (Ural)",
+          "explanation": "Dãy U-ran là ranh giới tự nhiên giữa châu Á và châu Âu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hiện tượng ngày, đêm dài ngắn khác nhau theo mùa là do đâu?",
+          "question_vi": "",
+          "emoji": "🌗",
+          "options": [
+            "Trái Đất chuyển động quanh Mặt Trời với trục nghiêng không đổi",
+            "Mặt Trăng che khuất Mặt Trời",
+            "hoạt động của gió mùa",
+            "núi lửa phun trào"
+          ],
+          "answer": "Trái Đất chuyển động quanh Mặt Trời với trục nghiêng không đổi",
+          "explanation": "Do trục Trái Đất nghiêng và chuyển động quanh Mặt Trời nên độ dài ngày đêm thay đổi theo mùa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quốc gia nào đông dân nhất thế giới hiện nay?",
+          "question_vi": "",
+          "emoji": "👥",
+          "options": [
+            "Ấn Độ",
+            "Trung Quốc",
+            "Hoa Kỳ",
+            "In-đô-nê-xi-a"
+          ],
+          "answer": "Ấn Độ",
+          "explanation": "Từ năm 2023, Ấn Độ vượt Trung Quốc trở thành quốc gia đông dân nhất thế giới.",
+          "difficulty": 3
+        },
+        {
+          "question": "Loại đất nào màu mỡ, thích hợp trồng cây công nghiệp, phổ biến ở Tây Nguyên?",
+          "question_vi": "",
+          "emoji": "🟤",
+          "options": [
+            "đất đỏ ba-zan",
+            "đất phèn",
+            "đất mặn",
+            "đất cát ven biển"
+          ],
+          "answer": "đất đỏ ba-zan",
+          "explanation": "Đất đỏ ba-zan ở Tây Nguyên rất thích hợp trồng cây công nghiệp như cà phê, cao su.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "geography_hsg_school_1",
+      "title": "Địa lý — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_nang_cao",
+      "questions": [
+        {
+          "question": "Đỉnh Phan-xi-păng – “nóc nhà Đông Dương” – cao bao nhiêu mét?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": [
+            "3143 m",
+            "1500 m",
+            "2000 m",
+            "4000 m"
+          ],
+          "answer": "3143 m",
+          "explanation": "Phan-xi-păng cao 3143 m.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đường bờ biển nước ta dài khoảng bao nhiêu ki-lô-mét?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "khoảng 3260 km",
+            "khoảng 1000 km",
+            "khoảng 5000 km",
+            "khoảng 500 km"
+          ],
+          "answer": "khoảng 3260 km",
+          "explanation": "Đường bờ biển Việt Nam dài khoảng 3260 km.",
+          "difficulty": 4
+        },
+        {
+          "question": "Gió mùa mùa đông ở miền Bắc nước ta có hướng chủ đạo nào?",
+          "question_vi": "",
+          "emoji": "🧭",
+          "options": [
+            "đông bắc",
+            "tây nam",
+            "đông nam",
+            "tây bắc"
+          ],
+          "answer": "đông bắc",
+          "explanation": "Gió mùa mùa đông ở miền Bắc thổi theo hướng đông bắc, lạnh và khô.",
+          "difficulty": 4
+        },
+        {
+          "question": "Múi giờ của Việt Nam là giờ quốc tế (UTC/GMT) cộng mấy?",
+          "question_vi": "",
+          "emoji": "🕖",
+          "options": [
+            "+7",
+            "+8",
+            "+9",
+            "+6"
+          ],
+          "answer": "+7",
+          "explanation": "Việt Nam ở múi giờ UTC+7.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vịnh nào của nước ta được UNESCO công nhận là Di sản thiên nhiên thế giới?",
+          "question_vi": "",
+          "emoji": "🏝️",
+          "options": [
+            "vịnh Hạ Long",
+            "vịnh Cam Ranh",
+            "vịnh Vân Phong",
+            "vịnh Xuân Đài"
+          ],
+          "answer": "vịnh Hạ Long",
+          "explanation": "Vịnh Hạ Long được UNESCO công nhận là Di sản thiên nhiên thế giới.",
+          "difficulty": 3
+        },
+        {
+          "question": "Loại rừng đặc trưng ở vùng ven biển, cửa sông (rừng đước, sú vẹt) gọi là gì?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "rừng ngập mặn",
+            "rừng lá kim",
+            "rừng ôn đới",
+            "rừng tre nứa"
+          ],
+          "answer": "rừng ngập mặn",
+          "explanation": "Rừng ngập mặn phát triển ở vùng ven biển, cửa sông nhiệt đới.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "geography_hsg_district_1",
+      "title": "Địa lý — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_nang_cao",
+      "questions": [
+        {
+          "question": "Nguyên nhân chính sinh ra các mùa trong năm trên Trái Đất là gì?",
+          "question_vi": "",
+          "emoji": "🍂",
+          "options": [
+            "trục Trái Đất nghiêng và chuyển động quanh Mặt Trời",
+            "Trái Đất tự quay quanh trục",
+            "khoảng cách tới Mặt Trăng thay đổi",
+            "hoạt động núi lửa"
+          ],
+          "answer": "trục Trái Đất nghiêng và chuyển động quanh Mặt Trời",
+          "explanation": "Trục Trái Đất nghiêng cố định khi quay quanh Mặt Trời tạo nên các mùa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sông ngòi nước ta có đặc điểm nổi bật nào về chế độ nước?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "có hai mùa nước: mùa lũ và mùa cạn",
+            "nước quanh năm như nhau",
+            "chỉ có một mùa lũ kéo dài cả năm",
+            "không bao giờ có lũ"
+          ],
+          "answer": "có hai mùa nước: mùa lũ và mùa cạn",
+          "explanation": "Sông ngòi nước ta có chế độ nước theo mùa: mùa lũ và mùa cạn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khoáng sản nào nước ta có trữ lượng lớn ở Tây Nguyên, dùng để luyện nhôm?",
+          "question_vi": "",
+          "emoji": "⛏️",
+          "options": [
+            "bô-xít",
+            "than đá",
+            "dầu mỏ",
+            "sắt"
+          ],
+          "answer": "bô-xít",
+          "explanation": "Tây Nguyên có trữ lượng bô-xít lớn — nguyên liệu luyện nhôm.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đới khí hậu nào nằm giữa hai chí tuyến và nhận nhiều nhiệt nhất?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "đới nóng (nhiệt đới)",
+            "đới ôn hòa",
+            "đới lạnh",
+            "đới cận cực"
+          ],
+          "answer": "đới nóng (nhiệt đới)",
+          "explanation": "Đới nóng nằm giữa hai chí tuyến, quanh năm nhận nhiều nhiệt nhất.",
+          "difficulty": 3
+        },
+        {
+          "question": "Các dòng biển nóng, lạnh ảnh hưởng chủ yếu đến yếu tố nào của vùng ven bờ?",
+          "question_vi": "",
+          "emoji": "🌡️",
+          "options": [
+            "khí hậu và lượng mưa",
+            "độ sâu đáy biển",
+            "màu nước cố định",
+            "hình dạng lục địa"
+          ],
+          "answer": "khí hậu và lượng mưa",
+          "explanation": "Dòng biển nóng làm tăng nhiệt, mưa nhiều; dòng biển lạnh làm khô hạn vùng ven bờ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quốc gia nào có diện tích lớn nhất thế giới?",
+          "question_vi": "",
+          "emoji": "🗺️",
+          "options": [
+            "Liên bang Nga",
+            "Canada",
+            "Trung Quốc",
+            "Hoa Kỳ"
+          ],
+          "answer": "Liên bang Nga",
+          "explanation": "Liên bang Nga là quốc gia có diện tích lớn nhất thế giới.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "geography_hsg_province_1",
+      "title": "Địa lý — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "dia_ly_chuyen_sau",
+      "questions": [
+        {
+          "question": "Hiện tượng El Nino liên quan đến sự nóng lên bất thường của vùng biển nào?",
+          "question_vi": "",
+          "emoji": "🌊",
+          "options": [
+            "vùng biển xích đạo Thái Bình Dương",
+            "Đại Tây Dương",
+            "Ấn Độ Dương",
+            "Bắc Băng Dương"
+          ],
+          "answer": "vùng biển xích đạo Thái Bình Dương",
+          "explanation": "El Nino là hiện tượng nóng lên bất thường của vùng biển xích đạo trung và đông Thái Bình Dương.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đường chí tuyến Bắc nằm ở vĩ độ nào?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "khoảng 23°27' Bắc",
+            "0°",
+            "66°33' Bắc",
+            "90° Bắc"
+          ],
+          "answer": "khoảng 23°27' Bắc",
+          "explanation": "Chí tuyến Bắc ở vĩ độ khoảng 23°27' Bắc.",
+          "difficulty": 4
+        },
+        {
+          "question": "Quá trình đô thị hóa thể hiện rõ nhất qua dấu hiệu nào?",
+          "question_vi": "",
+          "emoji": "🏙️",
+          "options": [
+            "tỉ lệ dân thành thị tăng lên",
+            "diện tích rừng tăng lên",
+            "dân số nông thôn tăng nhanh",
+            "số lượng sông ngòi tăng"
+          ],
+          "answer": "tỉ lệ dân thành thị tăng lên",
+          "explanation": "Đô thị hóa biểu hiện ở việc tỉ lệ và quy mô dân thành thị tăng lên.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhân tố nào đóng vai trò quyết định nhất tới sự phát triển và phân bố công nghiệp?",
+          "question_vi": "",
+          "emoji": "🏭",
+          "options": [
+            "con người (lao động, chính sách, khoa học – kỹ thuật)",
+            "khí hậu",
+            "sông ngòi",
+            "động vật hoang dã"
+          ],
+          "answer": "con người (lao động, chính sách, khoa học – kỹ thuật)",
+          "explanation": "Các nhân tố kinh tế – xã hội, đặc biệt là con người, giữ vai trò quyết định tới công nghiệp.",
+          "difficulty": 4
+        },
+        {
+          "question": "Việt Nam nằm trong khu vực hoạt động điển hình của loại gió mùa nào?",
+          "question_vi": "",
+          "emoji": "🌬️",
+          "options": [
+            "gió mùa châu Á (mùa đông và mùa hạ)",
+            "gió Tây ôn đới",
+            "gió Mậu dịch quanh năm",
+            "chỉ có gió địa phương"
+          ],
+          "answer": "gió mùa châu Á (mùa đông và mùa hạ)",
+          "explanation": "Việt Nam nằm trong vùng hoạt động của gió mùa châu Á điển hình.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tài nguyên thiên nhiên nào sau đây thuộc loại có thể tái tạo?",
+          "question_vi": "",
+          "emoji": "🌲",
+          "options": [
+            "rừng",
+            "than đá",
+            "dầu mỏ",
+            "quặng kim loại"
+          ],
+          "answer": "rừng",
+          "explanation": "Rừng là tài nguyên có thể tái tạo nếu khai thác hợp lý; than, dầu, quặng là tài nguyên không tái tạo.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

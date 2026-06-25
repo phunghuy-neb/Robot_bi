@@ -1,0 +1,515 @@
+{
+  "subject": "toeic_lr",
+  "exams": [
+    {
+      "paper_id": "toeic_lr_500_part5_1",
+      "title": "TOEIC L&R — Part 5 Grammar: Giới từ & Thì (Mục tiêu 500)",
+      "track": "toeic_lr",
+      "skill": "reading",
+      "level": "toeic_500",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "part5_grammar",
+      "questions": [
+        {
+          "question": "The quarterly report must be submitted ____ Friday.",
+          "question_vi": "Chọn giới từ chỉ hạn chót.",
+          "emoji": "📝",
+          "options": ["by", "in", "at", "of"],
+          "answer": "by",
+          "explanation": "'by + thời điểm' = không muộn hơn, chỉ hạn chót.",
+          "difficulty": 2
+        },
+        {
+          "question": "The new branch office is located ____ the corner of Main Street.",
+          "question_vi": "Chọn giới từ chỉ vị trí góc đường.",
+          "emoji": "📍",
+          "options": ["at", "on", "to", "for"],
+          "answer": "at",
+          "explanation": "'at the corner of' là cụm cố định chỉ vị trí góc.",
+          "difficulty": 2
+        },
+        {
+          "question": "Ms. Tran ____ the marketing department for over ten years now.",
+          "question_vi": "Chọn thì hiện tại hoàn thành.",
+          "emoji": "⏳",
+          "options": ["has managed", "manages", "managed", "is managing"],
+          "answer": "has managed",
+          "explanation": "'for over ten years now' đi với hiện tại hoàn thành.",
+          "difficulty": 3
+        },
+        {
+          "question": "All employees will receive their bonuses ____ the end of December.",
+          "question_vi": "Chọn giới từ thời gian.",
+          "emoji": "💰",
+          "options": ["at", "by", "since", "during"],
+          "answer": "at",
+          "explanation": "'at the end of' là cụm cố định chỉ thời điểm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Yesterday the manager ____ all the invoices before lunch.",
+          "question_vi": "Chọn thì quá khứ đơn (yesterday).",
+          "emoji": "🧾",
+          "options": ["reviewed", "reviews", "has reviewed", "will review"],
+          "answer": "reviewed",
+          "explanation": "'Yesterday' đi với quá khứ đơn.",
+          "difficulty": 1
+        },
+        {
+          "question": "The shipment will arrive ____ three business days.",
+          "question_vi": "Chọn giới từ chỉ khoảng thời gian tới.",
+          "emoji": "📦",
+          "options": ["within", "until", "since", "among"],
+          "answer": "within",
+          "explanation": "'within + khoảng thời gian' = trong vòng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Please contact the front desk ____ you have any questions about your reservation.",
+          "question_vi": "Chọn liên từ chỉ điều kiện.",
+          "emoji": "📞",
+          "options": ["if", "but", "so", "or"],
+          "answer": "if",
+          "explanation": "'if' mở đầu mệnh đề điều kiện.",
+          "difficulty": 2
+        },
+        {
+          "question": "The conference room is available ____ 9 a.m. to 5 p.m. on weekdays.",
+          "question_vi": "Chọn giới từ đi với 'to' chỉ khoảng.",
+          "emoji": "🕘",
+          "options": ["from", "in", "at", "since"],
+          "answer": "from",
+          "explanation": "Cấu trúc 'from ... to ...' chỉ khoảng thời gian.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_lr_600_part5_1",
+      "title": "TOEIC L&R — Part 5 Grammar: Word Form & Liên từ (Mục tiêu 600)",
+      "track": "toeic_lr",
+      "skill": "reading",
+      "level": "toeic_600",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "part5_grammar",
+      "questions": [
+        {
+          "question": "The company achieved a ____ increase in sales this quarter.",
+          "question_vi": "Chọn tính từ bổ nghĩa cho danh từ.",
+          "emoji": "📈",
+          "options": ["significant", "significantly", "significance", "signify"],
+          "answer": "significant",
+          "explanation": "Cần tính từ trước danh từ 'increase'.",
+          "difficulty": 3
+        },
+        {
+          "question": "The technicians worked ____ to repair the server before the deadline.",
+          "question_vi": "Chọn trạng từ bổ nghĩa cho động từ.",
+          "emoji": "🛠️",
+          "options": ["efficiently", "efficient", "efficiency", "efficiencies"],
+          "answer": "efficiently",
+          "explanation": "Cần trạng từ bổ nghĩa cho động từ 'worked'.",
+          "difficulty": 3
+        },
+        {
+          "question": "____ the heavy rain, the outdoor event proceeded as scheduled.",
+          "question_vi": "Chọn giới từ chỉ sự nhượng bộ.",
+          "emoji": "🌧️",
+          "options": ["Despite", "Although", "Because", "However"],
+          "answer": "Despite",
+          "explanation": "'Despite + danh từ' chỉ sự trái ngược; 'Although' cần mệnh đề.",
+          "difficulty": 4
+        },
+        {
+          "question": "Mr. Lee will lead the project ____ the current manager retires next month.",
+          "question_vi": "Chọn liên từ chỉ thời gian/lý do hợp ngữ cảnh.",
+          "emoji": "👔",
+          "options": ["when", "despite", "during", "in spite of"],
+          "answer": "when",
+          "explanation": "'when + mệnh đề' chỉ thời điểm xảy ra.",
+          "difficulty": 3
+        },
+        {
+          "question": "The proposal was rejected ____ it exceeded the approved budget.",
+          "question_vi": "Chọn liên từ chỉ lý do.",
+          "emoji": "❌",
+          "options": ["because", "despite", "whereas", "unless"],
+          "answer": "because",
+          "explanation": "'because + mệnh đề' nêu lý do.",
+          "difficulty": 3
+        },
+        {
+          "question": "The director made a ____ decision to expand into new markets.",
+          "question_vi": "Chọn dạng từ đúng (tính từ).",
+          "emoji": "🧠",
+          "options": ["strategic", "strategy", "strategically", "strategist"],
+          "answer": "strategic",
+          "explanation": "Cần tính từ bổ nghĩa cho 'decision'.",
+          "difficulty": 4
+        },
+        {
+          "question": "Employees may take a break ____ they finish their assigned tasks.",
+          "question_vi": "Chọn liên từ chỉ điều kiện 'miễn là'.",
+          "emoji": "☕",
+          "options": ["as long as", "in order to", "such as", "rather than"],
+          "answer": "as long as",
+          "explanation": "'as long as' = miễn là, chỉ điều kiện.",
+          "difficulty": 4
+        },
+        {
+          "question": "The training session was both informative ____ engaging.",
+          "question_vi": "Chọn từ tương quan với 'both'.",
+          "emoji": "🎓",
+          "options": ["and", "or", "but", "nor"],
+          "answer": "and",
+          "explanation": "Cặp tương quan 'both ... and ...'.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_lr_600_part6_1",
+      "title": "TOEIC L&R — Part 6 Text Completion (Mục tiêu 600)",
+      "track": "toeic_lr",
+      "skill": "reading",
+      "level": "toeic_600",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "part6_text_completion",
+      "questions": [
+        {
+          "question": "Memo: We are pleased to announce that the office will be closed on Monday. ____, all deliveries scheduled for that day will be postponed.",
+          "question_vi": "Chọn từ nối chỉ kết quả/hệ quả.",
+          "emoji": "📨",
+          "options": ["Therefore", "However", "Otherwise", "Meanwhile"],
+          "answer": "Therefore",
+          "explanation": "'Therefore' nối nguyên nhân với hệ quả (đóng cửa → hoãn giao hàng).",
+          "difficulty": 3
+        },
+        {
+          "question": "Email: Thank you for your order. Your package ____ within five working days, and a tracking number will be sent to you shortly.",
+          "question_vi": "Chọn thì tương lai phù hợp ngữ cảnh.",
+          "emoji": "📦",
+          "options": ["will be shipped", "was shipped", "has been shipped", "is shipping"],
+          "answer": "will be shipped",
+          "explanation": "Hành động chưa xảy ra (within five working days) → bị động tương lai.",
+          "difficulty": 3
+        },
+        {
+          "question": "Notice: To improve security, all visitors must register at the front desk. ____ visitors will not be allowed beyond the lobby.",
+          "question_vi": "Chọn từ chỉ điều kiện loại trừ 'nếu không'.",
+          "emoji": "🔐",
+          "options": ["Unregistered", "Registering", "Registration", "Registers"],
+          "answer": "Unregistered",
+          "explanation": "Cần tính từ bổ nghĩa cho 'visitors' với nghĩa 'chưa đăng ký'.",
+          "difficulty": 4
+        },
+        {
+          "question": "Letter: We appreciate your continued loyalty. As a valued customer, you ____ a 15% discount on your next purchase.",
+          "question_vi": "Chọn động từ hợp ngữ cảnh ưu đãi sắp tới.",
+          "emoji": "🎁",
+          "options": ["will receive", "received", "have received", "are receiving"],
+          "answer": "will receive",
+          "explanation": "Ưu đãi cho lần mua tiếp theo (next purchase) → tương lai.",
+          "difficulty": 2
+        },
+        {
+          "question": "Announcement: The annual staff picnic has been rescheduled. ____ the original date, the event will now take place on June 20.",
+          "question_vi": "Chọn cụm giới từ chỉ 'thay vì'.",
+          "emoji": "🧺",
+          "options": ["Instead of", "Because of", "In case of", "On behalf of"],
+          "answer": "Instead of",
+          "explanation": "'Instead of the original date' = thay cho ngày ban đầu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Memo: The new software update will be installed overnight. Employees should save their work ____ leaving the office today.",
+          "question_vi": "Chọn giới từ chỉ thời gian 'trước khi'.",
+          "emoji": "💻",
+          "options": ["before", "after", "while", "until"],
+          "answer": "before",
+          "explanation": "Lưu việc trước khi rời văn phòng để tránh mất dữ liệu khi cập nhật.",
+          "difficulty": 3
+        },
+        {
+          "question": "Email: We regret to inform you that the item is currently out of stock. We expect it to be ____ again by early next month.",
+          "question_vi": "Chọn tính từ chỉ 'có sẵn'.",
+          "emoji": "🛒",
+          "options": ["available", "availability", "avail", "availably"],
+          "answer": "available",
+          "explanation": "Sau 'to be' cần tính từ; 'available' = có sẵn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Notice: Maintenance work will affect the elevators this weekend. We apologize for any ____ this may cause.",
+          "question_vi": "Chọn danh từ chỉ 'sự bất tiện'.",
+          "emoji": "🚧",
+          "options": ["inconvenience", "inconvenient", "inconveniently", "convenience"],
+          "answer": "inconvenience",
+          "explanation": "Sau 'any' cần danh từ; 'inconvenience' = sự bất tiện.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_lr_600_part7_1",
+      "title": "TOEIC L&R — Part 7 Reading: Thông báo & Email (Mục tiêu 600)",
+      "track": "toeic_lr",
+      "skill": "reading",
+      "level": "toeic_600",
+      "age_group": "15-18",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "part7_reading",
+      "questions": [
+        {
+          "question": "NOTICE: The company cafeteria will be closed for renovation from March 1 to March 14. During this period, a temporary food truck will be available in the parking lot. — When will the cafeteria reopen?",
+          "question_vi": "Đọc thông báo, chọn ngày mở lại.",
+          "emoji": "🍽️",
+          "options": ["March 15", "March 1", "March 14", "February 28"],
+          "answer": "March 15",
+          "explanation": "Đóng cửa đến hết March 14, nên mở lại từ March 15.",
+          "difficulty": 3
+        },
+        {
+          "question": "EMAIL: Dear Mr. Kim, Thank you for applying for the Sales Associate position. We would like to invite you for an interview on Thursday at 10 a.m. Please confirm your attendance by replying to this email. — What is Mr. Kim asked to do?",
+          "question_vi": "Đọc email, chọn việc cần làm.",
+          "emoji": "📧",
+          "options": ["Confirm his attendance", "Submit a resume", "Pay a fee", "Call the manager"],
+          "answer": "Confirm his attendance",
+          "explanation": "Email yêu cầu 'confirm your attendance by replying'.",
+          "difficulty": 2
+        },
+        {
+          "question": "NOTICE: All parking permits expire on December 31. Renew your permit online before that date to avoid a late fee of $25. — What happens if a permit is not renewed in time?",
+          "question_vi": "Đọc thông báo, chọn hậu quả.",
+          "emoji": "🅿️",
+          "options": ["A $25 late fee applies", "The permit is free", "Parking is banned forever", "A new car is required"],
+          "answer": "A $25 late fee applies",
+          "explanation": "Văn bản nêu phí trễ hạn $25 nếu không gia hạn đúng hạn.",
+          "difficulty": 3
+        },
+        {
+          "question": "EMAIL: Hi team, The client meeting has been moved from Room 201 to Room 305 due to a scheduling conflict. The time remains 2 p.m. — What has changed about the meeting?",
+          "question_vi": "Đọc email, chọn điều thay đổi.",
+          "emoji": "📅",
+          "options": ["The location", "The time", "The client", "The agenda"],
+          "answer": "The location",
+          "explanation": "Phòng họp đổi từ 201 sang 305; thời gian giữ nguyên 2 p.m.",
+          "difficulty": 2
+        },
+        {
+          "question": "MEMO: Starting next Monday, employees may work from home up to two days per week. Requests must be approved by your direct supervisor in advance. — Who must approve a work-from-home request?",
+          "question_vi": "Đọc memo, chọn người duyệt.",
+          "emoji": "🏠",
+          "options": ["The direct supervisor", "The CEO", "The IT department", "A coworker"],
+          "answer": "The direct supervisor",
+          "explanation": "Memo ghi yêu cầu phải được 'direct supervisor' phê duyệt.",
+          "difficulty": 3
+        },
+        {
+          "question": "ADVERTISEMENT: Grand Opening Sale! Visit our new downtown store this Saturday and receive a free gift with any purchase over $50. Open from 9 a.m. to 8 p.m. — What must a customer do to get a free gift?",
+          "question_vi": "Đọc quảng cáo, chọn điều kiện nhận quà.",
+          "emoji": "🛍️",
+          "options": ["Spend more than $50", "Arrive before 9 a.m.", "Bring a coupon", "Sign up online"],
+          "answer": "Spend more than $50",
+          "explanation": "Quà tặng kèm khi mua trên $50.",
+          "difficulty": 2
+        },
+        {
+          "question": "NOTICE: The library's online catalog will be unavailable on Sunday between 1 a.m. and 5 a.m. for system upgrades. Borrowed items can still be returned at the front desk. — What can patrons still do during the upgrade?",
+          "question_vi": "Đọc thông báo, chọn việc vẫn làm được.",
+          "emoji": "📚",
+          "options": ["Return borrowed items", "Search the online catalog", "Renew books online", "Reserve study rooms"],
+          "answer": "Return borrowed items",
+          "explanation": "Văn bản nói vẫn có thể trả sách tại quầy.",
+          "difficulty": 3
+        },
+        {
+          "question": "EMAIL: Dear customer, Your subscription will automatically renew on July 1 at the standard annual rate of $99. To cancel, please update your preferences before June 30. — What should the customer do to avoid the charge?",
+          "question_vi": "Đọc email, chọn cách tránh bị tính phí.",
+          "emoji": "💳",
+          "options": ["Cancel before June 30", "Pay $99 now", "Call after July 1", "Ignore the email"],
+          "answer": "Cancel before June 30",
+          "explanation": "Phải cập nhật/hủy trước June 30 để tránh bị gia hạn tự động.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_lr_700_part7_1",
+      "title": "TOEIC L&R — Part 7 Reading: Suy luận (Mục tiêu 700)",
+      "track": "toeic_lr",
+      "skill": "reading",
+      "level": "toeic_700",
+      "age_group": "15-18",
+      "duration_minutes": 25,
+      "pass_percent": 60,
+      "topic": "part7_reading",
+      "questions": [
+        {
+          "question": "EMAIL: Dear Ms. Patel, We have reviewed your warranty claim for the laptop purchased in January. Unfortunately, the damage described is not covered, as it resulted from accidental liquid spillage. We can, however, offer a paid repair at a discounted rate. — What is implied about the warranty?",
+          "question_vi": "Đọc email, suy luận về bảo hành.",
+          "emoji": "💧",
+          "options": ["It does not cover accidental damage", "It has already expired", "It covers all repairs for free", "It was never activated"],
+          "answer": "It does not cover accidental damage",
+          "explanation": "Hư hỏng do đổ chất lỏng (tai nạn) không được bảo hành.",
+          "difficulty": 4
+        },
+        {
+          "question": "MEMO: Due to rising operating costs, the board has decided to relocate the headquarters to a smaller, more efficient building by the end of the year. Affected staff will be notified individually. — Why is the company relocating?",
+          "question_vi": "Đọc memo, chọn lý do chuyển trụ sở.",
+          "emoji": "🏢",
+          "options": ["To reduce operating costs", "To hire more staff", "To open a new market", "To merge with a rival"],
+          "answer": "To reduce operating costs",
+          "explanation": "Chuyển sang tòa nhà nhỏ, hiệu quả hơn vì chi phí vận hành tăng.",
+          "difficulty": 4
+        },
+        {
+          "question": "REVIEW: The hotel's location was excellent and the staff were friendly, but the room was smaller than the photos suggested and the air conditioning was noisy. Overall, a decent stay for the price. — What is the reviewer's overall opinion?",
+          "question_vi": "Đọc đánh giá, chọn thái độ tổng thể.",
+          "emoji": "🏨",
+          "options": ["Satisfactory but not perfect", "Completely negative", "Outstanding in every way", "Indifferent and unmemorable"],
+          "answer": "Satisfactory but not perfect",
+          "explanation": "Có khen có chê, kết luận 'a decent stay' = tạm ổn.",
+          "difficulty": 4
+        },
+        {
+          "question": "NOTICE: Effective immediately, expense reports exceeding $500 require two levels of approval. This change aims to strengthen financial oversight following last quarter's audit. — What prompted this policy change?",
+          "question_vi": "Đọc thông báo, suy luận nguyên nhân.",
+          "emoji": "🧾",
+          "options": ["A recent audit", "A new manager", "Employee complaints", "A software upgrade"],
+          "answer": "A recent audit",
+          "explanation": "Chính sách thay đổi 'following last quarter's audit'.",
+          "difficulty": 4
+        },
+        {
+          "question": "EMAIL: Hi Daniel, I won't be able to attend Friday's presentation as I'll be travelling for the regional conference. Could you cover my section on the budget forecast? I'll send you my slides tonight. — What does the writer want Daniel to do?",
+          "question_vi": "Đọc email, chọn yêu cầu.",
+          "emoji": "🗂️",
+          "options": ["Present the budget section", "Cancel the meeting", "Book a flight", "Review the audit"],
+          "answer": "Present the budget section",
+          "explanation": "Người viết nhờ Daniel 'cover my section on the budget forecast'.",
+          "difficulty": 4
+        },
+        {
+          "question": "ARTICLE: Although the new metro line was expected to ease traffic, congestion downtown has only slightly improved. Analysts suggest that more residents continue to rely on private cars than predicted. — What can be inferred from the article?",
+          "question_vi": "Đọc bài báo, suy luận.",
+          "emoji": "🚇",
+          "options": ["The metro line had limited impact", "Traffic has completely stopped", "No one uses the metro", "Cars are now banned downtown"],
+          "answer": "The metro line had limited impact",
+          "explanation": "Tắc đường chỉ cải thiện nhẹ → tác động hạn chế.",
+          "difficulty": 5
+        },
+        {
+          "question": "LETTER: We are writing to inform you that, owing to overwhelming demand, the workshop on March 5 is now fully booked. You have been placed on a waiting list and will be contacted if a space becomes available. — What is the recipient's current status?",
+          "question_vi": "Đọc thư, chọn tình trạng người nhận.",
+          "emoji": "📝",
+          "options": ["On a waiting list", "Fully registered", "Refunded in full", "Banned from the event"],
+          "answer": "On a waiting list",
+          "explanation": "Workshop kín chỗ, người nhận được đưa vào danh sách chờ.",
+          "difficulty": 3
+        },
+        {
+          "question": "ADVERTISEMENT: Upgrade to our Premium plan and enjoy unlimited storage, priority support, and ad-free access — all for just $9 a month. Cancel anytime, no long-term commitment required. — What is NOT mentioned as a benefit of the Premium plan?",
+          "question_vi": "Đọc quảng cáo, chọn điều KHÔNG được nêu.",
+          "emoji": "⭐",
+          "options": ["A free trial period", "Unlimited storage", "Priority support", "Ad-free access"],
+          "answer": "A free trial period",
+          "explanation": "Quảng cáo không nhắc đến 'free trial'; các mục còn lại đều có.",
+          "difficulty": 5
+        }
+      ]
+    },
+    {
+      "paper_id": "toeic_lr_500_part23_1",
+      "title": "TOEIC L&R — Part 2 & 3 Listening: Hỏi-Đáp & Hội thoại (Mục tiêu 500)",
+      "track": "toeic_lr",
+      "skill": "listening",
+      "level": "toeic_500",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "part23_listening",
+      "questions": [
+        {
+          "question": "You hear: \"Where did you put the meeting agenda?\" Choose the best response.",
+          "question_vi": "Chọn câu trả lời phù hợp nhất cho câu hỏi 'Where'.",
+          "emoji": "🎧",
+          "options": ["It's on your desk.", "At three o'clock.", "Yes, I did.", "Because it was late."],
+          "answer": "It's on your desk.",
+          "explanation": "Câu hỏi 'Where' cần câu trả lời về nơi chốn.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: \"Would you like to join us for lunch?\" Choose the best response.",
+          "question_vi": "Chọn câu đáp phù hợp lời mời.",
+          "emoji": "🎧",
+          "options": ["Sure, that sounds great.", "In the cafeteria yesterday.", "It costs ten dollars.", "No, it isn't mine."],
+          "answer": "Sure, that sounds great.",
+          "explanation": "Lời mời nên đáp bằng đồng ý/từ chối lịch sự.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: \"When does the next train leave?\" Choose the best response.",
+          "question_vi": "Chọn câu đáp cho câu hỏi 'When'.",
+          "emoji": "🎧",
+          "options": ["In about ten minutes.", "From platform two.", "It was very crowded.", "Two tickets, please."],
+          "answer": "In about ten minutes.",
+          "explanation": "Câu hỏi 'When' cần câu trả lời về thời gian.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: \"Why was the shipment delayed?\" Choose the best response.",
+          "question_vi": "Chọn câu đáp cho câu hỏi 'Why'.",
+          "emoji": "🎧",
+          "options": ["Because of bad weather.", "To the warehouse.", "Yes, this morning.", "About fifty boxes."],
+          "answer": "Because of bad weather.",
+          "explanation": "Câu hỏi 'Why' cần câu trả lời nêu lý do (Because...).",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear a conversation: Woman: \"I can't find the printer in this office.\" Man: \"It's right next to the copy machine on the second floor.\" — Where is the printer?",
+          "question_vi": "Nghe hội thoại, chọn vị trí máy in.",
+          "emoji": "🖨️",
+          "options": ["Next to the copy machine", "In the basement", "Outside the building", "Near the entrance"],
+          "answer": "Next to the copy machine",
+          "explanation": "Người đàn ông nói máy in ở cạnh máy photocopy tầng hai.",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear a conversation: Man: \"Has the client approved the new design yet?\" Woman: \"Not yet, she said she'll let us know by tomorrow.\" — When will the client respond?",
+          "question_vi": "Nghe hội thoại, chọn thời điểm khách trả lời.",
+          "emoji": "🎨",
+          "options": ["By tomorrow", "This morning", "Next week", "She already did"],
+          "answer": "By tomorrow",
+          "explanation": "Người phụ nữ nói khách sẽ phản hồi vào ngày mai.",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear a conversation: Woman: \"The projector in the conference room isn't working.\" Man: \"I'll call the technician right away.\" — What will the man do next?",
+          "question_vi": "Nghe hội thoại, chọn hành động tiếp theo.",
+          "emoji": "📽️",
+          "options": ["Call the technician", "Cancel the meeting", "Buy a new projector", "Move to another room"],
+          "answer": "Call the technician",
+          "explanation": "Người đàn ông nói sẽ gọi kỹ thuật viên ngay.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: \"How long will the training session last?\" Choose the best response.",
+          "question_vi": "Chọn câu đáp cho câu hỏi 'How long'.",
+          "emoji": "🎧",
+          "options": ["About two hours.", "In the main hall.", "Yes, it was useful.", "The trainer is new."],
+          "answer": "About two hours.",
+          "explanation": "Câu hỏi 'How long' cần câu trả lời về độ dài thời gian.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

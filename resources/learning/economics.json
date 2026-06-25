@@ -1,0 +1,257 @@
+{
+  "subject": "economics",
+  "exams": [
+    {
+      "paper_id": "economics_supply_demand_1",
+      "title": "Kinh tế học — Cung & Cầu (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_11",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "supply_demand",
+      "questions": [
+        {
+          "question": "Khi giá một mặt hàng tăng, theo quy luật cầu thì lượng cầu thường thay đổi như thế nào?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": ["Giảm", "Tăng", "Không đổi", "Tăng gấp đôi"],
+          "answer": "Giảm",
+          "explanation": "Theo quy luật cầu: khi giá tăng, lượng cầu giảm (các yếu tố khác không đổi).",
+          "difficulty": 2
+        },
+        {
+          "question": "Theo quy luật cung, khi giá hàng hóa tăng thì lượng cung sẽ thế nào?",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["Tăng", "Giảm", "Không đổi", "Bằng không"],
+          "answer": "Tăng",
+          "explanation": "Theo quy luật cung: giá cao hơn khuyến khích người bán sản xuất và bán nhiều hơn nên lượng cung tăng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Giá cân bằng trên thị trường là giá tại đó:",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": ["Lượng cung bằng lượng cầu", "Lượng cung lớn hơn lượng cầu", "Lượng cầu lớn hơn lượng cung", "Giá cao nhất có thể"],
+          "answer": "Lượng cung bằng lượng cầu",
+          "explanation": "Tại điểm cân bằng, lượng cung bằng lượng cầu nên không có dư thừa hay thiếu hụt.",
+          "difficulty": 3
+        },
+        {
+          "question": "Khi giá thị trường cao hơn giá cân bằng, hiện tượng nào thường xảy ra?",
+          "question_vi": "",
+          "emoji": "📦",
+          "options": ["Dư thừa hàng hóa", "Thiếu hụt hàng hóa", "Cháy hàng", "Cầu bằng cung"],
+          "answer": "Dư thừa hàng hóa",
+          "explanation": "Giá cao hơn cân bằng khiến lượng cung vượt lượng cầu, tạo ra dư thừa (thừa cung).",
+          "difficulty": 3
+        },
+        {
+          "question": "Yếu tố nào sau đây thường làm đường cầu dịch chuyển sang phải (cầu tăng)?",
+          "question_vi": "",
+          "emoji": "🛒",
+          "options": ["Thu nhập người tiêu dùng tăng", "Giá hàng hóa tăng", "Số người mua giảm", "Chi phí sản xuất tăng"],
+          "answer": "Thu nhập người tiêu dùng tăng",
+          "explanation": "Với hàng hóa thông thường, thu nhập tăng làm cầu tăng, đường cầu dịch sang phải. Lưu ý: thay đổi giá chỉ di chuyển dọc đường cầu, không làm dịch chuyển nó.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi xảy ra thiếu hụt hàng hóa (lượng cầu vượt lượng cung), giá thị trường có xu hướng:",
+          "question_vi": "",
+          "emoji": "🔺",
+          "options": ["Tăng lên", "Giảm xuống", "Giữ nguyên", "Về bằng không"],
+          "answer": "Tăng lên",
+          "explanation": "Khi thiếu hụt, người mua cạnh tranh đẩy giá tăng cho đến khi đạt lại cân bằng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hàng hóa thay thế của trà là cà phê. Nếu giá cà phê tăng mạnh thì cầu về trà sẽ:",
+          "question_vi": "",
+          "emoji": "☕",
+          "options": ["Tăng", "Giảm", "Không đổi", "Bằng không"],
+          "answer": "Tăng",
+          "explanation": "Cà phê và trà là hàng hóa thay thế; giá cà phê tăng khiến người tiêu dùng chuyển sang trà nên cầu về trà tăng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trục tung và trục hoành trên đồ thị cung – cầu cơ bản thường biểu thị điều gì?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": ["Giá và lượng", "Thời gian và lợi nhuận", "Chi phí và doanh thu", "Lãi suất và tiền lương"],
+          "answer": "Giá và lượng",
+          "explanation": "Đồ thị cung – cầu chuẩn có trục tung là giá (P) và trục hoành là lượng (Q).",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_personal_finance_1",
+      "title": "Kinh tế học — Tài chính cá nhân (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "personal_finance",
+      "questions": [
+        {
+          "question": "Lập ngân sách cá nhân chủ yếu giúp bạn làm gì?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": ["Theo dõi thu nhập và chi tiêu", "Tăng lương ngay lập tức", "Tránh phải nộp thuế", "Làm giá hàng hóa giảm"],
+          "answer": "Theo dõi thu nhập và chi tiêu",
+          "explanation": "Ngân sách giúp bạn theo dõi và cân đối thu nhập với chi tiêu để quản lý tiền hiệu quả.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lãi suất kép (lãi gộp) có nghĩa là:",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["Lãi được tính trên cả gốc lẫn lãi đã sinh ra", "Lãi chỉ tính trên tiền gốc ban đầu", "Lãi luôn bằng không", "Lãi do nhà nước cố định"],
+          "answer": "Lãi được tính trên cả gốc lẫn lãi đã sinh ra",
+          "explanation": "Lãi kép tính lãi trên cả gốc và phần lãi tích lũy trước đó, giúp tiền tăng nhanh hơn theo thời gian.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quỹ dự phòng khẩn cấp dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🛟",
+          "options": ["Chi trả khi gặp sự cố bất ngờ như ốm đau, mất việc", "Mua sắm hàng xa xỉ", "Đầu cơ chứng khoán mạo hiểm", "Đóng thuế thu nhập"],
+          "answer": "Chi trả khi gặp sự cố bất ngờ như ốm đau, mất việc",
+          "explanation": "Quỹ khẩn cấp là tiền để dành cho các tình huống bất ngờ, giúp bạn không phải vay nợ khi gặp khó khăn.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phát biểu nào sau đây mô tả đúng mối quan hệ giữa rủi ro và lợi nhuận kỳ vọng trong đầu tư?",
+          "question_vi": "",
+          "emoji": "🎯",
+          "options": ["Rủi ro càng cao thì lợi nhuận kỳ vọng thường càng cao", "Rủi ro cao luôn cho lợi nhuận thấp", "Rủi ro và lợi nhuận không liên quan gì", "Đầu tư không bao giờ có rủi ro"],
+          "answer": "Rủi ro càng cao thì lợi nhuận kỳ vọng thường càng cao",
+          "explanation": "Nguyên tắc cơ bản: kênh đầu tư có rủi ro cao hơn thường yêu cầu lợi nhuận kỳ vọng cao hơn để bù đắp rủi ro.",
+          "difficulty": 4
+        },
+        {
+          "question": "Gửi 10 triệu đồng vào tài khoản tiết kiệm với lãi suất đơn 6%/năm, sau 1 năm bạn nhận được bao nhiêu tiền lãi?",
+          "question_vi": "",
+          "emoji": "🏦",
+          "options": ["600.000 đồng", "60.000 đồng", "6.000.000 đồng", "1.000.000 đồng"],
+          "answer": "600.000 đồng",
+          "explanation": "Lãi = 10.000.000 × 6% = 600.000 đồng.",
+          "difficulty": 3
+        },
+        {
+          "question": "\"Đa dạng hóa danh mục đầu tư\" (không bỏ trứng vào một giỏ) nhằm mục đích chính là gì?",
+          "question_vi": "",
+          "emoji": "🧺",
+          "options": ["Giảm rủi ro tổng thể", "Đảm bảo lãi 100%", "Trốn thuế", "Tăng lạm phát"],
+          "answer": "Giảm rủi ro tổng thể",
+          "explanation": "Phân bổ tiền vào nhiều loại tài sản giúp giảm rủi ro khi một khoản đầu tư bị thua lỗ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thói quen tài chính lành mạnh nào sau đây nên được ưu tiên?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": ["Chi tiêu ít hơn thu nhập và tiết kiệm phần dư", "Vay tiền để mua đồ không cần thiết", "Tiêu hết toàn bộ thu nhập mỗi tháng", "Bỏ qua việc ghi chép chi tiêu"],
+          "answer": "Chi tiêu ít hơn thu nhập và tiết kiệm phần dư",
+          "explanation": "Chi tiêu ít hơn thu nhập và để dành phần chênh lệch là nền tảng của tài chính cá nhân vững vàng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Lạm phát ảnh hưởng thế nào tới tiền mặt để không trong két suốt nhiều năm?",
+          "question_vi": "",
+          "emoji": "💸",
+          "options": ["Sức mua của tiền giảm dần", "Sức mua của tiền tăng dần", "Số tiền tự nhân đôi", "Không ảnh hưởng gì"],
+          "answer": "Sức mua của tiền giảm dần",
+          "explanation": "Lạm phát làm giá cả tăng, nên cùng một số tiền mua được ít hàng hơn theo thời gian — sức mua giảm.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "economics_vietnam_basics_1",
+      "title": "Kinh tế học — Kinh tế Việt Nam & Khái niệm cơ bản (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "vietnam_economy_basics",
+      "questions": [
+        {
+          "question": "GDP (Tổng sản phẩm quốc nội) đo lường điều gì?",
+          "question_vi": "",
+          "emoji": "🏭",
+          "options": ["Tổng giá trị hàng hóa và dịch vụ cuối cùng sản xuất trong một quốc gia trong một thời kỳ", "Tổng số dân của một quốc gia", "Tổng số tiền trong ngân hàng trung ương", "Tổng diện tích lãnh thổ"],
+          "answer": "Tổng giá trị hàng hóa và dịch vụ cuối cùng sản xuất trong một quốc gia trong một thời kỳ",
+          "explanation": "GDP là tổng giá trị thị trường của tất cả hàng hóa và dịch vụ cuối cùng được sản xuất trong phạm vi một nước trong một khoảng thời gian nhất định.",
+          "difficulty": 3
+        },
+        {
+          "question": "Đơn vị tiền tệ chính thức của Việt Nam là gì?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": ["Đồng (VND)", "Đô la Mỹ (USD)", "Euro (EUR)", "Yên (JPY)"],
+          "answer": "Đồng (VND)",
+          "explanation": "Tiền tệ chính thức của Việt Nam là Đồng, ký hiệu quốc tế là VND.",
+          "difficulty": 1
+        },
+        {
+          "question": "Lạm phát là hiện tượng:",
+          "question_vi": "",
+          "emoji": "📈",
+          "options": ["Mức giá chung của hàng hóa, dịch vụ tăng lên theo thời gian", "Mức giá chung giảm liên tục", "Dân số tăng nhanh", "Tỷ giá cố định không đổi"],
+          "answer": "Mức giá chung của hàng hóa, dịch vụ tăng lên theo thời gian",
+          "explanation": "Lạm phát là sự tăng lên của mức giá chung trong nền kinh tế, làm giảm sức mua của đồng tiền.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hoạt động \"xuất khẩu\" của một quốc gia là:",
+          "question_vi": "",
+          "emoji": "🚢",
+          "options": ["Bán hàng hóa, dịch vụ ra nước ngoài", "Mua hàng hóa từ nước ngoài về", "Vay tiền của ngân hàng trung ương", "Đóng thuế cho nhà nước"],
+          "answer": "Bán hàng hóa, dịch vụ ra nước ngoài",
+          "explanation": "Xuất khẩu là việc bán hàng hóa và dịch vụ trong nước ra thị trường nước ngoài; ngược lại với nhập khẩu.",
+          "difficulty": 2
+        },
+        {
+          "question": "Cơ quan nào chịu trách nhiệm phát hành tiền và điều hành chính sách tiền tệ ở Việt Nam?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": ["Ngân hàng Nhà nước Việt Nam", "Bộ Giáo dục và Đào tạo", "Tổng cục Du lịch", "Hội Liên hiệp Phụ nữ"],
+          "answer": "Ngân hàng Nhà nước Việt Nam",
+          "explanation": "Ngân hàng Nhà nước Việt Nam là ngân hàng trung ương, có chức năng phát hành tiền và điều hành chính sách tiền tệ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cán cân thương mại thặng dư (xuất siêu) xảy ra khi:",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": ["Giá trị xuất khẩu lớn hơn giá trị nhập khẩu", "Giá trị nhập khẩu lớn hơn giá trị xuất khẩu", "Xuất khẩu bằng nhập khẩu", "Không có giao thương quốc tế"],
+          "answer": "Giá trị xuất khẩu lớn hơn giá trị nhập khẩu",
+          "explanation": "Xuất siêu (thặng dư thương mại) là khi tổng giá trị xuất khẩu vượt tổng giá trị nhập khẩu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nếu lạm phát ở mức cao, ngân hàng trung ương thường có xu hướng điều chỉnh lãi suất như thế nào để kiềm chế?",
+          "question_vi": "",
+          "emoji": "🔧",
+          "options": ["Tăng lãi suất", "Giảm lãi suất về 0", "Bỏ hoàn toàn lãi suất", "Không làm gì cả"],
+          "answer": "Tăng lãi suất",
+          "explanation": "Tăng lãi suất làm vay tiền đắt hơn, giảm chi tiêu và tổng cầu, từ đó giúp kiềm chế lạm phát.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khu vực kinh tế nào sau đây thuộc về ngành dịch vụ?",
+          "question_vi": "",
+          "emoji": "🏨",
+          "options": ["Du lịch và khách sạn", "Trồng lúa", "Khai thác than", "Đánh bắt cá"],
+          "answer": "Du lịch và khách sạn",
+          "explanation": "Du lịch, khách sạn thuộc khu vực dịch vụ; trồng lúa và đánh bắt cá thuộc nông – ngư nghiệp, khai thác than thuộc công nghiệp.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

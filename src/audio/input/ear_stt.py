@@ -38,6 +38,11 @@ import sounddevice as sd
 import soundfile as sf
 
 from src.audio.input.wake_word import WakeWordDetector
+from src.audio.input.microphone_utils import (
+    CallbackMicrophoneStream,
+    probe_input_device,
+    resample_audio,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +67,7 @@ _MAX_CHUNKS     = int(MAX_SECONDS * 1000 / CHUNK_MS)       # 400 chunks
 _TEMP_DIR = Path(tempfile.gettempdir())
 
 _mic_raw = os.getenv("MIC_DEVICE", "").strip()
-MIC_DEVICE = int(_mic_raw) if _mic_raw.isdigit() else 1
+MIC_DEVICE = int(_mic_raw) if _mic_raw.isdigit() else 0
 
 
 # ── Audio feedback beep (100ms 880Hz 44100Hz mono 16-bit PCM WAV) ─────────────
@@ -78,9 +83,6 @@ def _make_beep_wav() -> bytes:
 BEEP_WAV_BYTES: bytes = _make_beep_wav()
 
 # ── Wake-word configuration ───────────────────────────────────────────────────
-# STUB: Set True khi có openWakeWord model "bi_oi" (SRS 3.1).
-# Khi False (hiện tại), main_loop.py bỏ qua wake-word và gọi listen() trực tiếp.
-WAKEWORD_ENABLED = False
 WAKEWORD_THRESHOLD = float(os.getenv("WAKEWORD_THRESHOLD", "0.5"))
 WAKEWORD_PHRASE  = "bi ơi"  # Phrase cần phát hiện
 
@@ -133,7 +135,9 @@ class EarSTT:
     def __init__(self):
         self.mic_device = MIC_DEVICE
         self.mic_channels = CHANNELS
+        self.mic_sample_rate = SAMPLE_RATE
         self.mic_name = "Silent mode"
+        self._mic_config = None
         self.silent_mode = False
         self._mic_error_logged = False
         self._probe_microphone()
@@ -151,69 +155,51 @@ class EarSTT:
         logger.info("[Bi - Tai] Đang tìm microphone...")
 
         try:
-            devices = sd.query_devices()
+            preferred_index = MIC_DEVICE if _mic_raw.isdigit() else None
+            config = probe_input_device(
+                preferred_index=preferred_index,
+                target_rate=SAMPLE_RATE,
+            )
         except Exception as e:
             self._enable_silent_mode(f"không thể liệt kê thiết bị âm thanh: {e}")
             return
 
-        preferred_indexes = []
-        if 0 <= MIC_DEVICE < len(devices):
-            preferred_indexes.append(MIC_DEVICE)
-        preferred_indexes.extend(
-            index for index, info in enumerate(devices)
-            if _normalize_input_channels(info) > 0 and index not in preferred_indexes
+        if config is None:
+            self._enable_silent_mode()
+            return
+
+        self._mic_config = config
+        self.mic_device = config.device_index
+        self.mic_channels = config.channels
+        self.mic_sample_rate = config.sample_rate
+        self.mic_name = config.name
+        self.silent_mode = False
+        logger.info(
+            "[Bi - Tai] Sử dụng microphone index %d: %s (%d Hz)",
+            self.mic_device,
+            self.mic_name,
+            self.mic_sample_rate,
         )
-
-        for index in preferred_indexes:
-            device_info = devices[index]
-            max_input_channels = _normalize_input_channels(device_info)
-            if max_input_channels <= 0:
-                continue
-
-            for channels in (1, 2):
-                if channels > max_input_channels:
-                    continue
-                try:
-                    stream = sd.InputStream(
-                        samplerate=SAMPLE_RATE,
-                        channels=channels,
-                        dtype=DTYPE,
-                        blocksize=_CHUNK_FRAMES,
-                        device=index,
-                    )
-                    stream.close()
-                    self.mic_device = index
-                    self.mic_channels = channels
-                    self.mic_name = str(device_info.get("name", f"Device {index}"))
-                    self.silent_mode = False
-                    logger.info("[Bi - Tai] Sử dụng microphone index %d: %s", index, self.mic_name)
-                    return
-                except Exception:
-                    continue
-
-        self._enable_silent_mode()
 
     def _enable_silent_mode(self, reason: Optional[str] = None) -> None:
         """Fallback an toàn khi không có microphone nào dùng được."""
         self.silent_mode = True
         self.mic_name = "Silent mode"
+        self._mic_config = None
         if reason and not self._mic_error_logged:
             logger.warning("[Bi - Tai] Cảnh báo: %s", reason)
             self._mic_error_logged = True
         logger.warning("[Bi - Tai] Không tìm thấy microphone hợp lệ, chuyển sang chế độ im lặng")
 
-    def _create_input_stream(self, blocksize: int):
+    def _create_input_stream(self, chunk_ms: int):
         """Tạo InputStream theo microphone đã probe; nếu fail thì chuyển silent mode."""
-        if self.silent_mode:
+        if self.silent_mode or self._mic_config is None:
             return None
 
         try:
-            return sd.InputStream(
-                samplerate=SAMPLE_RATE,
-                channels=self.mic_channels,
-                dtype=DTYPE,
-                blocksize=blocksize,
-                device=self.mic_device,
+            return CallbackMicrophoneStream(
+                self._mic_config,
+                chunk_ms=chunk_ms,
             )
         except Exception as e:
             if not self._mic_error_logged:
@@ -268,14 +254,14 @@ class EarSTT:
         tmp_wav: Optional[Path] = None
 
         try:
-            stream = self._create_input_stream(_CHUNK_FRAMES)
+            stream = self._create_input_stream(CHUNK_MS)
             if stream is None:
                 return ""
             stream.start()
 
             try:
                 for _ in range(_MAX_CHUNKS):
-                    chunk, overflowed = stream.read(_CHUNK_FRAMES)
+                    chunk = stream.read(timeout=2.0)
                     rms = float(np.sqrt(np.mean(chunk ** 2)))
 
                     if not speech_started:
@@ -298,12 +284,16 @@ class EarSTT:
                         break  # Im lặng 1.5s → kết thúc câu
             finally:
                 stream.stop()
-                stream.close()
 
             if not audio_buffer:
                 return ""
 
             audio_array = np.concatenate(audio_buffer).flatten()
+            audio_array = resample_audio(
+                audio_array,
+                self.mic_sample_rate,
+                SAMPLE_RATE,
+            )
             if float(np.sqrt(np.mean(audio_array ** 2))) < 0.001:
                 return ""
 
@@ -349,22 +339,18 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
         Listen for the wake-word within the timeout window.
         Sử dụng WakeWordDetector với faster-whisper.
         """
-        global WAKEWORD_ENABLED
-
-        # Dùng config của wake_detector thay vì WAKEWORD_ENABLED hardcoded
         if not hasattr(self, 'wake_detector') or not self.wake_detector.is_enabled():
             return False
 
         if self.silent_mode:
             return False
 
-        chunk_frames = int(SAMPLE_RATE * 1.5)
         deadline = time.monotonic() + max(0.0, timeout)
 
         logger.debug('[Bi - Tai] Chờ wake-word... (timeout=%gs)', timeout)
 
         try:
-            stream = self._create_input_stream(chunk_frames)
+            stream = self._create_input_stream(1500)
             if stream is None:
                 return False
             stream.start()
@@ -382,14 +368,18 @@ def _listen_for_wakeword_impl(self, timeout: float = 30.0) -> bool:
                         deadline += time.monotonic() - pause_started
                         continue
 
-                    chunk, _ = stream.read(chunk_frames)
-                    audio_bytes = np.asarray(chunk, dtype=np.float32).flatten().tobytes()
+                    chunk = stream.read(timeout=2.0)
+                    audio = resample_audio(
+                        np.asarray(chunk, dtype=np.float32),
+                        self.mic_sample_rate,
+                        SAMPLE_RATE,
+                    )
+                    audio_bytes = audio.tobytes()
                     if self.wake_detector.detect(audio_bytes):
                         self._play_beep()
                         return True
             finally:
                 stream.stop()
-                stream.close()
         except Exception as e:
             logger.warning("[Bi - Tai] Cảnh báo wake-word: %s", e)
             return False

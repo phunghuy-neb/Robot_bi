@@ -1,0 +1,515 @@
+{
+  "subject": "ielts",
+  "exams": [
+    {
+      "paper_id": "ielts_b5_reading_1",
+      "title": "IELTS Reading — Band 5.0 (Đề 1)",
+      "track": "ielts",
+      "skill": "reading",
+      "level": "band_5.0",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "reading",
+      "questions": [
+        {
+          "question": "Passage: 'The library opens at 9 a.m. on weekdays and closes at 6 p.m.' Statement: 'The library is open on weekday mornings.' Is this True, False, or Not Given?",
+          "question_vi": "Đọc câu và chọn True/False/Not Given.",
+          "emoji": "📖",
+          "options": ["True", "False", "Not Given", "Cannot decide"],
+          "answer": "True",
+          "explanation": "Thư viện mở lúc 9 giờ sáng nên buổi sáng các ngày trong tuần thư viện mở cửa → True.",
+          "difficulty": 2
+        },
+        {
+          "question": "Passage: 'The museum charges no entry fee for children under 12.' Statement: 'All visitors enter the museum for free.' Is this True, False, or Not Given?",
+          "question_vi": "Chỉ trẻ dưới 12 miễn phí, không phải tất cả.",
+          "emoji": "📖",
+          "options": ["True", "False", "Not Given", "Maybe"],
+          "answer": "False",
+          "explanation": "Chỉ trẻ dưới 12 tuổi miễn phí, không phải tất cả khách → False.",
+          "difficulty": 2
+        },
+        {
+          "question": "Passage: 'The new café sells coffee and sandwiches.' Statement: 'The café is popular with students.' Is this True, False, or Not Given?",
+          "question_vi": "Bài không nhắc đến học sinh → Not Given.",
+          "emoji": "📖",
+          "options": ["Not Given", "True", "False", "Probably true"],
+          "answer": "Not Given",
+          "explanation": "Đoạn văn không nói gì về việc học sinh có thích quán hay không → Not Given.",
+          "difficulty": 3
+        },
+        {
+          "question": "Read: 'Solar panels turn sunlight into electricity without producing harmful gases.' Why are solar panels considered clean energy?",
+          "question_vi": "Chọn lý do đúng theo bài.",
+          "emoji": "📖",
+          "options": ["They do not produce harmful gases", "They are cheap to buy", "They work only at night", "They use coal"],
+          "answer": "They do not produce harmful gases",
+          "explanation": "Bài nói pin mặt trời không tạo khí độc hại → đó là lý do được coi là năng lượng sạch.",
+          "difficulty": 2
+        },
+        {
+          "question": "Read: 'Despite the heavy rain, the festival continued and thousands of people attended.' What is the main idea?",
+          "question_vi": "Chọn ý chính của câu.",
+          "emoji": "📖",
+          "options": ["The festival went on even though it rained heavily", "The festival was cancelled", "Nobody came to the festival", "It was a sunny day"],
+          "answer": "The festival went on even though it rained heavily",
+          "explanation": "'Despite the heavy rain ... continued' nghĩa là lễ hội vẫn diễn ra dù mưa to.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the word closest in meaning to 'rapid' in: 'The city saw rapid growth in population.'",
+          "question_vi": "Chọn từ đồng nghĩa với 'rapid'.",
+          "emoji": "📖",
+          "options": ["fast", "slow", "small", "weak"],
+          "answer": "fast",
+          "explanation": "'rapid' = nhanh = fast.",
+          "difficulty": 2
+        },
+        {
+          "question": "Read: 'Tom bought a ticket, took his seat, and waited for the train to depart.' What did Tom do FIRST?",
+          "question_vi": "Hành động nào diễn ra đầu tiên?",
+          "emoji": "📖",
+          "options": ["He bought a ticket", "He waited for the train", "He took his seat", "He left the station"],
+          "answer": "He bought a ticket",
+          "explanation": "Theo thứ tự trong câu, Tom mua vé trước tiên.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the word closest in meaning to 'ancient' in: 'They studied an ancient civilisation.'",
+          "question_vi": "Chọn từ đồng nghĩa với 'ancient'.",
+          "emoji": "📖",
+          "options": ["very old", "modern", "famous", "small"],
+          "answer": "very old",
+          "explanation": "'ancient' = rất cổ xưa = very old.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "ielts_b6_reading_2",
+      "title": "IELTS Reading — Band 6.0 (Đề 2)",
+      "track": "ielts",
+      "skill": "reading",
+      "level": "band_6.0",
+      "age_group": "15-18",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "reading",
+      "questions": [
+        {
+          "question": "Passage: 'Researchers found that regular exercise improves memory in older adults.' Statement: 'Exercise has no effect on the memory of older people.' Is this True, False, or Not Given?",
+          "question_vi": "Bài nói cải thiện trí nhớ → câu phủ định là False.",
+          "emoji": "📖",
+          "options": ["False", "True", "Not Given", "Partly true"],
+          "answer": "False",
+          "explanation": "Bài khẳng định tập thể dục cải thiện trí nhớ, nên câu nói 'không ảnh hưởng' là sai → False.",
+          "difficulty": 3
+        },
+        {
+          "question": "Passage: 'The company launched its product in 2010 and expanded to Asia in 2015.' Statement: 'The company made a profit in Asia.' Is this True, False, or Not Given?",
+          "question_vi": "Bài không nói về lợi nhuận → Not Given.",
+          "emoji": "📖",
+          "options": ["Not Given", "True", "False", "Likely false"],
+          "answer": "Not Given",
+          "explanation": "Đoạn văn chỉ nói về thời điểm ra mắt và mở rộng, không đề cập lợi nhuận → Not Given.",
+          "difficulty": 4
+        },
+        {
+          "question": "Choose the word closest in meaning to 'crucial' in: 'Water is crucial for survival.'",
+          "question_vi": "Chọn từ đồng nghĩa với 'crucial'.",
+          "emoji": "📖",
+          "options": ["essential", "optional", "harmful", "rare"],
+          "answer": "essential",
+          "explanation": "'crucial' = thiết yếu = essential.",
+          "difficulty": 3
+        },
+        {
+          "question": "Read: 'Although electric cars cost more at first, they save money on fuel over time.' What is the writer's main point?",
+          "question_vi": "Chọn ý chính.",
+          "emoji": "📖",
+          "options": ["Electric cars can be cheaper in the long run", "Electric cars are always expensive", "Electric cars use a lot of fuel", "Electric cars are unsafe"],
+          "answer": "Electric cars can be cheaper in the long run",
+          "explanation": "Dù đắt lúc đầu nhưng tiết kiệm nhiên liệu lâu dài → rẻ hơn về sau.",
+          "difficulty": 4
+        },
+        {
+          "question": "Read: 'The report states that air pollution rose by 15 percent in the capital last year.' By how much did air pollution rise?",
+          "question_vi": "Tìm số liệu chi tiết.",
+          "emoji": "📖",
+          "options": ["15 percent", "50 percent", "5 percent", "It fell"],
+          "answer": "15 percent",
+          "explanation": "Bài ghi rõ tăng 15 phần trăm.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the word closest in meaning to 'decline' in: 'Sales began to decline after summer.'",
+          "question_vi": "Chọn từ đồng nghĩa với 'decline'.",
+          "emoji": "📖",
+          "options": ["decrease", "increase", "stay", "rise"],
+          "answer": "decrease",
+          "explanation": "'decline' (động từ) = giảm = decrease.",
+          "difficulty": 3
+        },
+        {
+          "question": "Passage: 'Bees play a vital role in pollinating crops that feed millions of people.' Statement: 'Bees help produce food for many people.' Is this True, False, or Not Given?",
+          "question_vi": "Ong giúp thụ phấn cây trồng → True.",
+          "emoji": "📖",
+          "options": ["True", "False", "Not Given", "Unclear"],
+          "answer": "True",
+          "explanation": "Ong thụ phấn cây trồng nuôi sống hàng triệu người, nên 'giúp tạo thực phẩm' là đúng → True.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the word closest in meaning to 'abundant' in: 'The region has abundant natural resources.'",
+          "question_vi": "Chọn từ đồng nghĩa với 'abundant'.",
+          "emoji": "📖",
+          "options": ["plentiful", "scarce", "hidden", "useless"],
+          "answer": "plentiful",
+          "explanation": "'abundant' = dồi dào = plentiful.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "ielts_b55_grammar_1",
+      "title": "IELTS Grammar — Band 5.5 (Đề 1)",
+      "track": "ielts",
+      "skill": "grammar",
+      "level": "band_5.5",
+      "age_group": "15-18",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "grammar",
+      "questions": [
+        {
+          "question": "Choose the correct form: 'She ___ in London since 2018.'",
+          "question_vi": "Thì hiện tại hoàn thành với 'since'.",
+          "emoji": "✏️",
+          "options": ["has lived", "lives", "lived", "is living"],
+          "answer": "has lived",
+          "explanation": "'since 2018' đi với hiện tại hoàn thành: has lived.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct article: 'He is ___ honest man.'",
+          "question_vi": "Mạo từ trước âm /ɒ/ câm 'h'.",
+          "emoji": "✏️",
+          "options": ["an", "a", "the", "no article"],
+          "answer": "an",
+          "explanation": "'honest' phát âm bắt đầu bằng nguyên âm (h câm) nên dùng 'an'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the correct preposition: 'The meeting is ___ Monday morning.'",
+          "question_vi": "Giới từ chỉ buổi sáng một ngày cụ thể.",
+          "emoji": "✏️",
+          "options": ["on", "in", "at", "by"],
+          "answer": "on",
+          "explanation": "Buổi sáng của một ngày cụ thể dùng 'on Monday morning'.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct conditional: 'If it ___ tomorrow, we will stay home.'",
+          "question_vi": "Câu điều kiện loại 1.",
+          "emoji": "✏️",
+          "options": ["rains", "rained", "will rain", "would rain"],
+          "answer": "rains",
+          "explanation": "Điều kiện loại 1: If + hiện tại đơn, will + V.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct tense: 'While I ___ dinner, the phone rang.'",
+          "question_vi": "Quá khứ tiếp diễn bị ngắt quãng.",
+          "emoji": "✏️",
+          "options": ["was cooking", "cook", "cooked", "have cooked"],
+          "answer": "was cooking",
+          "explanation": "Hành động đang diễn ra trong quá khứ bị ngắt: was cooking.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct preposition: 'She is good ___ mathematics.'",
+          "question_vi": "Cụm 'good at'.",
+          "emoji": "✏️",
+          "options": ["at", "in", "on", "for"],
+          "answer": "at",
+          "explanation": "Collocation: good at something.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the correct article: 'I saw ___ moon clearly last night.'",
+          "question_vi": "Vật duy nhất dùng 'the'.",
+          "emoji": "✏️",
+          "options": ["the", "a", "an", "no article"],
+          "answer": "the",
+          "explanation": "'the moon' là vật duy nhất nên dùng 'the'.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the correct conditional: 'If I ___ rich, I would travel the world.'",
+          "question_vi": "Câu điều kiện loại 2 (giả định).",
+          "emoji": "✏️",
+          "options": ["were", "am", "will be", "have been"],
+          "answer": "were",
+          "explanation": "Điều kiện loại 2 dùng 'were' cho mọi chủ ngữ: If I were rich.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "ielts_b65_grammar_2",
+      "title": "IELTS Grammar — Band 6.5 (Đề 2)",
+      "track": "ielts",
+      "skill": "grammar",
+      "level": "band_6.5",
+      "age_group": "15-18",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "grammar",
+      "questions": [
+        {
+          "question": "Choose the correct form: 'By the time we arrived, the film ___.'",
+          "question_vi": "Quá khứ hoàn thành trước một mốc quá khứ.",
+          "emoji": "✏️",
+          "options": ["had already started", "already starts", "has already started", "was already starting"],
+          "answer": "had already started",
+          "explanation": "Hành động xảy ra trước một mốc quá khứ dùng quá khứ hoàn thành: had already started.",
+          "difficulty": 4
+        },
+        {
+          "question": "Choose the correct third conditional: 'If she ___ harder, she would have passed.'",
+          "question_vi": "Câu điều kiện loại 3.",
+          "emoji": "✏️",
+          "options": ["had studied", "studied", "studies", "would study"],
+          "answer": "had studied",
+          "explanation": "Điều kiện loại 3: If + past perfect, would have + V3.",
+          "difficulty": 5
+        },
+        {
+          "question": "Choose the correct preposition: 'The decision was made ___ accordance with the rules.'",
+          "question_vi": "Cụm 'in accordance with'.",
+          "emoji": "✏️",
+          "options": ["in", "on", "by", "at"],
+          "answer": "in",
+          "explanation": "Collocation học thuật: in accordance with.",
+          "difficulty": 4
+        },
+        {
+          "question": "Choose the correct form: 'Hardly ___ when the rain started.'",
+          "question_vi": "Đảo ngữ với 'hardly'.",
+          "emoji": "✏️",
+          "options": ["had we left", "we had left", "we left", "did we left"],
+          "answer": "had we left",
+          "explanation": "Đảo ngữ: Hardly had + S + V3 ... when ...",
+          "difficulty": 5
+        },
+        {
+          "question": "Choose the correct tense: 'She ___ for three hours before the guests arrived.'",
+          "question_vi": "Quá khứ hoàn thành tiếp diễn.",
+          "emoji": "✏️",
+          "options": ["had been cooking", "was cooking", "cooked", "has cooked"],
+          "answer": "had been cooking",
+          "explanation": "Hành động kéo dài trước mốc quá khứ: had been cooking.",
+          "difficulty": 5
+        },
+        {
+          "question": "Choose the correct article: 'She plays ___ piano beautifully.'",
+          "question_vi": "Nhạc cụ dùng 'the'.",
+          "emoji": "✏️",
+          "options": ["the", "a", "an", "no article"],
+          "answer": "the",
+          "explanation": "Trước nhạc cụ thường dùng 'the': play the piano.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct preposition: 'There has been a rise ___ unemployment.'",
+          "question_vi": "Cụm 'a rise in'.",
+          "emoji": "✏️",
+          "options": ["in", "of", "on", "to"],
+          "answer": "in",
+          "explanation": "Collocation: a rise in something.",
+          "difficulty": 4
+        },
+        {
+          "question": "Choose the correct form: 'It is essential that he ___ on time.'",
+          "question_vi": "Thức giả định (subjunctive) sau 'essential that'.",
+          "emoji": "✏️",
+          "options": ["be", "is", "was", "will be"],
+          "answer": "be",
+          "explanation": "Sau 'It is essential that' dùng thức giả định: he be on time.",
+          "difficulty": 5
+        }
+      ]
+    },
+    {
+      "paper_id": "ielts_b55_vocab_1",
+      "title": "IELTS Vocabulary — Band 5.5 (Đề 1)",
+      "track": "ielts",
+      "skill": "vocab",
+      "level": "band_5.5",
+      "age_group": "15-18",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "vocab",
+      "questions": [
+        {
+          "question": "Complete the collocation: 'Scientists need to ___ research before drawing conclusions.'",
+          "question_vi": "Collocation 'conduct research'.",
+          "emoji": "📝",
+          "options": ["conduct", "make", "do", "build"],
+          "answer": "conduct",
+          "explanation": "Collocation học thuật chuẩn: conduct research.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct word form: 'The new policy had a positive ___ on the economy.' (noun)",
+          "question_vi": "Chọn dạng danh từ phù hợp.",
+          "emoji": "📝",
+          "options": ["impact", "impactful", "impacted", "impacting"],
+          "answer": "impact",
+          "explanation": "Cần danh từ sau 'positive': impact.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the word closest in meaning to the academic word 'establish' in: 'They established a new rule.'",
+          "question_vi": "Đồng nghĩa với 'establish'.",
+          "emoji": "📝",
+          "options": ["set up", "destroy", "ignore", "delay"],
+          "answer": "set up",
+          "explanation": "'establish' = thiết lập = set up.",
+          "difficulty": 3
+        },
+        {
+          "question": "Complete the collocation: 'The government will ___ a new law next month.'",
+          "question_vi": "Collocation 'pass a law'.",
+          "emoji": "📝",
+          "options": ["pass", "do", "give", "open"],
+          "answer": "pass",
+          "explanation": "Collocation chuẩn: pass a law.",
+          "difficulty": 3
+        },
+        {
+          "question": "Choose the correct word form: 'Pollution is a serious ___ in many cities.' (noun)",
+          "question_vi": "Chọn danh từ phù hợp.",
+          "emoji": "📝",
+          "options": ["problem", "problematic", "problematically", "problems are"],
+          "answer": "problem",
+          "explanation": "Cần danh từ số ít sau 'a serious': problem.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the word closest in meaning to the academic word 'significant' in: 'There was a significant change.'",
+          "question_vi": "Đồng nghĩa với 'significant'.",
+          "emoji": "📝",
+          "options": ["important", "tiny", "boring", "false"],
+          "answer": "important",
+          "explanation": "'significant' = quan trọng/đáng kể = important.",
+          "difficulty": 3
+        },
+        {
+          "question": "Complete the collocation: 'Students should ___ attention to the instructions.'",
+          "question_vi": "Collocation 'pay attention'.",
+          "emoji": "📝",
+          "options": ["pay", "give", "make", "take"],
+          "answer": "pay",
+          "explanation": "Collocation chuẩn: pay attention.",
+          "difficulty": 2
+        },
+        {
+          "question": "Choose the correct word form: 'She spoke very ___ during the interview.' (adverb)",
+          "question_vi": "Chọn trạng từ phù hợp.",
+          "emoji": "📝",
+          "options": ["confidently", "confident", "confidence", "confiding"],
+          "answer": "confidently",
+          "explanation": "Cần trạng từ bổ nghĩa cho 'spoke': confidently.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "ielts_b5_listening_1",
+      "title": "IELTS Listening — Band 5.0 (Đề 1)",
+      "track": "ielts",
+      "skill": "listening",
+      "level": "band_5.0",
+      "age_group": "15-18",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "listening",
+      "questions": [
+        {
+          "question": "You hear: 'The train to Manchester leaves from platform four at half past nine.' Which platform does the train leave from?",
+          "question_vi": "Nghe và chọn số sân ga.",
+          "emoji": "🎧",
+          "options": ["Platform four", "Platform nine", "Platform two", "Platform half"],
+          "answer": "Platform four",
+          "explanation": "Người nói nói rõ 'platform four'.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: 'The library is closed on Sundays but open every other day.' When is the library closed?",
+          "question_vi": "Nghe và chọn ngày đóng cửa.",
+          "emoji": "🎧",
+          "options": ["On Sundays", "On Mondays", "Every day", "On Saturdays"],
+          "answer": "On Sundays",
+          "explanation": "Câu nói thư viện đóng cửa vào Chủ nhật.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: 'The tour costs fifteen pounds for adults and ten pounds for children.' How much does a child pay?",
+          "question_vi": "Nghe giá vé trẻ em.",
+          "emoji": "🎧",
+          "options": ["Ten pounds", "Fifteen pounds", "Five pounds", "Twenty pounds"],
+          "answer": "Ten pounds",
+          "explanation": "Trẻ em trả 10 bảng theo lời nói.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: 'Please bring your passport and a recent photo to the appointment.' What two things should you bring?",
+          "question_vi": "Nghe và chọn hai vật cần mang.",
+          "emoji": "🎧",
+          "options": ["A passport and a recent photo", "A passport and money", "A photo and a pen", "A ticket and a passport"],
+          "answer": "A passport and a recent photo",
+          "explanation": "Người nói yêu cầu mang hộ chiếu và một ảnh chụp gần đây.",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear: 'The lecture will be held in Room 12, not Room 21 as printed.' Which room is correct?",
+          "question_vi": "Nghe và chọn phòng đúng.",
+          "emoji": "🎧",
+          "options": ["Room 12", "Room 21", "Room 11", "Room 22"],
+          "answer": "Room 12",
+          "explanation": "Người nói đính chính phòng đúng là Room 12.",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear: 'The supermarket opens at eight in the morning and closes at ten at night.' What time does it close?",
+          "question_vi": "Nghe giờ đóng cửa.",
+          "emoji": "🎧",
+          "options": ["Ten at night", "Eight in the morning", "Ten in the morning", "Eight at night"],
+          "answer": "Ten at night",
+          "explanation": "Siêu thị đóng cửa lúc 10 giờ tối.",
+          "difficulty": 2
+        },
+        {
+          "question": "You hear: 'Registration is free, but the workshop materials cost five dollars.' What is free?",
+          "question_vi": "Nghe và chọn cái gì miễn phí.",
+          "emoji": "🎧",
+          "options": ["Registration", "The materials", "Everything", "Nothing"],
+          "answer": "Registration",
+          "explanation": "Đăng ký miễn phí, chỉ tài liệu mới mất phí.",
+          "difficulty": 3
+        },
+        {
+          "question": "You hear: 'My name is Sarah, spelt S-A-R-A-H.' How is the name spelt?",
+          "question_vi": "Nghe và chọn cách viết tên.",
+          "emoji": "🎧",
+          "options": ["S-A-R-A-H", "S-A-R-R-A", "C-A-R-A-H", "S-E-R-A-H"],
+          "answer": "S-A-R-A-H",
+          "explanation": "Người nói đánh vần rõ S-A-R-A-H.",
+          "difficulty": 2
+        }
+      ]
+    }
+  ]
+}

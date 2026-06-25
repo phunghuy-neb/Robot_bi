@@ -1,0 +1,203 @@
+{
+  "subject": "music",
+  "exams": [
+    {
+      "paper_id": "music_instruments_1",
+      "title": "Âm nhạc — Nhạc cụ (Đề 1)",
+      "track": "practice",
+      "level": "grade_4",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "instruments",
+      "questions": [
+        {
+          "question": "Nhạc cụ nào sau đây thuộc bộ dây?",
+          "question_vi": "",
+          "emoji": "🎸",
+          "options": ["Đàn guitar", "Trống", "Sáo trúc", "Kèn"],
+          "answer": "Đàn guitar",
+          "explanation": "Guitar phát ra âm thanh bằng cách gảy dây nên thuộc bộ dây.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nhạc cụ nào sau đây thuộc bộ gõ?",
+          "question_vi": "",
+          "emoji": "🥁",
+          "options": ["Trống", "Đàn tranh", "Sáo trúc", "Đàn bầu"],
+          "answer": "Trống",
+          "explanation": "Trống được chơi bằng cách gõ, đập nên thuộc bộ gõ.",
+          "difficulty": 1
+        },
+        {
+          "question": "Đàn bầu của Việt Nam có mấy dây?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": ["Một dây", "Hai dây", "Bốn dây", "Sáu dây"],
+          "answer": "Một dây",
+          "explanation": "Đàn bầu là nhạc cụ độc đáo của Việt Nam, chỉ có một dây duy nhất.",
+          "difficulty": 2
+        },
+        {
+          "question": "Sáo trúc tạo ra âm thanh nhờ điều gì?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": ["Luồng hơi thổi vào", "Gảy dây", "Gõ vào mặt", "Kéo cây vĩ"],
+          "answer": "Luồng hơi thổi vào",
+          "explanation": "Sáo trúc thuộc bộ hơi, phát ra âm thanh khi ta thổi hơi vào.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đàn tranh truyền thống của Việt Nam thường có bao nhiêu dây?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": ["Mười sáu dây", "Một dây", "Ba dây", "Tám dây"],
+          "answer": "Mười sáu dây",
+          "explanation": "Đàn tranh cổ truyền Việt Nam thường có 16 dây nên còn gọi là đàn thập lục.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhóm nhạc cụ nào dưới đây đều thuộc bộ hơi?",
+          "question_vi": "",
+          "emoji": "🎺",
+          "options": ["Sáo trúc và kèn", "Trống và phách", "Đàn bầu và đàn tranh", "Guitar và violin"],
+          "answer": "Sáo trúc và kèn",
+          "explanation": "Sáo trúc và kèn đều phát âm nhờ luồng hơi nên cùng thuộc bộ hơi.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "music_folk_songs_1",
+      "title": "Âm nhạc — Dân ca Việt Nam (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "8-10",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "folk_songs",
+      "questions": [
+        {
+          "question": "Dân ca Quan họ nổi tiếng gắn liền với vùng đất nào?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": ["Bắc Ninh", "Cà Mau", "Đà Lạt", "Huế"],
+          "answer": "Bắc Ninh",
+          "explanation": "Dân ca Quan họ là làn điệu đặc trưng của vùng Bắc Ninh - Kinh Bắc.",
+          "difficulty": 1
+        },
+        {
+          "question": "Làn điệu dân ca Ví, Giặm gắn với vùng nào của Việt Nam?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": ["Nghệ An - Hà Tĩnh", "Nam Bộ", "Tây Bắc", "Hà Nội"],
+          "answer": "Nghệ An - Hà Tĩnh",
+          "explanation": "Dân ca Ví, Giặm là di sản đặc trưng của vùng Nghệ An - Hà Tĩnh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đờn ca tài tử là loại hình âm nhạc dân gian của vùng nào?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": ["Nam Bộ", "Bắc Bộ", "Tây Nguyên", "Vùng núi phía Bắc"],
+          "answer": "Nam Bộ",
+          "explanation": "Đờn ca tài tử là loại hình nghệ thuật dân gian đặc trưng của miền Nam Bộ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Người hát Quan họ thường được gọi là gì?",
+          "question_vi": "",
+          "emoji": "👫",
+          "options": ["Liền anh, liền chị", "Nghệ nhân chèo", "Đào, kép", "Ca công"],
+          "answer": "Liền anh, liền chị",
+          "explanation": "Trong Quan họ, nam được gọi là liền anh, nữ được gọi là liền chị.",
+          "difficulty": 3
+        },
+        {
+          "question": "Điệu hò nào sau đây gắn liền với sông nước miền Nam?",
+          "question_vi": "",
+          "emoji": "🛶",
+          "options": ["Hò chèo thuyền", "Hát then", "Hát xoan", "Hát ru Bắc Bộ"],
+          "answer": "Hò chèo thuyền",
+          "explanation": "Điệu hò chèo thuyền gắn với lao động trên sông nước, phổ biến ở miền Nam.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hát Then là làn điệu dân ca của đồng bào dân tộc nào?",
+          "question_vi": "",
+          "emoji": "🏔️",
+          "options": ["Tày, Nùng", "Kinh", "Khmer", "Ê Đê"],
+          "answer": "Tày, Nùng",
+          "explanation": "Hát Then là di sản văn hóa của đồng bào dân tộc Tày, Nùng ở vùng núi phía Bắc.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "music_genres_1",
+      "title": "Âm nhạc — Thể loại âm nhạc (Đề 1)",
+      "track": "practice",
+      "level": "grade_5",
+      "age_group": "11-14",
+      "duration_minutes": 15,
+      "pass_percent": 60,
+      "topic": "genres",
+      "questions": [
+        {
+          "question": "Bài hát 'Cháu lên ba' thuộc thể loại nào?",
+          "question_vi": "",
+          "emoji": "🧒",
+          "options": ["Nhạc thiếu nhi", "Nhạc cổ điển", "Nhạc dân gian", "Nhạc thính phòng"],
+          "answer": "Nhạc thiếu nhi",
+          "explanation": "'Cháu lên ba' là bài hát viết cho trẻ em nên thuộc thể loại nhạc thiếu nhi.",
+          "difficulty": 1
+        },
+        {
+          "question": "Loại nhạc nào được truyền miệng qua nhiều thế hệ trong dân gian?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": ["Nhạc dân gian", "Nhạc thiếu nhi", "Nhạc điện tử", "Nhạc cổ điển"],
+          "answer": "Nhạc dân gian",
+          "explanation": "Nhạc dân gian được nhân dân sáng tạo và truyền miệng qua nhiều thế hệ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dàn nhạc giao hưởng thường gắn với thể loại âm nhạc nào?",
+          "question_vi": "",
+          "emoji": "🎻",
+          "options": ["Nhạc cổ điển", "Nhạc thiếu nhi", "Nhạc dân gian", "Hò vè"],
+          "answer": "Nhạc cổ điển",
+          "explanation": "Dàn nhạc giao hưởng với nhiều nhạc cụ thường biểu diễn nhạc cổ điển.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bài hát nào sau đây là nhạc thiếu nhi quen thuộc?",
+          "question_vi": "",
+          "emoji": "🐤",
+          "options": ["Một con vịt", "Quan họ Bắc Ninh", "Lý cây bông", "Hò kéo lưới"],
+          "answer": "Một con vịt",
+          "explanation": "'Một con vịt' là bài hát thiếu nhi rất quen thuộc với trẻ em Việt Nam.",
+          "difficulty": 1
+        },
+        {
+          "question": "Đặc điểm chính của nhạc cổ điển phương Tây là gì?",
+          "question_vi": "",
+          "emoji": "🎹",
+          "options": ["Được ghi chép bằng bản nhạc và biểu diễn theo nốt", "Chỉ hát ru em bé", "Truyền miệng không có bản nhạc", "Chỉ dùng một nhạc cụ duy nhất"],
+          "answer": "Được ghi chép bằng bản nhạc và biểu diễn theo nốt",
+          "explanation": "Nhạc cổ điển được soạn và ghi chép thành bản nhạc, biểu diễn theo nốt nhạc đã viết.",
+          "difficulty": 3
+        },
+        {
+          "question": "Làn điệu 'Lý cây đa' của Việt Nam thuộc thể loại nào?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": ["Nhạc dân gian", "Nhạc cổ điển", "Nhạc điện tử", "Nhạc thiếu nhi"],
+          "answer": "Nhạc dân gian",
+          "explanation": "'Lý cây đa' là một làn điệu dân ca, thuộc dòng nhạc dân gian Việt Nam.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

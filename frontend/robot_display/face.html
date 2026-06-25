@@ -1,5 +1,433 @@
 <!DOCTYPE html>
-<html>
-<head><title>face — Placeholder</title></head>
-<body><p>Chưa implement.</p></body>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Bi — Gương mặt</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  /* ── Face container ─────────────────────────────────────── */
+  .face {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    transition: transform 0.3s ease;
+  }
+
+  /* ── Head ───────────────────────────────────────────────── */
+  .head {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 40% 35%, #2d3561, #1a1f4e 60%, #0d1130);
+    border-radius: 50%;
+    box-shadow:
+      0 0 40px rgba(100, 130, 255, 0.3),
+      inset 0 -20px 40px rgba(0, 0, 0, 0.4),
+      inset 0 10px 30px rgba(130, 160, 255, 0.1);
+    border: 2px solid rgba(100, 130, 255, 0.25);
+  }
+
+  /* ── Eyes ───────────────────────────────────────────────── */
+  .eyes {
+    position: absolute;
+    top: 110px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    transition: top 0.4s ease;
+  }
+
+  .eye {
+    position: relative;
+    width: 72px;
+    height: 72px;
+  }
+
+  .eye-outer {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 16px rgba(160, 200, 255, 0.8), inset 0 2px 6px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s;
+    overflow: hidden;
+  }
+
+  .iris {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 36%, #5b9ef7, #1a4db8 55%, #0a1f5c);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+  }
+
+  .pupil {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #050510;
+  }
+
+  .eye-shine {
+    position: absolute;
+    top: 10px; left: 14px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    pointer-events: none;
+  }
+
+  /* Blink animation */
+  @keyframes blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.05); }
+  }
+
+  .eye-outer { animation: blink 4s ease-in-out infinite; }
+  .eye.right .eye-outer { animation-delay: 0.06s; }
+
+  /* ── Cheeks ─────────────────────────────────────────────── */
+  .cheeks {
+    position: absolute;
+    top: 165px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 130px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .cheek {
+    width: 40px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,130,150,0.7), transparent);
+  }
+
+  /* ── Mouth ───────────────────────────────────────────────── */
+  .mouth-wrap {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mouth {
+    width: 80px;
+    height: 36px;
+    position: relative;
+    transition: transform 0.35s ease;
+  }
+
+  .mouth svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .mouth-path {
+    fill: none;
+    stroke: rgba(255,255,255,0.9);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: d 0.5s ease;
+  }
+
+  /* ── Antenna ─────────────────────────────────────────────── */
+  .antenna {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .antenna-stem {
+    width: 4px;
+    height: 28px;
+    background: linear-gradient(to bottom, #4a6cf7, #1a2a6c);
+    border-radius: 2px;
+  }
+
+  .antenna-ball {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #a0c0ff, #4a6cf7);
+    box-shadow: 0 0 10px rgba(100, 150, 255, 0.8);
+    animation: pulse-antenna 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-antenna {
+    0%, 100% { box-shadow: 0 0 10px rgba(100, 150, 255, 0.8); transform: scale(1); }
+    50% { box-shadow: 0 0 20px rgba(100, 150, 255, 1); transform: scale(1.15); }
+  }
+
+  /* ── Status text ─────────────────────────────────────────── */
+  .status {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(140, 160, 255, 0.7);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  /* ── Expression state overrides ─────────────────────────── */
+
+  /* HAPPY / ACTIVE_HAPPY */
+  .face[data-state="happy"] .iris { background: radial-gradient(circle at 38% 36%, #7fdbff, #1a7dd4 55%, #0a1f5c); }
+  .face[data-state="happy"] .cheeks { opacity: 1; }
+  .face[data-state="happy"] .head { box-shadow: 0 0 60px rgba(100, 200, 255, 0.35), inset 0 -20px 40px rgba(0,0,0,0.4); }
+
+  /* THINKING */
+  .face[data-state="thinking"] .eyes { top: 100px; }
+  .face[data-state="thinking"] .eye.left .iris { transform: translate(-4px, -4px); }
+  .face[data-state="thinking"] .eye.right .iris { transform: translate(4px, -4px); }
+  .face[data-state="thinking"] .antenna-ball { animation: pulse-antenna 0.7s ease-in-out infinite; }
+
+  /* SLEEPING / IDLE_SLEEPY */
+  .face[data-state="sleeping"] .eye-outer { animation: none; transform: scaleY(0.1) !important; }
+  .face[data-state="sleeping"] .eye.right .eye-outer { animation: none; transform: scaleY(0.1) !important; }
+  .face[data-state="sleeping"] .head { box-shadow: 0 0 20px rgba(60, 80, 120, 0.2); }
+  .face[data-state="sleeping"] .antenna-ball { animation: pulse-antenna 4s ease-in-out infinite; }
+
+  /* POUTING */
+  .face[data-state="pouting"] .eyes { top: 120px; }
+  .face[data-state="pouting"] .cheeks { opacity: 0.5; }
+  .face[data-state="pouting"] .head { box-shadow: 0 0 30px rgba(255, 100, 100, 0.2); border-color: rgba(255,100,100,0.3); }
+
+  /* CURIOUS */
+  .face[data-state="curious"] .eye.left .iris { transform: translate(6px, -2px); }
+  .face[data-state="curious"] .eye.right .iris { transform: translate(6px, -2px); }
+
+  /* SURPRISED */
+  .face[data-state="surprised"] .eye-outer { transform: scale(1.18); }
+  .face[data-state="surprised"] .eye.right .eye-outer { transform: scale(1.18); }
+  .face[data-state="surprised"] .eyes { top: 95px; }
+
+  /* Idle breathing */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.012); }
+  }
+  .face { animation: breathe 4s ease-in-out infinite; }
+  .face[data-state="sleeping"] { animation: breathe 6s ease-in-out infinite; }
+  .face[data-state="happy"] { animation: breathe 2.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="face" id="face" data-state="idle">
+  <div class="head"></div>
+
+  <div class="antenna">
+    <div class="antenna-ball"></div>
+    <div class="antenna-stem"></div>
+  </div>
+
+  <div class="eyes">
+    <div class="eye left">
+      <div class="eye-outer">
+        <div class="iris"><div class="pupil"></div></div>
+      </div>
+      <div class="eye-shine"></div>
+    </div>
+    <div class="eye right">
+      <div class="eye-outer">
+        <div class="iris"><div class="pupil"></div></div>
+      </div>
+      <div class="eye-shine"></div>
+    </div>
+  </div>
+
+  <div class="cheeks">
+    <div class="cheek"></div>
+    <div class="cheek"></div>
+  </div>
+
+  <div class="mouth-wrap">
+    <div class="mouth" id="mouth">
+      <svg viewBox="0 0 80 36">
+        <path id="mouth-path" class="mouth-path" d="M 10 18 Q 40 34 70 18" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="status" id="status">Bi đang sẵn sàng</div>
+
+<script>
+const face = document.getElementById('face');
+const mouthPath = document.getElementById('mouth-path');
+const statusEl = document.getElementById('status');
+
+// Mouth shapes per state: SVG cubic bezier path
+const MOUTHS = {
+  idle:      'M 10 18 Q 40 30 70 18',   // slight smile
+  happy:     'M 8 22 Q 40 38 72 22',    // big smile
+  thinking:  'M 15 20 Q 40 22 65 20',   // flat neutral
+  sleeping:  'M 20 22 Q 40 25 60 22',   // tiny smile
+  pouting:   'M 12 25 Q 40 14 68 25',   // frown
+  curious:   'M 12 18 Q 40 28 68 18',   // mid smile
+  surprised: 'M 28 16 Q 40 34 52 16',   // O mouth
+};
+
+const STATUS_TEXT = {
+  idle:      'Bi đang sẵn sàng',
+  happy:     'Bi rất vui!',
+  thinking:  'Bi đang suy nghĩ...',
+  sleeping:  'Bi đang ngủ... zzz',
+  pouting:   'Bi đang dỗi...',
+  curious:   'Bi tò mò!',
+  surprised: 'Ồ! Ngạc nhiên quá!',
+};
+
+function setState(state) {
+  const s = MOUTHS[state] ? state : 'idle';
+  face.dataset.state = s;
+  mouthPath.setAttribute('d', MOUTHS[s]);
+  statusEl.textContent = STATUS_TEXT[s] || '';
+}
+
+// Map backend BiState / event types to local display states
+function mapBiState(state) {
+  const m = {
+    active_happy: 'happy', active_engaged: 'idle', thinking: 'thinking',
+    idle_curious: 'curious', idle_sleepy: 'sleeping', pouting: 'pouting',
+    missing_kid: 'curious', listening: 'curious', speaking: 'happy',
+    happy: 'happy', sleepy: 'sleeping', surprised: 'surprised',
+  };
+  return m[(state || '').toLowerCase()] || 'idle';
+}
+
+// ── Eye tracking (follow mouse / touch) ─────────────────────
+const irises = document.querySelectorAll('.iris');
+document.addEventListener('mousemove', e => {
+  if (face.dataset.state === 'sleeping') return;
+  const fr = face.getBoundingClientRect();
+  const cx = fr.left + fr.width / 2;
+  const cy = fr.top + fr.height / 2;
+  const dx = e.clientX - cx;
+  const dy = e.clientY - cy;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const maxOff = 7;
+  const scale = dist > 1 ? Math.min(maxOff / dist, 1) : 0;
+  const ox = dx * scale;
+  const oy = dy * scale;
+  irises.forEach(el => {
+    el.style.transform = `translate(${ox.toFixed(1)}px, ${oy.toFixed(1)}px)`;
+  });
+});
+
+// ── WebSocket connection to backend ─────────────────────────
+let ws = null;
+let wsDelay = 1500;
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  // Try to get token from URL param or localStorage
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token') || localStorage.getItem('bi_token') || '';
+  const url = token
+    ? `${proto}//${location.host}/ws?token=${encodeURIComponent(token)}`
+    : `${proto}//${location.host}/ws/display`;
+
+  try {
+    ws = new WebSocket(url);
+  } catch (_) {
+    scheduleReconnect();
+    return;
+  }
+
+  ws.onopen = () => {
+    wsDelay = 1500;
+  };
+
+  ws.onmessage = e => {
+    try {
+      const msg = JSON.parse(e.data);
+      const type = (msg.type || '').toLowerCase();
+      if (type === 'state_change' || type === 'bi_state') {
+        setState(mapBiState(msg.state || msg.data));
+      } else if (type === 'speaking') {
+        setState('happy');
+      } else if (type === 'listening') {
+        setState('curious');
+      } else if (type === 'thinking') {
+        setState('thinking');
+      } else if (type === 'sleep') {
+        setState('sleeping');
+      } else if (type === 'wake') {
+        setState('idle');
+      } else if (type === 'emotion' || type === 'expression') {
+        setState(mapBiState(msg.emotion || msg.expression || msg.data || ''));
+      }
+    } catch (_) {}
+  };
+
+  ws.onclose = () => scheduleReconnect();
+  ws.onerror = () => ws && ws.close();
+}
+
+function scheduleReconnect() {
+  setTimeout(connect, Math.min(wsDelay, 12000));
+  wsDelay = Math.min(wsDelay * 1.5, 12000);
+}
+
+// ── Auto cycle demo states when no WS connection ─────────────
+const DEMO_STATES = ['idle', 'happy', 'curious', 'thinking', 'idle', 'surprised', 'idle', 'sleeping'];
+let demoIdx = 0;
+let demoTimer = null;
+
+function startDemoLoop() {
+  demoTimer = setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      clearInterval(demoTimer);
+      return;
+    }
+    setState(DEMO_STATES[demoIdx % DEMO_STATES.length]);
+    demoIdx++;
+  }, 3000);
+}
+
+connect();
+startDemoLoop();
+
+// ── URL param: ?state=happy ──────────────────────────────────
+const initState = new URLSearchParams(location.search).get('state');
+if (initState) setState(mapBiState(initState));
+</script>
+</body>
 </html>

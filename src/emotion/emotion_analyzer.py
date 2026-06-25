@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import os
 import unicodedata
+import calendar
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from enum import Enum
@@ -62,6 +63,15 @@ def _breakdown_percent(rows) -> dict:
         "sad": round(counts.get("sad", 0) * 100 / total),
         "stressed": round(counts.get("stressed", 0) * 100 / total),
     }
+
+
+def _dominant_bucket(counts: Counter | dict) -> str:
+    """Return the dominant parent-chart bucket, defaulting to neutral."""
+    order = ("happy", "neutral", "sad", "stressed")
+    total = sum(int(counts.get(bucket, 0)) for bucket in order)
+    if total <= 0:
+        return "neutral"
+    return max(order, key=lambda bucket: (int(counts.get(bucket, 0)), -order.index(bucket)))
 
 
 def _normalize_text(text: str) -> str:
@@ -273,3 +283,115 @@ class EmotionAnalyzer:
                 }
                 for offset in range(6, -1, -1)
             ]
+
+    def get_monthly_summary(
+        self,
+        family_id: str,
+        month: str | None = None,
+        child_id: str | None = None,
+    ) -> dict:
+        """Return per-day and per-week emotion counts for one UTC month."""
+        try:
+            month_value = month or datetime.now(timezone.utc).strftime("%Y-%m")
+            first_day = datetime.strptime(f"{month_value}-01", "%Y-%m-%d").date()
+            days_in_month = calendar.monthrange(first_day.year, first_day.month)[1]
+            last_day = first_day.replace(day=days_in_month)
+
+            try:
+                from src.emotion.emotion_journal import EmotionJournal
+
+                EmotionJournal()
+            except Exception:
+                logger.debug("[EmotionAnalyzer] emotion_journal schema check skipped")
+
+            with get_db_connection() as conn:
+                rows = conn.execute(
+                    """
+                    SELECT date(timestamp) AS day, emotion
+                    FROM emotion_logs
+                    WHERE family_id = ?
+                      AND date(timestamp) BETWEEN ? AND ?
+                    UNION ALL
+                    SELECT date(timestamp) AS day, emotion
+                    FROM emotion_journal
+                    WHERE family_id = ?
+                      AND date(timestamp) BETWEEN ? AND ?
+                    """,
+                    (
+                        str(family_id),
+                        first_day.isoformat(),
+                        last_day.isoformat(),
+                        str(family_id),
+                        first_day.isoformat(),
+                        last_day.isoformat(),
+                    ),
+                ).fetchall()
+
+            buckets = ("happy", "neutral", "sad", "stressed")
+            by_day: dict[str, Counter] = {
+                first_day.replace(day=day).isoformat(): Counter() for day in range(1, days_in_month + 1)
+            }
+            for row in rows:
+                day = row["day"]
+                if day in by_day:
+                    by_day[day][_emotion_bucket(str(row["emotion"]))] += 1
+
+            days = []
+            by_week: dict[str, Counter] = {}
+            for day, counts in by_day.items():
+                day_date = datetime.strptime(day, "%Y-%m-%d").date()
+                week_start = (day_date - timedelta(days=day_date.weekday())).isoformat()
+                by_week.setdefault(week_start, Counter()).update(counts)
+                count = sum(counts.values())
+                days.append({
+                    "date": day,
+                    "happy": int(counts.get("happy", 0)),
+                    "neutral": int(counts.get("neutral", 0)),
+                    "sad": int(counts.get("sad", 0)),
+                    "stressed": int(counts.get("stressed", 0)),
+                    "dominant": _dominant_bucket(counts),
+                    "count": int(count),
+                })
+
+            weeks = []
+            for week_start in sorted(by_week.keys()):
+                counts = by_week[week_start]
+                count = sum(counts.values())
+                weeks.append({
+                    "week_start": week_start,
+                    "happy": int(counts.get("happy", 0)),
+                    "neutral": int(counts.get("neutral", 0)),
+                    "sad": int(counts.get("sad", 0)),
+                    "stressed": int(counts.get("stressed", 0)),
+                    "dominant": _dominant_bucket(counts),
+                    "count": int(count),
+                })
+
+            total_counts = Counter()
+            for counts in by_day.values():
+                total_counts.update(counts)
+            return {
+                "family_id": str(family_id),
+                "child_id": child_id,
+                "month": month_value,
+                "timezone": "UTC",
+                "total_entries": int(sum(total_counts.values())),
+                "dominant": _dominant_bucket(total_counts),
+                "counts": {bucket: int(total_counts.get(bucket, 0)) for bucket in buckets},
+                "days": days,
+                "weeks": weeks,
+            }
+        except Exception:
+            logger.exception("[EmotionAnalyzer] get_monthly_summary failed")
+            month_value = month or datetime.now(timezone.utc).strftime("%Y-%m")
+            return {
+                "family_id": str(family_id),
+                "child_id": child_id,
+                "month": month_value,
+                "timezone": "UTC",
+                "total_entries": 0,
+                "dominant": Emotion.NEUTRAL.value,
+                "counts": {"happy": 0, "neutral": 0, "sad": 0, "stressed": 0},
+                "days": [],
+                "weeks": [],
+            }

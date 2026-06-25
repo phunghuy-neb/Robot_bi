@@ -1,0 +1,65 @@
+{
+  "subject": "civics",
+  "exams": [
+    {
+      "paper_id": "civics_rights_1",
+      "title": "GDCD — Quyền & Nghĩa vụ công dân (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "rights_duties",
+      "questions": [
+        {"question": "Theo luật, trẻ em có quyền cơ bản nào sau đây?", "question_vi": "", "emoji": "🧒", "options": ["Quyền được học tập", "Quyền bỏ học đi làm", "Quyền không nghe lời ai", "Quyền lái xe máy"], "answer": "Quyền được học tập", "explanation": "Học tập vừa là quyền vừa là nghĩa vụ của trẻ em.", "difficulty": 1},
+        {"question": "Nghĩa vụ quan trọng của học sinh là gì?", "question_vi": "", "emoji": "📚", "options": ["Chăm chỉ học tập, rèn luyện", "Trốn học", "Gây gổ với bạn", "Phá hoại của công"], "answer": "Chăm chỉ học tập, rèn luyện", "explanation": "Học sinh có nghĩa vụ học tập và rèn luyện đạo đức.", "difficulty": 1},
+        {"question": "Tài sản, tính mạng, danh dự của công dân được pháp luật làm gì?", "question_vi": "", "emoji": "⚖️", "options": ["Bảo vệ", "Tịch thu", "Bỏ qua", "Hạn chế"], "answer": "Bảo vệ", "explanation": "Pháp luật bảo vệ tính mạng, sức khỏe, danh dự và tài sản công dân.", "difficulty": 2},
+        {"question": "Khi nhặt được của rơi, em nên làm gì?", "question_vi": "", "emoji": "💰", "options": ["Tìm cách trả lại người mất", "Giữ làm của riêng", "Vứt đi", "Đem bán"], "answer": "Tìm cách trả lại người mất", "explanation": "Trả lại của rơi là hành vi trung thực, tôn trọng tài sản người khác.", "difficulty": 2},
+        {"question": "Công dân có nghĩa vụ gì đối với Tổ quốc?", "question_vi": "", "emoji": "🇻🇳", "options": ["Bảo vệ Tổ quốc", "Phá hoại đất nước", "Trốn tránh trách nhiệm", "Không quan tâm"], "answer": "Bảo vệ Tổ quốc", "explanation": "Bảo vệ Tổ quốc là nghĩa vụ thiêng liêng của mỗi công dân.", "difficulty": 2},
+        {"question": "Quyền tự do ngôn luận nghĩa là công dân được làm gì?", "question_vi": "", "emoji": "🗣️", "options": ["Bày tỏ ý kiến đúng pháp luật", "Nói xấu, vu khống người khác", "Tung tin giả", "Xúc phạm người khác"], "answer": "Bày tỏ ý kiến đúng pháp luật", "explanation": "Tự do ngôn luận phải trong khuôn khổ pháp luật, không xâm phạm người khác.", "difficulty": 3},
+        {"question": "Hành vi nào sau đây thể hiện tôn trọng pháp luật?", "question_vi": "", "emoji": "✅", "options": ["Tuân thủ luật giao thông", "Vượt đèn đỏ", "Xả rác bừa bãi", "Đánh nhau"], "answer": "Tuân thủ luật giao thông", "explanation": "Tuân thủ pháp luật là biểu hiện của công dân tốt.", "difficulty": 1},
+        {"question": "Bình đẳng trước pháp luật nghĩa là gì?", "question_vi": "", "emoji": "⚖️", "options": ["Mọi người đều phải tuân theo pháp luật như nhau", "Người giàu được ưu tiên", "Người lớn không phải theo luật", "Chỉ trẻ em mới theo luật"], "answer": "Mọi người đều phải tuân theo pháp luật như nhau", "explanation": "Mọi công dân đều bình đẳng về quyền và nghĩa vụ trước pháp luật.", "difficulty": 3}
+      ]
+    },
+    {
+      "paper_id": "civics_traffic_safety_1",
+      "title": "GDCD — An toàn giao thông (Đề 1)",
+      "track": "practice",
+      "level": "grade_6",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "traffic_safety",
+      "questions": [
+        {"question": "Đèn giao thông màu đỏ có nghĩa là gì?", "question_vi": "", "emoji": "🔴", "options": ["Dừng lại", "Đi tiếp", "Chuẩn bị đi", "Rẽ phải"], "answer": "Dừng lại", "explanation": "Đèn đỏ: phải dừng lại trước vạch.", "difficulty": 1},
+        {"question": "Đèn giao thông màu xanh có nghĩa là gì?", "question_vi": "", "emoji": "🟢", "options": ["Được phép đi", "Dừng lại", "Chờ đợi", "Quay đầu"], "answer": "Được phép đi", "explanation": "Đèn xanh: được phép đi.", "difficulty": 1},
+        {"question": "Khi đi bộ qua đường, em nên đi ở đâu?", "question_vi": "", "emoji": "🚸", "options": ["Vạch kẻ dành cho người đi bộ", "Giữa lòng đường", "Bất cứ đâu", "Sát xe ô tô"], "answer": "Vạch kẻ dành cho người đi bộ", "explanation": "Qua đường đúng nơi có vạch kẻ để an toàn.", "difficulty": 1},
+        {"question": "Khi ngồi trên xe máy, để an toàn em phải làm gì?", "question_vi": "", "emoji": "🪖", "options": ["Đội mũ bảo hiểm", "Đứng lên xe", "Thả hai tay", "Quay mặt ra sau"], "answer": "Đội mũ bảo hiểm", "explanation": "Đội mũ bảo hiểm bảo vệ đầu khi xảy ra tai nạn.", "difficulty": 1},
+        {"question": "Người đi bộ nên đi trên phần đường nào?", "question_vi": "", "emoji": "🚶", "options": ["Vỉa hè", "Giữa đường", "Làn ô tô", "Đường ray"], "answer": "Vỉa hè", "explanation": "Người đi bộ đi trên vỉa hè, nơi không có thì đi sát mép đường.", "difficulty": 2},
+        {"question": "Đèn vàng giao thông báo hiệu điều gì?", "question_vi": "", "emoji": "🟡", "options": ["Giảm tốc độ, chuẩn bị dừng", "Tăng tốc vượt nhanh", "Được phép đi thoải mái", "Rẽ trái"], "answer": "Giảm tốc độ, chuẩn bị dừng", "explanation": "Đèn vàng: chậm lại và dừng trước vạch nếu an toàn.", "difficulty": 2},
+        {"question": "Bao nhiêu tuổi thì được phép lái xe máy trên 50cc theo luật Việt Nam?", "question_vi": "", "emoji": "🛵", "options": ["Đủ 18 tuổi", "12 tuổi", "15 tuổi", "16 tuổi"], "answer": "Đủ 18 tuổi", "explanation": "Phải đủ 18 tuổi và có giấy phép lái xe mới được lái xe máy trên 50cc.", "difficulty": 3},
+        {"question": "Hành vi nào sau đây là vi phạm luật giao thông?", "question_vi": "", "emoji": "🚫", "options": ["Vượt đèn đỏ", "Đi đúng làn", "Đội mũ bảo hiểm", "Dừng đèn đỏ"], "answer": "Vượt đèn đỏ", "explanation": "Vượt đèn đỏ rất nguy hiểm và là vi phạm luật giao thông.", "difficulty": 1}
+      ]
+    },
+    {
+      "paper_id": "civics_ethics_lifeskills_1",
+      "title": "GDCD — Đạo đức & Kỹ năng sống (Đề 1)",
+      "track": "practice",
+      "level": "grade_7",
+      "age_group": "11-14",
+      "duration_minutes": 20,
+      "pass_percent": 60,
+      "topic": "ethics",
+      "questions": [
+        {"question": "Hành vi nào thể hiện lòng hiếu thảo với cha mẹ?", "question_vi": "", "emoji": "👪", "options": ["Vâng lời, giúp đỡ cha mẹ", "Cãi lời cha mẹ", "Bỏ nhà đi chơi", "Đòi hỏi quá đáng"], "answer": "Vâng lời, giúp đỡ cha mẹ", "explanation": "Hiếu thảo là kính trọng, vâng lời và giúp đỡ cha mẹ.", "difficulty": 1},
+        {"question": "Khi mắc lỗi, người trung thực sẽ làm gì?", "question_vi": "", "emoji": "🙇", "options": ["Nhận lỗi và sửa sai", "Đổ lỗi cho người khác", "Nói dối để che giấu", "Bỏ mặc"], "answer": "Nhận lỗi và sửa sai", "explanation": "Trung thực là dám nhận lỗi và cố gắng sửa chữa.", "difficulty": 2},
+        {"question": "Thái độ đúng khi thấy bạn gặp khó khăn là gì?", "question_vi": "", "emoji": "🤝", "options": ["Giúp đỡ bạn", "Chế giễu bạn", "Làm ngơ", "Lợi dụng bạn"], "answer": "Giúp đỡ bạn", "explanation": "Giúp đỡ bạn bè thể hiện lòng nhân ái và tình bạn đẹp.", "difficulty": 1},
+        {"question": "Tiết kiệm có nghĩa là gì?", "question_vi": "", "emoji": "🐷", "options": ["Sử dụng hợp lý, không lãng phí", "Keo kiệt, bủn xỉn", "Tiêu xài thoải mái", "Không bao giờ chi tiêu"], "answer": "Sử dụng hợp lý, không lãng phí", "explanation": "Tiết kiệm là dùng của cải, thời gian hợp lý, tránh lãng phí.", "difficulty": 2},
+        {"question": "Khi gặp người lớn tuổi, hành vi lịch sự là gì?", "question_vi": "", "emoji": "🙏", "options": ["Chào hỏi lễ phép", "Phớt lờ", "Trêu chọc", "Nói trống không"], "answer": "Chào hỏi lễ phép", "explanation": "Chào hỏi lễ phép thể hiện sự tôn trọng người lớn tuổi.", "difficulty": 1},
+        {"question": "Khi bị người lạ rủ đi theo, trẻ em nên làm gì?", "question_vi": "", "emoji": "🛡️", "options": ["Từ chối và báo người lớn tin cậy", "Đi theo ngay", "Nhận quà rồi đi", "Giấu cha mẹ"], "answer": "Từ chối và báo người lớn tin cậy", "explanation": "Kỹ năng tự bảo vệ: không đi theo người lạ, báo ngay cha mẹ/thầy cô.", "difficulty": 2},
+        {"question": "Giữ gìn vệ sinh môi trường là trách nhiệm của ai?", "question_vi": "", "emoji": "🌍", "options": ["Của mọi người", "Chỉ của công nhân vệ sinh", "Chỉ của nhà nước", "Không của ai"], "answer": "Của mọi người", "explanation": "Bảo vệ môi trường là trách nhiệm chung của tất cả mọi người.", "difficulty": 2},
+        {"question": "Biểu hiện của tinh thần tự giác trong học tập là gì?", "question_vi": "", "emoji": "📖", "options": ["Tự học không cần nhắc nhở", "Chỉ học khi bị ép", "Chép bài bạn", "Lười làm bài tập"], "answer": "Tự học không cần nhắc nhở", "explanation": "Tự giác là chủ động học tập, làm việc mà không cần ai nhắc.", "difficulty": 3}
+      ]
+    }
+  ]
+}

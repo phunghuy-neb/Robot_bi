@@ -1,0 +1,683 @@
+{
+  "subject": "biology",
+  "exams": [
+    {
+      "paper_id": "biology_exam_grade6_1",
+      "title": "Sinh học — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_co_ban",
+      "questions": [
+        {
+          "question": "Bộ phận nào của cây thực hiện quang hợp chủ yếu?",
+          "question_vi": "",
+          "emoji": "🍃",
+          "options": [
+            "lá",
+            "rễ",
+            "thân",
+            "hoa"
+          ],
+          "answer": "lá",
+          "explanation": "Lá chứa nhiều lục lạp nên là nơi quang hợp chủ yếu.",
+          "difficulty": 1
+        },
+        {
+          "question": "Cơ quan nào trong cơ thể người làm nhiệm vụ bơm máu?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "tim",
+            "phổi",
+            "gan",
+            "dạ dày"
+          ],
+          "answer": "tim",
+          "explanation": "Tim co bóp để bơm máu đi khắp cơ thể.",
+          "difficulty": 1
+        },
+        {
+          "question": "Loài vật nào sau đây là động vật có vú?",
+          "question_vi": "",
+          "emoji": "🐄",
+          "options": [
+            "con bò",
+            "con cá",
+            "con gà",
+            "con ếch"
+          ],
+          "answer": "con bò",
+          "explanation": "Bò là động vật có vú (đẻ con, nuôi con bằng sữa).",
+          "difficulty": 2
+        },
+        {
+          "question": "Thức ăn bắt đầu được tiêu hóa ở cơ quan nào?",
+          "question_vi": "",
+          "emoji": "👄",
+          "options": [
+            "miệng",
+            "dạ dày",
+            "ruột non",
+            "ruột già"
+          ],
+          "answer": "miệng",
+          "explanation": "Tiêu hóa bắt đầu ở miệng (nhai và nước bọt).",
+          "difficulty": 2
+        },
+        {
+          "question": "Cây cần những yếu tố nào để sống và phát triển?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": [
+            "ánh sáng, nước, không khí và chất dinh dưỡng",
+            "chỉ cần nước",
+            "chỉ cần ánh sáng",
+            "không cần gì cả"
+          ],
+          "answer": "ánh sáng, nước, không khí và chất dinh dưỡng",
+          "explanation": "Cây cần ánh sáng, nước, không khí (CO₂) và chất dinh dưỡng để sống.",
+          "difficulty": 1
+        },
+        {
+          "question": "Bộ phận nào giúp cá bơi và giữ thăng bằng trong nước?",
+          "question_vi": "",
+          "emoji": "🐟",
+          "options": [
+            "vây",
+            "mang",
+            "vảy",
+            "mắt"
+          ],
+          "answer": "vây",
+          "explanation": "Vây giúp cá bơi và giữ thăng bằng; mang dùng để hô hấp.",
+          "difficulty": 2
+        },
+        {
+          "question": "Con người hô hấp bằng cơ quan nào?",
+          "question_vi": "",
+          "emoji": "🫁",
+          "options": [
+            "phổi",
+            "mang",
+            "da",
+            "ruột"
+          ],
+          "answer": "phổi",
+          "explanation": "Con người hô hấp bằng phổi.",
+          "difficulty": 1
+        },
+        {
+          "question": "Loài nào sau đây là động vật ăn cỏ (ăn thực vật)?",
+          "question_vi": "",
+          "emoji": "🐃",
+          "options": [
+            "con trâu",
+            "con hổ",
+            "con sư tử",
+            "con cá sấu"
+          ],
+          "answer": "con trâu",
+          "explanation": "Trâu ăn cỏ; hổ, sư tử, cá sấu là động vật ăn thịt.",
+          "difficulty": 1
+        },
+        {
+          "question": "Hạt đậu nảy mầm cần điều kiện nào?",
+          "question_vi": "",
+          "emoji": "🌰",
+          "options": [
+            "độ ẩm, không khí và nhiệt độ thích hợp",
+            "ánh sáng mạnh và khô hạn",
+            "bóng tối hoàn toàn và lạnh giá",
+            "đất khô và không có nước"
+          ],
+          "answer": "độ ẩm, không khí và nhiệt độ thích hợp",
+          "explanation": "Hạt nảy mầm cần đủ độ ẩm, không khí (ô-xi) và nhiệt độ thích hợp.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "biology_exam_grade10_1",
+      "title": "Sinh học — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_thcs",
+      "questions": [
+        {
+          "question": "Đơn vị cấu tạo nên cơ thể sinh vật là gì?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "tế bào",
+            "mô",
+            "cơ quan",
+            "hệ cơ quan"
+          ],
+          "answer": "tế bào",
+          "explanation": "Tế bào là đơn vị cấu tạo cơ bản của cơ thể sinh vật.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bào quan nào thực hiện quang hợp ở tế bào thực vật?",
+          "question_vi": "",
+          "emoji": "🌿",
+          "options": [
+            "lục lạp",
+            "ti thể",
+            "nhân",
+            "ribôxôm"
+          ],
+          "answer": "lục lạp",
+          "explanation": "Lục lạp chứa diệp lục, là nơi diễn ra quang hợp.",
+          "difficulty": 2
+        },
+        {
+          "question": "Loại mạch nào đưa máu từ tim đến các cơ quan?",
+          "question_vi": "",
+          "emoji": "🩸",
+          "options": [
+            "động mạch",
+            "tĩnh mạch",
+            "mao mạch bạch huyết",
+            "ống tiêu hóa"
+          ],
+          "answer": "động mạch",
+          "explanation": "Động mạch dẫn máu từ tim đi đến các cơ quan; tĩnh mạch đưa máu về tim.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hô hấp ở tế bào tạo năng lượng và thải ra khí nào?",
+          "question_vi": "",
+          "emoji": "💨",
+          "options": [
+            "khí các-bô-níc (CO₂)",
+            "khí ô-xi (O₂)",
+            "khí ni-tơ (N₂)",
+            "khí hi-đro (H₂)"
+          ],
+          "answer": "khí các-bô-níc (CO₂)",
+          "explanation": "Hô hấp tế bào dùng O₂, tạo năng lượng và thải CO₂.",
+          "difficulty": 3
+        },
+        {
+          "question": "Ai đặt nền móng cho di truyền học với thí nghiệm trên cây đậu Hà Lan?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "Men-đen (Mendel)",
+            "Đác-uyn",
+            "La-mác",
+            "Páp-lốp"
+          ],
+          "answer": "Men-đen (Mendel)",
+          "explanation": "Mendel là cha đẻ của di truyền học qua các thí nghiệm trên đậu Hà Lan.",
+          "difficulty": 3
+        },
+        {
+          "question": "Cơ quan nào lọc máu và tạo ra nước tiểu?",
+          "question_vi": "",
+          "emoji": "🫘",
+          "options": [
+            "thận",
+            "gan",
+            "phổi",
+            "lá lách"
+          ],
+          "answer": "thận",
+          "explanation": "Thận lọc máu, tạo nước tiểu để bài tiết chất thải.",
+          "difficulty": 2
+        },
+        {
+          "question": "Sinh vật nào sau đây thuộc nhóm vi sinh vật?",
+          "question_vi": "",
+          "emoji": "🦠",
+          "options": [
+            "vi khuẩn",
+            "cây lúa",
+            "con voi",
+            "con cá"
+          ],
+          "answer": "vi khuẩn",
+          "explanation": "Vi khuẩn là vi sinh vật (kích thước rất nhỏ).",
+          "difficulty": 2
+        },
+        {
+          "question": "Chức năng chính của hệ thần kinh là gì?",
+          "question_vi": "",
+          "emoji": "🧠",
+          "options": [
+            "điều khiển và phối hợp hoạt động của các cơ quan",
+            "tiêu hóa thức ăn",
+            "vận chuyển máu",
+            "trao đổi khí"
+          ],
+          "answer": "điều khiển và phối hợp hoạt động của các cơ quan",
+          "explanation": "Hệ thần kinh điều khiển, điều hòa và phối hợp hoạt động của cơ thể.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "biology_exam_thpt_1",
+      "title": "Sinh học — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_thpt",
+      "questions": [
+        {
+          "question": "Vật chất di truyền ở cấp độ phân tử là gì?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "ADN",
+            "prôtêin",
+            "lipit",
+            "glucôzơ"
+          ],
+          "answer": "ADN",
+          "explanation": "ADN là vật chất mang thông tin di truyền ở cấp độ phân tử.",
+          "difficulty": 3
+        },
+        {
+          "question": "Quá trình tổng hợp prôtêin dựa trên thông tin của ARN gọi là gì?",
+          "question_vi": "",
+          "emoji": "🔗",
+          "options": [
+            "dịch mã",
+            "nhân đôi ADN",
+            "phiên mã",
+            "đột biến"
+          ],
+          "answer": "dịch mã",
+          "explanation": "Dịch mã (translation) là quá trình tổng hợp prôtêin từ mARN.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị phân loại cơ bản trong sinh giới là gì?",
+          "question_vi": "",
+          "emoji": "📚",
+          "options": [
+            "loài",
+            "giới",
+            "ngành",
+            "lớp"
+          ],
+          "answer": "loài",
+          "explanation": "Loài là đơn vị phân loại cơ bản.",
+          "difficulty": 3
+        },
+        {
+          "question": "Theo Đác-uyn, nhân tố chính dẫn đến tiến hóa là gì?",
+          "question_vi": "",
+          "emoji": "🐢",
+          "options": [
+            "chọn lọc tự nhiên",
+            "đột biến ngẫu nhiên duy nhất",
+            "ý muốn của sinh vật",
+            "môi trường không bao giờ thay đổi"
+          ],
+          "answer": "chọn lọc tự nhiên",
+          "explanation": "Đác-uyn cho rằng chọn lọc tự nhiên là động lực chính của tiến hóa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong hệ sinh thái, sinh vật sản xuất chủ yếu là nhóm nào?",
+          "question_vi": "",
+          "emoji": "🌳",
+          "options": [
+            "thực vật và các sinh vật quang hợp",
+            "động vật ăn thịt",
+            "nấm phân giải",
+            "vi khuẩn gây bệnh"
+          ],
+          "answer": "thực vật và các sinh vật quang hợp",
+          "explanation": "Sinh vật sản xuất là thực vật và sinh vật quang hợp tạo chất hữu cơ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nguyên phân tạo ra các tế bào con có bộ NST như thế nào so với tế bào mẹ?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "giống hệt tế bào mẹ (2n)",
+            "giảm một nửa (n)",
+            "gấp đôi (4n)",
+            "thay đổi ngẫu nhiên"
+          ],
+          "answer": "giống hệt tế bào mẹ (2n)",
+          "explanation": "Nguyên phân tạo tế bào con có bộ NST giống hệt tế bào mẹ (2n).",
+          "difficulty": 4
+        },
+        {
+          "question": "Hoocmôn insulin do cơ quan nào tiết ra để điều hòa đường huyết?",
+          "question_vi": "",
+          "emoji": "🩺",
+          "options": [
+            "tuyến tụy",
+            "tuyến giáp",
+            "gan",
+            "thận"
+          ],
+          "answer": "tuyến tụy",
+          "explanation": "Tuyến tụy tiết insulin để điều hòa lượng đường trong máu.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "biology_hsg_school_1",
+      "title": "Sinh học — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Nhóm máu nào ở người được gọi là “nhóm cho chung” (truyền được cho nhiều nhóm)?",
+          "question_vi": "",
+          "emoji": "🩸",
+          "options": [
+            "nhóm O",
+            "nhóm AB",
+            "nhóm A",
+            "nhóm B"
+          ],
+          "answer": "nhóm O",
+          "explanation": "Nhóm O là người cho chung; nhóm AB là người nhận chung.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bộ nhiễm sắc thể lưỡng bội (2n) của loài người là bao nhiêu?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "46",
+            "23",
+            "48",
+            "44"
+          ],
+          "answer": "46",
+          "explanation": "Người có bộ NST lưỡng bội 2n = 46.",
+          "difficulty": 3
+        },
+        {
+          "question": "Enzim có bản chất chủ yếu là gì?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": [
+            "prôtêin",
+            "lipit",
+            "cacbohiđrat",
+            "muối khoáng"
+          ],
+          "answer": "prôtêin",
+          "explanation": "Phần lớn enzim có bản chất là prôtêin.",
+          "difficulty": 4
+        },
+        {
+          "question": "Sự thoát hơi nước ở lá chủ yếu diễn ra qua bộ phận nào?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "khí khổng",
+            "gân lá",
+            "cuống lá",
+            "lớp cutin dày trên mặt lá"
+          ],
+          "answer": "khí khổng",
+          "explanation": "Thoát hơi nước chủ yếu qua khí khổng ở biểu bì lá.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hiện tượng các cá thể cùng loài hỗ trợ nhau (đàn trâu rừng) gọi là quan hệ gì?",
+          "question_vi": "",
+          "emoji": "🐃",
+          "options": [
+            "quan hệ hỗ trợ cùng loài",
+            "quan hệ cạnh tranh khác loài",
+            "quan hệ kí sinh",
+            "quan hệ ức chế – cảm nhiễm"
+          ],
+          "answer": "quan hệ hỗ trợ cùng loài",
+          "explanation": "Các cá thể cùng loài hỗ trợ nhau là quan hệ hỗ trợ cùng loài.",
+          "difficulty": 4
+        },
+        {
+          "question": "Phép lai phân tích dùng để xác định điều gì?",
+          "question_vi": "",
+          "emoji": "🧪",
+          "options": [
+            "kiểu gen của cá thể mang tính trạng trội",
+            "màu sắc của hoa",
+            "số lượng nhiễm sắc thể",
+            "tốc độ sinh trưởng"
+          ],
+          "answer": "kiểu gen của cá thể mang tính trạng trội",
+          "explanation": "Lai phân tích (lai với cá thể đồng hợp lặn) để xác định kiểu gen của cá thể trội.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "biology_hsg_district_1",
+      "title": "Sinh học — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_nang_cao",
+      "questions": [
+        {
+          "question": "Theo quy luật phân li, cơ thể dị hợp Aa khi giảm phân cho các giao tử như thế nào?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "hai loại giao tử A và a với tỉ lệ bằng nhau (1:1)",
+            "chỉ một loại giao tử",
+            "ba loại giao tử",
+            "bốn loại giao tử"
+          ],
+          "answer": "hai loại giao tử A và a với tỉ lệ bằng nhau (1:1)",
+          "explanation": "Cơ thể Aa giảm phân cho hai loại giao tử A và a với tỉ lệ 1:1.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đột biến gen là gì?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "những biến đổi trong cấu trúc của gen",
+            "sự thay đổi số lượng nhiễm sắc thể",
+            "sự lai giữa hai loài",
+            "sự di cư của cá thể"
+          ],
+          "answer": "những biến đổi trong cấu trúc của gen",
+          "explanation": "Đột biến gen là biến đổi trong cấu trúc của gen, thường liên quan một hoặc vài cặp nuclêôtit.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ở thực vật, mô phân sinh có chức năng gì?",
+          "question_vi": "",
+          "emoji": "🌱",
+          "options": [
+            "làm cho cây sinh trưởng (dài ra, to ra)",
+            "quang hợp tạo chất hữu cơ",
+            "hút nước và muối khoáng",
+            "dự trữ chất dinh dưỡng"
+          ],
+          "answer": "làm cho cây sinh trưởng (dài ra, to ra)",
+          "explanation": "Mô phân sinh gồm các tế bào phân chia liên tục giúp cây sinh trưởng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong hệ sinh thái, sinh vật phân giải (vi khuẩn, nấm) có vai trò gì?",
+          "question_vi": "",
+          "emoji": "🍄",
+          "options": [
+            "phân hủy xác sinh vật, trả lại chất vô cơ cho môi trường",
+            "tạo chất hữu cơ từ ánh sáng",
+            "săn bắt con mồi",
+            "chỉ gây bệnh cho sinh vật khác"
+          ],
+          "answer": "phân hủy xác sinh vật, trả lại chất vô cơ cho môi trường",
+          "explanation": "Sinh vật phân giải phân hủy xác chết, trả chất vô cơ về môi trường, khép kín chu trình vật chất.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hệ tuần hoàn của người thuộc dạng nào?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "hệ tuần hoàn kín",
+            "hệ tuần hoàn hở",
+            "không có hệ tuần hoàn",
+            "hệ tuần hoàn hở một vòng"
+          ],
+          "answer": "hệ tuần hoàn kín",
+          "explanation": "Người có hệ tuần hoàn kín (máu chảy trong mạch kín).",
+          "difficulty": 3
+        },
+        {
+          "question": "Cặp nhiễm sắc thể giới tính ở nữ giới (người) là gì?",
+          "question_vi": "",
+          "emoji": "♀️",
+          "options": [
+            "XX",
+            "XY",
+            "YY",
+            "XO"
+          ],
+          "answer": "XX",
+          "explanation": "Nữ giới có cặp NST giới tính XX, nam giới là XY.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "biology_hsg_province_1",
+      "title": "Sinh học — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "sinh_hoc_chuyen_sau",
+      "questions": [
+        {
+          "question": "Mã di truyền có tính thoái hóa nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "một axit amin có thể được mã hóa bởi nhiều bộ ba (codon)",
+            "một bộ ba mã hóa nhiều axit amin",
+            "mỗi gen chỉ có một codon",
+            "mã di truyền không có quy luật"
+          ],
+          "answer": "một axit amin có thể được mã hóa bởi nhiều bộ ba (codon)",
+          "explanation": "Tính thoái hóa: nhiều bộ ba khác nhau cùng mã hóa một axit amin.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ưu thế lai (con lai F1 vượt trội) thường biểu hiện rõ nhất ở thế hệ nào?",
+          "question_vi": "",
+          "emoji": "🌽",
+          "options": [
+            "F1",
+            "F2",
+            "F3",
+            "các thế hệ về sau"
+          ],
+          "answer": "F1",
+          "explanation": "Ưu thế lai biểu hiện cao nhất ở F1 rồi giảm dần qua các thế hệ tự thụ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong quang hợp, pha sáng diễn ra ở đâu trong lục lạp?",
+          "question_vi": "",
+          "emoji": "☀️",
+          "options": [
+            "màng tilacôit (grana)",
+            "chất nền strôma",
+            "ti thể",
+            "nhân tế bào"
+          ],
+          "answer": "màng tilacôit (grana)",
+          "explanation": "Pha sáng diễn ra ở màng tilacôit; pha tối (Calvin) ở chất nền strôma.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hội chứng Đao ở người là do thừa một nhiễm sắc thể số mấy?",
+          "question_vi": "",
+          "emoji": "🧬",
+          "options": [
+            "số 21",
+            "số 23",
+            "số 13",
+            "số 18"
+          ],
+          "answer": "số 21",
+          "explanation": "Hội chứng Đao do thừa một NST số 21 (thể ba nhiễm 21).",
+          "difficulty": 4
+        },
+        {
+          "question": "Quan hệ giữa cây tầm gửi sống bám và hút nhựa cây chủ là quan hệ gì?",
+          "question_vi": "",
+          "emoji": "🌿",
+          "options": [
+            "kí sinh",
+            "cộng sinh",
+            "hội sinh",
+            "cạnh tranh"
+          ],
+          "answer": "kí sinh",
+          "explanation": "Tầm gửi hút chất dinh dưỡng từ cây chủ, gây hại cho cây chủ — đó là quan hệ kí sinh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Ổ sinh thái của một loài là gì?",
+          "question_vi": "",
+          "emoji": "🌍",
+          "options": [
+            "không gian sinh thái mà ở đó các nhân tố sinh thái nằm trong giới hạn cho phép loài tồn tại và phát triển",
+            "nơi ở cố định của loài",
+            "thức ăn duy nhất của loài",
+            "vùng phân bố địa lý lớn nhất của loài"
+          ],
+          "answer": "không gian sinh thái mà ở đó các nhân tố sinh thái nằm trong giới hạn cho phép loài tồn tại và phát triển",
+          "explanation": "Ổ sinh thái là “không gian sinh thái” mà ở đó tổ hợp các nhân tố sinh thái phù hợp cho loài tồn tại và phát triển.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

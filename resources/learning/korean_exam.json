@@ -1,0 +1,683 @@
+{
+  "subject": "korean",
+  "exams": [
+    {
+      "paper_id": "korean_exam_grade6_1",
+      "title": "Tiếng Hàn — Sơ cấp (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_so_cap",
+      "questions": [
+        {
+          "question": "“안녕하세요” (annyeonghaseyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "Xin chào",
+            "Tạm biệt",
+            "Cảm ơn",
+            "Xin lỗi"
+          ],
+          "answer": "Xin chào",
+          "explanation": "“안녕하세요” là lời chào “Xin chào” lịch sự.",
+          "difficulty": 1
+        },
+        {
+          "question": "“감사합니다” (gamsahamnida) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn",
+            "Xin chào",
+            "Tạm biệt",
+            "Vâng"
+          ],
+          "answer": "Cảm ơn",
+          "explanation": "“감사합니다” nghĩa là “Cảm ơn” (lịch sự).",
+          "difficulty": 1
+        },
+        {
+          "question": "Bảng chữ cái của tiếng Hàn gọi là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "Hangul (Hangeul)",
+            "Kanji",
+            "Pinyin",
+            "Romaji"
+          ],
+          "answer": "Hangul (Hangeul)",
+          "explanation": "Bảng chữ cái tiếng Hàn gọi là Hangul.",
+          "difficulty": 2
+        },
+        {
+          "question": "“네” (ne) trong tiếng Hàn có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "Vâng / Có",
+            "Không",
+            "Cảm ơn",
+            "Xin chào"
+          ],
+          "answer": "Vâng / Có",
+          "explanation": "“네” (ne) nghĩa là “Vâng / Có”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“아니요” (aniyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙅",
+          "options": [
+            "Không",
+            "Vâng",
+            "Cảm ơn",
+            "Tạm biệt"
+          ],
+          "answer": "Không",
+          "explanation": "“아니요” (aniyo) nghĩa là “Không”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Bảng chữ Hangul do vị vua nào của Triều Tiên sáng tạo?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "Vua Sejong (Thế Tông)",
+            "Vua Gojong",
+            "Vua Taejo",
+            "Vua Yeongjo"
+          ],
+          "answer": "Vua Sejong (Thế Tông)",
+          "explanation": "Vua Sejong (Thế Tông) cho sáng tạo bảng chữ Hangul.",
+          "difficulty": 2
+        },
+        {
+          "question": "“사랑” (sarang) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "tình yêu",
+            "gia đình",
+            "bạn bè",
+            "trường học"
+          ],
+          "answer": "tình yêu",
+          "explanation": "“사랑” (sarang) nghĩa là “tình yêu”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“물” (mul) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "nước",
+            "lửa",
+            "cơm",
+            "trà"
+          ],
+          "answer": "nước",
+          "explanation": "“물” (mul) nghĩa là “nước”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“학교” (hakgyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🏫",
+          "options": [
+            "trường học",
+            "bệnh viện",
+            "chợ",
+            "công viên"
+          ],
+          "answer": "trường học",
+          "explanation": "“학교” (hakgyo) nghĩa là “trường học”.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_exam_grade10_1",
+      "title": "Tiếng Hàn — Sơ–trung cấp (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_trung_cap",
+      "questions": [
+        {
+          "question": "“저” / “나” (jeo / na) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙋",
+          "options": [
+            "tôi",
+            "bạn",
+            "anh ấy",
+            "chúng tôi"
+          ],
+          "answer": "tôi",
+          "explanation": "“저/나” nghĩa là “tôi”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“학생” (haksaeng) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🎒",
+          "options": [
+            "học sinh",
+            "giáo viên",
+            "bác sĩ",
+            "công nhân"
+          ],
+          "answer": "học sinh",
+          "explanation": "“학생” (haksaeng) nghĩa là “học sinh”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“선생님” (seonsaengnim) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👩‍🏫",
+          "options": [
+            "giáo viên / thầy cô",
+            "học sinh",
+            "bạn bè",
+            "bố"
+          ],
+          "answer": "giáo viên / thầy cô",
+          "explanation": "“선생님” (seonsaengnim) nghĩa là “thầy/cô giáo”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“한국” (Hanguk) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🇰🇷",
+          "options": [
+            "Hàn Quốc",
+            "Nhật Bản",
+            "Trung Quốc",
+            "Việt Nam"
+          ],
+          "answer": "Hàn Quốc",
+          "explanation": "“한국” (Hanguk) nghĩa là “Hàn Quốc”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bảng chữ Hangul gồm khoảng bao nhiêu chữ cái cơ bản?",
+          "question_vi": "",
+          "emoji": "🔡",
+          "options": [
+            "24 chữ cái cơ bản",
+            "50 chữ",
+            "100 chữ",
+            "10 chữ"
+          ],
+          "answer": "24 chữ cái cơ bản",
+          "explanation": "Hangul có 24 chữ cái cơ bản (14 phụ âm + 10 nguyên âm).",
+          "difficulty": 3
+        },
+        {
+          "question": "“감사합니다” và “고맙습니다” đều có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn",
+            "Xin lỗi",
+            "Xin chào",
+            "Tạm biệt"
+          ],
+          "answer": "Cảm ơn",
+          "explanation": "Cả hai đều có nghĩa “Cảm ơn”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“밥” (bap) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": [
+            "cơm",
+            "nước",
+            "bánh mì",
+            "sữa"
+          ],
+          "answer": "cơm",
+          "explanation": "“밥” (bap) nghĩa là “cơm”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“친구” (chingu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🧑‍🤝‍🧑",
+          "options": [
+            "bạn bè",
+            "gia đình",
+            "thầy giáo",
+            "hàng xóm"
+          ],
+          "answer": "bạn bè",
+          "explanation": "“친구” (chingu) nghĩa là “bạn bè”.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_exam_thpt_1",
+      "title": "Tiếng Hàn — Trung cấp (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_thpt",
+      "questions": [
+        {
+          "question": "“안녕히 가세요” (annyeonghi gaseyo) được dùng khi nào?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "chào tạm biệt người ra về (khi mình ở lại)",
+            "chào khi gặp mặt",
+            "cảm ơn",
+            "xin lỗi"
+          ],
+          "answer": "chào tạm biệt người ra về (khi mình ở lại)",
+          "explanation": "“안녕히 가세요” là lời chào tạm biệt người ra về (người nói ở lại).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trật tự câu cơ bản trong tiếng Hàn là gì?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "Chủ ngữ – Tân ngữ – Động từ (S–O–V)",
+            "S–V–O",
+            "V–S–O",
+            "O–S–V"
+          ],
+          "answer": "Chủ ngữ – Tân ngữ – Động từ (S–O–V)",
+          "explanation": "Tiếng Hàn có trật tự câu cơ bản S–O–V (động từ đứng cuối).",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị tiền tệ của Hàn Quốc là gì?",
+          "question_vi": "",
+          "emoji": "💰",
+          "options": [
+            "Won (₩)",
+            "Yên",
+            "Nhân dân tệ",
+            "Đô la"
+          ],
+          "answer": "Won (₩)",
+          "explanation": "Đơn vị tiền tệ của Hàn Quốc là Won (₩).",
+          "difficulty": 2
+        },
+        {
+          "question": "“이름이 뭐예요?” (Ireumi mwoyeyo?) dùng để hỏi điều gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "hỏi tên",
+            "hỏi tuổi",
+            "hỏi giờ",
+            "hỏi giá tiền"
+          ],
+          "answer": "hỏi tên",
+          "explanation": "Câu này hỏi “Tên (bạn) là gì?”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tiếng Hàn có hệ thống kính ngữ (lối nói lịch sự) không?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "có, rất phát triển",
+            "không có",
+            "chỉ có một cách nói duy nhất",
+            "chỉ dùng cho người nước ngoài"
+          ],
+          "answer": "có, rất phát triển",
+          "explanation": "Tiếng Hàn có hệ thống kính ngữ rất phát triển theo quan hệ và mức tôn trọng.",
+          "difficulty": 4
+        },
+        {
+          "question": "“사랑해요” (saranghaeyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❤️",
+          "options": [
+            "Em/anh yêu",
+            "Cảm ơn",
+            "Xin lỗi",
+            "Tạm biệt"
+          ],
+          "answer": "Em/anh yêu",
+          "explanation": "“사랑해요” nghĩa là “(Tôi) yêu (bạn)”.",
+          "difficulty": 3
+        },
+        {
+          "question": "“맛있어요” (masisseoyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "😋",
+          "options": [
+            "ngon",
+            "đẹp",
+            "đắt",
+            "nhanh"
+          ],
+          "answer": "ngon",
+          "explanation": "“맛있어요” nghĩa là “ngon”.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_hsg_school_1",
+      "title": "Tiếng Hàn — Nâng cao cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_nang_cao",
+      "questions": [
+        {
+          "question": "Trong Hangul, một âm tiết (khối chữ) thường được tạo thành thế nào?",
+          "question_vi": "",
+          "emoji": "🔠",
+          "options": [
+            "phụ âm và nguyên âm ghép lại thành một khối",
+            "một chữ cái luôn đứng riêng lẻ",
+            "chỉ gồm nguyên âm",
+            "chỉ gồm phụ âm"
+          ],
+          "answer": "phụ âm và nguyên âm ghép lại thành một khối",
+          "explanation": "Mỗi âm tiết Hangul ghép phụ âm và nguyên âm thành một khối vuông.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hangul được công bố/ban hành vào thế kỷ nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "thế kỷ 15",
+            "thế kỷ 10",
+            "thế kỷ 19",
+            "thế kỷ 20"
+          ],
+          "answer": "thế kỷ 15",
+          "explanation": "Hangul được vua Sejong ban hành vào thế kỷ 15 (năm 1446).",
+          "difficulty": 4
+        },
+        {
+          "question": "Đuôi “-요” (-yo) ở cuối câu tiếng Hàn thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🙂",
+          "options": [
+            "sắc thái lịch sự (thân mật – lịch sự)",
+            "mệnh lệnh thô",
+            "phủ định",
+            "số nhiều"
+          ],
+          "answer": "sắc thái lịch sự (thân mật – lịch sự)",
+          "explanation": "Đuôi “-요” tạo sắc thái lịch sự, thân thiện cho câu nói.",
+          "difficulty": 4
+        },
+        {
+          "question": "Số “하나” (hana) trong tiếng Hàn (số đếm thuần Hàn) là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": [
+            "1 (một)",
+            "2",
+            "3",
+            "10"
+          ],
+          "answer": "1 (một)",
+          "explanation": "“하나” (hana) là số 1 (số thuần Hàn).",
+          "difficulty": 3
+        },
+        {
+          "question": "“물 주세요” (Mul juseyo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "Cho tôi (xin) nước",
+            "Tôi không uống nước",
+            "Nước ở đâu",
+            "Cảm ơn"
+          ],
+          "answer": "Cho tôi (xin) nước",
+          "explanation": "“물 주세요” nghĩa là “Cho tôi xin nước”.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kỳ thi năng lực tiếng Hàn quốc tế phổ biến tên là gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "TOPIK",
+            "JLPT",
+            "HSK",
+            "TOEIC"
+          ],
+          "answer": "TOPIK",
+          "explanation": "TOPIK (Test of Proficiency in Korean) là kỳ thi năng lực tiếng Hàn quốc tế.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_hsg_district_1",
+      "title": "Tiếng Hàn — Nâng cao cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_nang_cao",
+      "questions": [
+        {
+          "question": "Trợ từ chủ ngữ trong tiếng Hàn là cặp nào?",
+          "question_vi": "",
+          "emoji": "🔖",
+          "options": [
+            "-이 / -가",
+            "-을 / -를",
+            "-에 / -에서",
+            "-와 / -과"
+          ],
+          "answer": "-이 / -가",
+          "explanation": "Trợ từ chủ ngữ trong tiếng Hàn là -이 / -가.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trợ từ tân ngữ (đánh dấu tân ngữ trực tiếp) trong tiếng Hàn là cặp nào?",
+          "question_vi": "",
+          "emoji": "🔖",
+          "options": [
+            "-을 / -를",
+            "-이 / -가",
+            "-은 / -는",
+            "-도"
+          ],
+          "answer": "-을 / -를",
+          "explanation": "Trợ từ tân ngữ trực tiếp trong tiếng Hàn là -을 / -를.",
+          "difficulty": 4
+        },
+        {
+          "question": "“사과” (sagwa) có nghĩa thông dụng là loại trái cây nào?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": [
+            "quả táo",
+            "quả cam",
+            "quả chuối",
+            "quả nho"
+          ],
+          "answer": "quả táo",
+          "explanation": "“사과” (sagwa) thường nghĩa là “quả táo”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Số “둘” (dul) trong tiếng Hàn (số đếm thuần Hàn) là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": [
+            "2 (hai)",
+            "1",
+            "3",
+            "4"
+          ],
+          "answer": "2 (hai)",
+          "explanation": "“둘” (dul) là số 2 (số thuần Hàn).",
+          "difficulty": 3
+        },
+        {
+          "question": "“비빔밥” (bibimbap) là gì?",
+          "question_vi": "",
+          "emoji": "🍲",
+          "options": [
+            "một món ăn Hàn Quốc (cơm trộn)",
+            "một điệu nhảy",
+            "một loại chữ viết",
+            "một thành phố"
+          ],
+          "answer": "một món ăn Hàn Quốc (cơm trộn)",
+          "explanation": "“비빔밥” (bibimbap) là món cơm trộn nổi tiếng của Hàn Quốc.",
+          "difficulty": 3
+        },
+        {
+          "question": "“한국어” (hangugeo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🗣️",
+          "options": [
+            "tiếng Hàn",
+            "tiếng Nhật",
+            "tiếng Trung",
+            "tiếng Anh"
+          ],
+          "answer": "tiếng Hàn",
+          "explanation": "“한국어” (hangugeo) nghĩa là “tiếng Hàn”.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "korean_hsg_province_1",
+      "title": "Tiếng Hàn — Nâng cao cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_han_chuyen_sau",
+      "questions": [
+        {
+          "question": "Vua Sejong cho sáng tạo Hangul với mục đích chính nào?",
+          "question_vi": "",
+          "emoji": "👑",
+          "options": [
+            "giúp dân thường dễ học chữ, biết đọc biết viết",
+            "thay thế tiếng nói",
+            "chỉ dùng cho quý tộc",
+            "chỉ để giao thương"
+          ],
+          "answer": "giúp dân thường dễ học chữ, biết đọc biết viết",
+          "explanation": "Hangul được tạo ra để dân thường dễ học, dễ đọc viết (trước đó dùng chữ Hán khó học).",
+          "difficulty": 4
+        },
+        {
+          "question": "Đặc điểm nào khiến Hangul được đánh giá là hệ chữ khoa học?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": [
+            "hình dạng phụ âm mô phỏng vị trí phát âm của cơ quan phát âm",
+            "mỗi chữ là một bức tranh",
+            "vay mượn từ chữ Latinh",
+            "không có nguyên âm"
+          ],
+          "answer": "hình dạng phụ âm mô phỏng vị trí phát âm của cơ quan phát âm",
+          "explanation": "Phụ âm Hangul được thiết kế mô phỏng hình dạng cơ quan phát âm — rất khoa học.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong tiếng Hàn, kính ngữ thay đổi chủ yếu theo yếu tố nào?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "mối quan hệ và mức độ tôn trọng giữa người nói và người nghe",
+            "màu sắc",
+            "thời tiết",
+            "số đếm"
+          ],
+          "answer": "mối quan hệ và mức độ tôn trọng giữa người nói và người nghe",
+          "explanation": "Kính ngữ tiếng Hàn thay đổi theo quan hệ và mức độ tôn trọng giữa người nói và người nghe.",
+          "difficulty": 4
+        },
+        {
+          "question": "“감사합니다” thuộc cấp độ lịch sự nào so với “고마워” (gomawo)?",
+          "question_vi": "",
+          "emoji": "🎚️",
+          "options": [
+            "trang trọng / lịch sự hơn",
+            "thân mật hơn",
+            "giống hệt nhau",
+            "thô lỗ hơn"
+          ],
+          "answer": "trang trọng / lịch sự hơn",
+          "explanation": "“감사합니다” trang trọng hơn “고마워” (cách nói thân mật).",
+          "difficulty": 4
+        },
+        {
+          "question": "Hangul ban đầu được vua Sejong đặt tên là gì?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "Hunminjeongeum (Huấn dân chính âm)",
+            "Hanja",
+            "Romaja",
+            "Gugyeol"
+          ],
+          "answer": "Hunminjeongeum (Huấn dân chính âm)",
+          "explanation": "Hangul ban đầu mang tên “Hunminjeongeum” (Huấn dân chính âm).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong tiếng Hàn, động từ và tính từ khi chia thường biến đổi ở phần nào?",
+          "question_vi": "",
+          "emoji": "🔧",
+          "options": [
+            "đuôi (phần kết thúc của từ)",
+            "phần đầu từ",
+            "phần giữa luôn cố định",
+            "không bao giờ biến đổi"
+          ],
+          "answer": "đuôi (phần kết thúc của từ)",
+          "explanation": "Động từ/tính từ tiếng Hàn chia bằng cách biến đổi phần đuôi của từ.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

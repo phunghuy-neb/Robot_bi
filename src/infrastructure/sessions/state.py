@@ -38,32 +38,38 @@ def _normalize_family_id(family_id: Optional[str] = None) -> str:
 # ── WebSocket Connection Manager ──────────────────────────────────────────────
 
 class ConnectionManager:
-    """Thread-safe manager cho danh sách WebSocket clients."""
+    """Quản lý danh sách WebSocket clients. Mọi coroutine ở đây chạy trên 1 event
+    loop API duy nhất; broadcast từ thread khác đi qua run_coroutine_threadsafe."""
 
     def __init__(self):
         self._clients: list[WebSocket] = []
-        self._client_families: dict[int, str] = {}
+        # Khóa bằng CHÍNH object WebSocket (không phải id()) → tránh id-reuse aliasing
+        # gán nhầm family cho client mới sau khi object cũ bị GC.
+        self._client_families: dict[WebSocket, str] = {}
 
     async def connect(self, ws: WebSocket, family_id: Optional[str] = None) -> None:
         await ws.accept()
         self._clients.append(ws)
-        self._client_families[id(ws)] = _normalize_family_id(family_id)
+        self._client_families[ws] = _normalize_family_id(family_id)
         logger.info("[WS] Client kết nối. Tổng: %d", len(self._clients))
 
     def disconnect(self, ws: WebSocket) -> None:
         if ws in self._clients:
             self._clients.remove(ws)
-        self._client_families.pop(id(ws), None)
+        self._client_families.pop(ws, None)
         logger.info("[WS] Client ngắt kết nối. Tổng: %d", len(self._clients))
 
     async def broadcast(self, data: dict, family_id: Optional[str] = None) -> None:
-        """Gửi JSON tới tất cả clients; tự loại bỏ client chết."""
+        """Gửi JSON tới clients CỦA ĐÚNG GIA ĐÌNH; tự loại bỏ client chết.
+        FAIL-CLOSED: thiếu family_id → KHÔNG phát (tránh rò nội dung sang gia đình khác)."""
+        raw_family = family_id or data.get("family_id")
+        if not raw_family:
+            logger.warning("[WS] broadcast thiếu family_id → bỏ qua (fail-closed)")
+            return
+        target_family = _normalize_family_id(raw_family)
         dead = []
-        target_family = _normalize_family_id(family_id or data.get("family_id")) if (
-            family_id or data.get("family_id")
-        ) else None
         for client in list(self._clients):
-            if target_family and self._client_families.get(id(client)) != target_family:
+            if self._client_families.get(client) != target_family:
                 continue
             try:
                 await client.send_json(data)
@@ -72,7 +78,7 @@ class ConnectionManager:
         for c in dead:
             if c in self._clients:
                 self._clients.remove(c)
-            self._client_families.pop(id(c), None)
+            self._client_families.pop(c, None)
 
     @property
     def count(self) -> int:
@@ -90,7 +96,7 @@ def _event_row_to_dict(row) -> dict:
         parsed_metadata = json.loads(metadata) if metadata else {}
     except Exception:
         parsed_metadata = {}
-    return {
+    event = {
         "id": row["event_id"],
         "family_id": row["family_id"],
         "timestamp": row["timestamp"],
@@ -100,36 +106,131 @@ def _event_row_to_dict(row) -> dict:
         "metadata": parsed_metadata,
         "read": bool(row["is_read"]),
     }
+    if hasattr(row, "keys") and "note_count" in row.keys():
+        event["note_count"] = int(row["note_count"] or 0)
+    return event
+
+
+def _event_filter_sql(
+    *,
+    family_id: Optional[str] = None,
+    event_type: Optional[str] = None,
+    event_types: Optional[list[str]] = None,
+    unread_only: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    has_clip: Optional[bool] = None,
+    has_note: Optional[bool] = None,
+    q: Optional[str] = None,
+) -> tuple[str, list]:
+    where_parts = ["e.family_id = ?"]
+    params = [_normalize_family_id(family_id)]
+
+    if event_type:
+        where_parts.append("e.type = ?")
+        params.append(event_type)
+    elif event_types:
+        clean_types = [value for value in event_types if value]
+        if clean_types:
+            placeholders = ",".join("?" for _ in clean_types)
+            where_parts.append(f"e.type IN ({placeholders})")
+            params.extend(clean_types)
+
+    if unread_only:
+        where_parts.append("e.is_read = 0")
+    if start_date:
+        where_parts.append("date(e.timestamp) >= ?")
+        params.append(start_date)
+    if end_date:
+        where_parts.append("date(e.timestamp) <= ?")
+        params.append(end_date)
+    if has_clip is True:
+        where_parts.append("(e.clip_path IS NOT NULL AND e.clip_path != '')")
+    elif has_clip is False:
+        where_parts.append("(e.clip_path IS NULL OR e.clip_path = '')")
+    if has_note is True:
+        where_parts.append(
+            """
+            EXISTS (
+                SELECT 1 FROM parent_event_notes n
+                WHERE n.family_id = e.family_id AND n.event_id = e.event_id
+            )
+            """
+        )
+    elif has_note is False:
+        where_parts.append(
+            """
+            NOT EXISTS (
+                SELECT 1 FROM parent_event_notes n
+                WHERE n.family_id = e.family_id AND n.event_id = e.event_id
+            )
+            """
+        )
+    if q:
+        needle = f"%{q.strip()}%"
+        where_parts.append(
+            """
+            (
+                e.message LIKE ?
+                OR e.type LIKE ?
+                OR e.metadata_json LIKE ?
+            )
+            """
+        )
+        params.extend([needle, needle, needle])
+
+    return f"WHERE {' AND '.join(where_parts)}", params
 
 
 def _fetch_events_from_db(
     event_type: Optional[str] = None,
+    event_types: Optional[list[str]] = None,
     unread_only: bool = False,
     limit: Optional[int] = None,
+    offset: int = 0,
     newest_first: bool = False,
     family_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    has_clip: Optional[bool] = None,
+    has_note: Optional[bool] = None,
+    q: Optional[str] = None,
+    include_note_count: bool = False,
 ):
     from src.infrastructure.database.db import get_db_connection
-    where_parts = ["family_id = ?"]
-    params = [_normalize_family_id(family_id)]
-
-    if event_type:
-        where_parts.append("type = ?")
-        params.append(event_type)
-    if unread_only:
-        where_parts.append("is_read = 0")
-
-    where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
+    where_sql, params = _event_filter_sql(
+        family_id=family_id,
+        event_type=event_type,
+        event_types=event_types,
+        unread_only=unread_only,
+        start_date=start_date,
+        end_date=end_date,
+        has_clip=has_clip,
+        has_note=has_note,
+        q=q,
+    )
     order_sql = "DESC" if newest_first else "ASC"
-    limit_sql = " LIMIT ?" if limit is not None else ""
+    note_count_sql = ""
+    if include_note_count:
+        note_count_sql = """
+            , (
+                SELECT COUNT(*) FROM parent_event_notes n
+                WHERE n.family_id = e.family_id AND n.event_id = e.event_id
+            ) AS note_count
+        """
+    limit_sql = ""
     if limit is not None:
+        limit_sql = " LIMIT ? OFFSET ?"
         params.append(limit)
+        params.append(max(0, int(offset or 0)))
 
     query = f"""
-        SELECT family_id, event_id, timestamp, type, message, clip_path, metadata_json, is_read
-        FROM events
+        SELECT e.family_id, e.event_id, e.timestamp, e.type, e.message,
+               e.clip_path, e.metadata_json, e.is_read
+               {note_count_sql}
+        FROM events e
         {where_sql}
-        ORDER BY db_id {order_sql}{limit_sql}
+        ORDER BY e.db_id {order_sql}{limit_sql}
     """
     with get_db_connection() as conn:
         rows = conn.execute(query, tuple(params)).fetchall()
@@ -138,21 +239,28 @@ def _fetch_events_from_db(
 
 def _count_events_from_db(
     event_type: Optional[str] = None,
+    event_types: Optional[list[str]] = None,
     unread_only: bool = False,
     family_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    has_clip: Optional[bool] = None,
+    has_note: Optional[bool] = None,
+    q: Optional[str] = None,
 ) -> int:
     from src.infrastructure.database.db import get_db_connection
-    where_parts = ["family_id = ?"]
-    params = [_normalize_family_id(family_id)]
-
-    if event_type:
-        where_parts.append("type = ?")
-        params.append(event_type)
-    if unread_only:
-        where_parts.append("is_read = 0")
-
-    where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
-    query = f"SELECT COUNT(*) AS total FROM events {where_sql}"
+    where_sql, params = _event_filter_sql(
+        family_id=family_id,
+        event_type=event_type,
+        event_types=event_types,
+        unread_only=unread_only,
+        start_date=start_date,
+        end_date=end_date,
+        has_clip=has_clip,
+        has_note=has_note,
+        q=q,
+    )
+    query = f"SELECT COUNT(*) AS total FROM events e {where_sql}"
     with get_db_connection() as conn:
         row = conn.execute(query, tuple(params)).fetchone()
     return int(row["total"]) if row else 0

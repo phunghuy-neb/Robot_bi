@@ -1,0 +1,683 @@
+{
+  "subject": "music",
+  "exams": [
+    {
+      "paper_id": "music_exam_grade6_1",
+      "title": "Âm nhạc — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_co_ban",
+      "questions": [
+        {
+          "question": "Có bao nhiêu nốt nhạc cơ bản trong âm nhạc?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "7 nốt (Đồ Rê Mi Pha Son La Si)",
+            "5 nốt",
+            "10 nốt",
+            "12 nốt"
+          ],
+          "answer": "7 nốt (Đồ Rê Mi Pha Son La Si)",
+          "explanation": "Có 7 nốt nhạc cơ bản: Đồ, Rê, Mi, Pha, Son, La, Si.",
+          "difficulty": 1
+        },
+        {
+          "question": "Nốt nhạc đầu tiên trong gam Đô trưởng là nốt gì?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "Đồ (Do)",
+            "Rê (Re)",
+            "Mi",
+            "Son"
+          ],
+          "answer": "Đồ (Do)",
+          "explanation": "Gam Đô trưởng bắt đầu từ nốt Đồ (Do).",
+          "difficulty": 1
+        },
+        {
+          "question": "Nhạc cụ nào sau đây là nhạc cụ dân tộc Việt Nam?",
+          "question_vi": "",
+          "emoji": "🪕",
+          "options": [
+            "đàn bầu",
+            "đàn piano",
+            "đàn ghi-ta điện",
+            "kèn saxophone"
+          ],
+          "answer": "đàn bầu",
+          "explanation": "Đàn bầu là nhạc cụ dân tộc đặc trưng của Việt Nam.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trống thuộc nhóm nhạc cụ nào?",
+          "question_vi": "",
+          "emoji": "🥁",
+          "options": [
+            "bộ gõ",
+            "bộ dây",
+            "bộ hơi",
+            "bộ phím"
+          ],
+          "answer": "bộ gõ",
+          "explanation": "Trống thuộc bộ gõ (tạo âm khi bị gõ/đập).",
+          "difficulty": 1
+        },
+        {
+          "question": "Quốc ca của Việt Nam có tên là gì?",
+          "question_vi": "",
+          "emoji": "🇻🇳",
+          "options": [
+            "Tiến quân ca",
+            "Như có Bác Hồ trong ngày vui đại thắng",
+            "Lên đàng",
+            "Quốc tế ca"
+          ],
+          "answer": "Tiến quân ca",
+          "explanation": "Quốc ca Việt Nam là bài “Tiến quân ca”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Người sáng tác bài “Tiến quân ca” là ai?",
+          "question_vi": "",
+          "emoji": "✍️",
+          "options": [
+            "Văn Cao",
+            "Trịnh Công Sơn",
+            "Phạm Tuyên",
+            "Hoàng Vân"
+          ],
+          "answer": "Văn Cao",
+          "explanation": "Nhạc sĩ Văn Cao sáng tác “Tiến quân ca”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi hát, để giọng hay và khỏe ta cần làm gì?",
+          "question_vi": "",
+          "emoji": "🎤",
+          "options": [
+            "lấy hơi đúng cách và hát rõ lời",
+            "hét thật to",
+            "hát khi đang ăn",
+            "bịt mũi khi hát"
+          ],
+          "answer": "lấy hơi đúng cách và hát rõ lời",
+          "explanation": "Hát hay cần lấy hơi đúng cách, hát rõ lời, không gắng sức.",
+          "difficulty": 2
+        },
+        {
+          "question": "Đàn piano thuộc nhóm nhạc cụ nào?",
+          "question_vi": "",
+          "emoji": "🎹",
+          "options": [
+            "bộ phím (keyboard)",
+            "bộ gõ thuần túy",
+            "bộ dây gảy",
+            "bộ hơi"
+          ],
+          "answer": "bộ phím (keyboard)",
+          "explanation": "Piano được xếp vào nhóm nhạc cụ bộ phím (keyboard).",
+          "difficulty": 2
+        },
+        {
+          "question": "Nhịp 2/4 có nghĩa là mỗi ô nhịp có mấy phách?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": [
+            "2 phách",
+            "4 phách",
+            "3 phách",
+            "1 phách"
+          ],
+          "answer": "2 phách",
+          "explanation": "Nhịp 2/4 có 2 phách trong mỗi ô nhịp, mỗi phách bằng một nốt đen.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "music_exam_grade10_1",
+      "title": "Âm nhạc — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_thcs",
+      "questions": [
+        {
+          "question": "Khuông nhạc gồm bao nhiêu dòng kẻ song song?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "5 dòng",
+            "4 dòng",
+            "6 dòng",
+            "7 dòng"
+          ],
+          "answer": "5 dòng",
+          "explanation": "Khuông nhạc gồm 5 dòng kẻ song song và 4 khe.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dấu hóa nào làm nốt nhạc tăng lên nửa cung?",
+          "question_vi": "",
+          "emoji": "♯",
+          "options": [
+            "dấu thăng (#)",
+            "dấu giáng (♭)",
+            "dấu bình (♮)",
+            "dấu lặng"
+          ],
+          "answer": "dấu thăng (#)",
+          "explanation": "Dấu thăng (#) làm nốt tăng lên nửa cung.",
+          "difficulty": 3
+        },
+        {
+          "question": "Dấu hóa nào làm nốt nhạc giảm xuống nửa cung?",
+          "question_vi": "",
+          "emoji": "♭",
+          "options": [
+            "dấu giáng (♭)",
+            "dấu thăng (#)",
+            "dấu bình (♮)",
+            "dấu nối"
+          ],
+          "answer": "dấu giáng (♭)",
+          "explanation": "Dấu giáng (♭) làm nốt giảm xuống nửa cung.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhịp 4/4 (nhịp C) có mấy phách trong một ô nhịp?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "4 phách",
+            "2 phách",
+            "3 phách",
+            "6 phách"
+          ],
+          "answer": "4 phách",
+          "explanation": "Nhịp 4/4 có 4 phách trong một ô nhịp.",
+          "difficulty": 2
+        },
+        {
+          "question": "Nhạc cụ nào sau đây thuộc bộ dây?",
+          "question_vi": "",
+          "emoji": "🎻",
+          "options": [
+            "đàn vi-ô-lông (violin)",
+            "trống",
+            "sáo",
+            "kèn trumpet"
+          ],
+          "answer": "đàn vi-ô-lông (violin)",
+          "explanation": "Violin (vĩ cầm) thuộc bộ dây.",
+          "difficulty": 2
+        },
+        {
+          "question": "Sáo trúc là nhạc cụ thuộc bộ nào?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": [
+            "bộ hơi",
+            "bộ gõ",
+            "bộ dây",
+            "bộ phím"
+          ],
+          "answer": "bộ hơi",
+          "explanation": "Sáo trúc thuộc bộ hơi (tạo âm bằng luồng hơi thổi).",
+          "difficulty": 2
+        },
+        {
+          "question": "Khoảng cách giữa hai nốt cùng tên liền kề (Đồ thấp đến Đồ cao) gọi là gì?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "một quãng tám (octave)",
+            "một cung",
+            "nửa cung",
+            "một phách"
+          ],
+          "answer": "một quãng tám (octave)",
+          "explanation": "Hai nốt cùng tên liền kề cách nhau một quãng tám (octave).",
+          "difficulty": 3
+        },
+        {
+          "question": "Cường độ “f” (forte) trong âm nhạc có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🔊",
+          "options": [
+            "hát/chơi to, mạnh",
+            "hát nhỏ",
+            "hát nhanh",
+            "hát chậm"
+          ],
+          "answer": "hát/chơi to, mạnh",
+          "explanation": "Forte (f) nghĩa là to, mạnh.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "music_exam_thpt_1",
+      "title": "Âm nhạc — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_thpt",
+      "questions": [
+        {
+          "question": "Một gam trưởng cơ bản gồm bao nhiêu nốt (không tính nốt lặp ở quãng tám)?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "7 nốt",
+            "5 nốt",
+            "8 nốt",
+            "12 nốt"
+          ],
+          "answer": "7 nốt",
+          "explanation": "Gam trưởng cơ bản có 7 bậc (nốt) khác nhau.",
+          "difficulty": 3
+        },
+        {
+          "question": "Trong gam Đô trưởng (C major), không có nốt nào bị thăng hoặc giáng. Điều này đúng hay sai?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "đúng",
+            "sai",
+            "chỉ đúng một nửa",
+            "không xác định"
+          ],
+          "answer": "đúng",
+          "explanation": "Gam Đô trưởng gồm các nốt tự nhiên, không có dấu thăng/giáng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hợp âm là gì?",
+          "question_vi": "",
+          "emoji": "🎹",
+          "options": [
+            "sự kết hợp đồng thời từ ba nốt nhạc trở lên",
+            "một nốt nhạc đơn lẻ",
+            "một dấu lặng",
+            "một ô nhịp"
+          ],
+          "answer": "sự kết hợp đồng thời từ ba nốt nhạc trở lên",
+          "explanation": "Hợp âm là sự vang lên đồng thời của từ ba nốt nhạc trở lên.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhịp độ (tempo) trong âm nhạc chỉ điều gì?",
+          "question_vi": "",
+          "emoji": "⏱️",
+          "options": [
+            "tốc độ nhanh chậm của bản nhạc",
+            "độ to nhỏ",
+            "cao độ",
+            "màu sắc âm thanh"
+          ],
+          "answer": "tốc độ nhanh chậm của bản nhạc",
+          "explanation": "Tempo chỉ tốc độ nhanh hay chậm của bản nhạc.",
+          "difficulty": 3
+        },
+        {
+          "question": "Nhạc sĩ Trịnh Công Sơn nổi tiếng với thể loại nào?",
+          "question_vi": "",
+          "emoji": "🎸",
+          "options": [
+            "ca khúc trữ tình",
+            "nhạc giao hưởng cổ điển",
+            "nhạc rap",
+            "nhạc điện tử"
+          ],
+          "answer": "ca khúc trữ tình",
+          "explanation": "Trịnh Công Sơn nổi tiếng với các ca khúc trữ tình.",
+          "difficulty": 3
+        },
+        {
+          "question": "“Đờn ca tài tử Nam Bộ” được UNESCO công nhận là gì?",
+          "question_vi": "",
+          "emoji": "🪕",
+          "options": [
+            "Di sản văn hóa phi vật thể của nhân loại",
+            "di sản thiên nhiên",
+            "kỳ quan thế giới",
+            "bảo vật quốc gia"
+          ],
+          "answer": "Di sản văn hóa phi vật thể của nhân loại",
+          "explanation": "Đờn ca tài tử Nam Bộ được UNESCO ghi danh là Di sản văn hóa phi vật thể đại diện của nhân loại.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nốt tròn có trường độ bằng mấy nốt đen?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "4 nốt đen",
+            "2 nốt đen",
+            "1 nốt đen",
+            "8 nốt đen"
+          ],
+          "answer": "4 nốt đen",
+          "explanation": "Một nốt tròn = 4 nốt đen.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "music_hsg_school_1",
+      "title": "Âm nhạc — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_nang_cao",
+      "questions": [
+        {
+          "question": "Quãng tám (octave) tương ứng với tỉ lệ tần số nào giữa hai nốt?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": [
+            "2:1 (gấp đôi)",
+            "3:2",
+            "1:1",
+            "4:3"
+          ],
+          "answer": "2:1 (gấp đôi)",
+          "explanation": "Hai nốt cách nhau một quãng tám có tần số gấp đôi (tỉ lệ 2:1).",
+          "difficulty": 4
+        },
+        {
+          "question": "Khóa Son (khóa Sol) ở đầu khuông nhạc dùng để xác định điều gì?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "vị trí (cao độ) của các nốt trên khuông nhạc",
+            "nhịp độ",
+            "cường độ",
+            "lời bài hát"
+          ],
+          "answer": "vị trí (cao độ) của các nốt trên khuông nhạc",
+          "explanation": "Khóa nhạc (như khóa Son) xác định cao độ của các nốt trên khuông.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Nhã nhạc cung đình Huế” được UNESCO công nhận là Di sản gì?",
+          "question_vi": "",
+          "emoji": "🏯",
+          "options": [
+            "Di sản văn hóa phi vật thể của nhân loại",
+            "di sản thiên nhiên",
+            "kỳ quan thế giới mới",
+            "công viên địa chất"
+          ],
+          "answer": "Di sản văn hóa phi vật thể của nhân loại",
+          "explanation": "Nhã nhạc cung đình Huế là Di sản văn hóa phi vật thể của nhân loại.",
+          "difficulty": 4
+        },
+        {
+          "question": "Dấu lặng trong âm nhạc biểu thị điều gì?",
+          "question_vi": "",
+          "emoji": "🤫",
+          "options": [
+            "khoảng thời gian ngưng, không phát ra âm thanh",
+            "một nốt rất cao",
+            "một nốt rất thấp",
+            "tăng âm lượng"
+          ],
+          "answer": "khoảng thời gian ngưng, không phát ra âm thanh",
+          "explanation": "Dấu lặng biểu thị khoảng lặng — ngưng phát âm thanh trong một thời gian nhất định.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhạc cụ “cồng chiêng” gắn với không gian văn hóa của vùng nào ở Việt Nam?",
+          "question_vi": "",
+          "emoji": "🥁",
+          "options": [
+            "Tây Nguyên",
+            "đồng bằng sông Hồng",
+            "Nam Bộ",
+            "vùng núi phía Bắc"
+          ],
+          "answer": "Tây Nguyên",
+          "explanation": "Không gian văn hóa cồng chiêng Tây Nguyên là Di sản văn hóa phi vật thể.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhịp 3/4 thường phù hợp với điệu nhảy nào?",
+          "question_vi": "",
+          "emoji": "💃",
+          "options": [
+            "điệu valse (van)",
+            "điệu hành khúc (march)",
+            "rap",
+            "không điệu nào"
+          ],
+          "answer": "điệu valse (van)",
+          "explanation": "Nhịp 3/4 phù hợp với điệu valse (van) nhịp nhàng.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "music_hsg_district_1",
+      "title": "Âm nhạc — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_nang_cao",
+      "questions": [
+        {
+          "question": "Trong âm nhạc phương Tây, một quãng tám được chia thành bao nhiêu nửa cung?",
+          "question_vi": "",
+          "emoji": "🎹",
+          "options": [
+            "12 nửa cung",
+            "7 nửa cung",
+            "8 nửa cung",
+            "5 nửa cung"
+          ],
+          "answer": "12 nửa cung",
+          "explanation": "Một quãng tám gồm 12 nửa cung (bán cung).",
+          "difficulty": 4
+        },
+        {
+          "question": "Hợp âm trưởng (major) được tạo từ các bậc nào của gam?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": [
+            "bậc 1, 3, 5",
+            "bậc 1, 2, 3",
+            "bậc 2, 4, 6",
+            "bậc 1, 4, 5"
+          ],
+          "answer": "bậc 1, 3, 5",
+          "explanation": "Hợp âm trưởng gồm bậc 1, 3 và 5 của gam.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Quan họ Bắc Ninh” có đặc trưng nổi bật nào?",
+          "question_vi": "",
+          "emoji": "👘",
+          "options": [
+            "hát đối đáp giao duyên giữa liền anh và liền chị",
+            "độc tấu đàn bầu",
+            "hát ru",
+            "hò kéo lưới"
+          ],
+          "answer": "hát đối đáp giao duyên giữa liền anh và liền chị",
+          "explanation": "Quan họ Bắc Ninh nổi bật với lối hát đối đáp giao duyên giữa liền anh, liền chị.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nốt móc đơn có trường độ bằng bao nhiêu so với nốt đen?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "bằng một nửa nốt đen",
+            "gấp đôi nốt đen",
+            "bằng nốt đen",
+            "bằng nốt tròn"
+          ],
+          "answer": "bằng một nửa nốt đen",
+          "explanation": "Một nốt móc đơn = 1/2 nốt đen.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Ca trù” là loại hình nghệ thuật truyền thống của vùng nào?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": [
+            "miền Bắc Việt Nam",
+            "Tây Nguyên",
+            "Nam Bộ",
+            "chỉ vùng Tây Bắc"
+          ],
+          "answer": "miền Bắc Việt Nam",
+          "explanation": "Ca trù là loại hình hát truyền thống phổ biến ở miền Bắc Việt Nam.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong dàn nhạc giao hưởng, nhóm nhạc cụ nào thường đông nhất?",
+          "question_vi": "",
+          "emoji": "🎻",
+          "options": [
+            "bộ dây (violin, viola, cello…)",
+            "bộ gõ",
+            "bộ hơi gỗ",
+            "bộ hơi đồng"
+          ],
+          "answer": "bộ dây (violin, viola, cello…)",
+          "explanation": "Bộ dây thường chiếm số lượng đông nhất trong dàn nhạc giao hưởng.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "music_hsg_province_1",
+      "title": "Âm nhạc — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "am_nhac_chuyen_sau",
+      "questions": [
+        {
+          "question": "Thang âm ngũ cung (pentatonic) phổ biến trong âm nhạc dân gian Việt Nam gồm bao nhiêu nốt?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "5 nốt",
+            "7 nốt",
+            "8 nốt",
+            "12 nốt"
+          ],
+          "answer": "5 nốt",
+          "explanation": "Thang âm ngũ cung gồm 5 nốt, phổ biến trong dân ca Việt Nam.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nhịp lấy đà (anacrusis) là gì?",
+          "question_vi": "",
+          "emoji": "🎵",
+          "options": [
+            "ô nhịp đầu không đủ số phách, phần thiếu được bù ở ô nhịp cuối",
+            "ô nhịp cuối bài luôn thừa phách",
+            "một dấu lặng dài",
+            "một hợp âm mở đầu"
+          ],
+          "answer": "ô nhịp đầu không đủ số phách, phần thiếu được bù ở ô nhịp cuối",
+          "explanation": "Nhịp lấy đà là ô nhịp đầu thiếu phách, phần thiếu thường được bù ở ô nhịp cuối.",
+          "difficulty": 4
+        },
+        {
+          "question": "Hợp âm thứ (minor) khác hợp âm trưởng (major) chủ yếu ở nốt nào?",
+          "question_vi": "",
+          "emoji": "🎹",
+          "options": [
+            "bậc 3 (dùng quãng 3 thứ thay cho quãng 3 trưởng)",
+            "bậc 1",
+            "bậc 5",
+            "bậc 8"
+          ],
+          "answer": "bậc 3 (dùng quãng 3 thứ thay cho quãng 3 trưởng)",
+          "explanation": "Hợp âm thứ khác trưởng ở bậc 3: dùng quãng 3 thứ thay vì quãng 3 trưởng.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tác phẩm khí nhạc lớn viết cho dàn nhạc giao hưởng, gồm nhiều chương, gọi là gì?",
+          "question_vi": "",
+          "emoji": "🎻",
+          "options": [
+            "bản giao hưởng (symphony)",
+            "ca khúc",
+            "hợp xướng nhỏ",
+            "bài dân ca"
+          ],
+          "answer": "bản giao hưởng (symphony)",
+          "explanation": "Bản giao hưởng (symphony) là tác phẩm lớn cho dàn nhạc, gồm nhiều chương.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tên các nốt “Đồ Rê Mi Pha Son La Si” bắt nguồn từ hệ thống xướng âm nào?",
+          "question_vi": "",
+          "emoji": "🎼",
+          "options": [
+            "hệ thống Solfège",
+            "hệ thống chữ cái A B C",
+            "hệ thống số",
+            "hệ ngũ cung"
+          ],
+          "answer": "hệ thống Solfège",
+          "explanation": "Tên Đồ–Rê–Mi… bắt nguồn từ hệ thống xướng âm Solfège.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Hòa âm” (harmony) trong âm nhạc chỉ điều gì?",
+          "question_vi": "",
+          "emoji": "🎶",
+          "options": [
+            "sự kết hợp các âm thanh vang lên cùng lúc một cách hài hòa",
+            "giai điệu một bè",
+            "tốc độ bản nhạc",
+            "lời bài hát"
+          ],
+          "answer": "sự kết hợp các âm thanh vang lên cùng lúc một cách hài hòa",
+          "explanation": "Hòa âm là sự kết hợp các âm vang lên đồng thời tạo nên sự hài hòa.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

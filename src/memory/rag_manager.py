@@ -46,8 +46,8 @@ logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 _DEFAULT_DB_PATH      = str((_Path(__file__).parent.parent.parent / "runtime" / "chroma_db").resolve())
 _EMBED_MODEL_NAME     = "paraphrase-multilingual-MiniLM-L12-v2"
 _COLLECTION_NAME      = "bi_memory"
-_MIN_SIMILARITY       = 0.50   # cosine similarity tối thiểu để xem là "liên quan" (0.0–1.0)
-_MIN_SIMILARITY_STRICT = 0.65  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
+_MIN_SIMILARITY       = 0.62   # cosine similarity tối thiểu (tăng từ 0.50 để giảm false positive)
+_MIN_SIMILARITY_STRICT = 0.75  # Dùng khi cần chính xác cao (câu hỏi về tên, số liệu)
 _MAX_FACTS_PER_QUERY  = 3      # Tối đa 3 facts inject vào context (tránh làm LLM confused)
 _MAX_MEMORIES = int(os.getenv("RAG_MAX_MEMORIES", "500"))
 
@@ -67,9 +67,10 @@ def _resolve_local_embed_model_path() -> str:
 # Mỗi pattern: (tên_loại_fact, list_regex)
 _FACT_PATTERNS = [
     # ── Patterns gốc ────────────────────────────────────────────────────────
+    # Tên: giới hạn tối đa 3 từ để tránh capture quá dài
     ("tên", [
-        r"(?:tên|tên mình|tên em|tên con|tên bé|tên tôi|tên mình là|gọi mình là|tên là)\s+([\w\s]+)",
-        r"(?:mình|tôi|em|con|bé)\s+(?:tên là|là|tên)\s+([\w\s]+)",
+        r"(?:tên mình là|tên em là|tên con là|tên bé là|tên tôi là|gọi mình là|tên là)\s+([\w]+(?:\s+[\w]+){0,2})",
+        r"(?:mình|tôi|em|con|bé)\s+tên là\s+([\w]+(?:\s+[\w]+){0,2})",
     ]),
     ("sở thích", [
         r"(?:thích|yêu thích|mê|ghiền|hay|thường)\s+([\w\s]+)",
@@ -117,6 +118,25 @@ _FACT_PATTERNS = [
     ("cảm xúc", [
         r"(?:hôm nay|lúc này|bây giờ)\s+(?:mình|em|con|bé)\s+(?:vui|buồn|tức|sợ|lo|hạnh phúc|chán)",
         r"(?:mình|em|con)\s+(?:đang|rất|hơi)\s+(vui|buồn|tức|sợ|lo lắng|hạnh phúc|chán nản)",
+    ]),
+    ("tuổi", [
+        r"(?:mình|em|con|bé|tôi)\s+(?:được|có|đã)\s+(\d{1,2})\s+tuổi",
+        r"(?:năm nay|giờ)\s+(?:mình|em|con|bé)\s+(\d{1,2})\s+tuổi",
+        r"(?:mình|em|con)\s+(\d{1,2})\s+tuổi\b",
+        r"sinh\s+năm\s+(\d{4})",
+    ]),
+    ("màu sắc yêu thích", [
+        r"(?:thích|yêu thích|màu yêu thích|màu thích nhất)\s+(?:màu\s+)?(đỏ|xanh|vàng|tím|hồng|cam|trắng|đen|nâu|xám|xanh lá|xanh dương|xanh lơ)",
+        r"màu\s+(đỏ|xanh|vàng|tím|hồng|cam|trắng|đen|nâu)\s+(?:là màu|là|thôi)",
+    ]),
+    ("ước mơ", [
+        r"(?:ước mơ|mơ ước|muốn trở thành|muốn làm|lớn lên muốn)\s+([\w\s]+)",
+        r"(?:sau này|lớn lên)\s+(?:muốn|sẽ|thích)\s+(?:làm|trở thành)\s+([\w\s]+)",
+        r"(?:thích|muốn)\s+(?:làm|trở thành)\s+(bác sĩ|giáo viên|kỹ sư|phi hành gia|ca sĩ|cầu thủ|lập trình viên|nghệ sĩ|nhà khoa học)",
+    ]),
+    ("tên trường", [
+        r"(?:học ở|học tại|trường của mình là|trường mình|đang học ở)\s+(?:trường\s+)?([\w\s]+)",
+        r"trường\s+(tiểu học|trung học|mầm non|THCS|THPT)\s+([\w\s]+)",
     ]),
 ]
 
@@ -204,6 +224,32 @@ class RAGManager:
             logger.warning("[RAG] Count theo family failed: %s", e)
             return 0
 
+    def _prune_to_capacity(self, family_id: str | None = None, incoming: int = 1) -> None:
+        """Xóa các memory CŨ NHẤT (theo metadata timestamp) của family đến khi đủ chỗ
+        cho `incoming` mục, giữ trần `_MAX_MEMORIES`. Áp dụng cho MỌI đường thêm."""
+        try:
+            current = self._count_memories(family_id)
+            if current + incoming <= _MAX_MEMORIES:
+                return
+            rows = self._collection.get(
+                where=self._family_where(family_id),
+                include=["metadatas"],
+            )
+            ids = rows.get("ids") or []
+            metas = rows.get("metadatas") or []
+            # Sort tăng dần theo timestamp → cũ nhất trước (get() KHÔNG đảm bảo thứ tự).
+            paired = sorted(
+                zip(ids, metas),
+                key=lambda im: ((im[1] or {}).get("timestamp") or ""),
+            )
+            n_remove = (current + incoming) - _MAX_MEMORIES
+            victims = [i for i, _m in paired[: max(0, n_remove)]]
+            if victims:
+                self._collection.delete(ids=victims)
+                logger.debug("[RAG] Quota %d: pruned %d oldest", _MAX_MEMORIES, len(victims))
+        except Exception as e:
+            logger.warning("[RAG] prune_to_capacity failed: %s", e)
+
     def _memory_belongs_to_family(self, memory_id: str, family_id: str | None = None) -> bool:
         results = self._collection.get(
             ids=[memory_id],
@@ -241,7 +287,8 @@ class RAGManager:
         Returns:
             Danh sách các fact string đã trích xuất (có thể rỗng), tối đa 5 facts.
         """
-        combined_text = f"{user_text} {bi_text}".lower()
+        # Chỉ chạy regex trên user_text — bi_text gây over-capture làm fact bẩn
+        combined_text = user_text.lower()
         facts = []
 
         for fact_type, patterns in _FACT_PATTERNS:
@@ -281,16 +328,21 @@ class RAGManager:
                         fact = f"Thành tích của bé: {m}"
                     elif fact_type == "cảm xúc":
                         fact = f"Cảm xúc bé: {m}"
+                    elif fact_type == "tuổi":
+                        fact = f"Bé {m} tuổi" if m.isdigit() else f"Bé sinh năm {m}"
+                    elif fact_type == "màu sắc yêu thích":
+                        fact = f"Màu yêu thích của bé: {m}"
+                    elif fact_type == "ước mơ":
+                        fact = f"Ước mơ của bé: {m}"
+                    elif fact_type == "tên trường":
+                        fact = f"Trường bé học: {m}"
                     else:
                         fact = m
 
                     facts.append(fact)
 
-        # Nếu không tìm được facts qua regex, lưu toàn bộ user_text nếu đủ ngắn
-        if not facts and len(user_text.strip()) >= 10 and len(user_text.strip()) <= 200:
-            # Chỉ lưu nếu user_text trông như một fact (không phải câu hỏi)
-            if not re.search(r'\?|sao|tại sao|thế nào|như thế|ở đâu|khi nào|bao nhiêu', user_text, re.IGNORECASE):
-                facts.append(user_text.strip())
+        # Bỏ fallback save raw user_text — gây noise (vd: "bi ơi xin chào", "nhớ bà ngoại"
+        # đều bị lưu dù không phải fact hữu ích)
 
         # Deduplication thông minh — loại bỏ facts có nội dung tương tự (overlap >70%)
         unique_facts = []
@@ -350,24 +402,7 @@ class RAGManager:
             })
 
         try:
-            current_count = self._count_memories(family_id)
-            while current_count + len(ids) > _MAX_MEMORIES:
-                oldest = self._collection.get(
-                    where=self._family_where(family_id),
-                    limit=1,
-                    include=["documents", "metadatas"],
-                )
-                if not oldest or not oldest.get("ids"):
-                    break
-                oldest_id = oldest["ids"][0]
-                try:
-                    self._collection.delete(ids=[oldest_id])
-                    current_count -= 1
-                except Exception as e:
-                    logger.warning("[RAG] Prune delete failed: %s", e)
-                    break
-                logger.debug("[RAG] Quota %d reached, pruned oldest entry", _MAX_MEMORIES)
-
+            self._prune_to_capacity(family_id, len(ids))  # xóa cũ nhất trước nếu vượt trần
             self._collection.add(
                 ids=ids,
                 embeddings=embeddings,
@@ -551,9 +586,12 @@ class RAGManager:
             logger.warning("add_manual_memory: fact quá ngắn hoặc rỗng")
             return False
 
-        fact = fact.strip()
+        # Collapse newline/khoảng trắng → vô hiệu cấu trúc prompt-injection nhiều dòng
+        # (memory được nối vào system prompt sau này); cap độ dài hợp lý.
+        fact = re.sub(r"\s+", " ", fact.strip())[:500]
         try:
             family_id = _normalize_family_id(family_id)
+            self._prune_to_capacity(family_id, 1)  # enforce trần _MAX_MEMORIES (mọi đường thêm)
             fact_id = str(uuid.uuid4())
             self._collection.add(
                 ids=[fact_id],

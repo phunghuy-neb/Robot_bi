@@ -1,0 +1,683 @@
+{
+  "subject": "japanese",
+  "exams": [
+    {
+      "paper_id": "japanese_exam_grade6_1",
+      "title": "Tiếng Nhật — Sơ cấp (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_so_cap",
+      "questions": [
+        {
+          "question": "“こんにちは” (konnichiwa) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "Xin chào",
+            "Tạm biệt",
+            "Cảm ơn",
+            "Xin lỗi"
+          ],
+          "answer": "Xin chào",
+          "explanation": "“こんにちは” (konnichiwa) nghĩa là “Xin chào” (ban ngày).",
+          "difficulty": 1
+        },
+        {
+          "question": "“ありがとう” (arigatou) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn",
+            "Xin chào",
+            "Tạm biệt",
+            "Vâng"
+          ],
+          "answer": "Cảm ơn",
+          "explanation": "“ありがとう” (arigatou) nghĩa là “Cảm ơn”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“さようなら” (sayounara) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👋",
+          "options": [
+            "Tạm biệt",
+            "Xin chào",
+            "Cảm ơn",
+            "Không"
+          ],
+          "answer": "Tạm biệt",
+          "explanation": "“さようなら” (sayounara) nghĩa là “Tạm biệt”.",
+          "difficulty": 1
+        },
+        {
+          "question": "Tiếng Nhật có mấy bộ chữ kana cơ bản?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "hai bộ: Hiragana và Katakana",
+            "một bộ",
+            "ba bộ kana",
+            "không có bộ kana nào"
+          ],
+          "answer": "hai bộ: Hiragana và Katakana",
+          "explanation": "Tiếng Nhật có hai bộ kana: Hiragana và Katakana (ngoài ra còn Kanji).",
+          "difficulty": 2
+        },
+        {
+          "question": "Chữ Hán dùng trong tiếng Nhật được gọi là gì?",
+          "question_vi": "",
+          "emoji": "🈶",
+          "options": [
+            "Kanji",
+            "Pinyin",
+            "Hangul",
+            "Romaji"
+          ],
+          "answer": "Kanji",
+          "explanation": "Chữ Hán trong tiếng Nhật gọi là Kanji.",
+          "difficulty": 2
+        },
+        {
+          "question": "“はい” (hai) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "✅",
+          "options": [
+            "Vâng / Có",
+            "Không",
+            "Cảm ơn",
+            "Xin chào"
+          ],
+          "answer": "Vâng / Có",
+          "explanation": "“はい” (hai) nghĩa là “Vâng / Có”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“いいえ” (iie) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙅",
+          "options": [
+            "Không",
+            "Vâng",
+            "Cảm ơn",
+            "Tạm biệt"
+          ],
+          "answer": "Không",
+          "explanation": "“いいえ” (iie) nghĩa là “Không”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“ねこ” (neko) có nghĩa là con gì?",
+          "question_vi": "",
+          "emoji": "🐱",
+          "options": [
+            "con mèo",
+            "con chó",
+            "con cá",
+            "con chim"
+          ],
+          "answer": "con mèo",
+          "explanation": "“ねこ” (neko) nghĩa là “con mèo”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“いぬ” (inu) có nghĩa là con gì?",
+          "question_vi": "",
+          "emoji": "🐶",
+          "options": [
+            "con chó",
+            "con mèo",
+            "con bò",
+            "con gà"
+          ],
+          "answer": "con chó",
+          "explanation": "“いぬ” (inu) nghĩa là “con chó”.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_exam_grade10_1",
+      "title": "Tiếng Nhật — Sơ–trung cấp (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_trung_cap",
+      "questions": [
+        {
+          "question": "“わたし” (watashi) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🙋",
+          "options": [
+            "tôi",
+            "bạn",
+            "anh ấy",
+            "chúng tôi"
+          ],
+          "answer": "tôi",
+          "explanation": "“わたし” (watashi) nghĩa là “tôi”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“がくせい” (gakusei) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🎒",
+          "options": [
+            "học sinh",
+            "giáo viên",
+            "bác sĩ",
+            "công nhân"
+          ],
+          "answer": "học sinh",
+          "explanation": "“がくせい” (gakusei) nghĩa là “học sinh”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“せんせい” (sensei) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "👩‍🏫",
+          "options": [
+            "giáo viên / thầy cô",
+            "học sinh",
+            "bạn bè",
+            "bố"
+          ],
+          "answer": "giáo viên / thầy cô",
+          "explanation": "“せんせい” (sensei) nghĩa là “giáo viên, thầy cô”.",
+          "difficulty": 2
+        },
+        {
+          "question": "“日本” (Nihon) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🇯🇵",
+          "options": [
+            "Nhật Bản",
+            "Trung Quốc",
+            "Hàn Quốc",
+            "Việt Nam"
+          ],
+          "answer": "Nhật Bản",
+          "explanation": "“日本” (Nihon) nghĩa là “Nhật Bản”.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hệ thống phiên âm tiếng Nhật bằng chữ Latinh gọi là gì?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "Romaji",
+            "Pinyin",
+            "Hangul",
+            "Kanji"
+          ],
+          "answer": "Romaji",
+          "explanation": "Romaji là cách phiên âm tiếng Nhật bằng chữ Latinh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Bộ chữ Katakana thường dùng để viết loại từ nào?",
+          "question_vi": "",
+          "emoji": "🔡",
+          "options": [
+            "từ mượn tiếng nước ngoài",
+            "từ thuần Nhật cổ",
+            "chỉ số đếm",
+            "chỉ tên các con vật"
+          ],
+          "answer": "từ mượn tiếng nước ngoài",
+          "explanation": "Katakana thường dùng viết từ mượn (ngoại lai) từ tiếng nước ngoài.",
+          "difficulty": 3
+        },
+        {
+          "question": "“みず” (mizu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": [
+            "nước",
+            "lửa",
+            "cơm",
+            "trà"
+          ],
+          "answer": "nước",
+          "explanation": "“みず” (mizu) nghĩa là “nước”.",
+          "difficulty": 1
+        },
+        {
+          "question": "“ありがとうございます” (arigatou gozaimasu) là cách nói gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "Cảm ơn (lịch sự)",
+            "Xin lỗi",
+            "Chào buổi sáng",
+            "Tạm biệt"
+          ],
+          "answer": "Cảm ơn (lịch sự)",
+          "explanation": "“ありがとうございます” là cách nói “Cảm ơn” lịch sự, trang trọng.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_exam_thpt_1",
+      "title": "Tiếng Nhật — Trung cấp (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_thpt",
+      "questions": [
+        {
+          "question": "“おはようございます” (ohayou gozaimasu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🌅",
+          "options": [
+            "Chào buổi sáng",
+            "Chào buổi tối",
+            "Cảm ơn",
+            "Tạm biệt"
+          ],
+          "answer": "Chào buổi sáng",
+          "explanation": "“おはようございます” là lời chào buổi sáng lịch sự.",
+          "difficulty": 2
+        },
+        {
+          "question": "Câu “おなまえは？” (Onamae wa?) dùng để hỏi điều gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "hỏi tên",
+            "hỏi tuổi",
+            "hỏi giờ",
+            "hỏi giá tiền"
+          ],
+          "answer": "hỏi tên",
+          "explanation": "“おなまえは？” dùng để hỏi tên (“Bạn tên là gì?”).",
+          "difficulty": 3
+        },
+        {
+          "question": "Trật tự câu cơ bản trong tiếng Nhật là gì?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "Chủ ngữ – Tân ngữ – Động từ (S–O–V)",
+            "S–V–O",
+            "V–S–O",
+            "O–S–V"
+          ],
+          "answer": "Chủ ngữ – Tân ngữ – Động từ (S–O–V)",
+          "explanation": "Tiếng Nhật có trật tự câu cơ bản là S–O–V (động từ đứng cuối).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trợ từ “は” (đọc là “wa”) trong câu tiếng Nhật dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔖",
+          "options": [
+            "đánh dấu chủ đề của câu",
+            "biểu thị thì quá khứ",
+            "tạo số nhiều",
+            "chỉ địa điểm"
+          ],
+          "answer": "đánh dấu chủ đề của câu",
+          "explanation": "Trợ từ は (wa) đánh dấu chủ đề của câu.",
+          "difficulty": 4
+        },
+        {
+          "question": "Đơn vị tiền tệ của Nhật Bản là gì?",
+          "question_vi": "",
+          "emoji": "💴",
+          "options": [
+            "Yên (¥)",
+            "Nhân dân tệ",
+            "Won",
+            "Đô la"
+          ],
+          "answer": "Yên (¥)",
+          "explanation": "Đơn vị tiền tệ của Nhật Bản là Yên (¥).",
+          "difficulty": 2
+        },
+        {
+          "question": "“せんせい、ありがとうございます” thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "lời cảm ơn lịch sự tới thầy cô",
+            "lời xin lỗi",
+            "lời chào buổi sáng",
+            "lời tạm biệt"
+          ],
+          "answer": "lời cảm ơn lịch sự tới thầy cô",
+          "explanation": "Câu này là lời cảm ơn lịch sự gửi tới thầy/cô giáo.",
+          "difficulty": 3
+        },
+        {
+          "question": "“すみません” (sumimasen) thường được dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🙏",
+          "options": [
+            "xin lỗi / gây sự chú ý",
+            "cảm ơn sâu sắc",
+            "chào buổi tối",
+            "chúc ngủ ngon"
+          ],
+          "answer": "xin lỗi / gây sự chú ý",
+          "explanation": "“すみません” dùng để xin lỗi hoặc gây chú ý (gọi ai đó).",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_hsg_school_1",
+      "title": "Tiếng Nhật — Nâng cao cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_nang_cao",
+      "questions": [
+        {
+          "question": "Câu “わたしはがくせいです” (Watashi wa gakusei desu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🎓",
+          "options": [
+            "Tôi là học sinh",
+            "Bạn là giáo viên",
+            "Tôi thích cá",
+            "Anh ấy đi học"
+          ],
+          "answer": "Tôi là học sinh",
+          "explanation": "Câu này nghĩa là “Tôi là học sinh”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Từ “です” (desu) ở cuối câu có vai trò gì?",
+          "question_vi": "",
+          "emoji": "🔚",
+          "options": [
+            "làm câu trở nên lịch sự (tương đương “là/thì”)",
+            "phủ định",
+            "tạo câu hỏi",
+            "ra lệnh"
+          ],
+          "answer": "làm câu trở nên lịch sự (tương đương “là/thì”)",
+          "explanation": "“です” đứng cuối câu khẳng định, tạo sắc thái lịch sự (giống “là/thì”).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trợ từ “か” (ka) đặt cuối câu dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "tạo câu hỏi",
+            "phủ định",
+            "nối câu",
+            "cảm thán"
+          ],
+          "answer": "tạo câu hỏi",
+          "explanation": "“か” đặt cuối câu để biến thành câu hỏi.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bộ chữ Hiragana thường dùng để viết loại từ nào?",
+          "question_vi": "",
+          "emoji": "🔤",
+          "options": [
+            "từ và thành phần ngữ pháp thuần Nhật",
+            "từ mượn nước ngoài",
+            "chỉ tên riêng nước ngoài",
+            "chỉ số"
+          ],
+          "answer": "từ và thành phần ngữ pháp thuần Nhật",
+          "explanation": "Hiragana dùng viết từ thuần Nhật và các thành phần ngữ pháp.",
+          "difficulty": 4
+        },
+        {
+          "question": "“やま” (yama) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "⛰️",
+          "options": [
+            "núi",
+            "sông",
+            "biển",
+            "rừng"
+          ],
+          "answer": "núi",
+          "explanation": "“やま” (yama) nghĩa là “núi”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Số “いち” (ichi) trong tiếng Nhật là số mấy?",
+          "question_vi": "",
+          "emoji": "1️⃣",
+          "options": [
+            "1 (một)",
+            "2",
+            "3",
+            "10"
+          ],
+          "answer": "1 (một)",
+          "explanation": "“いち” (ichi) là số 1.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_hsg_district_1",
+      "title": "Tiếng Nhật — Nâng cao cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_nang_cao",
+      "questions": [
+        {
+          "question": "Số “に” (ni) trong tiếng Nhật là số mấy?",
+          "question_vi": "",
+          "emoji": "2️⃣",
+          "options": [
+            "2 (hai)",
+            "1",
+            "3",
+            "4"
+          ],
+          "answer": "2 (hai)",
+          "explanation": "“に” (ni) là số 2.",
+          "difficulty": 2
+        },
+        {
+          "question": "Số “さん” (san) trong tiếng Nhật là số mấy?",
+          "question_vi": "",
+          "emoji": "3️⃣",
+          "options": [
+            "3 (ba)",
+            "2",
+            "4",
+            "10"
+          ],
+          "answer": "3 (ba)",
+          "explanation": "“さん” (san) là số 3.",
+          "difficulty": 2
+        },
+        {
+          "question": "Kỳ thi năng lực tiếng Nhật quốc tế phổ biến tên là gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": [
+            "JLPT",
+            "HSK",
+            "TOPIK",
+            "TOEIC"
+          ],
+          "answer": "JLPT",
+          "explanation": "JLPT (Japanese-Language Proficiency Test) là kỳ thi năng lực tiếng Nhật quốc tế.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong JLPT, cấp độ nào là cao nhất (khó nhất)?",
+          "question_vi": "",
+          "emoji": "🏅",
+          "options": [
+            "N1",
+            "N5",
+            "N3",
+            "A1"
+          ],
+          "answer": "N1",
+          "explanation": "JLPT có 5 cấp N5→N1, trong đó N1 là cao (khó) nhất.",
+          "difficulty": 4
+        },
+        {
+          "question": "“たべます” (tabemasu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🍚",
+          "options": [
+            "ăn",
+            "uống",
+            "đi",
+            "ngủ"
+          ],
+          "answer": "ăn",
+          "explanation": "“たべます” (tabemasu) nghĩa là “ăn”.",
+          "difficulty": 3
+        },
+        {
+          "question": "“のみます” (nomimasu) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🥤",
+          "options": [
+            "uống",
+            "ăn",
+            "đọc",
+            "viết"
+          ],
+          "answer": "uống",
+          "explanation": "“のみます” (nomimasu) nghĩa là “uống”.",
+          "difficulty": 3
+        }
+      ]
+    },
+    {
+      "paper_id": "japanese_hsg_province_1",
+      "title": "Tiếng Nhật — Nâng cao cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "tieng_nhat_chuyen_sau",
+      "questions": [
+        {
+          "question": "Trợ từ “を” (đọc là “o”) trong câu tiếng Nhật dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🔖",
+          "options": [
+            "đánh dấu tân ngữ trực tiếp của động từ",
+            "đánh dấu chủ ngữ",
+            "chỉ thời gian",
+            "chỉ địa điểm"
+          ],
+          "answer": "đánh dấu tân ngữ trực tiếp của động từ",
+          "explanation": "Trợ từ を (o) đánh dấu tân ngữ trực tiếp của động từ.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kính ngữ (敬語 – keigo) trong tiếng Nhật là gì?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "hệ thống cách nói thể hiện sự tôn trọng, lịch sự",
+            "một bộ chữ viết",
+            "một loại số đếm",
+            "tên một thành phố"
+          ],
+          "answer": "hệ thống cách nói thể hiện sự tôn trọng, lịch sự",
+          "explanation": "Keigo là hệ thống cách nói thể hiện sự tôn trọng, lịch sự trong tiếng Nhật.",
+          "difficulty": 4
+        },
+        {
+          "question": "Người Nhật thường chào hỏi kèm hành động nào thể hiện sự tôn trọng?",
+          "question_vi": "",
+          "emoji": "🙇",
+          "options": [
+            "cúi chào (ojigi)",
+            "bắt tay thật mạnh",
+            "ôm hôn",
+            "vỗ vai"
+          ],
+          "answer": "cúi chào (ojigi)",
+          "explanation": "Người Nhật chào hỏi bằng cách cúi chào (ojigi) thể hiện sự tôn trọng.",
+          "difficulty": 4
+        },
+        {
+          "question": "“にほんご” (nihongo) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "🗾",
+          "options": [
+            "tiếng Nhật",
+            "tiếng Trung",
+            "tiếng Hàn",
+            "tiếng Anh"
+          ],
+          "answer": "tiếng Nhật",
+          "explanation": "“にほんご” (nihongo) nghĩa là “tiếng Nhật”.",
+          "difficulty": 3
+        },
+        {
+          "question": "Thể “ます” (masu) của động từ tiếng Nhật thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "📝",
+          "options": [
+            "thể lịch sự ở hiện tại/tương lai",
+            "thể quá khứ thô",
+            "mệnh lệnh",
+            "phủ định hoàn toàn"
+          ],
+          "answer": "thể lịch sự ở hiện tại/tương lai",
+          "explanation": "Đuôi động từ ます (masu) là thể lịch sự, dùng cho hiện tại/tương lai.",
+          "difficulty": 4
+        },
+        {
+          "question": "Câu “これはなんですか？” (Kore wa nan desu ka?) có nghĩa là gì?",
+          "question_vi": "",
+          "emoji": "❓",
+          "options": [
+            "Đây là cái gì?",
+            "Bạn tên gì?",
+            "Bây giờ mấy giờ?",
+            "Bạn khỏe không?"
+          ],
+          "answer": "Đây là cái gì?",
+          "explanation": "Câu này nghĩa là “Đây là cái gì?”.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

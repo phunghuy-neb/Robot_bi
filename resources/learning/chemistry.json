@@ -1,0 +1,257 @@
+{
+  "subject": "chemistry",
+  "exams": [
+    {
+      "paper_id": "chemistry_thcs_elements_1",
+      "title": "Hóa học THCS — Nguyên tố & Bảng tuần hoàn (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_8",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "elements",
+      "questions": [
+        {
+          "question": "Kí hiệu hóa học của nguyên tố ô-xy là gì?",
+          "question_vi": "",
+          "emoji": "🧪",
+          "options": ["O", "Ox", "Oy", "Og"],
+          "answer": "O",
+          "explanation": "Ô-xy có kí hiệu hóa học là O.",
+          "difficulty": 1
+        },
+        {
+          "question": "Kí hiệu hóa học của nguyên tố hy-đrô là gì?",
+          "question_vi": "",
+          "emoji": "💨",
+          "options": ["H", "Hy", "He", "Hg"],
+          "answer": "H",
+          "explanation": "Hy-đrô có kí hiệu H. (He là heli, Hg là thủy ngân.)",
+          "difficulty": 1
+        },
+        {
+          "question": "Hạt nào mang điện tích dương trong nguyên tử?",
+          "question_vi": "",
+          "emoji": "⚛️",
+          "options": ["Proton", "Electron", "Neutron", "Photon"],
+          "answer": "Proton",
+          "explanation": "Proton mang điện tích dương, nằm trong hạt nhân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hạt nào mang điện tích âm và chuyển động quanh hạt nhân?",
+          "question_vi": "",
+          "emoji": "🔵",
+          "options": ["Electron", "Proton", "Neutron", "Ion"],
+          "answer": "Electron",
+          "explanation": "Electron mang điện tích âm và chuyển động quanh hạt nhân.",
+          "difficulty": 3
+        },
+        {
+          "question": "Bảng tuần hoàn các nguyên tố hóa học do nhà khoa học nào xây dựng?",
+          "question_vi": "",
+          "emoji": "📋",
+          "options": ["Men-đê-lê-ép (Mendeleev)", "Niu-tơn", "Anh-xtanh", "Đác-uyn"],
+          "answer": "Men-đê-lê-ép (Mendeleev)",
+          "explanation": "Nhà hóa học người Nga Mendeleev xây dựng bảng tuần hoàn.",
+          "difficulty": 3
+        },
+        {
+          "question": "Kí hiệu hóa học của nguyên tố cac-bon là gì?",
+          "question_vi": "",
+          "emoji": "⚫",
+          "options": ["C", "Ca", "Co", "Cu"],
+          "answer": "C",
+          "explanation": "Cac-bon có kí hiệu C. (Ca là canxi, Cu là đồng.)",
+          "difficulty": 2
+        },
+        {
+          "question": "Số hiệu nguyên tử của một nguyên tố bằng số gì?",
+          "question_vi": "",
+          "emoji": "🔢",
+          "options": ["Số proton trong hạt nhân", "Số neutron", "Khối lượng vật", "Số phân tử"],
+          "answer": "Số proton trong hạt nhân",
+          "explanation": "Số hiệu nguyên tử (Z) bằng số proton trong hạt nhân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kim loại nào dẫn điện tốt và thường dùng làm dây điện?",
+          "question_vi": "",
+          "emoji": "🔌",
+          "options": ["Đồng (Cu)", "Lưu huỳnh (S)", "Cac-bon (C)", "Ô-xy (O)"],
+          "answer": "Đồng (Cu)",
+          "explanation": "Đồng dẫn điện rất tốt nên được dùng làm dây dẫn điện.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_thcs_reaction_1",
+      "title": "Hóa học THCS — Phản ứng & Chất/Hợp chất (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_9",
+      "age_group": "11-14",
+      "duration_minutes": 30,
+      "pass_percent": 60,
+      "topic": "reaction",
+      "questions": [
+        {
+          "question": "Công thức hóa học của nước là gì?",
+          "question_vi": "",
+          "emoji": "💧",
+          "options": ["H₂O", "CO₂", "O₂", "NaCl"],
+          "answer": "H₂O",
+          "explanation": "Phân tử nước gồm 2 nguyên tử hy-đrô và 1 nguyên tử ô-xy: H₂O.",
+          "difficulty": 1
+        },
+        {
+          "question": "Công thức hóa học của khí cac-bô-níc là gì?",
+          "question_vi": "",
+          "emoji": "🫧",
+          "options": ["CO₂", "H₂O", "O₂", "CH₄"],
+          "answer": "CO₂",
+          "explanation": "Khí cac-bô-níc gồm 1 cac-bon và 2 ô-xy: CO₂.",
+          "difficulty": 2
+        },
+        {
+          "question": "Muối ăn thông thường có công thức hóa học là gì?",
+          "question_vi": "",
+          "emoji": "🧂",
+          "options": ["NaCl", "KCl", "CaCO₃", "H₂SO₄"],
+          "answer": "NaCl",
+          "explanation": "Muối ăn là natri clorua, công thức NaCl.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trong một phản ứng hóa học, tổng khối lượng các chất được bảo toàn như thế nào?",
+          "question_vi": "",
+          "emoji": "⚖️",
+          "options": ["Tổng khối lượng chất phản ứng bằng tổng khối lượng sản phẩm", "Khối lượng tăng lên", "Khối lượng giảm đi", "Khối lượng biến mất"],
+          "answer": "Tổng khối lượng chất phản ứng bằng tổng khối lượng sản phẩm",
+          "explanation": "Định luật bảo toàn khối lượng: tổng khối lượng trước và sau phản ứng bằng nhau.",
+          "difficulty": 3
+        },
+        {
+          "question": "Hiện tượng nào sau đây là biến đổi hóa học?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": ["Đốt cháy giấy thành tro", "Nước đá tan thành nước", "Bẻ gãy thanh gỗ", "Hòa tan muối vào nước"],
+          "answer": "Đốt cháy giấy thành tro",
+          "explanation": "Đốt giấy tạo chất mới (tro, khí) nên là biến đổi hóa học; các hiện tượng còn lại là biến đổi vật lý.",
+          "difficulty": 3
+        },
+        {
+          "question": "Chất nào sau đây là đơn chất?",
+          "question_vi": "",
+          "emoji": "🔬",
+          "options": ["Khí ô-xy (O₂)", "Nước (H₂O)", "Muối ăn (NaCl)", "Khí cac-bô-níc (CO₂)"],
+          "answer": "Khí ô-xy (O₂)",
+          "explanation": "O₂ chỉ gồm một nguyên tố nên là đơn chất; các chất còn lại là hợp chất.",
+          "difficulty": 4
+        },
+        {
+          "question": "Khi đốt cháy nhiên liệu trong không khí, chất khí nào tham gia phản ứng?",
+          "question_vi": "",
+          "emoji": "🕯️",
+          "options": ["Khí ô-xy", "Khí ni-tơ", "Khí cac-bô-níc", "Hơi nước"],
+          "answer": "Khí ô-xy",
+          "explanation": "Sự cháy là phản ứng của chất với khí ô-xy.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phương trình hóa học của phản ứng tạo nước là 2H₂ + O₂ → ? . Sản phẩm là gì?",
+          "question_vi": "",
+          "emoji": "🧫",
+          "options": ["2H₂O", "H₂O₂", "2HO", "H₄O₂"],
+          "answer": "2H₂O",
+          "explanation": "2H₂ + O₂ → 2H₂O, tạo ra hai phân tử nước.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "chemistry_thpt_acid_base_1",
+      "title": "Hóa học THPT — Axit, Bazơ & Hợp chất (Đề 1)",
+      "track": "exam_thpt",
+      "level": "grade_10",
+      "age_group": "15-18",
+      "duration_minutes": 35,
+      "pass_percent": 60,
+      "topic": "acid_base",
+      "questions": [
+        {
+          "question": "Dung dịch axit làm quỳ tím chuyển sang màu gì?",
+          "question_vi": "",
+          "emoji": "🟥",
+          "options": ["Màu đỏ", "Màu xanh", "Màu vàng", "Không đổi màu"],
+          "answer": "Màu đỏ",
+          "explanation": "Axit làm quỳ tím hóa đỏ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dung dịch bazơ (kiềm) làm quỳ tím chuyển sang màu gì?",
+          "question_vi": "",
+          "emoji": "🟦",
+          "options": ["Màu xanh", "Màu đỏ", "Màu vàng", "Không đổi màu"],
+          "answer": "Màu xanh",
+          "explanation": "Bazơ làm quỳ tím hóa xanh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Công thức hóa học của axit clohiđric là gì?",
+          "question_vi": "",
+          "emoji": "🧴",
+          "options": ["HCl", "H₂SO₄", "NaOH", "HNO₃"],
+          "answer": "HCl",
+          "explanation": "Axit clohiđric có công thức HCl.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công thức của bazơ natri hiđroxit (xút) là gì?",
+          "question_vi": "",
+          "emoji": "⚗️",
+          "options": ["NaOH", "HCl", "NaCl", "H₂O"],
+          "answer": "NaOH",
+          "explanation": "Natri hiđroxit có công thức NaOH.",
+          "difficulty": 3
+        },
+        {
+          "question": "Dung dịch có pH bằng 7 được gọi là gì?",
+          "question_vi": "",
+          "emoji": "📊",
+          "options": ["Trung tính", "Axit mạnh", "Bazơ mạnh", "Bão hòa"],
+          "answer": "Trung tính",
+          "explanation": "pH = 7 là môi trường trung tính (như nước tinh khiết).",
+          "difficulty": 3
+        },
+        {
+          "question": "Phản ứng giữa axit và bazơ tạo ra muối và nước gọi là phản ứng gì?",
+          "question_vi": "",
+          "emoji": "🤝",
+          "options": ["Phản ứng trung hòa", "Phản ứng phân hủy", "Phản ứng oxi hóa", "Phản ứng thế"],
+          "answer": "Phản ứng trung hòa",
+          "explanation": "Axit + bazơ → muối + nước là phản ứng trung hòa.",
+          "difficulty": 4
+        },
+        {
+          "question": "Dung dịch có pH nhỏ hơn 7 thể hiện tính chất gì?",
+          "question_vi": "",
+          "emoji": "🍋",
+          "options": ["Tính axit", "Tính bazơ", "Trung tính", "Không xác định"],
+          "answer": "Tính axit",
+          "explanation": "pH < 7 là môi trường axit; pH > 7 là bazơ.",
+          "difficulty": 3
+        },
+        {
+          "question": "Công thức hóa học của axit sunfuric là gì?",
+          "question_vi": "",
+          "emoji": "⚠️",
+          "options": ["H₂SO₄", "HCl", "HNO₃", "H₃PO₄"],
+          "answer": "H₂SO₄",
+          "explanation": "Axit sunfuric có công thức H₂SO₄.",
+          "difficulty": 3
+        }
+      ]
+    }
+  ]
+}

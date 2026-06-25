@@ -25,6 +25,8 @@ _tunnel_process = None
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 
+from src.infrastructure.database.db import get_db_connection
+
 router = APIRouter()
 
 
@@ -139,7 +141,8 @@ def _start_cloudflare_tunnel(port: int, use_https: bool = False) -> None:
     t = threading.Thread(target=_run, daemon=True, name="cloudflared-tunnel")
     t.start()
 
-_STATIC_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIST_DIR = _PARENT_APP_DIR / "dist"
 
 try:
     import cv2
@@ -179,18 +182,25 @@ async def _camera_auth(
 
 @router.get("/health")
 async def health():
-    """Health check — khong can auth."""
+    """Health check — includes DB liveness probe (M4)."""
+    try:
+        with get_db_connection() as conn:
+            conn.execute("SELECT 1")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"DB unavailable: {e}")
     return {"status": "ok"}
 
 
 @router.get("/", response_class=HTMLResponse)
 async def dashboard():
-    index = _STATIC_DIR / "index.html"
+    index = _PARENT_APP_DIST_DIR / "index.html"
     if index.exists():
         return FileResponse(str(index))
     return HTMLResponse(
         "<h1>Robot Bi</h1>"
-        "<p>Dashboard chưa có. Đặt file vào <code>frontend/parent_app/index.html</code></p>"
+        "<p>Parent App build chua co. Chay <code>npm.cmd run build</code> "
+        "trong <code>frontend/parent_app</code>, hoac dung Vite dev server.</p>",
+        status_code=503,
     )
 
 

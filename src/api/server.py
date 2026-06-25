@@ -53,6 +53,11 @@ from src.api.routers.persona_router import router as persona_router
 from src.api.routers.story_router import router as story_router
 from src.api.routers.video_call_router import router as video_call_router
 from src.api.routers import webrtc_router
+from src.api.routers.eval_router import router as eval_router
+from src.api.routers.parent_chat_router import router as parent_chat_router
+from src.api.routers.learning_hub_router import router as learning_hub_router
+from src.api.routers.exam_router import router as exam_router
+from src.api.routers.knowledge_router import router as knowledge_router
 
 logger = logging.getLogger("api_server")
 
@@ -63,8 +68,10 @@ _SSL_KEY  = _SSL_DIR / "key.pem"
 _USE_HTTPS = _SSL_CERT.exists() and _SSL_KEY.exists()
 
 # ── Thư mục static ────────────────────────────────────────────────────────────
-_STATIC_DIR = Path(__file__).parent.parent.parent / "frontend" / "parent_app"
-_STATIC_DIR.mkdir(parents=True, exist_ok=True)
+_PARENT_APP_DIR = Path(__file__).parent.parent.parent / "frontend" / "parent_app"
+_PARENT_APP_DIR.mkdir(parents=True, exist_ok=True)
+_PARENT_APP_DIST_DIR = _PARENT_APP_DIR / "dist"
+_PARENT_APP_ASSETS_DIR = _PARENT_APP_DIST_DIR / "assets"
 
 
 def get_local_ip() -> str:
@@ -83,7 +90,14 @@ def get_local_ip() -> str:
 
 app = FastAPI(title="Robot Bi — Parent App API", version="2.0")
 
-app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+# Serve only the built dist/ to avoid exposing src/, package-lock.json, etc. (L-NEW-3)
+if _PARENT_APP_DIST_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(_PARENT_APP_DIST_DIR)), name="static")
+else:
+    # dist/ not built yet — serve nothing rather than exposing the full source tree
+    pass
+if _PARENT_APP_ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(_PARENT_APP_ASSETS_DIR)), name="parent_app_assets")
 
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -98,6 +112,11 @@ app.include_router(music_router)
 app.include_router(motor_router)
 app.include_router(wifi_router)
 app.include_router(ops_router)
+app.include_router(eval_router)
+app.include_router(parent_chat_router)
+app.include_router(learning_hub_router)
+app.include_router(exam_router)
+app.include_router(knowledge_router)
 app.include_router(persona_router)
 app.include_router(story_router)
 app.include_router(video_call_router)
@@ -191,7 +210,15 @@ def start_api_server(host: str = "0.0.0.0", port: int = 8000) -> None:
     from src.infrastructure.auth.auth import _get_jwt_config
     _get_jwt_config()
 
-    use_https = _USE_HTTPS
+    # SSL self-signed: KEY KHÔNG còn commit trong git (L-NEW-4) → tự sinh nếu thiếu,
+    # giữ HTTPS-by-default mà không lộ private key trong repo.
+    if not (_SSL_CERT.exists() and _SSL_KEY.exists()):
+        try:
+            from generate_ssl import generate_ssl as _gen_ssl
+            _gen_ssl()
+        except Exception as e:
+            print(f"[Server] Khong tao duoc SSL self-signed ({e}); chay HTTP")
+    use_https = _SSL_CERT.exists() and _SSL_KEY.exists()
     actual_port = 8443 if use_https else port
 
     def _run():

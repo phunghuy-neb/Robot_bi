@@ -1,0 +1,683 @@
+{
+  "subject": "art",
+  "exams": [
+    {
+      "paper_id": "art_exam_grade6_1",
+      "title": "Mỹ thuật — Thi vào lớp 6 (Đề 1)",
+      "track": "exam_grade6",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_5",
+      "age_group": "10-11",
+      "duration_minutes": 45,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_co_ban",
+      "questions": [
+        {
+          "question": "Ba màu cơ bản (màu gốc) trong hội họa là gì?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": [
+            "đỏ, vàng, xanh lam",
+            "đỏ, cam, vàng",
+            "đen, trắng, xám",
+            "xanh lá, tím, hồng"
+          ],
+          "answer": "đỏ, vàng, xanh lam",
+          "explanation": "Ba màu cơ bản là đỏ, vàng và xanh lam.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trộn màu vàng và màu xanh lam sẽ được màu gì?",
+          "question_vi": "",
+          "emoji": "🟢",
+          "options": [
+            "xanh lá cây",
+            "màu cam",
+            "màu tím",
+            "màu nâu"
+          ],
+          "answer": "xanh lá cây",
+          "explanation": "Vàng + xanh lam = xanh lá cây.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trộn màu đỏ và màu vàng sẽ được màu gì?",
+          "question_vi": "",
+          "emoji": "🟠",
+          "options": [
+            "màu cam",
+            "xanh lá",
+            "tím",
+            "đen"
+          ],
+          "answer": "màu cam",
+          "explanation": "Đỏ + vàng = cam.",
+          "difficulty": 2
+        },
+        {
+          "question": "Dụng cụ nào dùng để vẽ tranh màu nước?",
+          "question_vi": "",
+          "emoji": "🖌️",
+          "options": [
+            "cọ (bút lông) và màu nước",
+            "búa",
+            "kéo",
+            "thước kẻ"
+          ],
+          "answer": "cọ (bút lông) và màu nước",
+          "explanation": "Vẽ màu nước cần cọ (bút lông) và màu nước.",
+          "difficulty": 1
+        },
+        {
+          "question": "Trộn màu đỏ và xanh lam sẽ được màu gì?",
+          "question_vi": "",
+          "emoji": "🟣",
+          "options": [
+            "màu tím",
+            "xanh lá",
+            "cam",
+            "vàng"
+          ],
+          "answer": "màu tím",
+          "explanation": "Đỏ + xanh lam = tím.",
+          "difficulty": 2
+        },
+        {
+          "question": "Hình nào sau đây là hình khối (ba chiều)?",
+          "question_vi": "",
+          "emoji": "🧊",
+          "options": [
+            "khối lập phương",
+            "hình vuông",
+            "hình tròn",
+            "hình tam giác"
+          ],
+          "answer": "khối lập phương",
+          "explanation": "Khối lập phương là hình khối ba chiều; các hình còn lại là hình phẳng hai chiều.",
+          "difficulty": 2
+        },
+        {
+          "question": "Trộn màu trắng và màu đen cho ra màu gì?",
+          "question_vi": "",
+          "emoji": "⚪",
+          "options": [
+            "màu xám",
+            "màu đỏ",
+            "màu vàng",
+            "màu xanh"
+          ],
+          "answer": "màu xám",
+          "explanation": "Trắng + đen = xám.",
+          "difficulty": 1
+        },
+        {
+          "question": "Bức tranh dân gian “Đám cưới chuột” thuộc dòng tranh nào của Việt Nam?",
+          "question_vi": "",
+          "emoji": "🐭",
+          "options": [
+            "tranh Đông Hồ",
+            "tranh sơn mài",
+            "tranh lụa",
+            "tranh sơn dầu"
+          ],
+          "answer": "tranh Đông Hồ",
+          "explanation": "“Đám cưới chuột” là tranh dân gian Đông Hồ nổi tiếng.",
+          "difficulty": 2
+        },
+        {
+          "question": "Khi vẽ, để bức tranh đẹp ta cần chú ý điều gì?",
+          "question_vi": "",
+          "emoji": "🖼️",
+          "options": [
+            "bố cục và màu sắc hài hòa",
+            "vẽ thật nhanh không cần nhìn",
+            "dùng một màu duy nhất",
+            "vẽ kín giấy, không chừa khoảng trống"
+          ],
+          "answer": "bố cục và màu sắc hài hòa",
+          "explanation": "Tranh đẹp cần bố cục cân đối và màu sắc hài hòa.",
+          "difficulty": 1
+        }
+      ]
+    },
+    {
+      "paper_id": "art_exam_grade10_1",
+      "title": "Mỹ thuật — Thi vào lớp 10 (Đề 1)",
+      "track": "exam_grade10",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 60,
+      "pass_percent": 60,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_thcs",
+      "questions": [
+        {
+          "question": "Màu nóng thường gồm những màu nào?",
+          "question_vi": "",
+          "emoji": "🔥",
+          "options": [
+            "đỏ, cam, vàng",
+            "xanh lam, xanh lá, tím",
+            "đen, trắng, xám",
+            "hồng, nâu, be"
+          ],
+          "answer": "đỏ, cam, vàng",
+          "explanation": "Màu nóng gồm đỏ, cam, vàng — gợi cảm giác ấm áp.",
+          "difficulty": 2
+        },
+        {
+          "question": "Màu lạnh thường gồm những màu nào?",
+          "question_vi": "",
+          "emoji": "❄️",
+          "options": [
+            "xanh lam, xanh lá, tím",
+            "đỏ, cam, vàng",
+            "đen, trắng, xám",
+            "nâu, be, hồng"
+          ],
+          "answer": "xanh lam, xanh lá, tím",
+          "explanation": "Màu lạnh gồm xanh lam, xanh lá, tím — gợi cảm giác mát mẻ.",
+          "difficulty": 2
+        },
+        {
+          "question": "Phối cảnh (luật xa gần) trong tranh giúp thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🏞️",
+          "options": [
+            "chiều sâu không gian (vật ở xa nhỏ hơn vật ở gần)",
+            "âm thanh",
+            "mùi hương",
+            "nhiệt độ"
+          ],
+          "answer": "chiều sâu không gian (vật ở xa nhỏ hơn vật ở gần)",
+          "explanation": "Luật xa gần (phối cảnh) tạo cảm giác chiều sâu: vật ở xa vẽ nhỏ hơn vật ở gần.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tranh tĩnh vật vẽ về đối tượng nào?",
+          "question_vi": "",
+          "emoji": "🍎",
+          "options": [
+            "đồ vật, hoa quả ở trạng thái tĩnh",
+            "người đang chạy",
+            "phong cảnh động",
+            "trận đánh"
+          ],
+          "answer": "đồ vật, hoa quả ở trạng thái tĩnh",
+          "explanation": "Tranh tĩnh vật vẽ các đồ vật, hoa quả… ở trạng thái tĩnh.",
+          "difficulty": 2
+        },
+        {
+          "question": "Tỉ lệ (proportion) khi vẽ hình người/đồ vật chỉ điều gì?",
+          "question_vi": "",
+          "emoji": "📏",
+          "options": [
+            "mối tương quan về kích thước giữa các bộ phận",
+            "màu sắc",
+            "độ sáng",
+            "chất liệu giấy"
+          ],
+          "answer": "mối tương quan về kích thước giữa các bộ phận",
+          "explanation": "Tỉ lệ là tương quan kích thước giữa các bộ phận của đối tượng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Tranh “sơn mài” sử dụng chất liệu chính nào?",
+          "question_vi": "",
+          "emoji": "🖌️",
+          "options": [
+            "sơn ta (nhựa cây sơn) vẽ trên vóc",
+            "màu nước trên giấy",
+            "phấn màu",
+            "chì than"
+          ],
+          "answer": "sơn ta (nhựa cây sơn) vẽ trên vóc",
+          "explanation": "Tranh sơn mài dùng sơn ta (nhựa cây sơn) vẽ trên tấm vóc.",
+          "difficulty": 3
+        },
+        {
+          "question": "Leonardo da Vinci là tác giả của bức tranh nổi tiếng nào?",
+          "question_vi": "",
+          "emoji": "🖼️",
+          "options": [
+            "Mona Lisa (Nàng Mona Lisa)",
+            "Đêm đầy sao",
+            "Hoa hướng dương",
+            "Tiếng thét"
+          ],
+          "answer": "Mona Lisa (Nàng Mona Lisa)",
+          "explanation": "“Mona Lisa” là kiệt tác của Leonardo da Vinci.",
+          "difficulty": 3
+        },
+        {
+          "question": "Gam màu trung tính (vô sắc) gồm những màu nào?",
+          "question_vi": "",
+          "emoji": "⬜",
+          "options": [
+            "đen, trắng, xám",
+            "đỏ, vàng, xanh",
+            "tím, cam, hồng",
+            "nâu, be, vàng chanh"
+          ],
+          "answer": "đen, trắng, xám",
+          "explanation": "Màu trung tính (vô sắc) gồm đen, trắng và xám.",
+          "difficulty": 2
+        }
+      ]
+    },
+    {
+      "paper_id": "art_exam_thpt_1",
+      "title": "Mỹ thuật — Ôn thi THPT (Đề 1)",
+      "track": "exam_thpt",
+      "comp_level": "",
+      "skill": "",
+      "level": "grade_12",
+      "age_group": "15-18",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_thpt",
+      "questions": [
+        {
+          "question": "Trường phái hội họa Ấn tượng (Impressionism) nổi bật với đặc điểm nào?",
+          "question_vi": "",
+          "emoji": "🌅",
+          "options": [
+            "ghi lại ấn tượng về ánh sáng, màu sắc tại một khoảnh khắc",
+            "vẽ chi tiết tỉ mỉ như ảnh chụp",
+            "chỉ dùng màu đen trắng",
+            "chỉ vẽ hình học trừu tượng"
+          ],
+          "answer": "ghi lại ấn tượng về ánh sáng, màu sắc tại một khoảnh khắc",
+          "explanation": "Ấn tượng chú trọng ghi lại ấn tượng về ánh sáng, màu sắc trong khoảnh khắc.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bức tranh “Đêm đầy sao” (The Starry Night) là của họa sĩ nào?",
+          "question_vi": "",
+          "emoji": "🌌",
+          "options": [
+            "Vincent van Gogh",
+            "Pablo Picasso",
+            "Leonardo da Vinci",
+            "Claude Monet"
+          ],
+          "answer": "Vincent van Gogh",
+          "explanation": "“Đêm đầy sao” là tác phẩm nổi tiếng của Vincent van Gogh.",
+          "difficulty": 4
+        },
+        {
+          "question": "Nghệ thuật điêu khắc khác hội họa ở điểm cơ bản nào?",
+          "question_vi": "",
+          "emoji": "🗿",
+          "options": [
+            "tạo hình khối ba chiều trong không gian",
+            "chỉ vẽ trên mặt phẳng hai chiều",
+            "chỉ dùng màu nước",
+            "chỉ là nhiếp ảnh"
+          ],
+          "answer": "tạo hình khối ba chiều trong không gian",
+          "explanation": "Điêu khắc tạo hình khối ba chiều, còn hội họa thể hiện trên mặt phẳng.",
+          "difficulty": 3
+        },
+        {
+          "question": "Vòng tròn màu (color wheel) dùng để làm gì?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": [
+            "biểu thị mối quan hệ giữa các màu sắc",
+            "đo thời gian",
+            "đo nhiệt độ",
+            "vẽ hình tròn cho đẹp"
+          ],
+          "answer": "biểu thị mối quan hệ giữa các màu sắc",
+          "explanation": "Vòng tròn màu thể hiện quan hệ giữa các màu (bổ túc, tương đồng…).",
+          "difficulty": 4
+        },
+        {
+          "question": "Bức tranh “Em Thúy” nổi tiếng là của họa sĩ Việt Nam nào?",
+          "question_vi": "",
+          "emoji": "👧",
+          "options": [
+            "Trần Văn Cẩn",
+            "Tô Ngọc Vân",
+            "Bùi Xuân Phái",
+            "Nguyễn Phan Chánh"
+          ],
+          "answer": "Trần Văn Cẩn",
+          "explanation": "“Em Thúy” là tác phẩm nổi tiếng của họa sĩ Trần Văn Cẩn.",
+          "difficulty": 4
+        },
+        {
+          "question": "Họa sĩ Bùi Xuân Phái nổi tiếng với đề tài tranh nào?",
+          "question_vi": "",
+          "emoji": "🏘️",
+          "options": [
+            "phố cổ Hà Nội (“Phố Phái”)",
+            "tranh biển",
+            "tranh chân dung vua chúa",
+            "tranh trừu tượng hình học"
+          ],
+          "answer": "phố cổ Hà Nội (“Phố Phái”)",
+          "explanation": "Bùi Xuân Phái nổi tiếng với tranh phố cổ Hà Nội, gọi là “Phố Phái”.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tranh trừu tượng (abstract) có đặc điểm gì?",
+          "question_vi": "",
+          "emoji": "🌀",
+          "options": [
+            "dùng hình, màu, đường nét để biểu đạt, không mô tả sự vật một cách hiện thực",
+            "luôn vẽ giống hệt thật",
+            "chỉ dùng bút chì",
+            "thực chất là ảnh chụp"
+          ],
+          "answer": "dùng hình, màu, đường nét để biểu đạt, không mô tả sự vật một cách hiện thực",
+          "explanation": "Tranh trừu tượng dùng hình, màu, đường nét để biểu đạt thay vì tả thực.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "art_hsg_school_1",
+      "title": "Mỹ thuật — HSG cấp trường (Đề 1)",
+      "track": "hsg_school",
+      "comp_level": "school",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 90,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_nang_cao",
+      "questions": [
+        {
+          "question": "Bố cục theo “tỉ lệ vàng” trong nghệ thuật xấp xỉ tỉ lệ nào?",
+          "question_vi": "",
+          "emoji": "📐",
+          "options": [
+            "1 : 1,618",
+            "1 : 1",
+            "2 : 1",
+            "3 : 1"
+          ],
+          "answer": "1 : 1,618",
+          "explanation": "Tỉ lệ vàng xấp xỉ 1 : 1,618.",
+          "difficulty": 4
+        },
+        {
+          "question": "Màu bổ túc (tương phản) của màu đỏ theo vòng tròn màu cơ bản là màu nào?",
+          "question_vi": "",
+          "emoji": "🟢",
+          "options": [
+            "xanh lá",
+            "vàng",
+            "cam",
+            "tím"
+          ],
+          "answer": "xanh lá",
+          "explanation": "Trên vòng tròn màu cơ bản, màu bổ túc của đỏ là xanh lá.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tranh lụa truyền thống Việt Nam được vẽ trên chất liệu gì?",
+          "question_vi": "",
+          "emoji": "🧵",
+          "options": [
+            "lụa (tơ tằm)",
+            "giấy báo",
+            "vải bạt",
+            "gỗ"
+          ],
+          "answer": "lụa (tơ tằm)",
+          "explanation": "Tranh lụa được vẽ trên nền lụa (tơ tằm).",
+          "difficulty": 4
+        },
+        {
+          "question": "Sắc độ (đậm – nhạt) trong tranh dùng để thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🌗",
+          "options": [
+            "khối, ánh sáng và chiều sâu",
+            "âm thanh",
+            "mùi vị",
+            "nhiệt độ"
+          ],
+          "answer": "khối, ánh sáng và chiều sâu",
+          "explanation": "Sắc độ đậm nhạt giúp thể hiện khối, ánh sáng và chiều sâu của vật thể.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong “bộ tứ” danh họa “nhất Trí, nhì Vân, tam Lân, tứ Cẩn”, chữ “Vân” chỉ họa sĩ nào?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": [
+            "Tô Ngọc Vân",
+            "Nguyễn Gia Trí",
+            "Nguyễn Tường Lân",
+            "Trần Văn Cẩn"
+          ],
+          "answer": "Tô Ngọc Vân",
+          "explanation": "“Vân” trong bộ tứ danh họa chỉ họa sĩ Tô Ngọc Vân.",
+          "difficulty": 4
+        },
+        {
+          "question": "Kỹ thuật “ký họa” trong mỹ thuật là gì?",
+          "question_vi": "",
+          "emoji": "✏️",
+          "options": [
+            "vẽ nhanh, ghi lại hình ảnh, dáng vẻ đối tượng bằng nét đơn giản",
+            "vẽ tỉ mỉ trong nhiều ngày",
+            "tô màu kín toàn bộ tranh",
+            "nặn tượng"
+          ],
+          "answer": "vẽ nhanh, ghi lại hình ảnh, dáng vẻ đối tượng bằng nét đơn giản",
+          "explanation": "Ký họa là vẽ nhanh, ghi lại hình dáng đối tượng bằng nét cơ bản, đơn giản.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "art_hsg_district_1",
+      "title": "Mỹ thuật — HSG cấp huyện (Đề 1)",
+      "track": "hsg_district",
+      "comp_level": "district",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 120,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_nang_cao",
+      "questions": [
+        {
+          "question": "Yếu tố nào sau đây KHÔNG phải là yếu tố tạo hình cơ bản của hội họa?",
+          "question_vi": "",
+          "emoji": "🚫",
+          "options": [
+            "âm thanh",
+            "đường nét",
+            "hình mảng",
+            "màu sắc"
+          ],
+          "answer": "âm thanh",
+          "explanation": "Yếu tố tạo hình cơ bản gồm đường nét, hình mảng, màu sắc; âm thanh thuộc âm nhạc.",
+          "difficulty": 4
+        },
+        {
+          "question": "Màu bổ túc của màu vàng (theo vòng tròn màu) là màu nào?",
+          "question_vi": "",
+          "emoji": "🟣",
+          "options": [
+            "tím",
+            "đỏ",
+            "xanh lá",
+            "cam"
+          ],
+          "answer": "tím",
+          "explanation": "Trên vòng tròn màu cơ bản, màu bổ túc của vàng là tím.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tranh sơn dầu sử dụng màu pha với chất liệu nào?",
+          "question_vi": "",
+          "emoji": "🛢️",
+          "options": [
+            "dầu (dầu lanh)",
+            "nước lã",
+            "sữa",
+            "mật ong"
+          ],
+          "answer": "dầu (dầu lanh)",
+          "explanation": "Tranh sơn dầu dùng bột màu pha với dầu (thường là dầu lanh).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trường phái Lập thể (Cubism) gắn liền với tên tuổi họa sĩ nào?",
+          "question_vi": "",
+          "emoji": "🟦",
+          "options": [
+            "Pablo Picasso",
+            "Claude Monet",
+            "Leonardo da Vinci",
+            "Raphael"
+          ],
+          "answer": "Pablo Picasso",
+          "explanation": "Pablo Picasso là đại diện tiêu biểu của trường phái Lập thể.",
+          "difficulty": 4
+        },
+        {
+          "question": "Tranh khắc gỗ dân gian Đông Hồ được in trên loại giấy đặc trưng nào?",
+          "question_vi": "",
+          "emoji": "📜",
+          "options": [
+            "giấy điệp",
+            "giấy báo",
+            "giấy bìa cứng",
+            "vải"
+          ],
+          "answer": "giấy điệp",
+          "explanation": "Tranh Đông Hồ in trên giấy điệp (quét bột vỏ điệp tạo lớp óng ánh).",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong vẽ chân dung, khuôn mặt người thường được chia thành mấy phần theo chiều dọc (cơ bản)?",
+          "question_vi": "",
+          "emoji": "🙂",
+          "options": [
+            "ba phần bằng nhau",
+            "hai phần",
+            "năm phần",
+            "mười phần"
+          ],
+          "answer": "ba phần bằng nhau",
+          "explanation": "Khuôn mặt cơ bản chia 3 phần theo chiều dọc: trán, mũi, miệng–cằm.",
+          "difficulty": 4
+        }
+      ]
+    },
+    {
+      "paper_id": "art_hsg_province_1",
+      "title": "Mỹ thuật — HSG cấp tỉnh (Đề 1)",
+      "track": "hsg_province",
+      "comp_level": "province",
+      "skill": "",
+      "level": "grade_9",
+      "age_group": "14-15",
+      "duration_minutes": 150,
+      "pass_percent": 50,
+      "school_year": "2025-2026",
+      "topic": "my_thuat_chuyen_sau",
+      "questions": [
+        {
+          "question": "Trường phái Siêu thực (Surrealism) trong hội họa thể hiện điều gì?",
+          "question_vi": "",
+          "emoji": "🌀",
+          "options": [
+            "thế giới của giấc mơ, tiềm thức và sự phi lý",
+            "cảnh vật hiện thực chính xác",
+            "chỉ hình học",
+            "chỉ chân dung"
+          ],
+          "answer": "thế giới của giấc mơ, tiềm thức và sự phi lý",
+          "explanation": "Siêu thực khai thác thế giới giấc mơ, tiềm thức và những hình ảnh phi lý.",
+          "difficulty": 4
+        },
+        {
+          "question": "Họa sĩ Salvador Dalí thuộc trường phái nào?",
+          "question_vi": "",
+          "emoji": "🎨",
+          "options": [
+            "Siêu thực (Surrealism)",
+            "Ấn tượng",
+            "Phục Hưng",
+            "Lập thể"
+          ],
+          "answer": "Siêu thực (Surrealism)",
+          "explanation": "Salvador Dalí là đại diện nổi tiếng của trường phái Siêu thực.",
+          "difficulty": 4
+        },
+        {
+          "question": "Thời kỳ Phục Hưng (Renaissance) trong nghệ thuật bắt nguồn từ quốc gia nào?",
+          "question_vi": "",
+          "emoji": "🏛️",
+          "options": [
+            "Ý (Italia)",
+            "Pháp",
+            "Hà Lan",
+            "Tây Ban Nha"
+          ],
+          "answer": "Ý (Italia)",
+          "explanation": "Phong trào Phục Hưng khởi nguồn từ nước Ý.",
+          "difficulty": 4
+        },
+        {
+          "question": "Bức tượng “David” nổi tiếng thời Phục Hưng là tác phẩm của ai?",
+          "question_vi": "",
+          "emoji": "🗿",
+          "options": [
+            "Michelangelo",
+            "Leonardo da Vinci",
+            "Raphael",
+            "Donatello"
+          ],
+          "answer": "Michelangelo",
+          "explanation": "Tượng “David” bằng đá cẩm thạch nổi tiếng nhất là của Michelangelo.",
+          "difficulty": 4
+        },
+        {
+          "question": "“Nghệ thuật vị nghệ thuật” và “nghệ thuật vị nhân sinh” là hai quan điểm về điều gì?",
+          "question_vi": "",
+          "emoji": "💭",
+          "options": [
+            "mục đích, chức năng của nghệ thuật",
+            "kỹ thuật pha màu",
+            "cách đóng khung tranh",
+            "giá bán tranh"
+          ],
+          "answer": "mục đích, chức năng của nghệ thuật",
+          "explanation": "Đây là hai quan điểm về mục đích, chức năng của nghệ thuật đối với đời sống.",
+          "difficulty": 4
+        },
+        {
+          "question": "Trong lý thuyết màu, “độ bão hòa” (saturation) của màu chỉ điều gì?",
+          "question_vi": "",
+          "emoji": "🌈",
+          "options": [
+            "độ tinh khiết/rực rỡ của màu",
+            "độ sáng tối",
+            "kích thước vùng màu",
+            "vị trí của màu trên tranh"
+          ],
+          "answer": "độ tinh khiết/rực rỡ của màu",
+          "explanation": "Độ bão hòa chỉ mức độ tinh khiết, rực rỡ của một màu.",
+          "difficulty": 4
+        }
+      ]
+    }
+  ]
+}

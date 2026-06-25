@@ -11,11 +11,38 @@ import copy
 import json
 import logging
 import os
+from enum import Enum
 from typing import Any
 
 from src.infrastructure.database.db import get_db_connection
 
 logger = logging.getLogger(__name__)
+
+
+class ConversationContext(Enum):
+    PLAY    = "play"
+    TEACH   = "teach"
+    COMFORT = "comfort"
+    IDLE    = "idle"
+
+
+# Vietnamese keyword sets for lightweight context detection.
+# Priority when overlapping: COMFORT > TEACH > PLAY > IDLE.
+_COMFORT_KEYWORDS: frozenset[str] = frozenset({
+    "buồn", "khóc", "sợ", "đau", "mệt", "chán", "tức",
+    "lo", "lo lắng", "không vui", "ghét", "nhớ", "khó chịu",
+    "bực", "bực mình", "cô đơn", "buồn bực",
+})
+_TEACH_KEYWORDS: frozenset[str] = frozenset({
+    "học", "bài", "toán", "giải", "nghĩa", "cách", "hướng dẫn",
+    "tại sao", "vì sao", "làm sao", "bài tập", "đề bài", "giải thích",
+    "bài toán", "kiến thức", "ôn", "ôn bài", "đọc", "viết", "tính",
+    "kiểm tra", "thi", "luyện", "công thức", "đáp án", "kết quả",
+})
+_PLAY_KEYWORDS: frozenset[str] = frozenset({
+    "chơi", "trò chơi", "đố", "câu đố", "vui", "hát",
+    "kể chuyện", "bài hát", "truyện", "game", "trò", "cười", "nhảy",
+})
 
 DEFAULT_PERSONA = {
     "name": "Bi",
@@ -32,6 +59,10 @@ DEFAULT_PERSONA = {
 _VALID_GENDERS = {"male", "female", "neutral"}
 _VALID_LANGUAGES = {"vi", "en", "ja", "ko", "zh", "fr", "de", "es"}
 _PERSONALITY_KEYS = {"playfulness", "extraversion", "energy"}
+
+# Persona MẶC ĐỊNH GLOBAL do admin đặt: gia đình CHƯA tự cấu hình sẽ kế thừa.
+# (Family này không phải gia đình thật — chỉ là khóa lưu template.)
+GLOBAL_PERSONA_FAMILY = "__global__"
 
 
 class PersonaManager:
@@ -69,6 +100,12 @@ class PersonaManager:
                     "SELECT data FROM persona WHERE family_id = ?",
                     (self.family_id,),
                 ).fetchone()
+                # Gia đình chưa cấu hình → kế thừa persona mặc định GLOBAL của admin (nếu có).
+                if not row and self.family_id != GLOBAL_PERSONA_FAMILY:
+                    row = conn.execute(
+                        "SELECT data FROM persona WHERE family_id = ?",
+                        (GLOBAL_PERSONA_FAMILY,),
+                    ).fetchone()
             if not row:
                 return
 
@@ -162,18 +199,89 @@ class PersonaManager:
         try:
             p = self._persona["personality"]
             traits = []
-            traits.append("vui ve, hoi nghich ngom" if p["playfulness"] >= 70 else "diem dam, nghiem tuc vua phai")
-            traits.append("chu dong bat chuyen" if p["extraversion"] >= 60 else "nhe nhang va biet lang nghe")
-            traits.append("nang dong" if p["energy"] >= 65 else "binh tinh")
+            traits.append(
+                "vui ve, hoi nghich ngom, dung vi du gan tre em"
+                if p["playfulness"] >= 70
+                else "diem dam, nghiem tuc vua phai, khong kho khan"
+            )
+            traits.append(
+                "chu dong bat chuyen bang mot cau hoi ngan"
+                if p["extraversion"] >= 60
+                else "nhe nhang, biet lang nghe, khong hoi don dap"
+            )
+            traits.append(
+                "nang dong nhung cau van van ngan gon"
+                if p["energy"] >= 65
+                else "binh tinh, cham lai khi be can suy nghi"
+            )
             name = self.get_name()
             language = "Tieng Viet" if self._persona.get("language") == "vi" else self._persona.get("language", "vi")
             return (
                 f"Robot ten la {name}. Hay tra loi bang {language}, "
-                f"phong cach {', '.join(traits)}, phu hop tre em 5-12 tuoi."
+                f"phong cach {', '.join(traits)}, phu hop tre em 5-12 tuoi. "
+                "Neu khong biet tuoi, hay noi theo muc 7-9 tuoi: don gian, gan gui, roi hoi them."
             )
         except Exception:
             logger.exception("[PersonaManager] Khong the tao prompt modifier")
-            return "Hay tra loi than thien, an toan va phu hop tre em 5-12 tuoi."
+            return "Hay tra loi than thien, an toan, ngan gon va phu hop tre em 5-12 tuoi."
+
+    def detect_context(
+        self,
+        user_text: str,
+        recent_history: list[str] | None = None,
+    ) -> ConversationContext:
+        """Infer conversation context from user_text keywords.
+
+        Priority: COMFORT > TEACH > PLAY > IDLE.
+        Single-word keywords are matched by set intersection; multi-word
+        phrases (e.g. "không vui", "bài tập") are matched by substring.
+        recent_history is accepted for future use but not consulted yet.
+        """
+        text_lower = user_text.lower()
+        words = set(text_lower.split())
+
+        def _matches(kw_set: frozenset) -> bool:
+            for kw in kw_set:
+                if ' ' in kw:
+                    if kw in text_lower:
+                        return True
+                elif kw in words:
+                    return True
+            return False
+
+        if _matches(_COMFORT_KEYWORDS):
+            return ConversationContext.COMFORT
+        if _matches(_TEACH_KEYWORDS):
+            return ConversationContext.TEACH
+        if _matches(_PLAY_KEYWORDS):
+            return ConversationContext.PLAY
+        return ConversationContext.IDLE
+
+    def get_context_prompt_modifier(self, context: ConversationContext) -> str:
+        """Return a system prompt modifier tuned for the given conversation context."""
+        _MODIFIERS: dict[ConversationContext, str] = {
+            ConversationContext.PLAY: (
+                "Bi đang chơi vui cùng bé! Hãy hồn nhiên, vui vẻ, dùng ngôn ngữ "
+                "tự nhiên như 'á nha nhé', đặt câu hỏi ngắn để rủ bé tham gia. "
+                "Dùng ví dụ đồ chơi, con vật, bánh kẹo hoặc trò chơi. Tránh câu dài và từ ngữ học thuật."
+            ),
+            ConversationContext.TEACH: (
+                "Bé đang học bài. Hãy kiên nhẫn, giải thích từng bước ngắn gọn, "
+                "dùng ví dụ gần gũi với trẻ em, khuyến khích nhẹ nhàng khi bé "
+                "cố gắng. Hỏi bé thử làm hoặc giải thích lại trước khi đưa đáp án. "
+                "Không nói quá nhiều một lúc."
+            ),
+            ConversationContext.COMFORT: (
+                "Bé đang không vui hoặc gặp khó khăn. Hãy nhẹ nhàng, ấm áp, "
+                "lắng nghe trước khi nói, không phán xét, không ép bé chia sẻ. "
+                "Không mở đầu bằng giọng quá vui; hãy hỏi thăm một câu thật ngắn."
+            ),
+            ConversationContext.IDLE: (
+                "Bi đang trò chuyện tự nhiên. Hãy thân thiện, ngắn gọn, "
+                "tò mò về bé và khơi gợi câu chuyện vui bằng một câu hỏi dễ trả lời."
+            ),
+        }
+        return _MODIFIERS.get(context, _MODIFIERS[ConversationContext.IDLE])
 
     def get_voice_id(self) -> str:
         """Tra ve voice ID cho TTS."""

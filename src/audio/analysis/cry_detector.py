@@ -18,6 +18,12 @@ import logging
 import numpy as np
 from pathlib import Path
 
+from src.audio.input.microphone_utils import (
+    CallbackMicrophoneStream,
+    probe_input_device,
+    resample_audio,
+)
+
 logger = logging.getLogger("cry_detector")
 _yamnet_fallback_notice_printed = False
 _mic_unavailable_notice_printed = False
@@ -47,14 +53,23 @@ class CryDetector:
         detector.stop()
     """
 
-    def __init__(self, on_cry_callback=None, mic_index: int = None):
+    def __init__(
+        self,
+        on_cry_callback=None,
+        mic_index: int = None,
+        excluded_mic_indexes: set[int] | None = None,
+    ):
         """
         Args:
             on_cry_callback: callable() — gọi khi phát hiện tiếng khóc
             mic_index: index microphone (None = mặc định)
+            excluded_mic_indexes: microphone indexes reserved by STT/wake word
         """
         self.on_cry_callback = on_cry_callback
         self.mic_index = mic_index
+        self.excluded_mic_indexes = set(excluded_mic_indexes or set())
+        self.active_mic_index: int | None = None
+        self.active_mic_name: str | None = None
         self._running = False
         self._thread: threading.Thread | None = None
         self._last_alert_time: float = 0.0
@@ -192,29 +207,41 @@ class CryDetector:
 
     def _detection_loop(self) -> None:
         """Vòng lặp chính chạy trong daemon thread."""
-        try:
-            import sounddevice as sd
-        except ImportError:
-            logger.error(
-                "[Bi - Tai khoc] sounddevice chua cai — CryDetector khong hoat dong."
-            )
-            self._running = False
-            return
-
         method = "YAMNet" if self._yamnet_available else "energy fallback"
-        logger.info("[Bi - Tai khoc] Bat dau lang nghe tieng khoc (%s)", method)
-
-        while self._running:
-            try:
-                audio = sd.rec(
-                    CHUNK_FRAMES,
-                    samplerate=SAMPLE_RATE,
-                    channels=1,
-                    dtype='float32',
-                    device=self.mic_index,
+        stream = None
+        try:
+            config = probe_input_device(
+                preferred_index=self.mic_index,
+                target_rate=SAMPLE_RATE,
+                excluded_indexes=self.excluded_mic_indexes,
+            )
+            if config is None:
+                self._handle_mic_unavailable_once(
+                    RuntimeError("No input device available for CryDetector")
                 )
-                sd.wait()
-                audio = audio.flatten()
+                return
+
+            self.active_mic_index = config.device_index
+            self.active_mic_name = config.name
+            stream = CallbackMicrophoneStream(
+                config,
+                chunk_ms=int(CHUNK_SECONDS * 1000),
+            )
+            stream.start()
+            logger.info(
+                "[Bi - Tai khoc] Bat dau lang nghe (%s, mic=%d, %d Hz)",
+                method,
+                config.device_index,
+                config.sample_rate,
+            )
+
+            while self._running:
+                audio = stream.read(timeout=2.0)
+                audio = resample_audio(
+                    audio,
+                    config.sample_rate,
+                    SAMPLE_RATE,
+                )
 
                 # Kiểm tra phát hiện
                 is_crying = False
@@ -248,13 +275,13 @@ class CryDetector:
                         except Exception as e:
                             logger.error("[Bi - Tai khoc] callback loi: %s", e)
 
-            except Exception as e:
-                if self._handle_mic_unavailable_once(e):
-                    return
-                logger.warning(
-                    "[Bi - Tai khoc] Loi trong detection loop: %s — tiep tuc", e
-                )
-                time.sleep(1.0)
+        except Exception as e:
+            if not self._handle_mic_unavailable_once(e):
+                logger.warning("[Bi - Tai khoc] Detection loop stopped: %s", e)
+            self._running = False
+        finally:
+            if stream is not None:
+                stream.stop()
 
     def start(self) -> None:
         """Bắt đầu detection trong daemon thread. Non-blocking."""
@@ -280,6 +307,8 @@ class CryDetector:
             "is_running": self.is_running(),
             "yamnet_available": self._yamnet_available,
             "total_detections": self._detections,
+            "mic_index": self.active_mic_index,
+            "mic_name": self.active_mic_name,
         }
 
 
