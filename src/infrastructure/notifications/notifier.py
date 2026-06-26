@@ -18,7 +18,16 @@ from src.infrastructure.database.db import _normalize_family_id, ensure_family_e
 
 logger = logging.getLogger("notifier")
 
-EventType = Literal["motion", "stranger", "known_face", "cry", "chat", "system", "homework"]
+EventType = Literal[
+    "motion",
+    "stranger",
+    "known_face",
+    "cry",
+    "chat",
+    "system",
+    "homework",
+    "special_memory_due",
+]
 
 _MAX_EVENTS = 500
 _WS_ENABLED = False

@@ -9030,6 +9030,142 @@ test("97.4  WS broadcast fail-closed khi thiếu family_id",                    
 test("97.5  Auth refresh reuse-detection (revoke all + bump tv)",             test_97_refresh_reuse_detection)
 test("97.6  RAG quota enforced + prune OLDEST",                               test_97_rag_quota_and_prune_oldest)
 
+# == GROUP 98: Parent/Admin App playable games ===============================
+print("\n[Group 98] Parent/Admin App — trò chơi dùng được không cần phần cứng")
+
+
+def test_98_parent_more_page_games_are_playable():
+    from pathlib import Path as _P
+    api_src = _P("frontend/parent_app/src/services/api.js").read_text(encoding="utf-8")
+    page_src = _P("frontend/parent_app/src/pages/MorePage.jsx").read_text(encoding="utf-8")
+
+    for name in (
+        "startWordQuiz", "getWordQuizQuestion", "answerWordQuiz", "endWordQuiz",
+        "startVoiceQuiz", "getVoiceQuizRiddle", "answerVoiceQuiz", "getGameScores",
+    ):
+        assert f"export async function {name}" in api_src, f"api.js phải export {name}"
+        assert name in page_src, f"MorePage phải dùng {name}"
+
+    assert "url: g.source_url" in api_src, "getInteractiveGames phải giữ source_url để mở game"
+    assert "tags: g.tags" in api_src, "getInteractiveGames phải giữ tags để suy luận loại game"
+    assert "Interactive games — coming soon" not in page_src
+    assert "Sắp ra" not in page_src
+    assert "FeatureBadge" not in page_src, "Game card không còn badge coming-soon"
+
+
+def test_98_admin_content_game_presets():
+    from pathlib import Path as _P
+    content_src = _P("frontend/parent_app/src/pages/admin/ContentAdminPage.jsx").read_text(encoding="utf-8")
+    admin_src = _P("frontend/parent_app/src/pages/admin/AdminApp.jsx").read_text(encoding="utf-8")
+
+    assert "GAME_PRESETS" in content_src, "Admin Content cần preset game"
+    assert "/api/game/word-quiz/start" in content_src, "Admin Content cần preset Word Quiz"
+    assert "/api/game/voice-quiz/start" in content_src, "Admin Content cần preset Voice Quiz"
+    assert "Chơi trong Parent App" in content_src, "Bảng content cần chỉ rõ game chạy trong app"
+    assert "sắp có" not in admin_src.lower(), "Admin sidebar không còn placeholder sắp có"
+
+
+test("98.1  Parent MorePage mở game thật thay vì coming-soon",                test_98_parent_more_page_games_are_playable)
+test("98.2  Admin Content có preset game chạy trong Parent App",              test_98_admin_content_game_presets)
+
+# == GROUP 99: Parent App journal + special-memory reminders =================
+print("\n[Group 99] Parent App — Nhật ký + nhắc kỷ niệm không cần phần cứng")
+
+
+def test_99_journal_filters_and_browser_playback_are_wired():
+    from pathlib import Path as _P
+
+    journal_src = _P("frontend/parent_app/src/pages/JournalPage.jsx").read_text(encoding="utf-8")
+    style_src = _P("frontend/parent_app/src/styles.css").read_text(encoding="utf-8")
+
+    assert "FeatureBadge" not in journal_src, "Journal không được giữ badge coming-soon"
+    assert "Lọc theo thiết bị" not in journal_src, "Bộ lọc nâng cao phải là filter thật"
+    assert "disabled title=\"Sắp hỗ trợ\"" not in journal_src, "Phát lại hội thoại không được disabled placeholder"
+    assert "advancedFilters" in journal_src and "journal-advanced-panel" in journal_src
+    assert "filterType === 'chat' && c.is_homework" in journal_src, "Tab Trò chuyện phải loại hội thoại bài tập"
+    assert "speechSynthesis" in journal_src and "SpeechSynthesisUtterance" in journal_src
+    assert "handleReplayThread" in journal_src and "stopPlayback" in journal_src
+    assert ".journal-playback-bar" in style_src and ".chat-entry.is-playing" in style_src
+
+
+def test_99_special_memory_due_event_idempotent():
+    import datetime as _dt
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+
+    fam = f"sm-event-{_uuid.uuid4().hex[:6]}"
+    _, headers = _admin_mk_user("smevent", fam, False)
+    client = TestClient(app)
+    today = _dt.date.today()
+    token = f"Kỷ niệm test {today.isoformat()} {_uuid.uuid4().hex[:8]}"
+
+    created_memory = client.post(
+        "/api/memories/special",
+        json={"title": token, "kind": "birthday", "memory_date": f"{today.day}/{today.month}", "note": "unit"},
+        headers=headers,
+    )
+    assert created_memory.status_code == 200, created_memory.text
+
+    first = client.post("/api/memories/special/remind-due", headers=headers)
+    assert first.status_code == 200, first.text
+    first_json = first.json()
+    assert first_json["ok"] is True
+    assert first_json["due_count"] == 1
+    assert first_json["created_count"] == 1
+    assert first_json["events"][0]["type"] == "special_memory_due"
+    assert first_json["events"][0]["metadata"]["title"] == token
+
+    second = client.post("/api/memories/special/remind-due", headers=headers)
+    assert second.status_code == 200, second.text
+    second_json = second.json()
+    assert second_json["due_count"] == 1
+    assert second_json["created_count"] == 0, "Gọi lại trong cùng ngày không được tạo event trùng"
+
+    listed = client.get(
+        f"/api/events?types=special_memory_due&q={token}&limit=10",
+        headers=headers,
+    )
+    assert listed.status_code == 200, listed.text
+    payload = listed.json()
+    assert payload["total"] == 1
+    event = payload["events"][0]
+    assert event["family_id"] == fam
+    assert event["type"] == "special_memory_due"
+    assert event["metadata"]["source"] == "special_memories"
+
+
+def test_99_special_memory_reminder_frontend_wired():
+    from pathlib import Path as _P
+
+    api_src = _P("frontend/parent_app/src/services/api.js").read_text(encoding="utf-8")
+    memory_src = _P("frontend/parent_app/src/components/SpecialMemories.jsx").read_text(encoding="utf-8")
+    style_src = _P("frontend/parent_app/src/styles.css").read_text(encoding="utf-8")
+
+    assert "export async function remindDueSpecialMemories" in api_src
+    assert "/api/memories/special/remind-due" in api_src
+    assert "remindDueSpecialMemories" in memory_src
+    assert "Ghi vào Nhật ký" in memory_src
+    assert "special-memory-alert" in memory_src and ".special-memory-alert" in style_src
+
+
+def test_99_parent_app_child_picker_replaces_placeholder():
+    from pathlib import Path as _P
+
+    app_src = _P("frontend/parent_app/src/App.jsx").read_text(encoding="utf-8")
+    style_src = _P("frontend/parent_app/src/styles.css").read_text(encoding="utf-8")
+
+    assert "Chọn hồ sơ trẻ: Sắp hỗ trợ" not in app_src
+    assert "getChildProfiles" in app_src
+    assert "childPickerOpen" in app_src and "chooseChild" in app_src
+    assert "child-picker-panel" in app_src and ".child-picker-panel" in style_src
+    assert "Quản lý hồ sơ" in app_src, "Selector cần nối sang SettingsOverlay để thêm/sửa hồ sơ"
+
+
+test("99.1  Journal có filter nâng cao thật + browser playback",              test_99_journal_filters_and_browser_playback_are_wired)
+test("99.2  Special memory due event idempotent + family-scoped",             test_99_special_memory_due_event_idempotent)
+test("99.3  Special Memories UI gọi endpoint ghi nhắc vào Nhật ký",           test_99_special_memory_reminder_frontend_wired)
+test("99.4  Parent App chọn hồ sơ trẻ thật thay vì toast sắp hỗ trợ",         test_99_parent_app_child_picker_replaces_placeholder)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

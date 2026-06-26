@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSpecialMemories, addSpecialMemory, deleteSpecialMemory, showToast } from '../services/api.js';
+import {
+  getSpecialMemories,
+  addSpecialMemory,
+  deleteSpecialMemory,
+  remindDueSpecialMemories,
+  showToast,
+} from '../services/api.js';
 
 const KINDS = [
   ['birthday', '🎂 Sinh nhật'],
@@ -17,6 +23,7 @@ export default function SpecialMemories() {
   const [form, setForm] = useState(EMPTY);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [reminding, setReminding] = useState(false);
 
   const load = useCallback(async () => {
     setItems(await getSpecialMemories());
@@ -41,6 +48,26 @@ export default function SpecialMemories() {
     setBusy(false);
     if (res?.ok) { showToast('Đã xóa'); load(); } else showToast('Xóa thất bại');
   }
+
+  async function remindDue() {
+    setReminding(true);
+    const res = await remindDueSpecialMemories();
+    setReminding(false);
+    if (res?.ok) {
+      if ((res.created_count || 0) > 0) {
+        showToast(`Đã ghi ${res.created_count} nhắc kỷ niệm vào Nhật ký`);
+      } else if ((res.due_count || 0) > 0) {
+        showToast('Kỷ niệm hôm nay đã có trong Nhật ký');
+      } else {
+        showToast('Hôm nay chưa có kỷ niệm cần nhắc');
+      }
+      load();
+    } else {
+      showToast('Không tạo được nhắc kỷ niệm');
+    }
+  }
+
+  const dueItems = items.filter(m => m.due_today);
 
   return (
     <div className="card">
@@ -72,9 +99,14 @@ export default function SpecialMemories() {
         </form>
       )}
 
-      {loaded && items.some(m => m.due_today) && (
-        <div style={{ padding: '10px 14px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', fontSize: 14, margin: '0 4px 10px' }}>
-          🔔 Hôm nay có kỷ niệm: <b>{items.filter(m => m.due_today).map(m => m.title).join(', ')}</b> — nhắc bé nhé!
+      {loaded && dueItems.length > 0 && (
+        <div className="special-memory-alert">
+          <div>
+            🔔 Hôm nay có kỷ niệm: <b>{dueItems.map(m => m.title).join(', ')}</b>
+          </div>
+          <button className="btn-sm secondary" onClick={remindDue} disabled={reminding}>
+            {reminding ? 'Đang ghi...' : 'Ghi vào Nhật ký'}
+          </button>
         </div>
       )}
 

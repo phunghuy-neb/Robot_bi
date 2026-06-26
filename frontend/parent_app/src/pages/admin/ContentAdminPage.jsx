@@ -9,6 +9,22 @@ const TYPES = [
   { key: 'video', label: '🎬 Video' },
   { key: 'game', label: '🎮 Trò chơi' },
 ];
+const GAME_PRESETS = [
+  {
+    label: 'Word Quiz',
+    title: 'Đố từ vựng',
+    description: 'Bi đố từ vựng tiếng Việt và tiếng Anh — trả lời ngay trong Parent App.',
+    source_url: '/api/game/word-quiz/start',
+    tags: 'vocabulary, quiz',
+  },
+  {
+    label: 'Voice Quiz nhập đáp án',
+    title: 'Đố vui bằng giọng nói',
+    description: 'Bi đưa câu đố; bé nhập câu trả lời khi chưa dùng mic/loa.',
+    source_url: '/api/game/voice-quiz/start',
+    tags: 'voice, quiz',
+  },
+];
 const EMPTY = { type: 'radio', title: '', description: '', source_url: '', thumbnail_url: '', age_min: 5, age_max: 12, language: 'vi', tags: '', enabled: true, sort_order: 0 };
 
 const card = { background: 'var(--card,#fff)', borderRadius: 14, padding: 16 };
@@ -41,6 +57,19 @@ export default function ContentAdminPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function resetForm() { setEditId(null); setForm(EMPTY); }
+
+  function applyGamePreset(preset) {
+    setForm({
+      ...form,
+      type: 'game',
+      title: form.title || preset.title,
+      description: form.description || preset.description,
+      source_url: preset.source_url,
+      thumbnail_url: '',
+      tags: preset.tags,
+      enabled: true,
+    });
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -114,6 +143,22 @@ export default function ContentAdminPage() {
         <label style={lbl}>Thứ tự<input style={inp} type="number" min={0} value={form.sort_order} onChange={e => setForm({ ...form, sort_order: e.target.value })} /></label>
         <label style={{ ...lbl, gridColumn: '1 / -1' }}>Mô tả<input style={inp} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
         <label style={lbl}>Thẻ (phẩy)<input style={inp} value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="science, music" /></label>
+        {form.type === 'game' && (
+          <div style={{ gridColumn: '1 / -1', padding: 10, borderRadius: 10, background: 'var(--bg,#f5f6fa)', display: 'grid', gap: 8 }}>
+            <div style={{ fontSize: 12, color: 'var(--muted,#64748b)' }}>
+              Game mở trong Parent App khi URL là <code>/api/game/word-quiz/start</code> hoặc <code>/api/game/voice-quiz/start</code>.
+              URL ngoài vẫn mở ở tab mới.
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {GAME_PRESETS.map(p => (
+                <button key={p.source_url} type="button" onClick={() => applyGamePreset(p)}
+                  style={{ padding: '7px 12px', minHeight: 40, borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+                  Dùng preset {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <label style={{ ...lbl, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <input type="checkbox" checked={!!form.enabled} onChange={e => setForm({ ...form, enabled: e.target.checked })} /> Bật
         </label>
@@ -174,7 +219,16 @@ export default function ContentAdminPage() {
                 {items.map(it => (
                   <tr key={it.content_id} style={{ opacity: busy ? 0.6 : 1 }}>
                     <td style={td}>{TYPES.find(t => t.key === it.type)?.label || it.type}</td>
-                    <td style={td}><b>{it.title}</b></td>
+                    <td style={td}>
+                      <b>{it.title}</b>
+                      {it.type === 'game' && (
+                        <div style={{ fontSize: 11, color: 'var(--muted,#64748b)', marginTop: 2 }}>
+                          {String(it.source_url || '').startsWith('/api/game/')
+                            ? 'Chơi trong Parent App'
+                            : (it.source_url ? 'Mở URL ngoài' : 'Chưa cấu hình URL')}
+                        </div>
+                      )}
+                    </td>
                     <td style={td}>{it.scope === 'global' ? <span style={{ color: '#2563eb' }}>🌐 Chung</span> : <span style={{ color: '#7c3aed' }}>👪 {it.family_id}</span>}</td>
                     <td style={td}>{it.age_min}–{it.age_max}</td>
                     <td style={td}>

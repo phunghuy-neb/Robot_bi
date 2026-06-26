@@ -11,17 +11,17 @@ import PersonaAdminPage from './PersonaAdminPage.jsx';
 import Toast from '../../components/Toast.jsx';
 
 // Khu vực Admin — hiển thị khi đăng nhập bằng tài khoản is_admin.
-// Mỗi mục tương ứng một phase; mục chưa làm hiện placeholder "Sắp có".
+// Tất cả mục trong sidebar đang trỏ tới màn hình quản trị thật.
 const SECTIONS = [
-  { key: 'users',     label: 'Tài khoản',     icon: '👤', ready: true },
-  { key: 'apikeys',   label: 'API key',       icon: '🔑', ready: true },
-  { key: 'exams',     label: 'Đề thi',        icon: '📝', ready: true },
-  { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺', ready: true },
-  { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️', ready: true },
-  { key: 'persona',   label: 'Tính cách Bi',  icon: '🤖', ready: true },
-  { key: 'content',   label: 'Nội dung',      icon: '🎬', ready: true },
-  { key: 'logs',      label: 'Nhật ký',       icon: '📋', ready: true },
-  { key: 'stats',     label: 'Thống kê',      icon: '📊', ready: true },
+  { key: 'users',     label: 'Tài khoản',     icon: '👤' },
+  { key: 'apikeys',   label: 'API key',       icon: '🔑' },
+  { key: 'exams',     label: 'Đề thi',        icon: '📝' },
+  { key: 'youtube',   label: 'Kênh YouTube',  icon: '📺' },
+  { key: 'safety',    label: 'An toàn trẻ',   icon: '🛡️' },
+  { key: 'persona',   label: 'Tính cách Bi',  icon: '🤖' },
+  { key: 'content',   label: 'Nội dung',      icon: '🎬' },
+  { key: 'logs',      label: 'Nhật ký',       icon: '📋' },
+  { key: 'stats',     label: 'Thống kê',      icon: '📊' },
 ];
 
 export default function AdminApp({ user, onLogout }) {
@@ -50,7 +50,6 @@ export default function AdminApp({ user, onLogout }) {
               }}>
               <span style={{ fontSize: 16 }}>{s.icon}</span>
               <span style={{ flex: 1 }}>{s.label}</span>
-              {!s.ready && <span style={{ fontSize: 10, opacity: 0.6 }}>sắp có</span>}
             </button>
           ))}
         </nav>

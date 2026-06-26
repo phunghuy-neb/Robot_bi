@@ -159,7 +159,16 @@ class RobotLocationIn(BaseModel):
 
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 _DAYS = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
-_EVENT_TYPES = {"motion", "stranger", "known_face", "cry", "chat", "system", "homework"}
+_EVENT_TYPES = {
+    "motion",
+    "stranger",
+    "known_face",
+    "cry",
+    "chat",
+    "system",
+    "homework",
+    "special_memory_due",
+}
 _CHANNELS = {"in_app", "web_push"}
 _REPORT_SECTIONS = {"events", "conversations", "emotions", "education", "tasks"}
 _PAIRING_PURPOSES = {"parent_app", "robot_display", "esp32"}
@@ -1523,13 +1532,89 @@ def _memory_due_today(memory_date: str, day: int, month: int) -> bool:
     return False
 
 
+def _annotate_special_memories_due_today(memories: list[dict], now: datetime) -> list[dict]:
+    for memory in memories:
+        memory["due_today"] = _memory_due_today(
+            memory.get("memory_date", ""),
+            now.day,
+            now.month,
+        )
+    return memories
+
+
+def _record_due_special_memory_events(family_id: str, now: datetime | None = None) -> dict:
+    """Create one unread Parent App event per due special memory per local day."""
+    fid = ensure_family_exists(family_id)
+    current = now or datetime.now()
+    memories = _annotate_special_memories_due_today(list_special_memories(fid), current)
+    due_memories = [m for m in memories if m.get("due_today")]
+    created_events: list[dict] = []
+    today_key = current.date().isoformat()
+    timestamp = _now_iso()
+
+    with get_db_connection() as conn:
+        for memory in due_memories:
+            memory_id = str(memory.get("memory_id") or "")
+            if not memory_id:
+                continue
+            event_id = f"special-memory-{memory_id}-{today_key}"
+            import_key = f"special-memory-due:{fid}:{memory_id}:{today_key}"
+            title = str(memory.get("title") or "").strip() or "Kỷ niệm"
+            metadata = {
+                "memory_id": memory_id,
+                "kind": memory.get("kind") or "other",
+                "title": title,
+                "memory_date": memory.get("memory_date") or "",
+                "note": memory.get("note") or "",
+                "source": "special_memories",
+            }
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO events (
+                    family_id, event_id, timestamp, type, message, clip_path,
+                    metadata_json, is_read, import_key
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    fid,
+                    event_id,
+                    timestamp,
+                    "special_memory_due",
+                    f"Hôm nay có kỷ niệm: {title}",
+                    None,
+                    _dump_json(metadata),
+                    0,
+                    import_key,
+                ),
+            )
+            if cur.rowcount > 0:
+                created_events.append(
+                    {
+                        "id": event_id,
+                        "family_id": fid,
+                        "timestamp": timestamp,
+                        "type": "special_memory_due",
+                        "message": f"Hôm nay có kỷ niệm: {title}",
+                        "metadata": metadata,
+                        "read": False,
+                    }
+                )
+        conn.commit()
+
+    return {
+        "ok": True,
+        "due_count": len(due_memories),
+        "created_count": len(created_events),
+        "events": created_events,
+        "due_today": due_memories,
+    }
+
+
 @router.get("/api/memories/special")
 async def list_special(current_user: dict = Depends(get_current_user)):
     family_id = _require_family(current_user)
     now = datetime.now()
-    memories = list_special_memories(family_id)
-    for m in memories:
-        m["due_today"] = _memory_due_today(m.get("memory_date", ""), now.day, now.month)
+    memories = _annotate_special_memories_due_today(list_special_memories(family_id), now)
     return {"memories": memories, "due_today": [m for m in memories if m["due_today"]]}
 
 
@@ -1553,6 +1638,12 @@ async def add_special(body: SpecialMemoryIn, current_user: dict = Depends(get_cu
         except Exception:
             logger.warning("[SpecialMemory] không nạp được vào RAG (bỏ qua)")
     return {"ok": True, "memory": mem}
+
+
+@router.post("/api/memories/special/remind-due")
+async def remind_due_special(current_user: dict = Depends(get_current_user)):
+    family_id = _require_family(current_user)
+    return _record_due_special_memory_events(family_id)
 
 
 @router.delete("/api/memories/special/{memory_id}")

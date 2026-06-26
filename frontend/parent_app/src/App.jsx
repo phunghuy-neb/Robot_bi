@@ -4,6 +4,7 @@ import {
   connectWebSocket,
   disconnectWebSocket,
   logout,
+  getChildProfiles,
   showToast,
   stopCamera,
   stopMomMic,
@@ -31,6 +32,9 @@ export default function App() {
   const [robotStatus, setRobotStatus] = useState('connecting');
   const [user, setUser] = useState({ username: '', isAdmin: false });
   const [activeChild, setActiveChild] = useState(null);
+  const [childPickerOpen, setChildPickerOpen] = useState(false);
+  const [childOptions, setChildOptions] = useState([]);
+  const [childPickerState, setChildPickerState] = useState('idle');
   const [lastWsEvent, setLastWsEvent] = useState(null);
 
   // Check for existing session on mount
@@ -83,8 +87,33 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  const loadChildOptions = useCallback(async () => {
+    setChildPickerState('loading');
+    const profiles = await getChildProfiles();
+    setChildOptions(profiles || []);
+    setChildPickerState('data');
+  }, []);
+
   const handleSwitchChild = useCallback(() => {
-    showToast('Chọn hồ sơ trẻ: Sắp hỗ trợ');
+    setChildPickerOpen(true);
+    loadChildOptions();
+  }, [loadChildOptions]);
+
+  const chooseChild = useCallback((child) => {
+    setActiveChild(child);
+    setChildPickerOpen(false);
+    showToast(`Đã chọn hồ sơ: ${child.name}`);
+  }, []);
+
+  const clearActiveChild = useCallback(() => {
+    setActiveChild(null);
+    setChildPickerOpen(false);
+    showToast('Đã bỏ chọn hồ sơ trẻ');
+  }, []);
+
+  const openChildSettings = useCallback(() => {
+    setChildPickerOpen(false);
+    setSettingsOpen(true);
   }, []);
 
   if (isCheckingAuth) {
@@ -138,6 +167,49 @@ export default function App() {
           isAdmin={user.isAdmin}
           onClose={() => setSettingsOpen(false)}
         />
+      )}
+
+      {childPickerOpen && (
+        <div className="child-picker-overlay" onClick={e => e.target === e.currentTarget && setChildPickerOpen(false)}>
+          <div className="child-picker-panel">
+            <div className="child-picker-head">
+              <div>
+                <div className="child-picker-title">Chọn hồ sơ trẻ</div>
+                <div className="child-picker-sub">Áp dụng cho các màn học tập và theo dõi trong phiên này.</div>
+              </div>
+              <button className="settings-close" onClick={() => setChildPickerOpen(false)} title="Đóng">✕</button>
+            </div>
+
+            {childPickerState === 'loading' ? (
+              <div className="child-picker-empty">Đang tải hồ sơ...</div>
+            ) : childOptions.length === 0 ? (
+              <div className="child-picker-empty">Chưa có hồ sơ trẻ.</div>
+            ) : (
+              <div className="child-picker-list">
+                {childOptions.map(child => (
+                  <button
+                    key={child.id}
+                    className={`child-picker-option${activeChild?.id === child.id ? ' active' : ''}`}
+                    onClick={() => chooseChild(child)}
+                  >
+                    <span className="child-picker-avatar">{child.avatar || '👧'}</span>
+                    <span>
+                      <strong>{child.name}</strong>
+                      <small>{[child.age ? `${child.age} tuổi` : '', child.grade].filter(Boolean).join(' · ') || 'Hồ sơ trẻ'}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="child-picker-actions">
+              {activeChild && (
+                <button className="btn-sm secondary" onClick={clearActiveChild}>Bỏ chọn</button>
+              )}
+              <button className="btn-sm primary" onClick={openChildSettings}>Quản lý hồ sơ</button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Toast />

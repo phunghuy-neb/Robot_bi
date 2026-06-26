@@ -127,17 +127,17 @@ export default function HomePage({ user, lastWsEvent }) {
             </div>
             <div className="metric-card grad-orange-pink">
               <div className="metric-num">{todaySummary?.learningMinutes ?? '—'}</div>
-              <div className="metric-label">8 hoạt động</div>
+              <div className="metric-label">Phút học</div>
             </div>
             <div className="metric-card grad-mint">
               <div className="metric-num" style={{ fontSize: 22 }}>{todaySummary?.emotion ?? '😊'}</div>
-              <div className="metric-label">Vui vẻ</div>
+              <div className="metric-label">Cảm xúc</div>
             </div>
             <div className="metric-card grad-purple-soft">
               <div className="metric-num">
                 {todaySummary ? `${todaySummary.tasksCompleted}/${todaySummary.totalTasks}` : '—'}
               </div>
-              <div className="metric-label">3/5 hoàn thành</div>
+              <div className="metric-label">Nhiệm vụ</div>
             </div>
           </div>
         </div>

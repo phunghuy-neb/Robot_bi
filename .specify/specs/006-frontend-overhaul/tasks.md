@@ -22,11 +22,11 @@
 ---
 
 ## Phase 3: US1 (P1) — Sửa bug hiển thị · Test độc lập: nhãn/số khớp dữ liệu thật, mọi thẻ bấm-được hành động, khu rỗng hiện empty
-- [ ] T004 [P] [US1] Sửa 2 `metric-label` cứng ("8 hoạt động"→"Phút học", "3/5 hoàn thành"→"Nhiệm vụ"), giữ `metric-num` lấy dữ liệu thật — file: `frontend/parent_app/src/pages/HomePage.jsx`
-- [ ] T005 [P] [US1] Đổi 5 thẻ shortcut `<div>` thành `<button>` + onClick `scrollIntoView` tới section tương ứng (refs) — file: `frontend/parent_app/src/pages/MorePage.jsx`
-- [ ] T006 [P] [US1] Nhánh `emotionData` rỗng → `SectionState state="empty"` thay vì `"loading"` — file: `frontend/parent_app/src/pages/JournalPage.jsx`
-- [ ] T007 [P] [US1] Ép locale ngày: thêm `lang="vi"` ở root HTML (và/hoặc input date) — file: `frontend/parent_app/index.html`, `frontend/parent_app/src/pages/JournalPage.jsx`
-- [ ] T008 [US1] `npm run build` OK + kiểm tay desktop/mobile cho HomePage/MorePage/JournalPage — file: `frontend/parent_app/`
+- [x] T004 [P] [US1] Sửa 3 `metric-label` cứng ("8 hoạt động"→"Phút học", "Vui vẻ"→"Cảm xúc", "3/5 hoàn thành"→"Nhiệm vụ"), giữ `metric-num` lấy dữ liệu thật — file: `frontend/parent_app/src/pages/HomePage.jsx`
+- [x] T005 [P] [US1] Đổi 5 thẻ shortcut `<div>` thành `<button>` + `scrollIntoView` tới section (refs: radio/music/knowledge/games/video). LƯU Ý: "Truyện kể" không có section trên trang → đổi thành "🔎 Tri thức" trỏ Khám phá tri thức — file: `frontend/parent_app/src/pages/MorePage.jsx`
+- [x] T006 [P] [US1] Thêm `emotionState` (loading/data/empty/error); nhánh rỗng → empty state thay vì loading mãi — file: `frontend/parent_app/src/pages/JournalPage.jsx`
+- [x] T007 [P] [US1] Locale ngày: `index.html` ĐÃ SẴN `<html lang="vi">` → không cần sửa — file: `frontend/parent_app/index.html`
+- [x] T008 [US1] `npm run build` OK (61 modules, 712ms) — file: `frontend/parent_app/`
 
 ## Phase 4: US2 (P2) — Design system / accessibility · Test độc lập: mọi vùng chạm ≥48px, camera không quá cao, more-card không khổng lồ trên desktop
 - [ ] T009 [US2] `.btn-sm` 36px → `var(--tap-min)`; `.settings-close` + `.pill-tab` 40px → ≥44px; `.btn-back` bỏ override `min-height:auto` (giữ layout bằng padding) — file: `frontend/parent_app/src/styles.css`

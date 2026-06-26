@@ -11,6 +11,17 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- ✅ **US1 (P1) DONE — spec 006 (2026-06-27)**: sửa bug hiển thị FE.
+  - T004 HomePage: 3 metric-label cứng → "Phút học"/"Cảm xúc"/"Nhiệm vụ" (giữ metric-num dữ liệu thật).
+  - T005 MorePage: 5 thẻ shortcut `<div>`→`<button>` + `scrollIntoView` (refs radio/music/knowledge/games/video).
+    "Truyện kể" đổi "🔎 Tri thức" (trang này KHÔNG có section truyện → trỏ Khám phá tri thức) — **CẦN USER XÁC NHẬN**.
+  - T006 JournalPage: thêm `emotionState` (loading/data/empty/error) → rỗng hiện empty thay vì loading mãi.
+  - T007: `index.html` ĐÃ có `<html lang="vi">` → không cần sửa.
+  - Verify: baseline **722/722 PASS**; `npm run build` OK (61 modules). US1 thuần FE, không đụng Python.
+  - **LƯU Ý COMMIT**: do `MorePage/JournalPage` phụ thuộc helper api.js của polish 2026-06-26 (tránh commit gãy),
+    đã GỘP recover polish 2026-06-26 (11 file) + US1 vào commit `<sẽ điền>`. Working tree polish nay đã committed.
+  - **NEXT: US2 (P2)** design system/CSS — T009-T013 (tap target 48px, camera max-height, more-grid responsive).
+  - Spec 006: 1 máy → chưa push. Sửa cả desktop+mobile cùng codebase `frontend/parent_app/`.
 - ⚠️ **WORKING TREE hiện có 11 file polish UNCOMMITTED (KHÔNG phải của phiên spec 2026-06-27)**:
   `frontend/parent_app/src/{App.jsx, components/SpecialMemories.jsx, pages/JournalPage.jsx,
   pages/MorePage.jsx, pages/admin/AdminApp.jsx, pages/admin/ContentAdminPage.jsx, services/api.js,

@@ -336,7 +336,53 @@ export async function getInteractiveGames() {
     description: g.description || '',
     difficulty: 'Trung bình',
     age: (g.age_min != null && g.age_max != null) ? `${g.age_min}-${g.age_max}` : '',
+    url: g.source_url || '',
+    tags: g.tags || [],
   }));
+}
+
+export async function startWordQuiz(difficulty = 'easy') {
+  return apiFetch('/api/game/word-quiz/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ difficulty }),
+  });
+}
+
+export async function getWordQuizQuestion() {
+  return apiFetch('/api/game/word-quiz/question');
+}
+
+export async function answerWordQuiz(answer) {
+  return apiFetch('/api/game/word-quiz/answer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answer }),
+  });
+}
+
+export async function endWordQuiz() {
+  return apiFetch('/api/game/word-quiz/end', { method: 'POST' });
+}
+
+export async function startVoiceQuiz() {
+  return apiFetch('/api/game/voice-quiz/start', { method: 'POST' });
+}
+
+export async function getVoiceQuizRiddle() {
+  return apiFetch('/api/game/voice-quiz/riddle');
+}
+
+export async function answerVoiceQuiz(spoken) {
+  return apiFetch('/api/game/voice-quiz/answer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ spoken }),
+  });
+}
+
+export async function getGameScores() {
+  return apiFetch('/api/game/scores');
 }
 
 export async function getSystemLogs() {
@@ -711,6 +757,10 @@ export async function addSpecialMemory({ title, kind = 'other', memory_date = ''
 
 export async function deleteSpecialMemory(memoryId) {
   return apiFetch(`/api/memories/special/${memoryId}`, { method: 'DELETE' });
+}
+
+export async function remindDueSpecialMemories() {
+  return apiFetch('/api/memories/special/remind-due', { method: 'POST' });
 }
 
 // —— Radio Browser: admin tìm đài để duyệt (không phơi cho trẻ) ——
