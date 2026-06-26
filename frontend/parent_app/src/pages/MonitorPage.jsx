@@ -160,7 +160,7 @@ export default function MonitorPage() {
         <div className="card">
           <div className="card-header">
             <span className="card-title">📈 Báo cáo tuần chi tiết</span>
-            <button className="btn-sm secondary" onClick={loadWeekly} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadWeekly}>↻</button>
           </div>
           {weeklyState === 'loading' && <SectionState state="loading" loadingText="Đang tải báo cáo..." />}
           {weeklyState === 'error' && <SectionState state="error" errorText="Không tải được báo cáo tuần." onRetry={loadWeekly} />}
@@ -190,7 +190,7 @@ export default function MonitorPage() {
         <div className="card">
           <div className="card-header">
             <span className="card-title">🔔 Sự kiện gần đây</span>
-            <button className="btn-sm secondary" onClick={loadEvents} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadEvents}>↻</button>
           </div>
           {eventsState === 'loading' && <SectionState state="loading" loadingText="Đang tải sự kiện..." />}
           {eventsState === 'error' && <SectionState state="error" errorText="Không tải được sự kiện." onRetry={loadEvents} />}

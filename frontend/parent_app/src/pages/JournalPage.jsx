@@ -337,7 +337,7 @@ export default function JournalPage() {
         <div className="card">
           <div className="card-header">
             <span className="card-title">💬 Hội thoại</span>
-            <button className="btn-sm secondary" onClick={loadThreads} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadThreads}>↻</button>
           </div>
 
           {selectedThread ? (

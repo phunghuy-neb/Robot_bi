@@ -146,7 +146,7 @@ export default function HomePage({ user, lastWsEvent }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">📈 Báo cáo tuần</span>
-            <button className="btn-sm secondary" onClick={loadWeekly} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadWeekly}>↻</button>
           </div>
           {weeklyState === 'loading' && <SectionState state="loading" loadingText="Đang tải báo cáo tuần..." />}
           {weeklyState === 'error' && <SectionState state="error" errorText="Không tải được báo cáo tuần." onRetry={loadWeekly} />}
@@ -176,7 +176,7 @@ export default function HomePage({ user, lastWsEvent }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">📍 Vị trí phòng robot</span>
-            <button className="btn-sm secondary" onClick={loadRobotLocation} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadRobotLocation}>↻</button>
           </div>
           {robotLocation?.room_name ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -199,7 +199,7 @@ export default function HomePage({ user, lastWsEvent }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">🔔 Hoạt động gần nhất</span>
-            <button className="btn-sm secondary" onClick={loadEvents} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadEvents}>↻</button>
           </div>
           {eventsState === 'loading' && <SectionState state="loading" loadingText="Đang tải sự kiện..." />}
           {eventsState === 'error' && <SectionState state="error" errorText="Không tải được sự kiện." onRetry={loadEvents} />}

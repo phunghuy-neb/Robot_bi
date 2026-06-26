@@ -96,7 +96,11 @@ Tất cả tokens định nghĩa trong `:root` của `styles.css`. **Luôn dùng
 --tap-min: 48px        /* Minimum tap target (WCAG AA) */
 ```
 
-Tất cả `<button>` và `<a>` phải có `min-height: var(--tap-min)`.
+Tất cả `<button>` và `<a>` phải có `min-height: var(--tap-min)` (48px) — kể cả `.btn-sm`, `.pill-tab`, `.btn-back`. KHÔNG dùng inline `style={{ minHeight: 36 }}` ghi đè.
+
+**Ngoại lệ (≥44px, có chủ đích)**: nút icon vuông `.settings-close` = 44×44px (nút ✕ đóng nhỏ gọn) — vẫn đạt WCAG 2.1 AAA.
+
+**Media container**: `.camera-section` giữ `aspect-ratio: 16/9` nhưng phải có `max-height: min(56vh, 460px)` để không chiếm chiều cao quá mức trên desktop.
 
 ---
 
@@ -207,7 +211,7 @@ Dùng cho: tất cả content sections trong pages.
   border-radius: var(--radius-sm);
   padding: 8px 16px;
   font-size: 14px; font-weight: 600;
-  min-height: 36px;
+  min-height: var(--tap-min);   /* 48px — WCAG AA; trước đây 36px (đã sửa) */
 }
 ```
 
@@ -271,8 +275,7 @@ Grid layout: `repeat(auto-fill, minmax(110px, 1fr))`
 
 ### More Page Grid
 
-2 columns: `grid-template-columns: 1fr 1fr`
-Cards có `aspect-ratio: 1` (hình vuông).
+Responsive: `grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))` — mobile ~2 cột, desktop nhiều cột (thẻ KHÔNG phình to). Cards có `aspect-ratio: 1` (hình vuông, ~150px).
 
 ### Music Player Card
 

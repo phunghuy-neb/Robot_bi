@@ -172,7 +172,7 @@ export default function LearningPage({ activeChild }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">🔤 Từ vựng</span>
-            <button className="btn-sm secondary" onClick={loadVocab} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadVocab}>↻</button>
           </div>
 
           {vocabState === 'data' && (
@@ -225,7 +225,7 @@ export default function LearningPage({ activeChild }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">✅ Nhiệm vụ hôm nay</span>
-            <button className="btn-sm secondary" onClick={loadTasks} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadTasks}>↻</button>
           </div>
           {tasksState === 'loading' && <SectionState state="loading" loadingText="Đang tải nhiệm vụ..." />}
           {tasksState === 'error' && <SectionState state="error" errorText="Không tải được nhiệm vụ." onRetry={loadTasks} />}
@@ -251,7 +251,7 @@ export default function LearningPage({ activeChild }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">📖 Truyện kể</span>
-            <button className="btn-sm secondary" onClick={loadStories} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadStories}>↻</button>
           </div>
           {storiesState === 'loading' && <SectionState state="loading" loadingText="Đang tải truyện..." />}
           {storiesState === 'error' && <SectionState state="error" errorText="Không tải được truyện." onRetry={loadStories} />}
@@ -286,7 +286,7 @@ export default function LearningPage({ activeChild }) {
         <div className="card">
           <div className="card-header">
             <span className="card-title">💬 Chat với Bi</span>
-            <button className="btn-sm secondary" onClick={loadChatHistory} style={{ minHeight: 36 }}>↻</button>
+            <button className="btn-sm secondary" onClick={loadChatHistory}>↻</button>
           </div>
 
           {/* Chat history */}
@@ -324,7 +324,7 @@ export default function LearningPage({ activeChild }) {
               type="submit"
               className="btn-sm primary"
               disabled={chatSending || !chatInput.trim()}
-              style={{ minWidth: 64, minHeight: 40 }}
+              style={{ minWidth: 64 }}
             >
               {chatSending ? '⏳' : '➤ Gửi'}
             </button>

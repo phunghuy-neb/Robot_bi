@@ -19,9 +19,16 @@
   - T007: `index.html` ĐÃ có `<html lang="vi">` → không cần sửa.
   - Verify: baseline **722/722 PASS**; `npm run build` OK (61 modules). US1 thuần FE, không đụng Python.
   - **LƯU Ý COMMIT**: do `MorePage/JournalPage` phụ thuộc helper api.js của polish 2026-06-26 (tránh commit gãy),
-    đã GỘP recover polish 2026-06-26 (11 file) + US1 vào commit `<sẽ điền>`. Working tree polish nay đã committed.
-  - **NEXT: US2 (P2)** design system/CSS — T009-T013 (tap target 48px, camera max-height, more-grid responsive).
+    đã GỘP recover polish 2026-06-26 (11 file) + US1 vào commit `b7ba796`. Working tree polish nay đã committed (sạch, trừ settings.local.json local).
   - Spec 006: 1 máy → chưa push. Sửa cả desktop+mobile cùng codebase `frontend/parent_app/`.
+- ✅ **US2 (P2) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: design system / accessibility.
+  - `styles.css`: `.btn-sm` 36→48 (`--tap-min`), `.pill-tab` 40→48, `.btn-back` auto→48, `.settings-close`
+    40→44 (ngoại lệ icon ✕); `.camera-section` +`max-height:min(56vh,460px)`; `.more-grid` → `repeat(auto-fit,minmax(150px,1fr))`.
+  - Gỡ 11 inline `minHeight:36` + 1 `minHeight:40` (HomePage/MonitorPage/LearningPage/JournalPage) — chúng override CSS.
+  - `docs/DESIGN_SYSTEM.md`: sửa mâu thuẫn btn-sm 36→48 + ghi chú ngoại lệ + camera + more-grid.
+  - CÒN LẠI cho US5 (admin): `ContentAdminPage` còn 1 inline `minHeight:40`.
+  - Verify: `npm run build` OK (61 modules, 654ms). US2 thuần FE/CSS.
+  - **NEXT: US3 (P3)** cấu trúc tab — T014-T019 (đổi nhãn learninghub→"Học tập", learning→"Theo dõi học tập" + tiến độ 3 môn).
 - ⚠️ **WORKING TREE hiện có 11 file polish UNCOMMITTED (KHÔNG phải của phiên spec 2026-06-27)**:
   `frontend/parent_app/src/{App.jsx, components/SpecialMemories.jsx, pages/JournalPage.jsx,
   pages/MorePage.jsx, pages/admin/AdminApp.jsx, pages/admin/ContentAdminPage.jsx, services/api.js,

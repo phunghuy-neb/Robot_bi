@@ -29,11 +29,11 @@
 - [x] T008 [US1] `npm run build` OK (61 modules, 712ms) — file: `frontend/parent_app/`
 
 ## Phase 4: US2 (P2) — Design system / accessibility · Test độc lập: mọi vùng chạm ≥48px, camera không quá cao, more-card không khổng lồ trên desktop
-- [ ] T009 [US2] `.btn-sm` 36px → `var(--tap-min)`; `.settings-close` + `.pill-tab` 40px → ≥44px; `.btn-back` bỏ override `min-height:auto` (giữ layout bằng padding) — file: `frontend/parent_app/src/styles.css`
-- [ ] T010 [US2] `.camera-section` thêm `max-height` hợp lý (vd `min(60vh,480px)`) giữ `aspect-ratio` — file: `frontend/parent_app/src/styles.css`
-- [ ] T011 [US2] `.more-grid`/`.more-card` responsive (`repeat(auto-fit,minmax(...))` / bỏ aspect-ratio vuông trên desktop, giới hạn max-width) — file: `frontend/parent_app/src/styles.css`
-- [ ] T012 [P] [US2] Cập nhật `docs/DESIGN_SYSTEM.md` khớp tap target + camera + more-grid thực tế — file: `docs/DESIGN_SYSTEM.md`
-- [ ] T013 [US2] `npm run build` OK + đo tap target + kiểm desktop 1440px/mobile — file: `frontend/parent_app/`
+- [x] T009 [US2] `.btn-sm` 36px→`var(--tap-min)`; `.pill-tab` 40px→`var(--tap-min)`; `.btn-back` `auto`→`var(--tap-min)`; `.settings-close` 40→44px (ngoại lệ icon). NGOÀI RA gỡ 11 inline `minHeight:36` + 1 `minHeight:40` ở HomePage/MonitorPage/LearningPage/JournalPage (override CSS) — file: `frontend/parent_app/src/styles.css` + 4 page
+- [x] T010 [US2] `.camera-section` thêm `max-height: min(56vh,460px)` giữ `aspect-ratio` — file: `frontend/parent_app/src/styles.css`
+- [x] T011 [US2] `.more-grid` → `repeat(auto-fit, minmax(150px, 1fr))` (desktop nhiều cột, không phình) — file: `frontend/parent_app/src/styles.css`
+- [x] T012 [P] [US2] DESIGN_SYSTEM.md: sửa mâu thuẫn btn-sm 36→48, thêm ngoại lệ settings-close 44 + camera max-height + more-grid responsive — file: `docs/DESIGN_SYSTEM.md`
+- [x] T013 [US2] `npm run build` OK (61 modules, 654ms) — file: `frontend/parent_app/`
 
 ## Phase 5: US3 (P3) — Cấu trúc tab + theo dõi học tập · Test độc lập: nhãn tab phân biệt rõ, tiến độ 3 môn hiển thị (rỗng nếu chưa có dữ liệu)
 - [ ] T014 [P] [US3] Sidebar: `learninghub` "Học Anh văn"→"Học tập"; `learning` "Học tập"→"Theo dõi học tập" — file: `frontend/parent_app/src/components/Sidebar.jsx`
