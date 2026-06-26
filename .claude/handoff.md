@@ -11,6 +11,43 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- 📄 **DOC SYNC docs↔code (2026-06-27, UNCOMMITTED, docs-only — no code, no tests needed)**:
+  Đồng bộ 4 file .md cho khớp code hiện tại sau khi audit phát hiện docs lệch.
+  - `SYSTEM_MAP.md`: nav 5→**6 tab** (thêm "Học Anh văn"/`learninghub`); pages list thêm
+    `LearningHubPage`; admin liệt kê đủ **9 section**; components thêm `SpecialMemories`.
+  - `docs/STATUS_MAP.md` (v1.5→**v1.6**): Learning Hub ⚪→🟢 (+ Exam system 🟢); Parent App
+    Radio/Videos/Games/System logs 🟡 mock→🟢 real API; thêm rows LearningHub UI/Exam UI/Special
+    Memories/Knowledge Explorer/Admin panels; bảng đếm 100→**106 items (65% Done)**; critical-gap
+    "mock fallbacks" gạch ✅.
+  - `docs/DESIGN_SYSTEM.md`: spec 5 tab→**6 tab** (sidebar + bottom nav + activeTab union).
+  - `docs/BACKLOG_Robot_Bi_v2.md`: mục **6B** 5 dòng Learning Hub ⬜→✅ (trang/bài học/trắc nghiệm+
+    tự luận/XP+huy hiệu/streak); section 10 thêm 3 dòng ⬜ planned: **UI WiFi robot**, **quản lý
+    thành viên gia đình (owner)**, **phân quyền role owner/parent/child**.
+  - **NEXT (đã thảo luận, CHƯA làm)**: (A) UI WiFi cho robot trong Settings — backend `wifi_router.py`
+    sẵn; (B+C) "chủ gia đình" + phân quyền role (con login bằng PIN, mặc định ẩn Cài đặt & An toàn)
+    — đụng schema/JWT/cross-module → nên viết Spec Kit trước khi code. Đợi user nói "bắt đầu làm".
+- 🧭 **PARENT/ADMIN APP NON-HARDWARE POLISH (2026-06-26, UNCOMMITTED)**:
+  - **UI test servers đang chạy (2026-06-26)**: backend HTTPS `https://127.0.0.1:8443`
+    session `62891` health OK; Vite Parent/Admin `http://127.0.0.1:5173/` session `44842` trả HTTP 200.
+    Backend hiện chạy bằng `.venv/bin/python -m uvicorn src.api.server:app ...` để test UI/API.
+  - Parent App `MorePage.jsx`: mục **Trò chơi tương tác** không còn `coming-soon`; game metadata từ
+    `/api/games/interactive` mở được ngay. `/api/game/word-quiz/start` chạy Word Quiz trong modal,
+    `/api/game/voice-quiz/start` chạy Voice Quiz bằng nhập đáp án (không cần mic/loa), URL ngoài mở tab mới.
+  - `services/api.js`: thêm helper Word Quiz/Voice Quiz + giữ `source_url`/`tags` khi map game metadata.
+  - Admin App: `ContentAdminPage.jsx` có preset game Word Quiz/Voice Quiz và bảng chỉ rõ game chạy trong
+    Parent App hay mở URL ngoài; `AdminApp.jsx` bỏ marker `ready`/`sắp có` chết.
+  - Parent App `JournalPage.jsx`: bộ lọc nâng cao là filter thật (search/min turns/sort), tab **Trò chuyện**
+    loại hội thoại bài tập, chi tiết hội thoại có phát lại bằng browser `speechSynthesis` + nút dừng/highlight
+    lượt đang đọc (không cần loa MAX/robot TTS).
+  - `control_router.py`: thêm `POST /api/memories/special/remind-due` tạo event `special_memory_due`
+    idempotent theo family/memory/date; `SpecialMemories.jsx` có nút **Ghi vào Nhật ký** cho kỷ niệm hôm nay.
+  - `App.jsx`: click UserCard mở selector hồ sơ trẻ thật qua `getChildProfiles()` + link sang Settings,
+    không còn toast "Chọn hồ sơ trẻ: Sắp hỗ trợ".
+  - `SYSTEM_MAP.md` cập nhật capability UI/API; `tests/run_tests.py` thêm **Group 98** (2 test) +
+    **Group 99** (4 test).
+  - Verification: baseline trước game polish **716/716 PASS**; baseline trước batch Journal/memory/child picker
+    **718/718 PASS**; `npm run build` OK; `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
+    Lưu ý build có warning sandbox `Failed to create stream fd` nhưng Vite build thành công.
 - 🧹 **REPO CLEANUP + SKILL (2026-06-25, ✅ ĐÃ MERGE + PUSH lên `origin/main` = `14aeec6`)**:
   - `chore/repo-cleanup`: `900b3ce` (untrack ngrok.exe 32MB, xóa scratch_generate_games.py,
     run_tests.py tự quét rác `runtime/_*_test_db_*`/`_debug_rag_tmp*` lúc khởi động) +
@@ -40,8 +77,8 @@
   ~5%/554 file (còn db.py/state.py/audio/firmware/frontend chưa review sâu).
   - **Robot Display gọi Knowledge = BỎ có chủ đích**: `index.html` là màn hình MẶT robot (output-only,
     animation do runtime điều khiển), không phải nơi gõ truy vấn → tri thức đã trả qua giọng/hội thoại.
-  - **Settings save stubs = không có stub thực**: settings tuổi/giờ/ngủ đã persist; phần `disabled`/
-    coming-soon (lọc thiết bị, game tương tác) là placeholder cố ý.
+  - **Settings save stubs = không có stub thực**: settings tuổi/giờ/ngủ đã persist; game tương tác,
+    Journal filter/playback, nhắc kỷ niệm vào event journal, và chọn hồ sơ trẻ đã được nối ở 2026-06-26.
 - **Nhóm 2 backlog (2026-06-24) — ✅ DONE phiên này:**
   - **Stage 2 — Special Memories**: bảng `special_memories` (family-scoped) + helper db.py
     (list/add/delete); routes `GET/POST/DELETE /api/memories/special` trong `control_router.py` (đặt
@@ -442,7 +479,7 @@
 - Stage 1 manual validation: robot audio is blocked until the ESP32-S3 microphone hardware test passes and production audio transport is implemented.
 - Stage 1.5 body expression: software landed (`movement_emotion.py`); pending real motor-hardware validation.
 - Learning Hub: Phase 1 + Phase 2 complete (24 subjects). Phase 3 — HSG/exam packs (22 môn) DONE + committed; TOEIC S&W backend + content pack DONE (frontend UI + audio STT còn lại).
-- Stage 2 Special Memories: DONE (table + parent CRUD + RAG seeding + JournalPage UI + `due_today` nhắc chủ động). Còn lại: robot tự NÓI khi tới ngày (hook runtime), lịch nhắc nâng cao.
+- Stage 2 Special Memories: DONE (table + parent CRUD + RAG seeding + JournalPage UI + `due_today`, idempotent `special_memory_due` event journal via `/api/memories/special/remind-due`). Còn lại: robot tự NÓI khi tới ngày (hook runtime), lịch nhắc nâng cao.
 
 ## Known Issues / Deferred Work
 
@@ -452,7 +489,7 @@
 - `follow_me.py`, `dock_charger.py`, `face_recognizer.py`, `fall_detector.py` are stubs/placeholders.
 - Motor firmware has hardcoded IP `192.168.40.107:8443`; deployment-specific change needed.
 - Cloudflare quick tunnel URL can change after restart unless a named tunnel is configured.
-- Parent App radio/videos/games/emotions now return REAL backend data (empty state khi chưa có) — mock fallback đã gỡ. Một số nút lưu cài đặt vẫn là stub. (PROJECT.md "Known Current Gaps" còn ghi mock — sẽ tự cập nhật lần sync.py kế tiếp.)
+- Parent App radio/videos/games/emotions now return REAL backend data (empty state khi chưa có) — mock fallback đã gỡ. Game, Journal filter/playback, due-memory event reminders, and child profile selection are wired in the current uncommitted batch. (PROJECT.md "Known Current Gaps" còn ghi mock — sẽ tự cập nhật lần sync.py kế tiếp.)
 - Provider quota can throttle Cerebras/Groq; fallback chain handled observed quota 429 warnings during tests.
 - Current machine has no camera; this is supported and no longer blocks proactive behavior.
 - Windows microphone diagnostics apply only to optional PC-connected microphones, not the two INMP441 modules on the robot.

@@ -155,7 +155,7 @@ Tất cả `<button>` và `<a>` phải có `min-height: var(--tap-min)`.
 ```
 Sidebar
 ├── Logo section (Robot Bi branding)
-├── Tab navigation (5 tabs, flex: 1)
+├── Tab navigation (6 tabs, flex: 1)
 └── Bottom section (locked order):
     ├── RobotStatusCard
     ├── UserCard
@@ -163,19 +163,20 @@ Sidebar
     └── Đăng xuất button
 ```
 
-**5 tabs**:
+**6 tabs**:
 1. 🏠 Trang chủ (`home`)
 2. 📷 Giám sát (`monitor`)
 3. 📚 Học tập (`learning`)
-4. 📓 Nhật ký (`journal`)
-5. ⋯ Thêm (`more`)
+4. 🔤 Học Anh văn (`learninghub`)
+5. 📓 Nhật ký (`journal`)
+6. ⋯ Thêm (`more`)
 
 **Active state**: `background: var(--grad-primary); color: #fff`
 **Hover state**: `background: var(--primary-soft); color: var(--primary)`
 
 ### Bottom Nav (Mobile <768px)
 
-5 tabs tương tự sidebar, layout horizontal, fixed bottom.
+6 tabs tương tự sidebar, layout horizontal, fixed bottom.
 **Active state**: `color: var(--primary)`
 
 ---
@@ -365,7 +366,7 @@ Dùng cho loading state toàn trang (auth check).
 ```jsx
 isLoggedIn       // bool — auth state
 isCheckingAuth   // bool — loading state khi kiểm tra session
-activeTab        // string — 'home'|'monitor'|'learning'|'journal'|'more'
+activeTab        // string — 'home'|'monitor'|'learning'|'learninghub'|'journal'|'more'
 settingsOpen     // bool — settings overlay
 robotStatus      // string — 'online'|'offline'|'connecting'
 user             // {username, isAdmin}

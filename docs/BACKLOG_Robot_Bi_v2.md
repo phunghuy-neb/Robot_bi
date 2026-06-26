@@ -122,12 +122,12 @@
 
 | Status | Feature | Ghi chú |
 |---|---|---|
-| ⬜ | Trang Learning Hub trong Parent App | Tab hoặc trang riêng cho bé luyện tập |
-| ⬜ | Bài học ngắn theo chủ đề | Dạng module nhỏ, 5–10 phút |
-| ⬜ | Câu hỏi trắc nghiệm + tự luận ngắn | Phù hợp độ tuổi |
+| ✅ | Trang Learning Hub trong Parent App | `pages/LearningHubPage.jsx` — tab "Học Anh văn" |
+| ✅ | Bài học ngắn theo chủ đề | Module en/math/science, `learning_hub_router.py` |
+| ✅ | Câu hỏi trắc nghiệm + tự luận ngắn | MCQ + TOEIC S&W (ghi âm), `exam_router.py` |
 | ⬜ | Nhiệm vụ hằng ngày | Bi giao, bé hoàn thành |
-| ⬜ | Điểm kinh nghiệm và huy hiệu | Gamification nhẹ |
-| ⬜ | Chuỗi ngày học (streak) | Động lực học đều đặn |
+| ✅ | Điểm kinh nghiệm và huy hiệu | XP/streak system trong `learning_hub_router.py` |
+| ✅ | Chuỗi ngày học (streak) | `learning_streaks` table |
 | ⬜ | Cấp độ theo môn | Tăng khi làm đủ bài |
 | ⬜ | Điều chỉnh độ khó theo năng lực | Không quá dễ, không quá khó |
 | ⬜ | Ghi nhớ lỗi hay sai và gợi ý ôn tập | Học từ điểm yếu |
@@ -217,6 +217,9 @@
 | ⬜ | Push notification trên điện thoại | PWA push |
 | ⬜ | Báo cáo tuần tự động gửi email | |
 | ⬜ | Cài đặt tên và giọng robot | UI cho phụ huynh đổi |
+| ⬜ | UI khai báo WiFi cho robot | Form SSID/mật khẩu trong Settings — backend `wifi_router.py` đã sẵn |
+| ⬜ | Quản lý thành viên gia đình | Chủ gia đình (owner) tạo/xóa tài khoản bố/mẹ/ông/bà + con |
+| ⬜ | Phân quyền theo vai trò | owner/parent xem toàn bộ; con bị giới hạn theo cài đặt owner (mặc định ẩn Cài đặt & An toàn) |
 
 ---
 

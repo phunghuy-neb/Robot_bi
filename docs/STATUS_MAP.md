@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.5 | Cập nhật: 2026-06-13
+> Phiên bản: 1.6 | Cập nhật: 2026-06-27
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -56,12 +56,17 @@
 | Mom talk (mic → Bi phát) | 🟢 | `/api/mom/` | |
 | Joystick điều khiển motor | 🟢 | `/api/motor/` | |
 | Admin family management | 🟢 | `/api/admin/families` | |
-| React+Vite SPA build | 🟡 | `frontend/parent_app/src/` | Build passes; một số API call dùng mock fallback |
-| Radio / nhạc | 🟡 | `src/` | Mock fallback trong api.js |
-| Videos | 🟡 | `src/` | Mock fallback |
-| Games | 🟡 | `src/` | Mock fallback |
-| System logs | 🟡 | `src/` | Mock fallback |
-| Settings (child profile, age filter, time limits) | 🟡 | `src/` | 4 `saveSettings()` stubs return null |
+| React+Vite SPA build | 🟡 | `frontend/parent_app/src/` | Build passes; production SPA |
+| Learning Hub UI (Duolingo) | 🟢 | `pages/LearningHubPage.jsx` | Module en/math/science, XP, streak, quiz, TOEIC S&W (ghi âm) |
+| Exam UI (đề thi nhiều môn) | 🟢 | `pages/LearningHubPage.jsx` exam mode | 11 track; backend `exam_router.py` |
+| Special Memories UI | 🟢 | `components/SpecialMemories.jsx` | `/api/memories/special` |
+| Knowledge Explorer | 🟢 | `pages/MorePage.jsx` | Từ điển, NASA, ISS, Pokémon... qua `/api/knowledge/*` |
+| Admin panels (9 mục) | 🟢 | `pages/admin/` | Users, ApiKeys, Exams, YouTube, Safety, Persona, Content, Logs, Stats |
+| Radio / nhạc | 🟢 | `/api/entertainment/radio` | Real API (mock đã xóa) |
+| Videos | 🟢 | `/api/entertainment/videos` | Real API (mock đã xóa) |
+| Games | 🟢 | `/api/games/interactive` | Real API + in-app quiz modal |
+| System logs | 🟢 | `/api/admin/logs` | Sanitized real API (mock đã xóa) |
+| Settings (child profile, age filter, time limits) | 🟡 | `src/` | Nối API thật; còn vài nút save dạng stub |
 | Dashboard tùy chỉnh | ⚪ | — | Không có code |
 | Báo cáo tuần email | ⚪ | — | Không có code |
 | Push notification PWA | ⚪ | — | Không có code |
@@ -117,7 +122,8 @@
 | Progress tracking | 🟡 | `src/education/learning_progress.py` | Partial |
 | Curriculum engine | 🟡 | `src/education/curriculum.py` | Partial |
 | Language tutor | 🟡 | `src/education/language_tutor.py` | Partial |
-| Learning Hub (Duolingo-style) | ⚪ | — | Không có code |
+| Learning Hub (Duolingo-style) | 🟢 | `src/api/routers/learning_hub_router.py` + `pages/LearningHubPage.jsx` | Module en/math/science, XP, streak, quiz |
+| Exam system (đề thi nhiều môn) | 🟢 | `src/api/routers/exam_router.py` | 25 môn, 11 track, AI tạo đề, review queue, TOEIC S&W STT |
 | Vocabulary tracking tiếng Anh | ⚪ | — | Không có code |
 | Pronunciation scoring | ⚪ | — | Không có code |
 
@@ -168,15 +174,15 @@
 | Domain | 🟢 Done | 🟡 Partial | 🔴 Stub | ⚪ Zero |
 |---|---|---|---|---|
 | Backend Brain | 17 | 5 | 0 | 0 |
-| Parent App | 11 | 6 | 0 | 3 |
+| Parent App | 20 | 2 | 0 | 3 |
 | Voice System | 7 | 1 | 0 | 3 |
 | Robot Control | 3 | 0 | 3 | 5 |
-| Learning | 3 | 4 | 0 | 3 |
+| Learning | 5 | 4 | 0 | 2 |
 | Safety/Privacy | 11 | 0 | 2 | 2 |
 | Infrastructure | 6 | 1 | 0 | 4 |
-| **Tổng** | **58** | **17** | **5** | **20** |
+| **Tổng** | **69** | **13** | **5** | **19** |
 
-**Tổng cộng: 100 items — 58% Done, 17% Partial, 5% Stub, 20% Zero**
+**Tổng cộng: 106 items — 65% Done, 12% Partial, 5% Stub, 18% Zero**
 
 ---
 
@@ -190,4 +196,4 @@
 | Wake word disabled by default | 🟡 Usability | "Bi ơi" không hoạt động trừ khi bật thủ công |
 | ~~Grooming/PII detection: không có~~ | ✅ Đã giải quyết Sprint 0.2 | `pii_filter.py` + `manipulation_guard.py` + `emotion_risk_detector.py` |
 | Motor IP hardcoded | 🟡 Deployment | `192.168.40.107:8443` trong firmware, phải sửa mỗi lần deploy |
-| Parent App mock fallbacks | 🟡 Feature | Radio/videos/games/logs hiện dùng mock data |
+| ~~Parent App mock fallbacks~~ | ✅ Đã xóa | Radio/videos/games/logs nay dùng real API (api.js không còn mock) |
