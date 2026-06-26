@@ -11,7 +11,7 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
-- 📄 **DOC SYNC docs↔code (2026-06-27, UNCOMMITTED, docs-only — no code, no tests needed)**:
+- 📄 **DOC SYNC docs↔code (2026-06-27, ✅ committed `f09b53a`, docs-only — no code, no tests needed)**:
   Đồng bộ 4 file .md cho khớp code hiện tại sau khi audit phát hiện docs lệch.
   - `SYSTEM_MAP.md`: nav 5→**6 tab** (thêm "Học Anh văn"/`learninghub`); pages list thêm
     `LearningHubPage`; admin liệt kê đủ **9 section**; components thêm `SpecialMemories`.
@@ -261,7 +261,20 @@
     (redirect `_CHANNELS_PATH` sang temp để KHÔNG đụng file thật), fetch merge family khi global rỗng.
     Suite **674/674 PASS** (trước 669). SYSTEM_MAP cập nhật.
 - **Active branch**: `003-web-search-integration`.
-- **Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
+- **Active spec**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
+  (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
+  P7 gia đình+role; P8 parity xuyên suốt). spec.md + checklist + **plan.md ✅ DONE** (2026-06-27, UNCOMMITTED).
+  plan.md có: Constitution/Protected-Fixes check, Architecture & Affected Files theo P1-P7,
+  schema P7 (ALTER users +role/+child_profile_id, bảng family_permissions granular), endpoint family/wifi/child-login,
+  phases, risks. **/speckit-clarify ✅ DONE (2026-06-27)** — 4 quyết định: (1) con login = chọn hồ sơ
+  trên màn + nhập PIN (không username); (2) đăng ký mở, tự tạo family→owner HOẶC owner add vào + chọn role,
+  con do owner tạo từ hồ sơ+PIN (1↔1); (3) con↔hồ sơ 1↔1 từ hồ sơ có sẵn; (4) con luôn vào Cài đặt đổi
+  avatar/tên + WiFi, các mục khác owner bật/tắt (family_permissions granular). spec.md + plan.md đã reconcile.
+  **/speckit-tasks ✅ DONE (2026-06-27)** — `tasks.md`: 49 task (T001-T049), 10 phase theo US1-US7 + Polish.
+  OQ-2 chốt: mã gia đình = family_id, ghi nhớ localStorage trên thiết bị. PIN con 4-6 số, Argon2.
+  **NEXT**: `/speckit-implement` (hoặc làm tay từng phase). Thứ tự: Setup→US1→US2→US3→(US4∥US5∥US6)→US7(C1→C2→C3)→Polish.
+  MVP = US1+US2. Chưa code gì.
+- **(legacy) Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
 - **Admin UI riêng (đang làm theo phase) — Phase 1 ✅ DONE + committed phiên này:**
