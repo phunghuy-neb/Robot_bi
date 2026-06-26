@@ -11,6 +11,15 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- ⚠️ **WORKING TREE hiện có 11 file polish UNCOMMITTED (KHÔNG phải của phiên spec 2026-06-27)**:
+  `frontend/parent_app/src/{App.jsx, components/SpecialMemories.jsx, pages/JournalPage.jsx,
+  pages/MorePage.jsx, pages/admin/AdminApp.jsx, pages/admin/ContentAdminPage.jsx, services/api.js,
+  styles.css}`, `src/api/routers/control_router.py`, `src/infrastructure/notifications/notifier.py`,
+  `tests/run_tests.py` — là phần polish 2026-06-26 (xem bullet PARENT/ADMIN APP NON-HARDWARE POLISH bên dưới),
+  cố ý để nguyên, CHƯA commit. Phiên spec 006 không đụng các file này. Quyết định commit/bỏ tùy user.
+- 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
+  spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`
+  (xem dòng "Active spec" bên dưới). NEXT: `/speckit-implement` hoặc làm tay MVP = US1+US2. Chưa code.
 - 📄 **DOC SYNC docs↔code (2026-06-27, ✅ committed `f09b53a`, docs-only — no code, no tests needed)**:
   Đồng bộ 4 file .md cho khớp code hiện tại sau khi audit phát hiện docs lệch.
   - `SYSTEM_MAP.md`: nav 5→**6 tab** (thêm "Học Anh văn"/`learninghub`); pages list thêm
