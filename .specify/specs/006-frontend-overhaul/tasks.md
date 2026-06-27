@@ -36,12 +36,12 @@
 - [x] T013 [US2] `npm run build` OK (61 modules, 654ms) — file: `frontend/parent_app/`
 
 ## Phase 5: US3 (P3) — Cấu trúc tab + theo dõi học tập · Test độc lập: nhãn tab phân biệt rõ, tiến độ 3 môn hiển thị (rỗng nếu chưa có dữ liệu)
-- [ ] T014 [P] [US3] Sidebar: `learninghub` "Học Anh văn"→"Học tập"; `learning` "Học tập"→"Theo dõi học tập" — file: `frontend/parent_app/src/components/Sidebar.jsx`
-- [ ] T015 [P] [US3] BottomNav: `learninghub` "Anh văn"→"Học"; `learning` "Học"→"Theo dõi" — file: `frontend/parent_app/src/components/BottomNav.jsx`
-- [ ] T016 [US3] `services/api.js`: thêm `getEducationSummary()` → `GET /api/education/summary` (nếu chưa có) — file: `frontend/parent_app/src/services/api.js`
-- [ ] T017 [US3] LearningPage: đổi tiêu đề "Theo dõi học tập" + thêm khối "Tổng quan tiến độ 3 môn" (en/math/science từ `subject_progress`), empty state khi thiếu — file: `frontend/parent_app/src/pages/LearningPage.jsx`
-- [ ] T018 [P] [US3] Cập nhật nhãn tab trong `docs/DESIGN_SYSTEM.md` — file: `docs/DESIGN_SYSTEM.md`
-- [ ] T019 [US3] `npm run build` OK + kiểm desktop/mobile — file: `frontend/parent_app/`
+- [x] T014 [P] [US3] Sidebar: `learninghub` "Học Anh văn"→"Học tập" (icon 🔤→📚); `learning` "Học tập"→"Theo dõi học tập" (icon 📚→📊) — file: `frontend/parent_app/src/components/Sidebar.jsx`
+- [x] T015 [P] [US3] BottomNav: `learninghub` "Anh văn"→"Học" (📚); `learning` "Học"→"Theo dõi" (📊) — file: `frontend/parent_app/src/components/BottomNav.jsx`
+- [x] T016 [US3] Dùng `apiFetch('/api/education/summary')` trực tiếp theo pattern LearningPage (không thêm helper riêng) — file: `frontend/parent_app/src/pages/LearningPage.jsx`
+- [x] T017 [US3] LearningPage: tiêu đề "📊 Theo dõi học tập"; thêm card "Tiến độ theo môn" (en/math/science từ `subject_progress` + streak, empty state); wire progress ring về dữ liệu THẬT (trước hardcode 75%) — file: `frontend/parent_app/src/pages/LearningPage.jsx` + `styles.css` (.subject-progress-*)
+- [x] T018 [P] [US3] DESIGN_SYSTEM.md: nhãn tab learning→"Theo dõi học tập", learninghub→"Học tập" — file: `docs/DESIGN_SYSTEM.md`
+- [x] T019 [US3] `npm run build` OK (61 modules, 757ms) — file: `frontend/parent_app/`
 
 ## Phase 6: US4 (P4) — Monitor UX · Test độc lập: section gập/mở được, không lặp báo cáo tuần, camera cao hợp lý
 - [ ] T020 [P] [US4] Tạo `components/CollapsibleSection.jsx` dùng chung (state expanded, a11y) — file: `frontend/parent_app/src/components/CollapsibleSection.jsx`

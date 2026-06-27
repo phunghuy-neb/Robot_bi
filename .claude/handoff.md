@@ -21,14 +21,21 @@
   - **LƯU Ý COMMIT**: do `MorePage/JournalPage` phụ thuộc helper api.js của polish 2026-06-26 (tránh commit gãy),
     đã GỘP recover polish 2026-06-26 (11 file) + US1 vào commit `b7ba796`. Working tree polish nay đã committed (sạch, trừ settings.local.json local).
   - Spec 006: 1 máy → chưa push. Sửa cả desktop+mobile cùng codebase `frontend/parent_app/`.
-- ✅ **US2 (P2) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: design system / accessibility.
+- ✅ **US2 (P2) DONE — spec 006 (2026-06-27, commit `c1c6334`)**: design system / accessibility.
   - `styles.css`: `.btn-sm` 36→48 (`--tap-min`), `.pill-tab` 40→48, `.btn-back` auto→48, `.settings-close`
     40→44 (ngoại lệ icon ✕); `.camera-section` +`max-height:min(56vh,460px)`; `.more-grid` → `repeat(auto-fit,minmax(150px,1fr))`.
   - Gỡ 11 inline `minHeight:36` + 1 `minHeight:40` (HomePage/MonitorPage/LearningPage/JournalPage) — chúng override CSS.
   - `docs/DESIGN_SYSTEM.md`: sửa mâu thuẫn btn-sm 36→48 + ghi chú ngoại lệ + camera + more-grid.
   - CÒN LẠI cho US5 (admin): `ContentAdminPage` còn 1 inline `minHeight:40`.
   - Verify: `npm run build` OK (61 modules, 654ms). US2 thuần FE/CSS.
-  - **NEXT: US3 (P3)** cấu trúc tab — T014-T019 (đổi nhãn learninghub→"Học tập", learning→"Theo dõi học tập" + tiến độ 3 môn).
+- ✅ **US3 (P3) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: cấu trúc tab + theo dõi học tập.
+  - Sidebar/BottomNav: `learninghub` "Học Anh văn"→**"Học tập"** (icon 📚), `learning` "Học tập"→**"Theo dõi học tập"** (icon 📊).
+  - LearningPage: tiêu đề "📊 Theo dõi học tập"; thêm card **"Tiến độ theo môn"** (en/math/science từ `/api/education/summary`
+    `subject_progress` + streak, empty state); **wire progress ring về dữ liệu thật** (trước hardcode 75%/"Từ vựng Gia đình").
+    Dùng `apiFetch` trực tiếp (không thêm helper). `toPct()` chấp nhận accuracy 0-1 hoặc 0-100.
+  - styles.css: thêm `.subject-progress-*`. DESIGN_SYSTEM.md: cập nhật nhãn 2 tab.
+  - Verify: `npm run build` OK (61 modules, 757ms). US3 thuần FE.
+  - **NEXT: US4 (P4)** Monitor UX — T020-T022 (CollapsibleSection, bỏ "báo cáo tuần" trùng HomePage, camera). → có thể giao Codex.
 - ⚠️ **WORKING TREE hiện có 11 file polish UNCOMMITTED (KHÔNG phải của phiên spec 2026-06-27)**:
   `frontend/parent_app/src/{App.jsx, components/SpecialMemories.jsx, pages/JournalPage.jsx,
   pages/MorePage.jsx, pages/admin/AdminApp.jsx, pages/admin/ContentAdminPage.jsx, services/api.js,

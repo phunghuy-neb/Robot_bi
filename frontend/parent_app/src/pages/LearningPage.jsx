@@ -2,6 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { apiFetch, showToast, getParentChatHistory, sendParentChat } from '../services/api.js';
 import SectionState from '../components/SectionState.jsx';
 
+// Chuẩn hóa accuracy về phần trăm 0-100 (chấp nhận cả dạng 0-1 lẫn 0-100 từ backend)
+function toPct(v) {
+  const n = Number(v) || 0;
+  return Math.max(0, Math.min(100, Math.round(n <= 1 ? n * 100 : n)));
+}
+
 export default function LearningPage({ activeChild }) {
   const [vocabState, setVocabState] = useState('loading');
   const [vocab, setVocab] = useState([]);
@@ -13,14 +19,21 @@ export default function LearningPage({ activeChild }) {
   const [chatHistory, setChatHistory] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatSending, setChatSending] = useState(false);
+  const [edu, setEdu] = useState(null);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
+    loadEdu();
     loadVocab();
     loadTasks();
     loadStories();
     loadChatHistory();
   }, []);
+
+  async function loadEdu() {
+    const data = await apiFetch('/api/education/summary');
+    if (data) setEdu(data);
+  }
 
   async function loadVocab() {
     setVocabState('loading');
@@ -117,11 +130,16 @@ export default function LearningPage({ activeChild }) {
     w.meaning?.toLowerCase().includes(vocabSearch.toLowerCase())
   );
 
+  const sp = edu?.subject_progress || {};
+  const subjPct = { english: toPct(sp.english), math: toPct(sp.math), science: toPct(sp.science) };
+  const overallPct = edu ? Math.round((subjPct.english + subjPct.math + subjPct.science) / 3) : 0;
+  const hasEdu = !!edu && (subjPct.english + subjPct.math + subjPct.science) > 0;
+
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">📚 Học tập</div>
-        <div className="page-subtitle">Từ vựng · Nhiệm vụ · Luyện tập · Truyện</div>
+        <div className="page-title">📊 Theo dõi học tập</div>
+        <div className="page-subtitle">Tiến độ · Từ vựng · Nhiệm vụ · Truyện</div>
       </div>
 
       <div className="page-body">
@@ -151,21 +169,50 @@ export default function LearningPage({ activeChild }) {
             <svg className="progress-ring" viewBox="0 0 120 120" width="100" height="100">
               <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary-soft)" strokeWidth="12" />
               <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary)" strokeWidth="12"
-                strokeDasharray="314" strokeDashoffset="78.5"
+                strokeDasharray="314" strokeDashoffset={314 * (1 - overallPct / 100)}
                 strokeLinecap="round"
                 style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
               />
             </svg>
-            <div className="progress-ring-label">75%</div>
+            <div className="progress-ring-label">{overallPct}%</div>
           </div>
           <div className="lesson-card" style={{ flex: 1 }}>
-            <div className="lesson-thumb">🔤</div>
+            <div className="lesson-thumb">📈</div>
             <div className="lesson-body">
-              <div className="lesson-title">Từ vựng chủ đề Gia đình</div>
-              <div className="lesson-meta">10 từ · 5–7 tuổi</div>
+              <div className="lesson-title">Tiến độ học tập tổng quan</div>
+              <div className="lesson-meta">
+                {hasEdu ? `${edu.words_learned || 0} từ · ${edu.questions_answered || 0} câu đã trả lời` : 'Chưa có dữ liệu học tập'}
+              </div>
             </div>
-            <button className="btn-start" onClick={() => startGame('vocabulary')}>Bắt đầu</button>
+            <button className="btn-start" onClick={loadEdu}>Làm mới</button>
           </div>
+        </div>
+
+        {/* Tiến độ theo môn (dữ liệu thật từ /api/education/summary) */}
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">📊 Tiến độ theo môn</span>
+            <button className="btn-sm secondary" onClick={loadEdu}>↻</button>
+          </div>
+          {!hasEdu ? (
+            <SectionState state="empty" emptyText="Chưa có dữ liệu học tập của bé." emptyIcon="📊" />
+          ) : (
+            <>
+              {edu?.streak > 0 && (
+                <div style={{ marginBottom: 12, fontWeight: 700 }}>🔥 Chuỗi {edu.streak} ngày học liên tiếp</div>
+              )}
+              {[['🔤 Tiếng Anh', subjPct.english, '#6366F1'], ['🔢 Toán', subjPct.math, '#22c55e'], ['🔬 Khoa học', subjPct.science, '#f59e0b']].map(([name, pct, color]) => (
+                <div key={name} className="subject-progress-row">
+                  <div className="subject-progress-head">
+                    <span>{name}</span><span>{pct}%</span>
+                  </div>
+                  <div className="subject-progress-bar">
+                    <div className="subject-progress-fill" style={{ width: `${pct}%`, background: color }} />
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Vocabulary section */}

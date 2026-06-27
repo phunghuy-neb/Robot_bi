@@ -4,8 +4,8 @@ import UserCard from './UserCard.jsx';
 const TABS = [
   { id: 'home', icon: '🏠', label: 'Trang chủ' },
   { id: 'monitor', icon: '📹', label: 'Giám sát' },
-  { id: 'learning', icon: '📚', label: 'Học tập' },
-  { id: 'learninghub', icon: '🔤', label: 'Học Anh văn' },
+  { id: 'learning', icon: '📊', label: 'Theo dõi học tập' },
+  { id: 'learninghub', icon: '📚', label: 'Học tập' },
   { id: 'journal', icon: '📔', label: 'Nhật ký' },
   { id: 'more', icon: '➕', label: 'Thêm' },
 ];

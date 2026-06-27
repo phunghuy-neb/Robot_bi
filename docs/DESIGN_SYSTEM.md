@@ -170,8 +170,8 @@ Sidebar
 **6 tabs**:
 1. 🏠 Trang chủ (`home`)
 2. 📷 Giám sát (`monitor`)
-3. 📚 Học tập (`learning`)
-4. 🔤 Học Anh văn (`learninghub`)
+3. 📊 Theo dõi học tập (`learning`) — phụ huynh xem tiến độ 3 môn
+4. 📚 Học tập (`learninghub`) — trang học đa môn kiểu Duolingo
 5. 📓 Nhật ký (`journal`)
 6. ⋯ Thêm (`more`)
 
