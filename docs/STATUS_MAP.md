@@ -57,8 +57,9 @@
 | Joystick điều khiển motor | 🟢 | `/api/motor/` | |
 | Admin family management | 🟢 | `/api/admin/families` | |
 | React+Vite SPA build | 🟡 | `frontend/parent_app/src/` | Build passes; production SPA |
-| Learning Hub UI (Duolingo) | 🟢 | `pages/LearningHubPage.jsx` | Module en/math/science, XP, streak, quiz, TOEIC S&W (ghi âm) |
-| Exam UI (đề thi nhiều môn) | 🟢 | `pages/LearningHubPage.jsx` exam mode | 11 track; backend `exam_router.py` |
+| Learning Hub UI (subject-first, spec 007) | 🟢 | `pages/LearningHubPage.jsx` + `components/learning/` | Lưới môn nhóm danh mục + search → chi tiết môn (thẻ chế độ) → Lộ trình/Luyện theo bài/Luyện theo đề/HSG-Chuyển cấp/Nâng cao. Responsive browse 1280 / quiz 640. Lớp 1 xong; Lớp 2 (nội dung Lộ trình mọi môn, gamification đầy đủ) đợt sau |
+| Smart-tutor: Sổ lỗi + Mastery + Hỏi Bi (spec 007) | 🟢 | `components/learning/ErrorBook.jsx`,`MasteryByTopic.jsx`,`AskBi.jsx` + `learning_hub_router.py` | Sổ lỗi & mastery suy ra từ `exam_sessions`/`question_bank` (không bảng mới); "Hỏi Bi vì sao sai" Socratic qua SafetyFilter; "Bi đọc đề" TTS trình duyệt |
+| Exam UI (đề thi nhiều môn) | 🟢 | `pages/LearningHubPage.jsx` exam mode | 11 track; backend `exam_router.py`; vào đề theo môn + cấu hình giờ (spec 007) |
 | Special Memories UI | 🟢 | `components/SpecialMemories.jsx` | `/api/memories/special` |
 | Knowledge Explorer | 🟢 | `pages/MorePage.jsx` | Từ điển, NASA, ISS, Pokémon... qua `/api/knowledge/*` |
 | Admin panels (9 mục) | 🟢 | `pages/admin/` | Users, ApiKeys, Exams, YouTube, Safety, Persona, Content, Logs, Stats |
@@ -129,6 +130,7 @@
 | Curriculum engine | 🟡 | `src/education/curriculum.py` | Partial |
 | Language tutor | 🟡 | `src/education/language_tutor.py` | Partial |
 | Learning Hub (Duolingo-style) | 🟢 | `src/api/routers/learning_hub_router.py` + `pages/LearningHubPage.jsx` | Module en/math/science, XP, streak, quiz |
+| Smart-tutor endpoints (spec 007) | 🟢 | `learning_hub_router.py` | `/practice`(+`/grade`), `/mistakes`, `/mastery`, `/explain` — family-scoped, không lộ đáp án, explain qua SafetyFilter |
 | Exam system (đề thi nhiều môn) | 🟢 | `src/api/routers/exam_router.py` | 25 môn, 11 track, AI tạo đề, review queue, TOEIC S&W STT |
 | Vocabulary tracking tiếng Anh | ⚪ | — | Không có code |
 | Pronunciation scoring | ⚪ | — | Không có code |

@@ -71,6 +71,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `game_router.py` | Word quiz, voice quiz, game score routes, and Parent App radio/video/game metadata routes. `/api/games/interactive` metadata is actionable in Parent App: `/api/game/word-quiz/start` and `/api/game/voice-quiz/start` open an in-app modal; external URLs open in a new tab. `/api/entertainment/videos` merges live videos from the GLOBAL allowlist + the family's own channels into the DB content. Per-family channel management under `/api/entertainment/youtube/channels` (list/add/delete, family-scoped, max 30/family, upsert on duplicate). |
 | `knowledge_router.py` | Read-only `/api/knowledge/*` (+ `/api/entertainment/jokes`) lookups over external public APIs — gated by the `KNOWLEDGE_ENABLED` admin toggle (default on; off → 503) — dictionary, country, number/math, trivia, books/gutenberg/poem/wiki, weather/ISS/APOD, animal & fun facts, jokes (safe-mode), Pokémon/Disney. Auth-gated; degrades to `ok:false` on source error. |
 | `exam_router.py` | Learning Hub exams under `/api/learning/*`: subjects/tracks, exam list/detail (answers hidden), MCQ + TOEIC S&W grading, sessions, TOEIC Speaking via real server-side audio (`POST .../submit-speaking-audio` — multipart clips per question → faster-whisper STT in `audio/input/transcribe_file.py` → graded as transcripts; JSON `/submit-speaking` transcript path kept as fallback), custom exams (`POST /api/learning/exams/custom` — parent = family-scoped, admin `is_global` = global; `DELETE` with owner/admin guard), and admin generate/review/assemble + `GET /api/learning/admin/papers`. Exam papers are family-isolated (`family_id` NULL = global). LLM grading feedback/tips are run through SafetyFilter before reaching the child. |
+| `learning_hub_router.py` | Learning Hub "Lộ trình" + smart-tutor under `/api/learning/*`: Duolingo-style `modules`/`lessons`/`progress`/`streak` (en/math/science). spec 007 smart-tutor: `GET .../practice` (MCQ từ `question_bank`, family-scoped, **không trả đáp án**) + `POST .../practice/grade` (chấm server-side, trả đúng/đáp án/giải thích); `GET .../mistakes?subject=` (Sổ lỗi — câu sai latest-wins từ `exam_sessions.answers_json` × `question_bank.answer`, không lộ đáp án) + `GET .../mastery?subject=` (điểm thạo theo chủ đề, weakest-first) — đều suy ra từ dữ liệu sẵn, KHÔNG bảng mới; `POST .../explain` ("Hỏi Bi vì sao sai" — `stream_chat` role teacher kiểu Socratic → **SafetyFilter** trước khi tới trẻ → fallback an toàn khi LLM lỗi). |
 | `eval_router.py` | `POST /api/eval/chat` — raw LLM eval over the 4 roles (no child SafetyFilter); **admin-only** (`is_user_admin`), used for prompt comparison/testing, not child-facing. |
 | `motor_router.py` | Motor movement, joystick, dock/home, spin, and status routes. |
 | `music_router.py` | Music play/stop/pause/next/previous/shuffle/repeat/volume/status/playlist/lullaby routes. |
@@ -134,8 +135,13 @@ src/
   pages/             — LoginPage (parent username/pw + "child login" by family code →
                        profile grid → PIN), HomePage, MonitorPage (collapsible sections),
                        LearningPage,
-                       LearningHubPage (học kiểu Duolingo: module en/math/science,
-                       XP, streak, quiz, TOEIC S&W), JournalPage, MorePage
+                       LearningHubPage (spec 007 — subject-first: cửa trước = LƯỚI MÔN
+                       nhóm theo danh mục + search → trang chi tiết môn với THẺ CHẾ ĐỘ
+                       [Lộ trình · Luyện theo bài · Luyện theo đề · +HSG/Chuyển cấp môn Bộ GD
+                       / Thi thử như thật IELTS-TOEIC / Nâng cao]; smart-tutor: Sổ lỗi,
+                       Mastery theo chủ đề, "Hỏi Bi vì sao sai", "Bi đọc đề" (TTS trình duyệt);
+                       Lộ trình kiểu Duolingo en/math/science thật, môn khác "Sắp có";
+                       luồng đề + TOEIC S&W tái dùng), JournalPage, MorePage
 ```
 
 `frontend/robot_display/index.html` contains the child-facing display UI with face modes and flashcard/reward/pronunciation display functions. `face.html` and `flashcard.html` are placeholder redirect-style pages.

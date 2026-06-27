@@ -74,10 +74,10 @@
 - [x] T038 [US9] `npm run build` OK (73 modules) + kiểm 3 môn thật + 1 môn "Sắp có" — file: `frontend/parent_app/`
 
 ## Phase 11: Polish & Cross-Cutting (US10 + docs)
-- [ ] T039 [P] [US10] Responsive sweep: rà 320/360/390/414/600/768/1024/1280/1440/1920 — không cuộn ngang, browse rộng/quiz hẹp, tablet 1 cột/≥1024 2 cột; a11y (tap≥48, contrast, focus, màu+chữ) — file: `frontend/parent_app/src/`
-- [ ] T040 [P] Cập nhật `docs/DESIGN_SYSTEM.md` (breakpoints + container browse/quiz + mastery color) + `SYSTEM_MAP.md`/`docs/STATUS_MAP.md` (tab Học tập subject-first, endpoint learning mới, sổ lỗi/mastery/Hỏi-Bi) — file: `docs/`, `SYSTEM_MAP.md`
-- [ ] T041 `python tests/run_tests.py` toàn bộ PASS (gồm Group learning mới) + đối chiếu Protected Fixes không hồi quy — file: `tests/`
-- [ ] T042 Cập nhật `.claude/handoff.md` (Rule 9) — file: `.claude/handoff.md`
+- [x] T039 [P] [US10] Responsive sweep: container browse `.learn-browse`=1280 / quiz `.learn-quiz`=640 đã chuẩn; `.subject-grid` auto-fill minmax(140)/132@≤360; `.subject-detail-grid` 1 cột→`2fr 1fr`@≥1024; thống nhất luồng học/đề cũ về `maxWidth:560` (≤640 cap, hết "co giữa 480"); chế độ chưa sẵn = badge+chữ (màu không phải tín hiệu duy nhất). Không cuộn ngang 320→1920 — file: `frontend/parent_app/src/`
+- [x] T040 [P] Cập nhật `docs/DESIGN_SYSTEM.md` (content-width browse/quiz + breakpoint phụ 360/1024 + mastery color bands + coming-soon) + `SYSTEM_MAP.md` (thêm row `learning_hub_router.py` + LearningHubPage subject-first) + `docs/STATUS_MAP.md` (Learning Hub subject-first + smart-tutor + endpoint mới) — file: `docs/`, `SYSTEM_MAP.md`
+- [x] T041 `python tests/run_tests.py` toàn bộ PASS (gồm Group 102-105 learning mới) + Protected Fixes không hồi quy (không chạm auth/JWT/family-isolation/RAG/audio/SafetyFilter/5-LLM/DB) — file: `tests/`
+- [x] T042 Cập nhật `.claude/handoff.md` (Rule 9) — file: `.claude/handoff.md`
 
 ---
 

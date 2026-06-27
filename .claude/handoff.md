@@ -425,7 +425,16 @@
     `SubjectDetail`: Lộ trình môn ngoài en/math/science = coming-soon + toast. View Lộ trình (modules cũ): **bỏ tab chuyển môn cũ**
     (subject-first — đã chọn ở lưới), hiện tên môn đã chọn. en/math/science vào module thật qua `getLearningModules`.
     Verify: build 73 modules OK; tests không đổi (FE-only).
-  - **NEXT lát: Polish (US10 + docs)** — responsive sweep 320→1920, DESIGN_SYSTEM.md + SYSTEM_MAP/STATUS_MAP, run_tests cuối → xong Lớp 1.
+  - ✅ **007 POLISH (US10 + docs) DONE (2026-06-28, commit `<sẽ điền>`)** — 🎉 **LỚP 1 spec 007 HOÀN TẤT.**
+    T039 responsive: container browse `.learn-browse`=1280 / quiz `.learn-quiz`=640 đã chuẩn; `.subject-grid` auto-fill minmax(140)/132@≤360;
+    `.subject-detail-grid` 1 cột→`2fr 1fr`@≥1024; thống nhất luồng học/đề cũ về `maxWidth:560` (hết "co giữa 480"). Không cuộn ngang 320→1920.
+    T040 docs: `DESIGN_SYSTEM.md` (content-width browse/quiz + bp phụ 360/1024 + mastery bands + coming-soon) · `SYSTEM_MAP.md` (thêm row
+    `learning_hub_router.py` + LearningHubPage subject-first) · `STATUS_MAP.md` (Học tập subject-first + smart-tutor + endpoint mới).
+    T041: build 73 modules; **738/738 PASS**; Protected Fixes không hồi quy. T042: handoff (dòng này).
+  - **TỔNG KẾT spec 007 Lớp 1**: US1 lưới môn · US2 chi tiết môn+gating (gộp US8) · US3 vào đề theo môn+timer · US4 luyện theo bài+grade ·
+    US5 Sổ lỗi · US6 Mastery · US7 Hỏi Bi+đọc đề ⭐ · US9 Lộ trình shell · Polish. Endpoint mới: `/practice`(+grade)`/mistakes`/`/mastery`/`/explain`.
+  - **NEXT (Lớp 2, cần BE — đợt sau)**: US11-US14 — nội dung Lộ trình Duolingo mọi môn, spaced repetition, adaptive difficulty,
+    báo cáo phụ huynh nâng cao + "Bi tóm tắt ngày học", gamification đầy đủ (đóng băng streak, huy hiệu, family leaderboard).
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

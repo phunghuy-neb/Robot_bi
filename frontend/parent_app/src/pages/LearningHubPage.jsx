@@ -884,7 +884,7 @@ export default function LearningHubPage() {
     const pct = Math.round((result.score / result.total) * 100);
     const stars = result.score >= 5 ? 3 : result.score >= 4 ? 2 : result.score >= 3 ? 1 : 0;
     return (
-      <div style={{ padding: '24px 16px', maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ padding: '24px 16px', maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontSize: 72, marginBottom: 8 }}>
           {stars === 3 ? '🏆' : stars === 2 ? '🥈' : stars === 1 ? '🥉' : '😅'}
         </div>
@@ -923,7 +923,7 @@ export default function LearningHubPage() {
     const total = lessonData.items.length;
     const pct = Math.round(((qIndex) / total) * 100);
     return (
-      <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
+      <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button className="btn-sm secondary" style={{ minWidth: 40 }}
@@ -985,7 +985,7 @@ export default function LearningHubPage() {
   if (view === 'lessons' && selectedModule) {
     const colors = MODULE_COLORS[selectedModule.module] || { bg: '#f5f5f5', accent: '#666', icon: '📚' };
     return (
-      <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
+      <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <button className="btn-sm secondary" style={{ minWidth: 40 }}
             onClick={() => setView('modules')}>←</button>
@@ -1038,7 +1038,7 @@ export default function LearningHubPage() {
   const filteredModules = modules.filter(m => (m.subject || 'en') === activeSubject);
 
   return (
-    <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
+    <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
       <ModeToggle />
       {/* spec 007 US9: subject-first — đã chọn môn ở lưới, hiện tên môn (bỏ tab chuyển môn cũ). */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
