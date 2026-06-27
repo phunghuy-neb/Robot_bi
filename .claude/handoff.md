@@ -44,7 +44,7 @@
     do 2 response bị SafetyFilter block trong stress AI/quota fallback (không thuộc US4, xảy ra trước code change).
   - Verify cuối sau US4: `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
   - **NEXT: US6 (P6) WiFi UI** hoặc **US7** để cuối vì đụng schema/JWT/role.
-- ✅ **US5 (P5) DONE — spec 006 (2026-06-27, commit pending)**: Admin UI polish.
+- ✅ **US5 (P5) DONE — spec 006 (2026-06-27, commit `773d839`)**: Admin UI polish.
   - T023-T024: thêm nhóm `.admin-*` dùng design token + responsive mobile; tạo `components/admin/Toggle.jsx`.
   - T025-T027: AdminApp + 9 trang admin dùng class/token thống nhất; Users/API keys/Exams/YouTube/Safety/Persona/Content/Logs/Stats
     bỏ inline style trong admin path; Safety/API keys/Content dùng Toggle chung; YouTubeChannelManager đổi `accent` màu cứng sang `buttonTone`.
