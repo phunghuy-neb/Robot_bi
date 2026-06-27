@@ -51,6 +51,14 @@
   - T028: `npm run build` OK (63 modules, 660ms; warning sandbox `Failed to create stream fd` nhưng build thành công);
     `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
   - **NEXT: US6 (P6) WiFi UI** nếu muốn làm nhanh; **US7** làm cuối vì đụng schema/JWT/role.
+- 🔎 **Claude verify tích hợp US4+US5 (2026-06-27)**: build OK; `.venv/bin/python tests/run_tests.py` = **722/722 PASS**;
+  Codex chỉ đổi 1 prop MorePage (`accent`→`buttonTone`), US1 grid nguyên vẹn. (Lưu ý: có 1 stress test safety-filter
+  thỉnh thoảng flaky do AI/quota fallback — Codex gặp baseline 721/722, không liên quan code FE.)
+- ✅ **US6 (P6) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: WiFi UI cho robot.
+  - `api.js`: `getWifiStatus()` (GET /api/wifi/status), `addWifi({ssid,password})` (POST /api/wifi/add) — backend wifi_router.py sẵn có.
+  - `SettingsOverlay`: section "📶 WiFi cho robot" — hiện trạng thái kết nối (load on mount + nút ↻), form SSID + mật khẩu + nút gửi.
+  - Verify: `npm run build` OK (646ms). US6 thuần FE, không đụng Python.
+  - **NEXT: US7 (P7)** — phần lớn nhất, BE trước (C1 schema+JWT+require_role → C2 endpoints+child-login → C3 FE). Của Claude.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`

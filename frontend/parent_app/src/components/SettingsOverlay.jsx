@@ -14,6 +14,8 @@ import {
   getNotificationSettings,
   savePushSettings,
   getDeviceConnectionUrl,
+  getWifiStatus,
+  addWifi,
   showToast,
 } from '../services/api.js';
 import SectionState from './SectionState.jsx';
@@ -53,12 +55,52 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
   // Device connection URL
   const [deviceUrl, setDeviceUrl] = useState(null);
   const [deviceUrlLoading, setDeviceUrlLoading] = useState(false);
+  // WiFi cho robot
+  const [wifiSsid, setWifiSsid] = useState('');
+  const [wifiPassword, setWifiPassword] = useState('');
+  const [wifiStatus, setWifiStatus] = useState(null);
+  const [wifiSaving, setWifiSaving] = useState(false);
+  const [wifiLoading, setWifiLoading] = useState(false);
 
   useEffect(() => {
     loadChildProfiles();
     loadSettingsFromBackend();
     loadNotificationSettings();
+    loadWifiStatus();
   }, []);
+
+  async function loadWifiStatus() {
+    setWifiLoading(true);
+    try {
+      const data = await getWifiStatus();
+      if (data) setWifiStatus(data);
+    } catch (_) {
+      // im lặng — chỉ là trạng thái hiển thị
+    } finally {
+      setWifiLoading(false);
+    }
+  }
+
+  async function handleSendWifi(e) {
+    e.preventDefault();
+    const ssid = wifiSsid.trim();
+    if (!ssid) return;
+    setWifiSaving(true);
+    try {
+      const result = await addWifi({ ssid, password: wifiPassword });
+      if (result?.ok) {
+        showToast('✅ ' + (result.message || 'Đã gửi WiFi xuống robot'));
+        setWifiPassword('');
+        loadWifiStatus();
+      } else {
+        showToast('❌ ' + (result?.error || 'Gửi WiFi thất bại'));
+      }
+    } catch (_) {
+      showToast('❌ Lỗi kết nối');
+    } finally {
+      setWifiSaving(false);
+    }
+  }
 
   async function loadChildProfiles() {
     setChildLoading(true);
@@ -528,6 +570,50 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
           >
             {deviceUrlLoading ? '⏳ Đang tạo...' : deviceUrl ? '🔄 Làm mới mã' : '🔗 Tạo mã kết nối'}
           </button>
+        </div>
+
+        {/* Section: WiFi cho robot */}
+        <div className="settings-section">
+          <div className="settings-section-title">
+            📶 WiFi cho robot
+          </div>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 10 }}>
+            Khai báo WiFi để robot kết nối mạng nhà. Lệnh được gửi xuống robot qua kết nối hiện tại.
+          </p>
+          <div style={{ marginBottom: 10, fontSize: 14, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span>Trạng thái:</span>
+            {wifiStatus?.connected ? (
+              <span style={{ color: 'var(--success, #16a34a)', fontWeight: 700 }}>
+                ● Đã kết nối{wifiStatus.ip ? ` (${wifiStatus.ip})` : ''}
+              </span>
+            ) : (
+              <span style={{ color: 'var(--muted)', fontWeight: 700 }}>○ Chưa kết nối</span>
+            )}
+            <button className="btn-sm secondary" onClick={loadWifiStatus} disabled={wifiLoading}>
+              {wifiLoading ? '⏳' : '↻'}
+            </button>
+          </div>
+          <form onSubmit={handleSendWifi} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              className="form-input"
+              placeholder="Tên WiFi (SSID) *"
+              value={wifiSsid}
+              onChange={e => setWifiSsid(e.target.value)}
+              maxLength={64}
+              required
+            />
+            <input
+              className="form-input"
+              type="password"
+              placeholder="Mật khẩu WiFi"
+              value={wifiPassword}
+              onChange={e => setWifiPassword(e.target.value)}
+              maxLength={64}
+            />
+            <button type="submit" className="btn-outline" disabled={wifiSaving || !wifiSsid.trim()}>
+              {wifiSaving ? '⏳ Đang gửi...' : '📶 Gửi WiFi xuống robot'}
+            </button>
+          </form>
         </div>
 
         {/* Section 6: Chế độ kỹ thuật — admin only */}

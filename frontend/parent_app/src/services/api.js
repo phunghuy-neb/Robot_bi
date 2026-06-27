@@ -622,6 +622,19 @@ export async function getRobotLocation() {
   return apiFetch('/api/robot/location');
 }
 
+// WiFi cho robot (ESP32) — backend wifi_router.py
+export async function getWifiStatus() {
+  return apiFetch('/api/wifi/status');
+}
+
+export async function addWifi({ ssid, password }) {
+  return apiFetch('/api/wifi/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ssid, password }),
+  });
+}
+
 export async function getParentChatHistory(limit = 20) {
   return apiFetch(`/api/parent-chat?limit=${limit}`);
 }

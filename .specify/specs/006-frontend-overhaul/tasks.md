@@ -57,9 +57,9 @@
 - [x] T028 [US5] `npm run build` OK (63 modules, 660ms) + kiểm 9 trang admin bằng responsive class/source sweep — file: `frontend/parent_app/`
 
 ## Phase 8: US6 (P6) — WiFi UI cho robot · Test độc lập: nhập SSID/pass gửi xuống robot, hiện trạng thái
-- [ ] T029 [US6] `services/api.js`: `getWifiStatus()`→`GET /api/wifi/status`, `addWifi({ssid,password})`→`POST /api/wifi/add` — file: `frontend/parent_app/src/services/api.js`
-- [ ] T030 [US6] SettingsOverlay: section "📶 WiFi cho robot" (input SSID+password, nút gửi, hiện status) — file: `frontend/parent_app/src/components/SettingsOverlay.jsx`
-- [ ] T031 [US6] `npm run build` OK + kiểm desktop/mobile — file: `frontend/parent_app/`
+- [x] T029 [US6] `services/api.js`: `getWifiStatus()`→`GET /api/wifi/status`, `addWifi({ssid,password})`→`POST /api/wifi/add` — file: `frontend/parent_app/src/services/api.js`
+- [x] T030 [US6] SettingsOverlay: section "📶 WiFi cho robot" (status + SSID/password + nút gửi), load status on mount — file: `frontend/parent_app/src/components/SettingsOverlay.jsx`
+- [x] T031 [US6] `npm run build` OK (646ms) — file: `frontend/parent_app/`
 
 ## Phase 9: US7 (P7) — Gia đình & phân quyền (BE trước → FE) · Test độc lập: con bị chặn route nhạy cảm cả khi gọi thẳng API; owner tạo con→con login PIN; cô lập family
 
