@@ -54,11 +54,22 @@
 - 🔎 **Claude verify tích hợp US4+US5 (2026-06-27)**: build OK; `.venv/bin/python tests/run_tests.py` = **722/722 PASS**;
   Codex chỉ đổi 1 prop MorePage (`accent`→`buttonTone`), US1 grid nguyên vẹn. (Lưu ý: có 1 stress test safety-filter
   thỉnh thoảng flaky do AI/quota fallback — Codex gặp baseline 721/722, không liên quan code FE.)
-- ✅ **US6 (P6) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: WiFi UI cho robot.
+- ✅ **US6 (P6) DONE — spec 006 (2026-06-27, commit `cd54cfe`)**: WiFi UI cho robot.
   - `api.js`: `getWifiStatus()` (GET /api/wifi/status), `addWifi({ssid,password})` (POST /api/wifi/add) — backend wifi_router.py sẵn có.
   - `SettingsOverlay`: section "📶 WiFi cho robot" — hiện trạng thái kết nối (load on mount + nút ↻), form SSID + mật khẩu + nút gửi.
   - Verify: `npm run build` OK (646ms). US6 thuần FE, không đụng Python.
   - **NEXT: US7 (P7)** — phần lớn nhất, BE trước (C1 schema+JWT+require_role → C2 endpoints+child-login → C3 FE). Của Claude.
+- ✅ **US7 LÁT C1 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: nền tảng vai trò gia đình (BE).
+  - `db.py`: cột `users.role` (DEFAULT 'parent') + `users.child_profile_id` (CREATE + ALTER idempotent); backfill role
+    (owner = is_admin hoặc user sớm nhất mỗi family, còn lại parent); bảng `family_permissions` (7 cờ `child_can_*`, mặc định 0).
+    Helpers foundation: `get_user_role`, `get_family_permissions`, `set_family_permissions`, `list_family_members`,
+    `count_family_owners`, `set_member_role`, `remove_family_member`.
+  - `auth.py`: JWT `create_access_token` +claim `role`; `get_current_user` trả `role`; **`require_role(*allowed)`** (403,
+    token cũ thiếu role→parent — KHÔNG đụng verify_access_token/token_version/is_active); `authenticate_user`+role; seed_admin role='owner'.
+  - Test **Group 100** (5): schema, JWT role, require_role chặn child/parent/thiếu-role, family_permissions mặc định 0 + roundtrip, cô lập theo family.
+  - Verify: `.venv/bin/python tests/run_tests.py` = **727/727 PASS** (722→727). Protected Fixes giữ nguyên.
+  - **NEXT: C2** — `family_router.py` (owner CRUD member, `require_role('owner')`) + `auth_router` child-profiles/child-login PIN +
+    helpers còn lại (create_family/add_existing_user/create_child_account/verify_child_pin/list_child_profiles_public) + gắn require_role route nhạy cảm. Test SC-6.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`

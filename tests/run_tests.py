@@ -9166,6 +9166,87 @@ test("99.2  Special memory due event idempotent + family-scoped",             te
 test("99.3  Special Memories UI gọi endpoint ghi nhắc vào Nhật ký",           test_99_special_memory_reminder_frontend_wired)
 test("99.4  Parent App chọn hồ sơ trẻ thật thay vì toast sắp hỗ trợ",         test_99_parent_app_child_picker_replaces_placeholder)
 
+# == GROUP 100: US7 C1 — vai trò gia đình + phân quyền (spec 006) ============
+print("\n[Group 100] US7 C1 — vai trò gia đình + JWT role + require_role + family_permissions")
+
+
+def test_100_schema_role_and_family_permissions():
+    from src.infrastructure.database.db import get_db_connection
+    with get_db_connection() as conn:
+        ucols = {r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+        assert "role" in ucols and "child_profile_id" in ucols, "users thiếu role/child_profile_id"
+        fcols = {r[1] for r in conn.execute("PRAGMA table_info(family_permissions)").fetchall()}
+    for c in ("family_name", "child_can_monitor", "child_can_journal", "child_can_notifications",
+              "child_can_sleep", "child_can_safety", "child_can_device", "child_can_members"):
+        assert c in fcols, f"family_permissions thiếu cột {c}"
+
+
+def test_100_jwt_carries_role():
+    from src.infrastructure.auth.auth import create_user, create_access_token, verify_access_token
+    from src.infrastructure.database.db import set_member_role, get_user_role
+    fam = f"role-{_uuid.uuid4().hex[:6]}"
+    user = create_user(f"role_{_uuid.uuid4().hex[:8]}", "Password1!", fam)
+    uid = str(user["user_id"])
+    assert get_user_role(uid) == "parent", "user mới mặc định role=parent"
+    payload = verify_access_token(create_access_token(uid, fam))
+    assert payload.get("role") == "parent", f"token thiếu role parent: {payload.get('role')}"
+    assert set_member_role(fam, uid, "owner") is True
+    payload2 = verify_access_token(create_access_token(uid, fam))
+    assert payload2.get("role") == "owner", "token phải phản ánh role mới"
+
+
+def test_100_require_role_blocks_child():
+    import asyncio
+    from fastapi import HTTPException
+    from src.infrastructure.auth.auth import require_role
+    owner_only = require_role("owner")
+    ok = asyncio.run(owner_only(current_user={"user_id": "1", "role": "owner"}))
+    assert ok["role"] == "owner"
+    for bad in ({"role": "child"}, {"role": "parent"}, {}):
+        try:
+            asyncio.run(owner_only(current_user=bad))
+            raise AssertionError(f"role {bad} phải bị 403 ở route owner-only")
+        except HTTPException as e:
+            assert e.status_code == 403, f"phải 403, có {e.status_code}"
+
+
+def test_100_family_permissions_default_safe_and_roundtrip():
+    from src.infrastructure.database.db import (
+        get_family_permissions, set_family_permissions, ensure_family_exists,
+    )
+    fam = ensure_family_exists(f"perm-{_uuid.uuid4().hex[:6]}")
+    defaults = get_family_permissions(fam)
+    assert all(v == 0 for v in defaults.values()), f"mặc định phải an toàn (0): {defaults}"
+    set_family_permissions(fam, {"child_can_journal": 1})
+    after = get_family_permissions(fam)
+    assert after["child_can_journal"] == 1
+    assert after["child_can_safety"] == 0 and after["child_can_members"] == 0
+
+
+def test_100_role_and_permissions_family_isolated():
+    from src.infrastructure.auth.auth import create_user
+    from src.infrastructure.database.db import (
+        set_member_role, list_family_members, get_family_permissions, set_family_permissions,
+    )
+    famA = f"isoA-{_uuid.uuid4().hex[:6]}"
+    famB = f"isoB-{_uuid.uuid4().hex[:6]}"
+    uA = create_user(f"isoa_{_uuid.uuid4().hex[:8]}", "Password1!", famA)
+    uB = create_user(f"isob_{_uuid.uuid4().hex[:8]}", "Password1!", famB)
+    set_member_role(famA, str(uA["user_id"]), "owner")
+    set_family_permissions(famA, {"child_can_monitor": 1})
+    assert get_family_permissions(famB)["child_can_monitor"] == 0, "quyền phải cô lập theo gia đình"
+    idsA = {str(m["user_id"]) for m in list_family_members(famA)}
+    assert str(uA["user_id"]) in idsA
+    assert str(uB["user_id"]) not in idsA, "list members phải scope theo family"
+    assert set_member_role(famA, str(uB["user_id"]), "parent") is False, "không đổi được role user của family khác"
+
+
+test("100.1  Schema: users.role/child_profile_id + family_permissions",       test_100_schema_role_and_family_permissions)
+test("100.2  JWT mang claim role (parent mặc định, đổi owner)",               test_100_jwt_carries_role)
+test("100.3  require_role chặn child/parent/thiếu-role ở route owner-only",   test_100_require_role_blocks_child)
+test("100.4  family_permissions mặc định an toàn (0) + set/get roundtrip",    test_100_family_permissions_default_safe_and_roundtrip)
+test("100.5  Role + quyền cô lập theo gia đình",                              test_100_role_and_permissions_family_isolated)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

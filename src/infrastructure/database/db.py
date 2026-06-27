@@ -1288,7 +1288,9 @@ def init_db() -> None:
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
                     is_active INTEGER DEFAULT 1,
                     is_admin INTEGER NOT NULL DEFAULT 0,
-                    token_version INTEGER NOT NULL DEFAULT 0
+                    token_version INTEGER NOT NULL DEFAULT 0,
+                    role TEXT NOT NULL DEFAULT 'parent',
+                    child_profile_id TEXT
                 )
                 '''
             )
@@ -1318,6 +1320,61 @@ def init_db() -> None:
                 else:
                     logger.error("[DB] Migration token_version failed: %s", e)
                     raise RuntimeError(f"DB migration that bai: {e}") from e
+
+            # Migration US7 (spec 006): vai trò gia đình + liên kết hồ sơ trẻ.
+            for _col, _ddl in (
+                ("role", "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'parent'"),
+                ("child_profile_id", "ALTER TABLE users ADD COLUMN child_profile_id TEXT"),
+            ):
+                try:
+                    conn.execute(_ddl)
+                    conn.commit()
+                except Exception as e:
+                    msg = str(e).lower()
+                    if "duplicate column" in msg or "already exists" in msg:
+                        pass
+                    else:
+                        logger.error("[DB] Migration %s failed: %s", _col, e)
+                        raise RuntimeError(f"DB migration that bai: {e}") from e
+
+            # Backfill role cho user cũ (idempotent):
+            #  - rỗng/NULL → 'parent'
+            #  - is_admin=1 → 'owner'
+            #  - mỗi gia đình chưa có owner nào → user sớm nhất làm 'owner'
+            conn.execute("UPDATE users SET role = 'parent' WHERE role IS NULL OR role = ''")
+            conn.execute("UPDATE users SET role = 'owner' WHERE is_admin = 1 AND role != 'child'")
+            conn.execute(
+                """
+                UPDATE users SET role = 'owner'
+                WHERE user_id IN (
+                    SELECT MIN(u2.user_id) FROM users u2
+                    WHERE u2.role = 'parent'
+                      AND NOT EXISTS (
+                          SELECT 1 FROM users u3
+                          WHERE u3.family_name = u2.family_name AND u3.role = 'owner'
+                      )
+                    GROUP BY u2.family_name
+                )
+                """
+            )
+
+            # family_permissions (US7): quyền con per gia đình — mặc định an toàn (0 = ẩn).
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS family_permissions (
+                    family_name TEXT PRIMARY KEY
+                        REFERENCES families(family_id) ON DELETE CASCADE,
+                    child_can_monitor INTEGER NOT NULL DEFAULT 0,
+                    child_can_journal INTEGER NOT NULL DEFAULT 0,
+                    child_can_notifications INTEGER NOT NULL DEFAULT 0,
+                    child_can_sleep INTEGER NOT NULL DEFAULT 0,
+                    child_can_safety INTEGER NOT NULL DEFAULT 0,
+                    child_can_device INTEGER NOT NULL DEFAULT 0,
+                    child_can_members INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                )
+                '''
+            )
 
             # Tao bang auth_tokens (JWT refresh token rotation)
             conn.execute(
@@ -2520,3 +2577,95 @@ def revoke_all_tokens_for_user(user_id: str) -> int:
         )
         conn.commit()
         return count
+
+
+# ── US7 (spec 006): vai trò gia đình + phân quyền con ──────────────────────────
+
+_FAMILY_PERM_COLS = (
+    "child_can_monitor", "child_can_journal", "child_can_notifications",
+    "child_can_sleep", "child_can_safety", "child_can_device", "child_can_members",
+)
+
+
+def get_user_role(user_id: str) -> str:
+    """Trả vai trò gia đình của user ('owner'|'parent'|'child'). Mặc định 'parent'."""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT role FROM users WHERE user_id = ?", (str(user_id),)
+        ).fetchone()
+    return row["role"] if row and row["role"] else "parent"
+
+
+def get_family_permissions(family_name: str) -> dict:
+    """Quyền con của gia đình; mặc định an toàn (tất cả 0) khi chưa cấu hình."""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM family_permissions WHERE family_name = ?", (family_name,)
+        ).fetchone()
+    if not row:
+        return {c: 0 for c in _FAMILY_PERM_COLS}
+    return {c: int(row[c]) for c in _FAMILY_PERM_COLS}
+
+
+def set_family_permissions(family_name: str, perms: dict) -> dict:
+    """Ghi quyền con (chỉ owner gọi qua endpoint). Merge với giá trị hiện có."""
+    cur = get_family_permissions(family_name)
+    merged = {c: int(bool(perms.get(c, cur[c]))) for c in _FAMILY_PERM_COLS}
+    cols = ", ".join(_FAMILY_PERM_COLS)
+    placeholders = ", ".join("?" for _ in _FAMILY_PERM_COLS)
+    updates = ", ".join(f"{c}=excluded.{c}" for c in _FAMILY_PERM_COLS)
+    with get_db_connection() as conn:
+        conn.execute(
+            f"""INSERT INTO family_permissions (family_name, {cols}, updated_at)
+                VALUES (?, {placeholders}, ?)
+                ON CONFLICT(family_name) DO UPDATE SET {updates}, updated_at=excluded.updated_at""",
+            (family_name, *[merged[c] for c in _FAMILY_PERM_COLS], _utc_now_iso()),
+        )
+        conn.commit()
+    return merged
+
+
+def list_family_members(family_name: str) -> list[dict]:
+    """Danh sách thành viên trong gia đình (owner trước, rồi parent, rồi child)."""
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """SELECT user_id, username, role, child_profile_id, is_active, created_at
+               FROM users WHERE family_name = ?
+               ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'parent' THEN 1 ELSE 2 END, user_id""",
+            (family_name,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def count_family_owners(family_name: str) -> int:
+    """Số owner đang active của gia đình (để chặn xóa owner cuối)."""
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM users WHERE family_name = ? AND role = 'owner' AND is_active = 1",
+            (family_name,),
+        ).fetchone()
+    return int(row["n"]) if row else 0
+
+
+def set_member_role(family_name: str, user_id: str, role: str) -> bool:
+    """Đổi vai trò một thành viên trong gia đình. Chỉ chấp nhận owner/parent/child."""
+    if role not in ("owner", "parent", "child"):
+        return False
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "UPDATE users SET role = ? WHERE user_id = ? AND family_name = ?",
+            (role, str(user_id), family_name),
+        )
+        conn.commit()
+    return cur.rowcount > 0
+
+
+def remove_family_member(family_name: str, user_id: str) -> bool:
+    """Xóa một thành viên khỏi gia đình (scope theo family_name để cô lập)."""
+    with get_db_connection() as conn:
+        cur = conn.execute(
+            "DELETE FROM users WHERE user_id = ? AND family_name = ?",
+            (str(user_id), family_name),
+        )
+        conn.commit()
+    return cur.rowcount > 0

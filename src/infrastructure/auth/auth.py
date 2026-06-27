@@ -102,7 +102,7 @@ def get_user_by_username(username: str) -> dict | None:
     """Lay user theo username. Tra None neu khong tim thay."""
     with get_db_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, username, password_hash, family_name, created_at, is_active, is_admin "
+            "SELECT user_id, username, password_hash, family_name, created_at, is_active, is_admin, role "
             "FROM users WHERE username = ?",
             (username,),
         ).fetchone()
@@ -127,6 +127,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
         "username": user["username"],
         "family_name": user["family_name"],
         "is_admin": bool(user.get("is_admin")),
+        "role": user.get("role") or "parent",
     }
 
 
@@ -161,7 +162,7 @@ def seed_admin_if_empty() -> None:
             ("admin", "admin", datetime.now(timezone.utc).isoformat()),
         )
         conn.execute(
-            "INSERT INTO users (username, password_hash, family_name, is_admin) VALUES (?, ?, ?, 1)",
+            "INSERT INTO users (username, password_hash, family_name, is_admin, role) VALUES (?, ?, ?, 1, 'owner')",
             (admin_username, password_hash, "admin"),
         )
         conn.commit()
@@ -195,11 +196,12 @@ def create_access_token(user_id: str, family_name: str) -> str:
     if not _JOSE_AVAILABLE:
         raise RuntimeError("python-jose chua duoc cai dat. Chay: pip install 'python-jose[cryptography]'")
     jwt_secret, jwt_alg = _get_jwt_config()
-    from src.infrastructure.database.db import get_token_version
+    from src.infrastructure.database.db import get_token_version, get_user_role
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
         "family": family_name,
+        "role": get_user_role(str(user_id)),
         "type": "access",
         "tv": get_token_version(str(user_id)),
         "iat": now,
@@ -382,4 +384,23 @@ async def get_current_user(
     return {
         "user_id": payload["sub"],
         "family_name": payload["family"],
+        "role": payload.get("role", "parent"),
     }
+
+
+def require_role(*allowed_roles: str):
+    """
+    FastAPI dependency factory: chỉ cho phép các vai trò gia đình trong allowed_roles
+    (vd require_role('owner')). Token cũ thiếu claim 'role' → coi là 'parent'.
+    Raise HTTPException(403) nếu vai trò không được phép.
+    Lưu ý: KHÔNG thay thế kiểm tra is_admin (system admin) — đây là vai trò GIA ĐÌNH.
+    """
+    from fastapi import Depends, HTTPException
+
+    async def _checker(current_user: dict = Depends(get_current_user)) -> dict:
+        role = (current_user or {}).get("role", "parent")
+        if role not in allowed_roles:
+            raise HTTPException(status_code=403, detail="Khong du quyen cho vai tro nay")
+        return current_user
+
+    return _checker
