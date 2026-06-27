@@ -9404,6 +9404,57 @@ def test_102_practice_grade():
 test("102.1  /practice trả câu mcq, KHÔNG lộ đáp án",                        test_102_practice_no_answer_leak)
 test("102.2  /practice/grade chấm đúng/sai + đáp án + 404",                  test_102_practice_grade)
 
+# == GROUP 103: Learning Hub US5 — sổ lỗi (mistakes) ========================
+print("\n[Group 103] Learning Hub US5 — sổ lỗi (mistakes)")
+
+
+def test_103_mistakes_latest_wins_and_no_leak():
+    import json as _json
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+    fam = f"mis-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("mis", fam, False)
+    client = TestClient(app)
+    with get_db_connection() as conn:
+        q = conn.execute(
+            "SELECT question_id, answer, options_json FROM question_bank "
+            "WHERE subject='math' AND question_type='mcq' AND status='published' LIMIT 1"
+        ).fetchone()
+        assert q, "cần ít nhất 1 câu math mcq"
+        qid, correct = q["question_id"], q["answer"]
+        opts = _json.loads(q["options_json"] or "[]")
+        wrong = next((o for o in opts if o != correct), correct + "_x")
+        # phiên SAI (cũ)
+        conn.execute(
+            "INSERT INTO exam_sessions (session_id,family_id,paper_id,started_at,completed_at,score,"
+            "max_score,correct_count,total_questions,time_spent_seconds,answers_json,status) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,'completed')",
+            (f"s1-{_uuid.uuid4().hex[:6]}", fam, "math_x", "2026-01-01T00:00:00", "2026-01-01T00:10:00",
+             0, 1, 0, 1, 60, _json.dumps({qid: wrong})),
+        )
+        conn.commit()
+    r = client.get("/api/learning/mistakes?subject=math", headers=h)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert qid in [m["question_id"] for m in data["mistakes"]], "câu trả lời sai phải vào sổ lỗi"
+    assert all("answer" not in m for m in data["mistakes"]), "sổ lỗi KHÔNG được lộ đáp án"
+    # phiên ĐÚNG mới hơn → khỏi sổ lỗi (latest-wins)
+    with get_db_connection() as conn:
+        conn.execute(
+            "INSERT INTO exam_sessions (session_id,family_id,paper_id,started_at,completed_at,score,"
+            "max_score,correct_count,total_questions,time_spent_seconds,answers_json,status) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,'completed')",
+            (f"s2-{_uuid.uuid4().hex[:6]}", fam, "math_x", "2026-02-01T00:00:00", "2026-02-01T00:10:00",
+             1, 1, 1, 1, 60, _json.dumps({qid: correct})),
+        )
+        conn.commit()
+    r2 = client.get("/api/learning/mistakes?subject=math", headers=h)
+    assert qid not in [m["question_id"] for m in r2.json()["mistakes"]], "làm đúng lần gần nhất → khỏi sổ lỗi"
+
+
+test("103.1  Sổ lỗi: câu sai vào sổ, latest-wins, không lộ đáp án",          test_103_mistakes_latest_wins_and_no_leak)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

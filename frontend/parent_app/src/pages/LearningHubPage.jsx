@@ -8,6 +8,7 @@ import ExamBuilder from '../components/ExamBuilder.jsx';
 import SubjectGrid from '../components/learning/SubjectGrid.jsx';
 import SubjectDetail from '../components/learning/SubjectDetail.jsx';
 import QuestionRunner from '../components/learning/QuestionRunner.jsx';
+import ErrorBook from '../components/learning/ErrorBook.jsx';
 
 // TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
 const SW_TASK_LABELS = {
@@ -384,6 +385,7 @@ export default function LearningHubPage() {
         onEnterLearn={() => { switchMode('learn'); setHubView('inMode'); }}
         onEnterExam={openSubjectExams}
         onEnterPractice={() => setHubView('practice')}
+        onOpenErrorBook={() => setHubView('errorbook')}
       />
     );
   }
@@ -392,6 +394,17 @@ export default function LearningHubPage() {
   if (hubView === 'practice' && pickedSubject) {
     return (
       <QuestionRunner
+        subject={pickedSubject.subject}
+        subjectLabel={pickedSubject.label || pickedSubject.subject}
+        onExit={() => setHubView('subjectMenu')}
+      />
+    );
+  }
+
+  // spec 007 US5: sổ lỗi (ôn lại câu hay sai).
+  if (hubView === 'errorbook' && pickedSubject) {
+    return (
+      <ErrorBook
         subject={pickedSubject.subject}
         subjectLabel={pickedSubject.label || pickedSubject.subject}
         onExit={() => setHubView('subjectMenu')}

@@ -382,6 +382,62 @@ async def practice_questions(
     return {"questions": questions}
 
 
+@router.get("/api/learning/mistakes")
+async def learning_mistakes(
+    subject: Optional[str] = Query(default=None, max_length=40),
+    current_user: dict = Depends(get_current_user),
+):
+    """Sổ lỗi (spec 007 US5): câu trẻ trả lời SAI ở lần GẦN NHẤT (family-scoped, MCQ).
+    Suy từ exam_sessions.answers_json × question_bank.answer. KHÔNG trả đáp án."""
+    family_id = _require_family(current_user)
+    with get_db_connection() as conn:
+        sessions = conn.execute(
+            """SELECT answers_json FROM exam_sessions
+               WHERE family_id = ? AND status = 'completed'
+               ORDER BY completed_at DESC""",
+            (family_id,),
+        ).fetchall()
+        latest = {}
+        for s in sessions:
+            try:
+                ans = json.loads(s["answers_json"] or "{}")
+            except Exception:
+                ans = {}
+            for qid, a in ans.items():
+                if qid not in latest:  # phiên mới nhất trước → giữ câu trả lời gần nhất
+                    latest[qid] = a
+        if not latest:
+            return {"mistakes": [], "count": 0}
+        qids = list(latest.keys())
+        ph = ",".join("?" for _ in qids)
+        params = qids + [family_id]
+        subj_clause = ""
+        if subject:
+            subj_clause = " AND subject = ?"
+            params.append(subject)
+        rows = conn.execute(
+            f"""SELECT question_id, subject, topic, question, question_vi, emoji, options_json, answer
+                FROM question_bank
+                WHERE question_id IN ({ph}) AND question_type = 'mcq'
+                  AND (family_id IS NULL OR family_id = ?){subj_clause}""",
+            tuple(params),
+        ).fetchall()
+    mistakes = []
+    for r in rows:
+        given = str(latest.get(r["question_id"], "")).strip()
+        if given == (r["answer"] or "").strip():
+            continue  # lần gần nhất đã đúng → không còn là lỗi
+        try:
+            options = json.loads(r["options_json"] or "[]")
+        except Exception:
+            options = []
+        mistakes.append({
+            "question_id": r["question_id"], "subject": r["subject"], "topic": r["topic"] or "Khác",
+            "question": r["question"], "question_vi": r["question_vi"], "emoji": r["emoji"], "options": options,
+        })
+    return {"mistakes": mistakes, "count": len(mistakes)}
+
+
 @router.post("/api/learning/practice/grade")
 async def practice_grade(body: PracticeGradeIn, current_user: dict = Depends(get_current_user)):
     """Chấm 1 câu luyện tập, trả đúng/sai + đáp án đúng + giải thích (family-scoped)."""

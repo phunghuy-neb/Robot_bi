@@ -1,12 +1,20 @@
+import { useState, useEffect } from 'react';
 import { BO_GD_SUBJECTS, MOCK_EXAM_SUBJECTS } from './constants.js';
-import { showToast } from '../../services/api.js';
+import { showToast, getMistakes } from '../../services/api.js';
 import ModeCard from './ModeCard.jsx';
 
 // Trang chi tiết 1 môn: thẻ chế độ (cấp 1) + gating + 2 thẻ nổi bật.
 // Lát US2: route các chế độ vào luồng học/đề hiện có. US3-US7 sẽ tinh chỉnh từng chế độ
 // (cấu hình timer, luyện theo bài, sổ lỗi, mastery, hỏi Bi).
-export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterExam, onEnterPractice }) {
+export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterExam, onEnterPractice, onOpenErrorBook }) {
   const key = subject?.subject;
+  const [mistakeCount, setMistakeCount] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    getMistakes(key).then(d => { if (alive) setMistakeCount(d?.count ?? 0); }).catch(() => {});
+    return () => { alive = false; };
+  }, [key]);
   const hasLotrinh = ['en', 'math', 'science'].includes(key);
   const isBoGD = BO_GD_SUBJECTS.includes(key);
   const isMock = MOCK_EXAM_SUBJECTS.includes(key);
@@ -50,8 +58,8 @@ export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterEx
           </section>
           <aside>
             {/* Số liệu thật ở US5 (sổ lỗi) + US6 (chủ đề yếu) */}
-            <button type="button" className="card highlight-card" onClick={() => showToast('Sổ lỗi sắp có (bản tới)')}>
-              📕 Câu hay sai <span className="muted">(sắp có)</span>
+            <button type="button" className="card highlight-card" onClick={onOpenErrorBook}>
+              📕 Câu hay sai <span className="muted">({mistakeCount == null ? '…' : `${mistakeCount} câu`})</span>
             </button>
             <button type="button" className="card highlight-card" onClick={() => showToast('Chủ đề cần ôn sắp có (bản tới)')}>
               🎯 Chủ đề cần ôn <span className="muted">(sắp có)</span>

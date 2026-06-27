@@ -49,11 +49,11 @@
 - [x] T021 [US4] `npm run build` OK (70 modules); `run_tests` = **734/734 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 7: US5 (L1-E) — Sổ lỗi · Test: gom đúng câu từng sai theo family, ôn lại được, đếm khớp
-- [ ] T022 [US5] `learning_hub_router.py`: `GET /api/learning/mistakes?subject=` — suy câu sai từ `exam_sessions.answers_json` × `question_bank.answer`, nhóm môn/chủ đề, scope family — file: `src/api/routers/learning_hub_router.py`
-- [ ] T023 [US5] `services/api.js`: `getMistakes`; `components/learning/ErrorBook.jsx` — list câu sai + "Luyện lại" (đẩy vào QuestionRunner) — file: `frontend/parent_app/src/services/api.js`, `components/learning/ErrorBook.jsx`
-- [ ] T024 [US5] Cập nhật thẻ "📕 Câu hay sai (n)" ở SubjectDetail dùng số thật — file: `frontend/parent_app/src/components/learning/SubjectDetail.jsx`
-- [ ] T025 [US5] Test: mistakes cô lập family + đếm khớp answers_json; empty state khi không có — file: `tests/run_tests.py`
-- [ ] T026 [US5] `npm run build` + `run_tests` PASS — file: `frontend/parent_app/`, `tests/`
+- [x] T022 [US5] `learning_hub_router.py`: `GET /api/learning/mistakes?subject=` — suy câu sai từ `exam_sessions.answers_json` × `question_bank.answer` (latest-wins: làm đúng lần gần nhất → khỏi sổ), MCQ, scope family, KHÔNG lộ đáp án — file: `src/api/routers/learning_hub_router.py`
+- [x] T023 [US5] `getMistakes` (đã có US1); `components/learning/ErrorBook.jsx` — nhóm theo chủ đề + "🔁 Luyện lại n câu" (QuestionRunner `providedQuestions`); QuestionRunner +prop providedQuestions + "Làm lại" giữ bộ câu — file: `ErrorBook.jsx`, `QuestionRunner.jsx`
+- [x] T024 [US5] SubjectDetail: thẻ "📕 Câu hay sai (n câu)" load số thật từ getMistakes + onClick mở ErrorBook (hubView 'errorbook') — file: `SubjectDetail.jsx`, `pages/LearningHubPage.jsx`
+- [x] T025 [US5] Test **Group 103**: câu sai vào sổ, **latest-wins** (làm đúng lần sau → khỏi sổ), KHÔNG lộ đáp án — file: `tests/run_tests.py`
+- [x] T026 [US5] `npm run build` OK (71 modules); `run_tests` = **735/735 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 8: US6 (L1-F) — Mastery theo chủ đề · Test: điểm 0-100 + band màu+chữ; cô lập family; chủ đề yếu nổi lên
 - [ ] T027 [US6] `learning_hub_router.py`: `GET /api/learning/mastery?subject=` — accuracy theo `topic` → band, scope family — file: `src/api/routers/learning_hub_router.py`

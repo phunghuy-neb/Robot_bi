@@ -4,10 +4,11 @@ import SectionState from '../SectionState.jsx';
 
 // Luyện theo bài (spec 007 US4): làm câu đơn lẻ, server chấm + giải thích NGAY sau mỗi câu.
 // (US7 sẽ thêm 🔊 Bi đọc đề + "Hỏi Bi vì sao".)
-export default function QuestionRunner({ subject, subjectLabel, topic, onExit }) {
-  const [step, setStep] = useState('config'); // config | loading | playing | done
+export default function QuestionRunner({ subject, subjectLabel, topic, providedQuestions, onExit }) {
+  const hasProvided = Array.isArray(providedQuestions) && providedQuestions.length > 0;
+  const [step, setStep] = useState(hasProvided ? 'playing' : 'config'); // config | loading | playing | done
   const [count, setCount] = useState(10);
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState(hasProvided ? providedQuestions : []);
   const [idx, setIdx] = useState(0);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState(null); // {correct, correct_answer, explanation}
@@ -96,7 +97,7 @@ export default function QuestionRunner({ subject, subjectLabel, topic, onExit })
             <div style={{ fontSize: 48 }}>{score === questions.length ? '🏆' : score >= questions.length * 0.6 ? '🎉' : '💪'}</div>
             <div style={{ fontSize: 24, fontWeight: 800, margin: '8px 0' }}>{score}/{questions.length} câu đúng</div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 12 }}>
-              <button className="btn-sm primary" onClick={() => setStep('config')}>Làm lại</button>
+              <button className="btn-sm primary" onClick={() => { setIdx(0); setScore(0); setAnswer(''); setFeedback(null); setStep(hasProvided ? 'playing' : 'config'); }}>Làm lại</button>
               <button className="btn-sm secondary" onClick={onExit}>Xong</button>
             </div>
           </div>

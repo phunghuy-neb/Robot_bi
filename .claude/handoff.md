@@ -397,13 +397,19 @@
     về subjectMenu. Build OK 69 modules. (ModeConfig làm inline thay vì tách file — tách sau nếu US4 cần.)
     **LƯU Ý**: list đề theo môn gộp MỌI track (chưa tách HSG/đề-thường riêng) — refine sau nếu cần; IELTS/TOEIC
     "thi thử như thật" hiện = list đề của môn (cấu trúc/giờ chuẩn để Lớp 2/refine).
-  - ✅ **007 US4 (L1-D) DONE (2026-06-28, commit `<sẽ điền>`)**: Luyện theo bài (lát đầu chạm BE).
+  - ✅ **007 US4 (L1-D) DONE (2026-06-28, commit `51955c0`)**: Luyện theo bài (lát đầu chạm BE).
     `learning_hub_router.py` +`GET /api/learning/practice?subject=&topic=&limit=` (mcq, family-scope, KHÔNG lộ đáp án)
     +`POST /api/learning/practice/grade` (correct/đáp án/explanation, 404 id sai). `QuestionRunner.jsx` mới
     (config 5/10/20 câu → làm từng câu → chấm+giải thích NGAY → điểm), cột hẹp `.learn-quiz`; wire qua
     SubjectDetail `onEnterPractice` + hubView 'practice'. Test **Group 102** (2). Verify: build 70 modules; **734/734 PASS**.
     (api.js getPracticeQuestions/gradePractice đã có từ US1.)
-  - **NEXT lát: US5 (L1-E)** Sổ lỗi — BE `/api/learning/mistakes` (suy từ exam_sessions.answers_json × question_bank) + ErrorBook.
+  - ✅ **007 US5 (L1-E) DONE (2026-06-28, commit `<sẽ điền>`)**: Sổ lỗi.
+    `learning_hub_router.py` +`GET /api/learning/mistakes?subject=` (suy câu sai từ exam_sessions.answers_json ×
+    question_bank.answer, **latest-wins** — làm đúng lần gần nhất thì khỏi sổ, MCQ, family-scope, KHÔNG lộ đáp án).
+    `ErrorBook.jsx` mới (nhóm theo chủ đề + "🔁 Luyện lại n câu" qua QuestionRunner `providedQuestions`);
+    QuestionRunner +prop providedQuestions. SubjectDetail thẻ "📕 Câu hay sai (n câu)" số thật + mở ErrorBook (hubView 'errorbook').
+    Test **Group 103**. Verify: build 71 modules; **735/735 PASS**.
+  - **NEXT lát: US6 (L1-F)** Mastery theo chủ đề — BE `/api/learning/mastery` (accuracy theo topic → band) + MasteryByTopic + thẻ "Chủ đề cần ôn".
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
