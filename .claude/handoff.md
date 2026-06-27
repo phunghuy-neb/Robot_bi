@@ -59,7 +59,7 @@
   - `SettingsOverlay`: section "📶 WiFi cho robot" — hiện trạng thái kết nối (load on mount + nút ↻), form SSID + mật khẩu + nút gửi.
   - Verify: `npm run build` OK (646ms). US6 thuần FE, không đụng Python.
   - **NEXT: US7 (P7)** — phần lớn nhất, BE trước (C1 schema+JWT+require_role → C2 endpoints+child-login → C3 FE). Của Claude.
-- ✅ **US7 LÁT C1 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: nền tảng vai trò gia đình (BE).
+- ✅ **US7 LÁT C1 DONE — spec 006 (2026-06-27, commit `8fce3ce`)**: nền tảng vai trò gia đình (BE).
   - `db.py`: cột `users.role` (DEFAULT 'parent') + `users.child_profile_id` (CREATE + ALTER idempotent); backfill role
     (owner = is_admin hoặc user sớm nhất mỗi family, còn lại parent); bảng `family_permissions` (7 cờ `child_can_*`, mặc định 0).
     Helpers foundation: `get_user_role`, `get_family_permissions`, `set_family_permissions`, `list_family_members`,
@@ -68,8 +68,16 @@
     token cũ thiếu role→parent — KHÔNG đụng verify_access_token/token_version/is_active); `authenticate_user`+role; seed_admin role='owner'.
   - Test **Group 100** (5): schema, JWT role, require_role chặn child/parent/thiếu-role, family_permissions mặc định 0 + roundtrip, cô lập theo family.
   - Verify: `.venv/bin/python tests/run_tests.py` = **727/727 PASS** (722→727). Protected Fixes giữ nguyên.
-  - **NEXT: C2** — `family_router.py` (owner CRUD member, `require_role('owner')`) + `auth_router` child-profiles/child-login PIN +
-    helpers còn lại (create_family/add_existing_user/create_child_account/verify_child_pin/list_child_profiles_public) + gắn require_role route nhạy cảm. Test SC-6.
+- ✅ **US7 LÁT C2 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: endpoint gia đình + đăng nhập con (BE).
+  - `family_router.py` (MỚI, đăng ký trong server.py): `POST /api/family/create` (→owner, bump token_version buộc re-login),
+    `GET /members`, `POST /members/add` (username+role, chặn user family khác), `POST /members/child` (hồ sơ+PIN 1↔1),
+    `PUT /members/{id}/role`, `DELETE /members/{id}` (chặn self + owner cuối), `GET/PUT /permissions` — tất cả `require_role('owner')` + scope family từ JWT.
+  - `db.py` helpers thêm: create_family, add_existing_user_to_family, list_family_child_profiles_public, create_child_account (Argon2 PIN), verify_child_pin.
+  - `auth_router.py`: `GET /api/auth/child-profiles?family=` (công khai, chỉ id/tên/avatar) + `POST /api/auth/child-login` (PIN→JWT role=child, rate-limit `child:{fam}:{id}`); role vào login_v2 + /me.
+  - `control_router.py`: POST age-filter/time-limits/sleep nay `require_role('owner','parent')` → **con bị 403** (SC-6).
+  - Test **Group 101** (5) — owner tạo con→login PIN, SC-6 chặn con, owner-only + cô lập A/B, chặn add user family khác, quyền owner-only.
+  - Verify: `tests/run_tests.py` = **732/732 PASS** (lần đầu 731/732 do flaky `stress: safety filter` — AI thật, re-run 732/732). Protected Fixes giữ nguyên.
+  - **NEXT: C3 (FE)** — App.jsx lọc tab/Settings theo role+permissions; LoginPage "đăng nhập cho bé" (mã family→lưới hồ sơ→PIN); SettingsOverlay mục "Thành viên gia đình" (owner); api.js helpers. → có thể giao Codex (FE thuần) nhưng đụng App.jsx/SettingsOverlay/LoginPage/api.js (file Claude đã sửa) — cân nhắc Claude làm để liền mạch.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`

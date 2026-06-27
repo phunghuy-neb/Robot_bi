@@ -2669,3 +2669,109 @@ def remove_family_member(family_name: str, user_id: str) -> bool:
         )
         conn.commit()
     return cur.rowcount > 0
+
+
+def create_family(user_id: str, family_id: str, display_name: str = "") -> dict:
+    """Người dùng tạo gia đình mới và trở thành owner. Raise nếu family_id đã có thành viên khác."""
+    from fastapi import HTTPException
+    family_id = (family_id or "").strip()
+    if not family_id:
+        raise HTTPException(status_code=422, detail="Thieu ma gia dinh")
+    with get_db_connection() as conn:
+        other = conn.execute(
+            "SELECT COUNT(*) AS n FROM users WHERE family_name = ? AND user_id != ?",
+            (family_id, str(user_id)),
+        ).fetchone()
+        if other and int(other["n"]) > 0:
+            raise HTTPException(status_code=409, detail="Ma gia dinh da duoc su dung")
+        conn.execute(
+            "INSERT OR IGNORE INTO families (family_id, display_name, created_at) VALUES (?, ?, ?)",
+            (family_id, display_name or family_id, _utc_now_iso()),
+        )
+        conn.execute(
+            "UPDATE users SET family_name = ?, role = 'owner' WHERE user_id = ?",
+            (family_id, str(user_id)),
+        )
+        conn.commit()
+    return {"family_id": family_id, "owner_user_id": str(user_id)}
+
+
+def add_existing_user_to_family(username: str, family_name: str, role: str) -> dict:
+    """Owner thêm một tài khoản ĐÃ đăng ký vào gia đình + gán role. Chặn user thuộc gia đình khác."""
+    from fastapi import HTTPException
+    if role not in ("parent", "owner"):
+        raise HTTPException(status_code=400, detail="Role nguoi lon phai la parent/owner")
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT user_id, family_name, role FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Khong tim thay tai khoan")
+        cur_fam = row["family_name"] or ""
+        if cur_fam and cur_fam not in ("default", family_name):
+            raise HTTPException(status_code=409, detail="Tai khoan da thuoc gia dinh khac")
+        conn.execute(
+            "UPDATE users SET family_name = ?, role = ? WHERE user_id = ?",
+            (family_name, role, row["user_id"]),
+        )
+        conn.commit()
+    return {"user_id": str(row["user_id"]), "username": username, "role": role}
+
+
+def list_family_child_profiles_public(family_name: str) -> list[dict]:
+    """Danh sách hồ sơ trẻ của gia đình cho màn login con — CHỈ id+tên+avatar (không dữ liệu nhạy cảm)."""
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            "SELECT child_id, name, avatar FROM child_profiles WHERE family_id = ? ORDER BY name",
+            (family_name,),
+        ).fetchall()
+    return [{"id": r["child_id"], "name": r["name"], "avatar": r["avatar"]} for r in rows]
+
+
+def _child_profile_in_family(conn, family_name: str, child_profile_id: str):
+    return conn.execute(
+        "SELECT child_id, name FROM child_profiles WHERE child_id = ? AND family_id = ?",
+        (child_profile_id, family_name),
+    ).fetchone()
+
+
+def create_child_account(family_name: str, child_profile_id: str, pin: str) -> dict:
+    """Owner tạo tài khoản con từ hồ sơ trẻ có sẵn + PIN (Argon2). 1 hồ sơ ↔ 1 tài khoản con."""
+    from fastapi import HTTPException
+    from src.infrastructure.auth.auth import hash_password
+    with get_db_connection() as conn:
+        prof = _child_profile_in_family(conn, family_name, child_profile_id)
+        if not prof:
+            raise HTTPException(status_code=404, detail="Ho so tre khong thuoc gia dinh nay")
+        exists = conn.execute(
+            "SELECT user_id FROM users WHERE child_profile_id = ?", (child_profile_id,)
+        ).fetchone()
+        if exists:
+            raise HTTPException(status_code=409, detail="Ho so tre nay da co tai khoan")
+        username = f"child__{family_name}__{child_profile_id}"
+        conn.execute(
+            "INSERT INTO users (username, password_hash, family_name, is_admin, role, child_profile_id) "
+            "VALUES (?, ?, ?, 0, 'child', ?)",
+            (username, hash_password(str(pin)), family_name, child_profile_id),
+        )
+        conn.commit()
+        uid = conn.execute(
+            "SELECT user_id FROM users WHERE username = ?", (username,)
+        ).fetchone()["user_id"]
+    return {"user_id": str(uid), "child_profile_id": child_profile_id, "name": prof["name"], "role": "child"}
+
+
+def verify_child_pin(family_name: str, child_profile_id: str, pin: str) -> dict | None:
+    """Xác thực đăng nhập con bằng (family, child_profile_id, PIN). Trả user dict hoặc None."""
+    from src.infrastructure.auth.auth import verify_password
+    with get_db_connection() as conn:
+        row = conn.execute(
+            "SELECT user_id, username, password_hash, family_name, is_active "
+            "FROM users WHERE family_name = ? AND child_profile_id = ? AND role = 'child'",
+            (family_name, child_profile_id),
+        ).fetchone()
+    if not row or not row["is_active"]:
+        return None
+    if not verify_password(str(pin), row["password_hash"]):
+        return None
+    return {"user_id": str(row["user_id"]), "username": row["username"], "family_name": row["family_name"]}

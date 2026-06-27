@@ -9247,6 +9247,121 @@ test("100.3  require_role chặn child/parent/thiếu-role ở route owner-only"
 test("100.4  family_permissions mặc định an toàn (0) + set/get roundtrip",    test_100_family_permissions_default_safe_and_roundtrip)
 test("100.5  Role + quyền cô lập theo gia đình",                              test_100_role_and_permissions_family_isolated)
 
+# == GROUP 101: US7 C2 — family endpoints + child login + chặn con ==========
+print("\n[Group 101] US7 C2 — family endpoints + child login + chặn con (spec 006)")
+
+
+def _mk_member(prefix, family, role="parent"):
+    from src.infrastructure.auth.auth import create_user, create_access_token
+    from src.infrastructure.database.db import set_member_role
+    user = create_user(f"{prefix}_{_uuid.uuid4().hex[:8]}", "Password1!", family)
+    set_member_role(family, str(user["user_id"]), role)
+    token = create_access_token(str(user["user_id"]), user["family_name"])
+    return user, {"Authorization": f"Bearer {token}"}
+
+
+def test_101_owner_creates_child_and_child_login():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    fam = f"c2fam-{_uuid.uuid4().hex[:6]}"
+    _owner, oh = _mk_member("c2owner", fam, "owner")
+    r = client.post("/api/children", json={"name": "Bé Bi", "age": 7, "avatar": "👧"}, headers=oh)
+    assert r.status_code in (200, 201), r.text
+    kids = client.get("/api/children", headers=oh).json()
+    children = kids if isinstance(kids, list) else kids.get("children", [])
+    assert children, "phải có hồ sơ trẻ"
+    child_id = children[0].get("id") or children[0].get("child_id")
+    r2 = client.post("/api/family/members/child",
+                     json={"child_profile_id": child_id, "pin": "1234"}, headers=oh)
+    assert r2.status_code == 200, r2.text
+    # 1↔1: tạo lần 2 cho cùng hồ sơ → 409
+    assert client.post("/api/family/members/child",
+                       json={"child_profile_id": child_id, "pin": "5678"}, headers=oh).status_code == 409
+    # PIN sai định dạng → 422
+    pubs = client.get(f"/api/auth/child-profiles?family={fam}").json()["profiles"]
+    assert any(p["id"] == child_id for p in pubs), "hồ sơ con phải hiện ở màn login con"
+    login = client.post("/api/auth/child-login",
+                        json={"family": fam, "child_profile_id": child_id, "pin": "1234"})
+    assert login.status_code == 200, login.text
+    assert login.json()["role"] == "child"
+    assert client.post("/api/auth/child-login",
+                       json={"family": fam, "child_profile_id": child_id, "pin": "9999"}).status_code == 401
+
+
+def test_101_child_blocked_from_sensitive_settings():
+    # SC-6: con bị chặn ở route nhạy cảm CẢ khi gọi thẳng API (server-side enforce).
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    fam = f"c2sc6-{_uuid.uuid4().hex[:6]}"
+    _, ph = _mk_member("c2par", fam, "parent")
+    _, ch = _mk_member("c2chi", fam, "child")
+    tl = {"enabled": True, "daily_limit_minutes": 60, "warning_minutes": 10, "reset_time": "00:00"}
+    assert client.post("/api/settings/time-limits", json=tl, headers=ph).status_code == 200
+    assert client.post("/api/settings/time-limits", json=tl, headers=ch).status_code == 403, "con phải bị 403"
+    assert client.post("/api/settings/age-filter", json={"enabled": True}, headers=ch).status_code == 403
+    assert client.post("/api/settings/sleep", json={"enabled": True}, headers=ch).status_code == 403
+
+
+def test_101_family_rbac_and_isolation():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    famA = f"c2fa-{_uuid.uuid4().hex[:6]}"
+    famB = f"c2fb-{_uuid.uuid4().hex[:6]}"
+    ownerA, oah = _mk_member("c2oa", famA, "owner")
+    parentA, pah = _mk_member("c2pa", famA, "parent")
+    ownerB, _obh = _mk_member("c2ob", famB, "owner")
+    idsA = {str(m["user_id"]) for m in client.get("/api/family/members", headers=oah).json()["members"]}
+    assert str(ownerA["user_id"]) in idsA and str(parentA["user_id"]) in idsA
+    assert str(ownerB["user_id"]) not in idsA, "members phải cô lập theo family"
+    assert client.get("/api/family/members", headers=pah).status_code == 403, "parent không được owner-only"
+    # owner A không đụng được member của B (scope) → 404
+    assert client.delete(f"/api/family/members/{ownerB['user_id']}", headers=oah).status_code == 404
+    # owner A không tự xóa mình
+    assert client.delete(f"/api/family/members/{ownerA['user_id']}", headers=oah).status_code == 409
+    # không hạ quyền owner cuối cùng
+    assert client.put(f"/api/family/members/{ownerA['user_id']}/role",
+                      json={"role": "parent"}, headers=oah).status_code == 409
+
+
+def test_101_add_member_blocks_other_family():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.auth.auth import create_user
+    client = TestClient(app)
+    famA = f"c2aa-{_uuid.uuid4().hex[:6]}"
+    famB = f"c2ab-{_uuid.uuid4().hex[:6]}"
+    _, oah = _mk_member("c2adda", famA, "owner")
+    inB = create_user(f"inb_{_uuid.uuid4().hex[:8]}", "Password1!", famB)  # tạo famB
+    free = create_user(f"free_{_uuid.uuid4().hex[:8]}", "Password1!", "default")
+    assert client.post("/api/family/members/add",
+                       json={"username": free["username"], "role": "parent"}, headers=oah).status_code == 200
+    assert client.post("/api/family/members/add",
+                       json={"username": inB["username"], "role": "parent"}, headers=oah).status_code == 409
+
+
+def test_101_permissions_owner_only():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    client = TestClient(app)
+    fam = f"c2pm-{_uuid.uuid4().hex[:6]}"
+    _, oah = _mk_member("c2pmo", fam, "owner")
+    _, pah = _mk_member("c2pmp", fam, "parent")
+    r = client.put("/api/family/permissions", json={"child_can_journal": True}, headers=oah)
+    assert r.status_code == 200 and r.json()["permissions"]["child_can_journal"] == 1
+    g = client.get("/api/family/permissions", headers=oah).json()["permissions"]
+    assert g["child_can_journal"] == 1 and g["child_can_safety"] == 0
+    assert client.get("/api/family/permissions", headers=pah).status_code == 403
+
+
+test("101.1  Owner tạo con từ hồ sơ + child-login PIN (1↔1, sai PIN 401)",    test_101_owner_creates_child_and_child_login)
+test("101.2  SC-6: con bị 403 ở settings nhạy cảm khi gọi thẳng API",        test_101_child_blocked_from_sensitive_settings)
+test("101.3  family endpoints owner-only + cô lập theo gia đình",            test_101_family_rbac_and_isolation)
+test("101.4  Thêm member chặn user thuộc gia đình khác",                     test_101_add_member_blocks_other_family)
+test("101.5  Quyền con get/put chỉ owner",                                   test_101_permissions_owner_only)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

@@ -46,6 +46,7 @@ from src.api.routers.game_router import router as game_router
 from src.api.routers.music_router import router as music_router
 from src.api.routers.motor_router import router as motor_router
 from src.api.routers.wifi_router import router as wifi_router
+from src.api.routers.family_router import router as family_router
 from src.api.routers.ops_router import router as ops_router
 from src.api.routers.ops_router import _build_ascii_qr, _start_cloudflare_tunnel
 from src.motion.motor_controller import get_shared_motor
@@ -111,6 +112,7 @@ app.include_router(game_router)
 app.include_router(music_router)
 app.include_router(motor_router)
 app.include_router(wifi_router)
+app.include_router(family_router)
 app.include_router(ops_router)
 app.include_router(eval_router)
 app.include_router(parent_chat_router)

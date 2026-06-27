@@ -304,6 +304,94 @@ async def login_v2(request: Request):
         "username": authenticated_user["username"],
         "family_name": authenticated_user["family_name"],
         "is_admin": bool(authenticated_user.get("is_admin")),
+        "role": authenticated_user.get("role") or "parent",
+    }
+
+
+@router.get("/api/auth/child-profiles")
+async def child_login_profiles(family: str = ""):
+    """Liệt kê hồ sơ trẻ của 1 gia đình cho màn đăng nhập con — CHỈ id+tên+avatar."""
+    from src.infrastructure.database.db import list_family_child_profiles_public
+    fam = (family or "").strip()
+    if not fam:
+        raise HTTPException(status_code=422, detail="Thieu ma gia dinh")
+    return {"profiles": list_family_child_profiles_public(fam)}
+
+
+@router.post("/api/auth/child-login")
+async def child_login(request: Request):
+    """Đăng nhập con bằng {family, child_profile_id, pin} → JWT role=child. Rate-limited 5 lần→khóa 15 phút."""
+    from src.infrastructure.auth.auth import (
+        create_access_token, create_refresh_token, store_refresh_token,
+    )
+    from src.infrastructure.database.db import verify_child_pin
+
+    body = await _read_json_body(request)
+    family = str(body.get("family", "")).strip()
+    child_profile_id = str(body.get("child_profile_id", "")).strip()
+    pin = str(body.get("pin", "")).strip()
+    if not family or not child_profile_id or not pin:
+        raise HTTPException(status_code=422, detail="Thieu family/child_profile_id/pin")
+
+    rate_key = f"child:{family}:{child_profile_id}"
+    now = datetime.now(timezone.utc)
+    user = None
+    with get_db_connection() as conn:
+        conn.execute(
+            "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL "
+            "WHERE locked_until IS NOT NULL AND locked_until <= ?",
+            (now.isoformat(),),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT attempt_count, locked_until FROM login_attempts WHERE ip_address = ?",
+            (rate_key,),
+        ).fetchone()
+        if row and row["locked_until"]:
+            locked_until = datetime.fromisoformat(row["locked_until"])
+            if locked_until.tzinfo is None:
+                locked_until = locked_until.replace(tzinfo=timezone.utc)
+            if locked_until > now:
+                remaining = math.ceil((locked_until - now).total_seconds() / 60)
+                raise HTTPException(status_code=429, detail=f"Qua nhieu lan thu. Thu lai sau {remaining} phut.")
+
+        user = verify_child_pin(family, child_profile_id, pin)
+        if user:
+            conn.execute(
+                "UPDATE login_attempts SET attempt_count = 0, locked_until = NULL WHERE ip_address = ?",
+                (rate_key,),
+            )
+            conn.commit()
+        else:
+            current_count = (row["attempt_count"] or 0) if row else 0
+            new_count = current_count + 1
+            locked_val = (now + timedelta(minutes=15)).isoformat() if new_count >= 5 else None
+            if row:
+                conn.execute(
+                    "UPDATE login_attempts SET attempt_count = ?, locked_until = ? WHERE ip_address = ?",
+                    (new_count, locked_val, rate_key),
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO login_attempts (ip_address, attempt_count, first_attempt_at, locked_until) "
+                    "VALUES (?, ?, ?, ?)",
+                    (rate_key, new_count, now.isoformat(), locked_val),
+                )
+            conn.commit()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="PIN sai")
+
+    access_token = create_access_token(str(user["user_id"]), user["family_name"])
+    raw_refresh, hashed_refresh = create_refresh_token(str(user["user_id"]))
+    store_refresh_token(str(user["user_id"]), hashed_refresh, datetime.now(timezone.utc) + timedelta(days=30))
+    return {
+        "access_token": access_token,
+        "refresh_token": raw_refresh,
+        "token_type": "bearer",
+        "expires_in": 3600,
+        "family_name": user["family_name"],
+        "role": "child",
     }
 
 
@@ -468,11 +556,13 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     user = get_user_by_id(current_user["user_id"])
     if not user:
         raise HTTPException(status_code=404, detail="User không tồn tại")
+    from src.infrastructure.database.db import get_user_role
     return {
         "username": user["username"],
         "family_name": user["family_name"],
         "created_at": user["created_at"],
         "is_admin": bool(user.get("is_admin")),
+        "role": get_user_role(str(current_user["user_id"])),
     }
 
 

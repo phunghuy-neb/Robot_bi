@@ -70,11 +70,11 @@
 - [x] T035 [US7] Test **Group 100** (5): schema cột/bảng; JWT mang role (parent→owner); require_role chặn child/parent/thiếu-role; family_permissions mặc định 0 + roundtrip; cô lập role/quyền theo family — file: `tests/run_tests.py`
 
 ### Lát C2 — Endpoint quản lý thành viên + đăng nhập con (BE)
-- [ ] T036 [US7] `family_router.py` (MỚI): `POST /api/family/create`, `GET /api/family/members`, `POST /api/family/members/add` (username+role, chặn user ở family khác), `POST /api/family/members/child` (child_profile_id+PIN, 1↔1), `PUT /api/family/members/{id}/role`, `DELETE /api/family/members/{id}` (chặn self/owner-cuối), `GET/PUT /api/family/permissions` — đều `require_role('owner')` + scope family — file: `src/api/routers/family_router.py`
-- [ ] T037 [US7] Đăng ký `family_router` trong app — file: `src/api/server.py`
-- [ ] T038 [US7] `auth_router.py`: `GET /api/auth/child-profiles?family=` (công khai, chỉ id+tên+avatar, rate-limit) + `POST /api/auth/child-login` (`{family,child_profile_id,pin}`→JWT role=child) — file: `src/api/routers/auth_router.py`
-- [ ] T039 [US7] Gắn `require_role`/kiểm `family_permissions` cho route nhạy cảm (settings safety/sleep/notifications/device, members) — chặn child khi quyền tắt — file: `src/api/routers/control_router.py`, `src/api/routers/admin_router.py`, `src/api/routers/family_router.py`
-- [ ] T040 [US7] Test C2 (Group mới): owner tạo con→con login PIN OK; cô lập family (A không thấy/sửa B); chặn self-delete + owner-cuối; chặn add user đã thuộc family khác; child gọi thẳng API nhạy cảm bị 403 (SC-6) — file: `tests/run_tests.py`
+- [x] T036 [US7] `family_router.py` (MỚI): create/members/members-add/members-child/role/delete/permissions — đều `require_role('owner')` + scope family (lấy từ JWT, không nhận từ client); helper db create_family/add_existing_user_to_family/create_child_account/verify_child_pin/list_family_child_profiles_public — file: `src/api/routers/family_router.py`, `src/infrastructure/database/db.py`
+- [x] T037 [US7] Đăng ký `family_router` trong app — file: `src/api/server.py`
+- [x] T038 [US7] `auth_router.py`: `GET /api/auth/child-profiles?family=` (công khai, chỉ id+tên+avatar) + `POST /api/auth/child-login` (`{family,child_profile_id,pin}`→JWT role=child, rate-limit login_attempts) + role vào login_v2/me — file: `src/api/routers/auth_router.py`
+- [x] T039 [US7] Gắn `require_role('owner','parent')` cho POST settings nhạy cảm (age-filter/time-limits/sleep) → chặn child mutate parental control. (notifications/device gating per-permission để C3/Polish nếu cần) — file: `src/api/routers/control_router.py`
+- [x] T040 [US7] Test **Group 101** (5): owner tạo con→child-login PIN (1↔1, sai PIN 401); **SC-6** con 403 ở settings; family endpoints owner-only + cô lập A/B; chặn add user family khác; quyền get/put owner-only — file: `tests/run_tests.py`
 
 ### Lát C3 — FE
 - [ ] T041 [US7] `services/api.js` helpers: `createFamily/getFamilyMembers/addFamilyMember/setMemberRole/createChildAccount/removeFamilyMember/getFamilyPermissions/setFamilyPermissions/getChildProfilesPublic/childLogin` — file: `frontend/parent_app/src/services/api.js`

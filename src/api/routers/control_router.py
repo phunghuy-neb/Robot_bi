@@ -31,7 +31,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
 
-from src.infrastructure.auth.auth import get_current_user
+from src.infrastructure.auth.auth import get_current_user, require_role
 from src.api.routers.conversation_router import _require_family
 from src.safety.safety_filter import get_global_policy
 from src.infrastructure.database.db import (
@@ -882,7 +882,7 @@ async def get_age_filter(
 @router.post("/api/settings/age-filter")
 async def save_age_filter(
     payload: AgeFilterIn,
-    _current_user: dict = Depends(get_current_user),
+    _current_user: dict = Depends(require_role("owner", "parent")),
 ):
     family_id = _require_family(_current_user)
     key = _validate_child_for_family(family_id, payload.child_id)
@@ -943,7 +943,7 @@ async def get_time_limits(
 @router.post("/api/settings/time-limits")
 async def save_time_limits(
     payload: TimeLimitIn,
-    _current_user: dict = Depends(get_current_user),
+    _current_user: dict = Depends(require_role("owner", "parent")),
 ):
     family_id = _require_family(_current_user)
     key = _validate_child_for_family(family_id, payload.child_id)
@@ -1017,7 +1017,7 @@ async def get_sleep_schedule(_current_user: dict = Depends(get_current_user)):
 @router.post("/api/settings/sleep")
 async def save_sleep_schedule(
     payload: SleepScheduleIn,
-    _current_user: dict = Depends(get_current_user),
+    _current_user: dict = Depends(require_role("owner", "parent")),
 ):
     family_id = _require_family(_current_user)
     start_time = _validate_time(payload.start_time, "start_time")
