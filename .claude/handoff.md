@@ -420,7 +420,7 @@
     → `_lh_safe_text` SafetyFilter → trả; run_in_threadpool; SKIP_LLM/lỗi→fallback). `AskBi.jsx` mới (hiện sau câu SAI).
     QuestionRunner: nút 🔊 "Bi đọc đề" (browser SpeechSynthesis vi-VN). Test **Group 105** (2, monkeypatch _llm_explain).
     Verify: build 73 modules; **738/738 PASS**.
-  - ✅ **007 US9 (L1-H) DONE (2026-06-28, commit `94f59be`)**: Khung "Lộ trình" (shell). FE-only.
+  - ✅ **007 US9 (L1-H) DONE (2026-06-28, commit `4c7e2ce`)**: Khung "Lộ trình" (shell). FE-only.
     `ModeCard` thêm prop `comingSoon` → badge "Sắp có" + dáng mờ + chữ "Đang xây dựng" (không chỉ dựa màu — a11y).
     `SubjectDetail`: Lộ trình môn ngoài en/math/science = coming-soon + toast. View Lộ trình (modules cũ): **bỏ tab chuyển môn cũ**
     (subject-first — đã chọn ở lưới), hiện tên môn đã chọn. en/math/science vào module thật qua `getLearningModules`.
