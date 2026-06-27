@@ -36,7 +36,33 @@ export async function login(username, password) {
   _refreshToken = data.refresh_token;
   localStorage.setItem('bi_token', _token);
   localStorage.setItem('bi_refresh', _refreshToken);
-  return { username: data.username || username, isAdmin: data.is_admin || false };
+  return { username: data.username || username, isAdmin: data.is_admin || false, role: data.role || 'parent' };
+}
+
+// —— Auth: đăng nhập cho bé (chọn hồ sơ + PIN) ——
+export async function getChildProfilesPublic(family) {
+  const r = await fetch(`/api/auth/child-profiles?family=${encodeURIComponent(family)}`);
+  if (!r.ok) return [];
+  const data = await r.json().catch(() => ({}));
+  return data.profiles || [];
+}
+
+export async function childLogin({ family, childProfileId, pin }) {
+  const r = await fetch('/api/auth/child-login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ family, child_profile_id: childProfileId, pin }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.detail || 'PIN không đúng.');
+  }
+  const data = await r.json();
+  _token = data.access_token;
+  _refreshToken = data.refresh_token;
+  localStorage.setItem('bi_token', _token);
+  localStorage.setItem('bi_refresh', _refreshToken);
+  return { username: 'Bé', isAdmin: false, role: 'child', familyName: data.family_name };
 }
 
 // —— Auth: logout ——
@@ -90,14 +116,14 @@ export async function checkExistingSession() {
     const r = await fetch('/api/auth/me', { headers: authHeader() });
     if (r.ok) {
       const data = await r.json();
-      return { username: data.username, isAdmin: data.is_admin || false };
+      return { username: data.username, isAdmin: data.is_admin || false, role: data.role || 'parent', permissions: data.permissions || {} };
     }
     const ok = await refreshToken();
     if (ok) {
       const r2 = await fetch('/api/auth/me', { headers: authHeader() });
       if (r2.ok) {
         const data = await r2.json();
-        return { username: data.username, isAdmin: data.is_admin || false };
+        return { username: data.username, isAdmin: data.is_admin || false, role: data.role || 'parent', permissions: data.permissions || {} };
       }
     }
     _token = '';
@@ -632,6 +658,43 @@ export async function addWifi({ ssid, password }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ssid, password }),
+  });
+}
+
+// —— Gia đình & phân quyền (US7) — owner only ——
+export async function createFamily(familyId, displayName) {
+  return apiFetch('/api/family/create', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ family_id: familyId, display_name: displayName }),
+  });
+}
+export async function getFamilyMembers() { return apiFetch('/api/family/members'); }
+export async function addFamilyMember(username, role) {
+  return apiFetch('/api/family/members/add', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, role }),
+  });
+}
+export async function createChildAccount(childProfileId, pin) {
+  return apiFetch('/api/family/members/child', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ child_profile_id: childProfileId, pin }),
+  });
+}
+export async function setMemberRole(userId, role) {
+  return apiFetch(`/api/family/members/${userId}/role`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role }),
+  });
+}
+export async function removeFamilyMember(userId) {
+  return apiFetch(`/api/family/members/${userId}`, { method: 'DELETE' });
+}
+export async function getFamilyPermissions() { return apiFetch('/api/family/permissions'); }
+export async function setFamilyPermissions(perms) {
+  return apiFetch('/api/family/permissions', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(perms),
   });
 }
 

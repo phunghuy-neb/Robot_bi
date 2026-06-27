@@ -556,13 +556,14 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     user = get_user_by_id(current_user["user_id"])
     if not user:
         raise HTTPException(status_code=404, detail="User không tồn tại")
-    from src.infrastructure.database.db import get_user_role
+    from src.infrastructure.database.db import get_user_role, get_family_permissions
     return {
         "username": user["username"],
         "family_name": user["family_name"],
         "created_at": user["created_at"],
         "is_admin": bool(user.get("is_admin")),
         "role": get_user_role(str(current_user["user_id"])),
+        "permissions": get_family_permissions(user["family_name"]),
     }
 
 

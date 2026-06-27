@@ -16,10 +16,12 @@ export default function Sidebar({
   robotStatus,
   user,
   activeChild,
+  allowedTabs,
   onOpenSettings,
   onLogout,
   onSwitchChild,
 }) {
+  const tabs = TABS.filter(t => !allowedTabs || allowedTabs.includes(t.id));
   return (
     <nav className="side-nav">
       <div className="side-nav-logo">
@@ -28,7 +30,7 @@ export default function Sidebar({
       </div>
 
       <div className="side-nav-tabs">
-        {TABS.map(t => (
+        {tabs.map(t => (
           <button
             key={t.id}
             className={`side-nav-item${activeTab === t.id ? ' active' : ''}`}

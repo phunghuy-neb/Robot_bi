@@ -20,8 +20,9 @@ import {
 } from '../services/api.js';
 import SectionState from './SectionState.jsx';
 import FeatureBadge from './FeatureBadge.jsx';
+import FamilyMembers from './FamilyMembers.jsx';
 
-export default function SettingsOverlay({ isAdmin, onClose }) {
+export default function SettingsOverlay({ isAdmin, role = 'parent', permissions = {}, onClose }) {
   const [childProfiles, setChildProfiles] = useState([]);
   const [childLoading, setChildLoading] = useState(true);
   const [showAddChild, setShowAddChild] = useState(false);
@@ -327,6 +328,8 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
           <button className="settings-close" onClick={onClose} title="Đóng">✕</button>
         </div>
 
+        {/* Các mục dành cho người lớn — ẩn với tài khoản con (con chỉ thấy WiFi) */}
+        {role !== 'child' && (<>
         {/* Section 1: Hồ sơ trẻ */}
         <div className="settings-section">
           <div className="settings-section-title">
@@ -572,7 +575,9 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
           </button>
         </div>
 
-        {/* Section: WiFi cho robot */}
+        </>)}
+
+        {/* Section: WiFi cho robot — con cũng được dùng (FR-P7-5) */}
         <div className="settings-section">
           <div className="settings-section-title">
             📶 WiFi cho robot
@@ -615,6 +620,9 @@ export default function SettingsOverlay({ isAdmin, onClose }) {
             </button>
           </form>
         </div>
+
+        {/* Thành viên gia đình — chỉ chủ gia đình (owner) */}
+        {role === 'owner' && <FamilyMembers />}
 
         {/* Section 6: Chế độ kỹ thuật — admin only */}
         {isAdmin && (

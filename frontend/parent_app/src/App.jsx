@@ -30,7 +30,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [robotStatus, setRobotStatus] = useState('connecting');
-  const [user, setUser] = useState({ username: '', isAdmin: false });
+  const [user, setUser] = useState({ username: '', isAdmin: false, role: 'parent', permissions: {} });
   const [activeChild, setActiveChild] = useState(null);
   const [childPickerOpen, setChildPickerOpen] = useState(false);
   const [childOptions, setChildOptions] = useState([]);
@@ -43,6 +43,7 @@ export default function App() {
       if (userData) {
         setUser(userData);
         setIsLoggedIn(true);
+        if (userData.role === 'child') setActiveTab('learninghub');
       }
       setIsCheckingAuth(false);
     });
@@ -67,6 +68,7 @@ export default function App() {
     setUser(userData);
     setIsLoggedIn(true);
     setRobotStatus('connecting');
+    if (userData?.role === 'child') setActiveTab('learninghub');
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -74,7 +76,7 @@ export default function App() {
     disconnectWebSocket();
     await logout();
     setIsLoggedIn(false);
-    setUser({ username: '', isAdmin: false });
+    setUser({ username: '', isAdmin: false, role: 'parent', permissions: {} });
     setActiveChild(null);
     setRobotStatus('connecting');
     setActiveTab('home');
@@ -143,6 +145,14 @@ export default function App() {
     more: <MorePage />,
   };
 
+  // Lọc tab theo vai trò: owner/parent thấy tất cả; con thấy Học tập + Thêm,
+  // thêm Giám sát/Nhật ký nếu owner bật quyền (null = không lọc).
+  const allowedTabs = user.role === 'child'
+    ? ['learninghub', 'more',
+       ...(user.permissions?.child_can_monitor ? ['monitor'] : []),
+       ...(user.permissions?.child_can_journal ? ['journal'] : [])]
+    : null;
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -151,6 +161,7 @@ export default function App() {
         robotStatus={robotStatus}
         user={user}
         activeChild={activeChild}
+        allowedTabs={allowedTabs}
         onOpenSettings={() => setSettingsOpen(true)}
         onLogout={handleLogout}
         onSwitchChild={handleSwitchChild}
@@ -160,11 +171,13 @@ export default function App() {
         {tabComponents[activeTab]}
       </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} allowedTabs={allowedTabs} />
 
       {settingsOpen && (
         <SettingsOverlay
           isAdmin={user.isAdmin}
+          role={user.role}
+          permissions={user.permissions}
           onClose={() => setSettingsOpen(false)}
         />
       )}

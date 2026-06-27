@@ -7,10 +7,11 @@ const TABS = [
   { id: 'more', icon: '➕', label: 'Thêm' },
 ];
 
-export default function BottomNav({ activeTab, onTabChange }) {
+export default function BottomNav({ activeTab, onTabChange, allowedTabs }) {
+  const tabs = TABS.filter(t => !allowedTabs || allowedTabs.includes(t.id));
   return (
     <nav className="bottom-nav">
-      {TABS.map(t => (
+      {tabs.map(t => (
         <button
           key={t.id}
           className={`bottom-nav-item${activeTab === t.id ? ' active' : ''}`}

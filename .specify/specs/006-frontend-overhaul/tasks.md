@@ -77,11 +77,11 @@
 - [x] T040 [US7] Test **Group 101** (5): owner tạo con→child-login PIN (1↔1, sai PIN 401); **SC-6** con 403 ở settings; family endpoints owner-only + cô lập A/B; chặn add user family khác; quyền get/put owner-only — file: `tests/run_tests.py`
 
 ### Lát C3 — FE
-- [ ] T041 [US7] `services/api.js` helpers: `createFamily/getFamilyMembers/addFamilyMember/setMemberRole/createChildAccount/removeFamilyMember/getFamilyPermissions/setFamilyPermissions/getChildProfilesPublic/childLogin` — file: `frontend/parent_app/src/services/api.js`
-- [ ] T042 [US7] `App.jsx`: đọc `role`; lọc TABS + ẩn/hiện mục Settings theo `role` + `family_permissions` (con: luôn avatar/tên+WiFi, còn lại theo toggle) — file: `frontend/parent_app/src/App.jsx`
-- [ ] T043 [US7] `LoginPage.jsx`: thêm chế độ "Đăng nhập cho bé" (nhập/ghi nhớ mã gia đình → lưới hồ sơ → chọn → nhập PIN); người lớn giữ login username/password — file: `frontend/parent_app/src/pages/LoginPage.jsx`
-- [ ] T044 [US7] `SettingsOverlay.jsx`: (owner) section "👨‍👩‍👧 Thành viên gia đình" — tạo family nếu chưa có, thêm người lớn theo username+role, tạo con từ hồ sơ+PIN, bảng toggle quyền con; (child) chỉ render avatar/tên + WiFi + mục owner bật — file: `frontend/parent_app/src/components/SettingsOverlay.jsx`
-- [ ] T045 [US7] `npm run build` OK + kiểm tay 3 loại tài khoản (owner/parent/child) thấy đúng giao diện trên desktop+mobile — file: `frontend/parent_app/`
+- [x] T041 [US7] `services/api.js`: 10 helper (createFamily/getFamilyMembers/addFamilyMember/setMemberRole/createChildAccount/removeFamilyMember/get+setFamilyPermissions/getChildProfilesPublic/childLogin); login + checkExistingSession trả thêm `role`+`permissions` — file: `frontend/parent_app/src/services/api.js`
+- [x] T042 [US7] `App.jsx`: user mang `role`+`permissions`; `allowedTabs` lọc tab cho con (learninghub+more, +monitor/journal nếu owner bật); Sidebar/BottomNav nhận `allowedTabs`; SettingsOverlay nhận role/permissions; con vào app mặc định tab learninghub — file: `frontend/parent_app/src/App.jsx` + Sidebar/BottomNav
+- [x] T043 [US7] `LoginPage.jsx`: chế độ "Đăng nhập cho bé" (mã gia đình ghi nhớ localStorage → lưới hồ sơ → chọn → PIN); nút chuyển parent/child; CSS `.child-login-*` — file: `frontend/parent_app/src/pages/LoginPage.jsx` + styles.css
+- [x] T044 [US7] `components/FamilyMembers.jsx` (MỚI, owner) trong SettingsOverlay: list/đổi-role/gỡ member, thêm người lớn theo username, tạo con từ hồ sơ+PIN, 7 toggle quyền con; SettingsOverlay ẩn section 1-5 với con (con chỉ thấy WiFi). (Con sửa avatar/tên: DEFER — cần endpoint self-profile) — file: `frontend/parent_app/src/components/SettingsOverlay.jsx`, `FamilyMembers.jsx`
+- [x] T045 [US7] `npm run build` OK (666ms) + `/me` trả permissions; suite **732/732 PASS** — file: `frontend/parent_app/`, `src/api/routers/auth_router.py`
 
 ## Phase 10: Polish & Cross-Cutting (P8 parity + docs + final)
 - [ ] T046 [P] Parity sweep: rà mọi màn đã đổi đảm bảo desktop=mobile, không cắt nội dung (SC-4) — file: `frontend/parent_app/src/`

@@ -68,7 +68,7 @@
     token cũ thiếu role→parent — KHÔNG đụng verify_access_token/token_version/is_active); `authenticate_user`+role; seed_admin role='owner'.
   - Test **Group 100** (5): schema, JWT role, require_role chặn child/parent/thiếu-role, family_permissions mặc định 0 + roundtrip, cô lập theo family.
   - Verify: `.venv/bin/python tests/run_tests.py` = **727/727 PASS** (722→727). Protected Fixes giữ nguyên.
-- ✅ **US7 LÁT C2 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: endpoint gia đình + đăng nhập con (BE).
+- ✅ **US7 LÁT C2 DONE — spec 006 (2026-06-27, commit `32cda21`)**: endpoint gia đình + đăng nhập con (BE).
   - `family_router.py` (MỚI, đăng ký trong server.py): `POST /api/family/create` (→owner, bump token_version buộc re-login),
     `GET /members`, `POST /members/add` (username+role, chặn user family khác), `POST /members/child` (hồ sơ+PIN 1↔1),
     `PUT /members/{id}/role`, `DELETE /members/{id}` (chặn self + owner cuối), `GET/PUT /permissions` — tất cả `require_role('owner')` + scope family từ JWT.
@@ -77,7 +77,17 @@
   - `control_router.py`: POST age-filter/time-limits/sleep nay `require_role('owner','parent')` → **con bị 403** (SC-6).
   - Test **Group 101** (5) — owner tạo con→login PIN, SC-6 chặn con, owner-only + cô lập A/B, chặn add user family khác, quyền owner-only.
   - Verify: `tests/run_tests.py` = **732/732 PASS** (lần đầu 731/732 do flaky `stress: safety filter` — AI thật, re-run 732/732). Protected Fixes giữ nguyên.
-  - **NEXT: C3 (FE)** — App.jsx lọc tab/Settings theo role+permissions; LoginPage "đăng nhập cho bé" (mã family→lưới hồ sơ→PIN); SettingsOverlay mục "Thành viên gia đình" (owner); api.js helpers. → có thể giao Codex (FE thuần) nhưng đụng App.jsx/SettingsOverlay/LoginPage/api.js (file Claude đã sửa) — cân nhắc Claude làm để liền mạch.
+- ✅ **US7 LÁT C3 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: FE phân quyền + đăng nhập con. **US7 HOÀN TẤT.**
+  - `auth_router /me`: +`permissions` (để app con biết quyền).
+  - `api.js`: 10 helper family + childLogin + getChildProfilesPublic; login/checkExistingSession trả `role`+`permissions`.
+  - `App.jsx`: user mang role+permissions; `allowedTabs` lọc tab cho con (learninghub+more, +monitor/journal nếu owner bật);
+    con mặc định vào tab learninghub. Sidebar/BottomNav nhận `allowedTabs` (lọc TABS).
+  - `LoginPage.jsx`: chế độ "Đăng nhập cho bé" (mã gia đình nhớ localStorage → lưới hồ sơ → PIN); nút chuyển parent/child.
+  - `components/FamilyMembers.jsx` (MỚI, owner) trong SettingsOverlay: list/đổi-role/gỡ member + thêm người lớn (username) +
+    tạo con từ hồ sơ+PIN + 7 toggle quyền con. SettingsOverlay ẩn section 1-5 với con (con chỉ thấy WiFi).
+  - Verify: `npm run build` OK; suite **732/732 PASS**.
+  - **DEFER (ghi nhận)**: con tự sửa avatar/tên (cần endpoint self-profile) — chưa làm; createFamily UI (owner đã có family qua migration/admin).
+  - **NEXT: Phase 10 Polish** — parity desktop/mobile sweep + cập nhật SYSTEM_MAP/STATUS_MAP (vai trò gia đình, WiFi UI, family_permissions, login con) + test cuối.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`
