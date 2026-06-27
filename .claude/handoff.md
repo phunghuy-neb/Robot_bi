@@ -453,7 +453,12 @@
       icon chip (nền bo tròn sau emoji) + hover lift/:active press; `subject-detail-grid` cap 980 + align-items:start (1280 quá rộng→trống);
       mode/track grid auto-fill minmax(160). Exam views: inline-style → class clay (`.exam-bar/.exam-timer/.exam-dots/.exam-qcard/.exam-opt/.track-card/.exam-row/.btn-create-exam`),
       playing/list/tracks rộng 640/760, xanh/đỏ dùng shade đạt contrast. FE-only. Giữ bản sắc emoji/màu (PROJECT.md override — không áp luật minimalist).
-    - **NEXT R3**: "Tải đề lên" — endpoint BE mới (LLM tách văn bản→câu hỏi+đáp án, qua SafetyFilter, family-scoped, review trước khi lưu) + UI dán/upload trong ExamBuilder + test.
+    - ✅ **R3 DONE (commit `7508ec4`)** — 🎉 **ĐỢT ĐẸP GIAO DIỆN XONG (R1+R2+R3).** "Tải đề lên": BE `POST /api/learning/exams/parse-text`
+      (LLM `stream_chat` tách văn bản dán/upload → JSON `_extract_json_array` chịu fence/chữ thừa → validate answer∈options → **loại câu fail SafetyFilter** `_lh_is_safe` →
+      `{questions,count}`; family-scoped, parse-only KHÔNG ghi DB; SKIP_LLM/lỗi→[]; cap 40 câu/8k ký tự). FE: `api.parseExamText`; ExamBuilder thêm panel "📤 Tải đề lên"
+      (textarea + upload .txt + "🤖 Bi tách đề") → nạp vào list câu để **xem lại/sửa** → lưu qua `createCustomExam` cũ (không đổi schema, không thêm đường lưu).
+      Test **Group 106** (2). **740/740 PASS**. Docs SYSTEM_MAP+STATUS_MAP cập nhật. Protected Fixes nguyên (family isolation, SafetyFilter pre-child, 5-LLM, schema).
+    - **Còn (tùy chọn, nếu user muốn)**: xem lại R2 trên máy thật để chỉnh tinh; OCR ảnh/PDF cho "Tải đề" (đã chốt làm bản dán-văn-bản trước).
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
