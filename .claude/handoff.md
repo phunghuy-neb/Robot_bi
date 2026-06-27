@@ -448,8 +448,11 @@
     - ✅ **R1 DONE (commit `f352276`)**: nút "← Thoát đề thi" (44px, có confirm) ở cả MCQ + TOEIC S&W playing; resume đề đang làm qua
       sessionStorage (`EXAM_RESUME_KEY`, lưu đáp án/câu/deadline tuyệt đối, restore khi mở lại tab — "Tiếp tục đề đang làm dở"; trừ Speaking).
       Xóa snapshot khi nộp/thoát. FE-only. App.jsx render mỗi tab active (`tabComponents[activeTab]`) → unmount khi rời tab, nên dùng sessionStorage.
-    - **NEXT R2**: tinh chỉnh giao diện (clay tokens: viền dày + bóng mềm kép + bo 20px; thang spacing nhất quán; sửa tương phản chữ `--muted` trên card;
-      bỏ khoảng trống thừa; chuẩn hoá inline-style exam views → class). Tham khảo claymorphism (DB ui-ux-pro-max gợi ý cho app trẻ em).
+    - ✅ **R2 DONE (commit `7dcf4bd`)**: claymorphism nhẹ + sửa tương phản. `--muted #94A3B8`(~2.8:1 fail AA)→`#647084`(~4.7:1) toàn app;
+      tokens `--clay-shadow`/`--clay-shadow-hover` (bóng mềm kép lúc nghỉ → hết phẳng/trống); subject-card & mode-card: clay shadow + viền 2.5px +
+      icon chip (nền bo tròn sau emoji) + hover lift/:active press; `subject-detail-grid` cap 980 + align-items:start (1280 quá rộng→trống);
+      mode/track grid auto-fill minmax(160). Exam views: inline-style → class clay (`.exam-bar/.exam-timer/.exam-dots/.exam-qcard/.exam-opt/.track-card/.exam-row/.btn-create-exam`),
+      playing/list/tracks rộng 640/760, xanh/đỏ dùng shade đạt contrast. FE-only. Giữ bản sắc emoji/màu (PROJECT.md override — không áp luật minimalist).
     - **NEXT R3**: "Tải đề lên" — endpoint BE mới (LLM tách văn bản→câu hỏi+đáp án, qua SafetyFilter, family-scoped, review trước khi lưu) + UI dán/upload trong ExamBuilder + test.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
