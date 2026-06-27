@@ -9529,6 +9529,48 @@ def test_105_safe_text_wrapper():
 test("105.1  /explain trả giải thích (Socratic) + cần auth",                 test_105_explain_endpoint)
 test("105.2  _lh_safe_text: rỗng→fallback, an toàn→giữ",                     test_105_safe_text_wrapper)
 
+
+print("\n[Group 106] Learning Hub R3 — Tải đề lên (parse-text)")
+
+
+def test_106_parse_text_validates_and_filters():
+    import src.api.routers.learning_hub_router as lh
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"imp-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("imp", fam, False)
+    client = TestClient(app)
+    orig = lh._llm_parse_exam
+    # LLM trả 3 câu: 1 hợp lệ, 1 đáp án ngoài options (loại), 1 chỉ 1 lựa chọn (loại).
+    lh._llm_parse_exam = lambda text: [
+        {"question": "Thủ đô VN?", "options": ["Hà Nội", "Huế"], "answer": "Hà Nội", "explanation": "Thủ đô là Hà Nội"},
+        {"question": "2+2=?", "options": ["3", "5"], "answer": "4", "explanation": ""},  # answer không trong options
+        {"question": "Màu trời?", "options": ["Xanh"], "answer": "Xanh", "explanation": ""},  # <2 lựa chọn
+    ]
+    try:
+        r = client.post("/api/learning/exams/parse-text", json={"text": "bất kỳ"}, headers=h)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["count"] == 1, body  # chỉ câu hợp lệ được giữ
+        q = body["questions"][0]
+        assert q["question"] == "Thủ đô VN?" and q["answer"] in q["options"]
+    finally:
+        lh._llm_parse_exam = orig
+    # text rỗng → 400
+    assert client.post("/api/learning/exams/parse-text", json={"text": "  "}, headers=h).status_code == 400
+    # cần đăng nhập
+    assert client.post("/api/learning/exams/parse-text", json={"text": "x"}).status_code in (401, 403)
+
+
+def test_106_parse_text_extract_json_helper():
+    import src.api.routers.learning_hub_router as lh
+    assert lh._extract_json_array('rác ```json\n[{"a":1}]\n``` rác') == [{"a": 1}]
+    assert lh._extract_json_array("không có mảng") == []
+
+
+test("106.1  /exams/parse-text: lọc câu không hợp lệ + 400 rỗng + cần auth",  test_106_parse_text_validates_and_filters)
+test("106.2  _extract_json_array tách JSON quanh chữ thừa / fence",          test_106_parse_text_extract_json_helper)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

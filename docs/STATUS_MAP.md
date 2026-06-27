@@ -131,6 +131,7 @@
 | Language tutor | 🟡 | `src/education/language_tutor.py` | Partial |
 | Learning Hub (Duolingo-style) | 🟢 | `src/api/routers/learning_hub_router.py` + `pages/LearningHubPage.jsx` | Module en/math/science, XP, streak, quiz |
 | Smart-tutor endpoints (spec 007) | 🟢 | `learning_hub_router.py` | `/practice`(+`/grade`), `/mistakes`, `/mastery`, `/explain` — family-scoped, không lộ đáp án, explain qua SafetyFilter |
+| Tải đề lên (parse-text, spec 007 R3) | 🟢 | `learning_hub_router.py` + `ExamBuilder.jsx` | Dán/upload .txt → `/exams/parse-text` (LLM tách → validate → lọc SafetyFilter) → xem lại trong form → lưu qua `/exams/custom` (không đổi schema) |
 | Exam system (đề thi nhiều môn) | 🟢 | `src/api/routers/exam_router.py` | 25 môn, 11 track, AI tạo đề, review queue, TOEIC S&W STT |
 | Vocabulary tracking tiếng Anh | ⚪ | — | Không có code |
 | Pronunciation scoring | ⚪ | — | Không có code |

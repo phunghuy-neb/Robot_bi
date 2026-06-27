@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createCustomExam, showToast } from '../services/api.js';
+import { createCustomExam, parseExamText, showToast } from '../services/api.js';
 
 // Form tạo đề MCQ dùng chung cho Admin (isGlobal) và Parent (đề cá nhân).
 // onCreated(paperId) được gọi khi tạo thành công.
@@ -12,6 +12,38 @@ export default function ExamBuilder({ isGlobal = false, onCreated, onCancel }) {
   const [subject, setSubject] = useState('custom');
   const [questions, setQuestions] = useState([emptyQ()]);
   const [busy, setBusy] = useState(false);
+  // spec 007 R3: tải đề lên — dán/upload văn bản → AI tách → xem lại trong chính form này.
+  const [pasteText, setPasteText] = useState('');
+  const [parsing, setParsing] = useState(false);
+
+  async function runImport() {
+    const text = pasteText.trim();
+    if (!text) { showToast('Dán nội dung đề vào ô trước nhé'); return; }
+    setParsing(true);
+    const res = await parseExamText(text);
+    setParsing(false);
+    const parsed = res?.questions || [];
+    if (!parsed.length) { showToast('Bi chưa tách được câu hỏi nào — thử dán rõ câu hỏi + đáp án'); return; }
+    // Nạp vào form để xem lại/sửa; chừa tối thiểu 4 ô lựa chọn cho dễ chỉnh.
+    setQuestions(parsed.map(q => {
+      const opts = q.options || [];
+      const padded = [...opts];
+      while (padded.length < 4) padded.push('');
+      return { question: q.question || '', options: padded, answer: q.answer || '', explanation: q.explanation || '' };
+    }));
+    setPasteText('');
+    showToast(`Bi đã tách ${parsed.length} câu — xem lại rồi bấm tạo đề nhé`);
+  }
+
+  function onFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setPasteText(String(reader.result || ''));
+    reader.onerror = () => showToast('Không đọc được file');
+    reader.readAsText(file);
+    e.target.value = '';
+  }
 
   function setQ(i, patch) {
     setQuestions(qs => qs.map((q, idx) => idx === i ? { ...q, ...patch } : q));
@@ -47,6 +79,29 @@ export default function ExamBuilder({ isGlobal = false, onCreated, onCancel }) {
 
   return (
     <div>
+      {/* spec 007 R3: tải đề lên — dán văn bản hoặc upload .txt → Bi tách câu hỏi để xem lại */}
+      <div style={{ ...card, border: '2px dashed var(--primary, #6366F1)', background: 'var(--primary-soft, #EDE9FE)' }}>
+        <div style={{ fontWeight: 800, marginBottom: 6 }}>📤 Tải đề lên — để Bi tách giúp</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary, #64748B)', marginBottom: 8 }}>
+          Dán nội dung đề (câu hỏi + lựa chọn + đáp án) hoặc tải file .txt. Bi tách thành các câu rồi bạn xem lại, chỉnh nếu cần, mới lưu.
+        </div>
+        <textarea
+          style={{ ...inp, minHeight: 110, resize: 'vertical', fontFamily: 'inherit' }}
+          placeholder={'Ví dụ:\n1. Thủ đô Việt Nam là gì?\nA. Hà Nội  B. Huế  C. Đà Nẵng\nĐáp án: A'}
+          value={pasteText} onChange={e => setPasteText(e.target.value)} />
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 8 }}>
+          <label style={{ fontSize: 13, color: 'var(--primary-dark, #4F46E5)', fontWeight: 700, cursor: 'pointer' }}>
+            📎 Chọn file .txt
+            <input type="file" accept=".txt,text/plain" onChange={onFile} style={{ display: 'none' }} />
+          </label>
+          <div style={{ flex: 1 }} />
+          <button disabled={parsing} onClick={runImport}
+            style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: 'var(--primary, #6366F1)', color: '#fff', fontWeight: 800, cursor: 'pointer' }}>
+            {parsing ? 'Bi đang tách…' : '🤖 Bi tách đề'}
+          </button>
+        </div>
+      </div>
+
       <div style={{ ...card, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <input style={{ ...inp, flex: 2, minWidth: 200 }} placeholder="Tên đề thi"
           value={title} onChange={e => setTitle(e.target.value)} />

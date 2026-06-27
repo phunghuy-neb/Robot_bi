@@ -469,6 +469,13 @@ export async function askBiExplain({ question, childAnswer, correctAnswer }) {
     body: JSON.stringify({ question, child_answer: childAnswer, correct_answer: correctAnswer }),
   });
 }
+// Tải đề lên (spec 007 R3): dán/upload văn bản → AI tách câu hỏi để phụ huynh xem lại.
+export async function parseExamText(text) {
+  return apiFetch('/api/learning/exams/parse-text', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+}
 
 export async function getLearningLesson(lessonId) {
   return apiFetch(`/api/learning/lessons/${lessonId}`);

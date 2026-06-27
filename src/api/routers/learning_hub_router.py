@@ -523,6 +523,21 @@ def _lh_safe_text(text: str, fallback: str) -> str:
         return text
 
 
+def _lh_is_safe(text: str) -> bool:
+    """True nếu đoạn text qua được SafetyFilter (dùng để LOẠI câu xấu khi tách đề). Lỗi filter → coi như an toàn."""
+    global _lh_safety
+    if not text or not text.strip():
+        return True
+    try:
+        if _lh_safety is None:
+            from src.safety.safety_filter import SafetyFilter
+            _lh_safety = SafetyFilter()
+        is_safe, _ = _lh_safety.check(text)
+        return bool(is_safe)
+    except Exception:
+        return True
+
+
 def _llm_explain(question: str, child_answer: str, correct_answer: str) -> str:
     fallback = "Con thử đọc kỹ lại câu hỏi và so sánh từng lựa chọn nhé. Con làm được mà!"
     if os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes"):
@@ -573,3 +588,72 @@ async def practice_grade(body: PracticeGradeIn, current_user: dict = Depends(get
         "correct_answer": correct_answer,
         "explanation": row["explanation"] or "",
     }
+
+
+# ── Tải đề lên: dán/upload văn bản → AI tách câu hỏi (spec 007 R3) ──────────────
+# CHỈ tách + lọc an toàn rồi TRẢ VỀ cho phụ huynh xem lại; lưu đề vẫn qua
+# /api/learning/exams/custom hiện có (không thêm đường lưu mới, không đổi schema).
+
+class ParseExamIn(BaseModel):
+    text: str = ""
+
+
+def _extract_json_array(raw: str) -> list:
+    """Tách JSON array từ output LLM (chịu được rào ```json và chữ thừa quanh nó)."""
+    s = (raw or "").strip()
+    i, j = s.find("["), s.rfind("]")
+    if i == -1 or j == -1 or j < i:
+        return []
+    try:
+        data = json.loads(s[i:j + 1])
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _llm_parse_exam(text: str) -> list:
+    """Nhờ LLM tách văn bản đề thành list câu trắc nghiệm JSON. Lỗi/SKIP_LLM → []."""
+    text = (text or "").strip()
+    if not text or os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes"):
+        return []
+    try:
+        from src.ai.ai_engine import stream_chat
+        sys_ctx = (
+            "Bạn là trợ lý trích xuất đề TRẮC NGHIỆM cho trẻ em. Từ văn bản người dùng dán vào, "
+            "hãy tách thành các câu hỏi trắc nghiệm. CHỈ trả về một JSON array, KHÔNG kèm lời giải thích. "
+            'Mỗi phần tử: {"question": "...", "options": ["...", "..."], "answer": "...", "explanation": "..."}. '
+            "options có 2-6 lựa chọn; answer PHẢI trùng đúng một phần tử trong options. "
+            "Nếu văn bản đã ghi đáp án thì dùng đáp án đó; nếu không xác định được đáp án thì BỎ câu đó. "
+            "explanation ngắn gọn, có thể để trống. Giữ nguyên ngôn ngữ gốc của đề."
+        )
+        raw = "".join(stream_chat(
+            [{"role": "user", "content": text[:8000]}],
+            system_context=sys_ctx, role="teacher",
+        ))
+        return _extract_json_array(raw or "")
+    except Exception:
+        return []
+
+
+@router.post("/api/learning/exams/parse-text")
+async def parse_exam_text(body: ParseExamIn, current_user: dict = Depends(get_current_user)):
+    """Tách đề từ văn bản (dán/upload) → list câu hỏi đã lọc an toàn, để phụ huynh xem lại trước khi lưu."""
+    _require_family(current_user)
+    if not (body.text or "").strip():
+        raise HTTPException(status_code=400, detail="Chua co noi dung de tach")
+    raw_qs = await run_in_threadpool(_llm_parse_exam, body.text)
+    out = []
+    for q in (raw_qs or [])[:40]:
+        if not isinstance(q, dict):
+            continue
+        question = str(q.get("question", "")).strip()
+        options = [str(o).strip() for o in (q.get("options") or []) if str(o).strip()]
+        answer = str(q.get("answer", "")).strip()
+        explanation = str(q.get("explanation", "")).strip()
+        if not question or len(options) < 2 or answer not in options:
+            continue
+        # Child safety: loại câu có nội dung không an toàn (trước khi tới phụ huynh/trẻ).
+        if not _lh_is_safe(" ".join([question, *options, explanation])):
+            continue
+        out.append({"question": question, "options": options, "answer": answer, "explanation": explanation})
+    return {"questions": out, "count": len(out)}
