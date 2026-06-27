@@ -97,6 +97,10 @@ export default function LearningHubPage() {
   const [examAnswers, setExamAnswers] = useState({});
   const [examQIndex, setExamQIndex] = useState(0);
   const [examTimeLeft, setExamTimeLeft] = useState(0);
+  // spec 007 US3: vào đề theo môn + cấu hình giờ. examTimerMin: null=theo đề, 0=không giờ, n=phút.
+  const [examFromSubject, setExamFromSubject] = useState(false);
+  const [examTimerMin, setExamTimerMin] = useState(null);
+  const [examNoTimer, setExamNoTimer] = useState(false);
   const [examResult, setExamResult] = useState(null);
   const [examSubmitting, setExamSubmitting] = useState(false);
   const examStartRef = useRef(0);
@@ -114,7 +118,7 @@ export default function LearningHubPage() {
 
   // Exam countdown timer.
   useEffect(() => {
-    if (examView !== 'playing') return undefined;
+    if (examView !== 'playing' || examNoTimer) return undefined;
     examTimerRef.current = setInterval(() => {
       setExamTimeLeft(prev => {
         if (prev <= 1) {
@@ -137,12 +141,28 @@ export default function LearningHubPage() {
   }
 
   async function openTrack(track) {
+    setExamFromSubject(false);
     setSelectedTrack(track);
     setExamLoading(true);
     const data = await getExams({ track: track.track });
     setExamList(data?.exams || []);
     setExamLoading(false);
     setExamView('list');
+  }
+
+  // spec 007 US3: "Luyện theo đề" của 1 môn → list đề CHỈ của môn đó (mọi track).
+  async function openSubjectExams() {
+    if (!pickedSubject) return;
+    setExamFromSubject(true);
+    setExamTimerMin(null);
+    setSelectedTrack({ label: pickedSubject.label || pickedSubject.subject, track: null });
+    setMode('exam');
+    setExamView('list');
+    setHubView('inMode');
+    setExamLoading(true);
+    const data = await getExams({ subject: pickedSubject.subject });
+    setExamList(data?.exams || []);
+    setExamLoading(false);
   }
 
   async function startExam(paper) {
@@ -153,8 +173,11 @@ export default function LearningHubPage() {
     audioBlobsRef.current = {};
     setExamQIndex(0);
     setExamResult(null);
-    setExamTimeLeft((data.paper.duration_minutes || 30) * 60);
-    examStartRef.current = (data.paper.duration_minutes || 30) * 60;
+    const noTimer = examTimerMin === 0;
+    const mins = examTimerMin == null ? (data.paper.duration_minutes || 30) : examTimerMin;
+    setExamNoTimer(noTimer);
+    setExamTimeLeft(noTimer ? 0 : mins * 60);
+    examStartRef.current = noTimer ? 0 : mins * 60;
     setExamView('playing');
   }
 
@@ -358,7 +381,7 @@ export default function LearningHubPage() {
         subject={pickedSubject}
         onBack={() => setHubView('subjects')}
         onEnterLearn={() => { switchMode('learn'); setHubView('inMode'); }}
-        onEnterExam={() => { switchMode('exam'); setHubView('inMode'); }}
+        onEnterExam={openSubjectExams}
       />
     );
   }
@@ -620,8 +643,8 @@ export default function LearningHubPage() {
             <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
             <div style={{
               fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
-              background: low ? '#ffebee' : '#e3f2fd', color: low ? '#c62828' : '#1565c0',
-            }}>⏱️ {fmtTime(examTimeLeft)}</div>
+              background: (!examNoTimer && low) ? '#ffebee' : '#e3f2fd', color: (!examNoTimer && low) ? '#c62828' : '#1565c0',
+            }}>⏱️ {examNoTimer ? 'Không giờ' : fmtTime(examTimeLeft)}</div>
           </div>
 
           {/* Question nav dots */}
@@ -706,10 +729,20 @@ export default function LearningHubPage() {
     if (examView === 'list' && selectedTrack) {
       return (
         <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <button className="btn-sm secondary" style={{ minWidth: 40 }}
-              onClick={() => setExamView('tracks')}>←</button>
+              onClick={() => (examFromSubject ? setHubView('subjectMenu') : setExamView('tracks'))}>←</button>
             <div style={{ fontWeight: 700, fontSize: 18 }}>{selectedTrack.label}</div>
+          </div>
+          {/* US3: cấu hình thời gian trước khi làm đề */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>⏱ Thời gian:</span>
+            {[[null, 'Theo đề'], [0, 'Không giờ'], [15, '15′'], [30, '30′'], [45, '45′'], [60, '60′']].map(([val, label]) => (
+              <button key={String(val)} onClick={() => setExamTimerMin(val)}
+                className={`pill-tab${examTimerMin === val ? ' active' : ''}`}>
+                {label}
+              </button>
+            ))}
           </div>
           {examLoading ? (
             <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>

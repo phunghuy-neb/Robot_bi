@@ -37,9 +37,9 @@
 - [x] T013 [US2] `npm run build` OK (69 modules, 1.18s; fix trùng tên state subjectInfo→pickedSubject) — file: `frontend/parent_app/`
 
 ## Phase 5: US3 (L1-C) — Luyện theo đề (tái dùng) + cấu hình timer · Test: chọn đề + giờ → làm trọn đề → chấm cuối (như cũ), trong cột hẹp
-- [ ] T014 [US3] `components/learning/ModeConfig.jsx` — chọn đề/cấp (dropdown cấp 2) + timer (Không/15/30/45/60) → Bắt đầu; sheet mobile/modal desktop — file: `frontend/parent_app/src/components/learning/ModeConfig.jsx`
-- [ ] T015 [US3] Nối luồng exam hiện có vào view "playing" trong khung mới; bọc trong `.learn-quiz` (cột 640); timer theo cấu hình — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
-- [ ] T016 [US3] `npm run build` OK + kiểm làm đề có/không giờ — file: `frontend/parent_app/`
+- [x] T014 [US3] Cấu hình timer làm INLINE trong list view (chips "Theo đề/Không giờ/15/30/45/60" — `examTimerMin`) thay vì tách `ModeConfig.jsx` (gọn hơn; tách sau nếu US4 cần) — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
+- [x] T015 [US3] `openSubjectExams()` lọc đề theo môn (`getExams({subject})`); "Luyện theo đề" + HSG/Chuyển cấp/Nâng cao/Thi-thử route qua đây (examFromSubject); startExam áp timer override + `examNoTimer` (bỏ đếm giờ + ẩn auto-submit); nút back về subjectMenu; playing giữ cột hẹp 560 — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
+- [x] T016 [US3] `npm run build` OK (69 modules, 1.22s); FE-only (baseline 722 giữ) — file: `frontend/parent_app/`
 
 ## Phase 6: US4 (L1-D) — Luyện theo bài (chấm từng câu) · Test: làm câu đơn lẻ, server chấm + giải thích ngay, mọi môn
 - [ ] T017 [US4] `learning_hub_router.py`: `GET /api/learning/practice?subject=&topic=&limit=` (lấy câu từ question_bank, family-scope) + `POST /api/learning/practice/grade` (chấm 1 câu, trả đúng/sai + đáp án + explanation; giữ đáp án ở server) — file: `src/api/routers/learning_hub_router.py`

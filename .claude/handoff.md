@@ -382,7 +382,7 @@
     `LearningHubPage`: state `hubView` ('subjects' default) → early-return SubjectGrid là **cửa trước**; `pickSubject`
     (learn cho en/math/science, exam cho còn lại) → vào UI cũ; nút "← Môn" trong ModeToggle về lưới. Build OK; baseline 722/722.
     **LƯU Ý**: phía sau lưới vẫn là UI learn/exam CŨ (chưa subject-scoped) — **US2 (L1-B) sẽ thay bằng SubjectDetail**.
-  - ✅ **007 US2 (L1-B) DONE (2026-06-28, commit `<sẽ điền>`)**: trang chi tiết môn + thẻ chế độ + gating.
+  - ✅ **007 US2 (L1-B) DONE (2026-06-28, commit `6e58500`)**: trang chi tiết môn + thẻ chế độ + gating.
     `components/learning/{ModeCard.jsx, SubjectDetail.jsx}` mới. hubView nay 3 trạng thái:
     subjects(lưới)→subjectMenu(SubjectDetail)→inMode(luồng học/đề cũ). Gating: Lộ trình (en/math/science thật,
     còn lại "Sắp có" toast) · Luyện theo bài (toast interim — US4) · Luyện theo đề (mọi môn) · Bộ GD→HSG+Chuyển cấp ·
@@ -390,7 +390,14 @@
     Bố cục 2 cột ≥1024. styles.css +`.mode-card*`/`.subject-detail-grid`/`.highlight-card`. Build OK 69 modules.
     **LƯU Ý**: chế độ đề vào luồng exam CŨ (chưa lọc theo môn + chưa cấu hình timer) — **US3 (L1-C) sẽ thêm cấu hình
     + lọc theo môn**; Luyện-theo-bài/Sổ-lỗi/Mastery/Hỏi-Bi ở US4-US7.
-  - **NEXT lát: US3 (L1-C)** Luyện theo đề (tái dùng) + ModeConfig timer (Không/15/30/45/60) + lọc theo môn.
+  - ✅ **007 US3 (L1-C) DONE (2026-06-28, commit `<sẽ điền>`)**: Luyện theo đề theo môn + cấu hình giờ. **MVP (US1+US2+US3) XONG.**
+    `openSubjectExams()` lọc đề theo môn (`getExams({subject})`); mọi chế độ đề (Luyện đề/HSG/Chuyển cấp/Nâng cao/
+    Thi-thử) route qua đây (cờ `examFromSubject`). Timer chips inline trong list (Theo đề/Không giờ/15/30/45/60 →
+    `examTimerMin`); startExam áp override + `examNoTimer` (bỏ đếm giờ + ẩn auto-submit, hiện "Không giờ"). Back
+    về subjectMenu. Build OK 69 modules. (ModeConfig làm inline thay vì tách file — tách sau nếu US4 cần.)
+    **LƯU Ý**: list đề theo môn gộp MỌI track (chưa tách HSG/đề-thường riêng) — refine sau nếu cần; IELTS/TOEIC
+    "thi thử như thật" hiện = list đề của môn (cấu trúc/giờ chuẩn để Lớp 2/refine).
+  - **NEXT lát: US4 (L1-D)** Luyện theo bài — BE `/api/learning/practice`(+grade) + QuestionRunner (chấm từng câu).
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
