@@ -15,13 +15,19 @@ Triển khai 2 lớp: **Lớp 1** dùng dữ liệu/engine đã có (làm đợt
 ### Session 2026-06-27/28
 
 - Q: Hiển thị "nhiều môn" thế nào? → A: **Subject-first** — màn đầu là lưới tất cả môn (nhóm danh mục + search); vào 1 môn mới chọn chế độ.
-- Q: Trong 1 môn có gì? → A: **Học/Lộ trình** (Duolingo) + **Luyện tập** (theo bài / theo đề / HSG-Chuyển cấp / Nâng cao) + **Thi**, mỗi chế độ chọn được **có/không giờ**.
+- Q: Trong 1 môn có gì? → A: **Lộ trình** (Duolingo) + **Luyện tập** (theo bài / theo đề / HSG-Chuyển cấp / Nâng cao) + **Thi**, mỗi chế độ chọn được **có/không giờ**.
 - Q: HSG/Chuyển cấp cho môn nào? → A: chỉ môn Bộ GD đưa vào kỳ thi; môn ngoài → "Luyện tập nâng cao".
 - Q: "Học" cho mọi môn nhưng backend chỉ có 3 môn? → A: dựng **FE-shell trước cho mọi môn** (3 môn nội dung thật, còn lại "Sắp có"), backend nội dung thêm sau.
 - Q: Cấp 1 dùng thẻ hay dropdown? → A: **thẻ chế độ ở cấp 1**, dropdown chỉ cho cấp 2 (chọn đề/cấp/vòng HSG).
 - Q: Bố cục desktop? → A: **rộng khi duyệt, hẹp (~640px) khi làm bài**; container duyệt căn giữa ≤1280px (không kéo căng ultra-wide, không co 480px).
 - Q: Danh mục môn? → A: dùng sơ đồ đề xuất (Ngôn ngữ / Toán & KHTN / Xã hội / Năng khiếu / Kỹ năng & khác); user chỉnh map sau.
 - Q: taste-skill áp tới đâu? → A: tab này là product UI cho trẻ → **không** áp luật minimalist/đơn-sắc/cấm-emoji; **giữ** emoji + màu vui; chỉ lấy nguyên tắc UI phổ quát (chống slop, shape lock, trạng thái đầy đủ, responsive, a11y).
+
+### Session 2026-06-28 (clarify)
+
+- Q: Map môn ↔ danh mục? → A: **Dùng sơ đồ đề xuất** (xem "Resolved Decisions" → Category map). 5 nhóm: Ngôn ngữ · Toán & KHTN · Xã hội · Năng khiếu · Kỹ năng & khác.
+- Q: Môn nào có HSG/Chuyển cấp (còn lại Nâng cao)? → A: **Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin** (Bộ GD). NGOẠI LỆ: **IELTS và TOEIC phải có chế độ "Thi thử mô phỏng đề thật"** (full-length, đúng cấu trúc + thời gian như đề thật, giống các web luyện thi online) để bé dễ làm quen.
+- Q: Tên chế độ học kiểu Duolingo? → A: **"Lộ trình"**.
 
 ## User Scenarios
 
@@ -57,10 +63,10 @@ Mỗi chủ đề có **điểm thành thạo 0-100** + **mã màu kèm chữ** 
 Sau câu sai có nút **"🤖 Hỏi Bi vì sao"** → AI giải thích kiểu **Socratic** (gợi mở, không đưa đáp án thẳng), ngôn ngữ trẻ, **lọc SafetyFilter** trước khi tới trẻ. Có nút **🔊 Bi đọc đề** (TTS) và tùy chọn **trả lời bằng giọng** (STT) — tái dùng cơ chế TOEIC.
 
 ### US8 — HSG / Chuyển cấp / Nâng cao (P1) · MEDIUM
-Môn **Bộ GD** (Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin): có chế độ **Luyện HSG** + **Thi chuyển cấp** (dropdown chọn vòng/cấp). Môn ngoài danh mục: thay bằng **Luyện tập nâng cao**.
+Môn **Bộ GD** (Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin): có chế độ **Luyện HSG** + **Thi chuyển cấp** (dropdown chọn vòng/cấp). Môn ngoài danh mục: thay bằng **Luyện tập nâng cao**. **NGOẠI LỆ — IELTS và TOEIC**: có thêm chế độ **"Thi thử mô phỏng đề thật"** (full-length, đúng cấu trúc + thời gian như đề thật, giống web luyện thi online) để bé làm quen định dạng thi thật.
 
-### US9 — Khung "Học/Lộ trình" (shell) (P1) · MEDIUM
-Mọi môn hiện chế độ **Học/Lộ trình** (kiểu Duolingo). Nội dung thật cho en/math/science; môn khác hiển thị **"Sắp có"** (chờ backend nội dung lớp 2).
+### US9 — Khung "Lộ trình" (shell) (P1) · MEDIUM
+Mọi môn hiện chế độ **Lộ trình** (kiểu Duolingo). Nội dung thật cho en/math/science; môn khác hiển thị **"Sắp có"** (chờ backend nội dung lớp 2).
 
 ### US10 — Responsive hoàn hảo mọi màn (P1, xuyên suốt) · HIGH
 Mọi màn của tab phải hiển thị tốt từ **phone nhỏ (≤360) → phone → tablet → laptop → PC màn rộng (≥1536)**: không cuộn ngang, không co cụm giữa, không kéo căng mép-tới-mép; nút ≥48px; chữ co giãn; làm bài cột hẹp ~640px.
@@ -82,14 +88,14 @@ Bổ sung module bài học kiểu Duolingo cho các môn ngoài 3 môn hiện c
 ### Lớp 1 — Duyệt & điều hướng
 - **FR-1**: Tab hiển thị lưới tất cả môn **có nội dung** (môn không có gì → ẩn), nhóm theo danh mục, kèm ô tìm kiếm lọc theo tên môn.
 - **FR-2**: Mỗi thẻ môn hiển thị tên + biểu tượng + chỉ báo tiến độ/mastery của môn; bấm vào mở trang chi tiết môn.
-- **FR-3**: Trang chi tiết môn hiển thị các thẻ chế độ phù hợp với môn (Học/Lộ trình, Luyện theo bài, Luyện theo đề, HSG/Chuyển cấp **hoặc** Nâng cao) + thẻ "Câu hay sai" + "Chủ đề cần ôn" + mastery theo chủ đề (gập được).
+- **FR-3**: Trang chi tiết môn hiển thị các thẻ chế độ phù hợp với môn (Lộ trình, Luyện theo bài, Luyện theo đề, HSG/Chuyển cấp **hoặc** Nâng cao) + thẻ "Câu hay sai" + "Chủ đề cần ôn" + mastery theo chủ đề (gập được).
 
 ### Lớp 1 — Học/Luyện/Thi
 - **FR-4**: Mỗi chế độ luyện/thi có bước cấu hình: chọn nội dung (đề/cấp/vòng qua dropdown khi cần) + chọn **có/không giờ** (Không/15/30/45/60 phút) trước khi bắt đầu.
 - **FR-5**: "Luyện theo đề" làm trọn đề, chấm khi nộp, lưu phiên (tái dùng luồng hiện có); tôn trọng logic chấm đề/TOEIC hiện tại.
 - **FR-6**: "Luyện theo bài" làm từng câu, **chấm + giải thích ngay sau mỗi câu**; timer tùy chọn.
-- **FR-7**: "Luyện HSG"/"Thi chuyển cấp" chỉ xuất hiện ở môn thuộc danh mục Bộ GD; môn ngoài hiển thị "Luyện tập nâng cao".
-- **FR-8**: "Học/Lộ trình" hiển thị cho mọi môn; môn chưa có nội dung backend hiển thị trạng thái "Sắp có" rõ ràng (không màn trống mơ hồ).
+- **FR-7**: "Luyện HSG"/"Thi chuyển cấp" chỉ xuất hiện ở môn thuộc danh mục Bộ GD; môn ngoài hiển thị "Luyện tập nâng cao". **IELTS và TOEIC** có thêm chế độ **"Thi thử mô phỏng đề thật"** (đề full-length đúng cấu trúc + thời gian thật, có hẹn giờ mặc định theo định dạng thi).
+- **FR-8**: "Lộ trình" hiển thị cho mọi môn; môn chưa có nội dung backend hiển thị trạng thái "Sắp có" rõ ràng (không màn trống mơ hồ).
 
 ### Lớp 1 — Gia sư thông minh
 - **FR-9**: Sổ lỗi gom các câu trẻ từng trả lời sai, cho luyện lại, nhóm theo môn/chủ đề; số lượng hiển thị trên thẻ.
@@ -157,17 +163,22 @@ Bổ sung module bài học kiểu Duolingo cho các môn ngoài 3 môn hiện c
 ## Resolved Decisions (2026-06-28)
 
 - Subject-first; lưới môn nhóm danh mục + search; trang môn dùng thẻ chế độ (cấp 1) + dropdown (cấp 2).
-- Mỗi môn: Học/Lộ trình + Luyện theo bài + Luyện theo đề + HSG/Chuyển cấp (Bộ GD) hoặc Nâng cao; timer tùy chọn.
+- Mỗi môn: Lộ trình + Luyện theo bài + Luyện theo đề + HSG/Chuyển cấp (Bộ GD) hoặc Nâng cao; timer tùy chọn.
 - Lớp gia sư (Sổ lỗi, Mastery theo chủ đề kiểu SmartScore, Hỏi Bi Socratic, Robot đọc/nghe) đưa vào ngay vì dữ liệu/engine có sẵn.
 - Gamification + spaced/adaptive + parent report nâng cao = lớp 2.
 - Responsive: duyệt rộng (≤1280 căn giữa) / làm bài hẹp (640); breakpoints sm/md/lg/xl/2xl; tablet 1 cột, ≥1024 2 cột.
 - Giữ emoji + màu vui (bản sắc trẻ); taste-skill chỉ áp nguyên tắc phổ quát.
 - Leaderboard chỉ trong gia đình; không social toàn cầu.
+- Tên chế độ Duolingo = **"Lộ trình"**.
+- **Category map (đã chốt)**: Ngôn ngữ (Anh/Trung/Nhật/Hàn/IELTS/TOEIC L&R/TOEIC S&W) · Toán & KHTN (Toán/Lý/Hóa/Sinh/Khoa học/Tin/Lập trình) · Xã hội (Văn/Tiếng Việt/Sử/Địa/GDCD) · Năng khiếu (Nhạc/Mỹ thuật) · Kỹ năng & khác (Kinh tế/Sức khỏe/Kỹ năng sống/Logic).
+- **Môn có HSG + Chuyển cấp (đã chốt)**: Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin; còn lại "Nâng cao".
+- **IELTS & TOEIC**: thêm chế độ "Thi thử mô phỏng đề thật" (full-length, đúng cấu trúc + thời gian).
 
 ## Assumptions
 
-- Danh mục môn map ở FE theo sơ đồ đề xuất; user sẽ tinh chỉnh môn↔danh mục sau (dễ sửa).
+- Danh mục môn map ở FE theo sơ đồ ĐÃ CHỐT (xem Resolved Decisions → Category map); vẫn dễ sửa sau.
 - Danh sách môn "có nội dung" lấy từ danh sách môn backend hiện có (môn có đề mới hiện).
+- IELTS/TOEIC "đề thật": dùng cấu trúc + thời gian chuẩn của định dạng thi (cấu hình ở FE, dựa nội dung đề có sẵn); TOEIC S&W tái dùng luồng chấm STT hiện có.
 - "Luyện theo bài" và "Luyện theo đề" dùng chung ngân hàng câu hỏi hiện có; khác nhau ở cách trình bày (từng câu vs trọn đề) + thời điểm chấm.
 - Danh sách môn Bộ GD (có HSG/chuyển cấp) là một danh sách cấu hình ở FE, mặc định theo đề xuất, chỉnh được.
 - Tái dùng TTS/STT của luồng TOEIC cho "đọc đề / trả lời giọng".

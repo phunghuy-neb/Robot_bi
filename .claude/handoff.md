@@ -11,6 +11,9 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- **Q&A ONLY (2026-06-27)**: giải thích "train AI", train qua API, custom giọng AI trẻ con/TTS, và cân nhắc thuê GPU NVIDIA.
+  Không sửa code, không chạy test. Next nếu triển khai: ưu tiên RAG/knowledge/memory/eval trước fine-tuning;
+  với giọng nói nên prototype TTS API trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
 - ✅ **US1 (P1) DONE — spec 006 (2026-06-27)**: sửa bug hiển thị FE.
   - T004 HomePage: 3 metric-label cứng → "Phút học"/"Cảm xúc"/"Nhiệm vụ" (giữ metric-num dữ liệu thật).
   - T005 MorePage: 5 thẻ shortcut `<div>`→`<button>` + `scrollIntoView` (refs radio/music/knowledge/games/video).
@@ -357,7 +360,9 @@
   làm bài 640; breakpoints sm/md/lg/xl/2xl. **Build 2 lớp**: Lớp 1 (US1-US10, FE+data/engine sẵn) đợt này;
   Lớp 2 (US11-US14: spaced/adaptive, Lộ trình BE mọi môn, gamification đầy đủ, parent report) cần BE, đợt sau.
   Backend đã đủ cho Lớp 1 (/api/learning/subjects, /exams?subject=&track=, exam_sessions, LLM, TTS/STT).
-  **NEXT**: `/speckit-plan` (hoặc `/speckit-clarify` chốt map danh mục + danh sách môn Bộ GD).
+  **/speckit-clarify ✅ DONE (2026-06-28)**: Q1 map danh mục = đề xuất (5 nhóm) · Q2 HSG/Chuyển cấp =
+  Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin (còn lại Nâng cao) **+ IELTS/TOEIC thêm chế độ "Thi thử mô phỏng đề thật"** ·
+  Q3 tên chế độ Duolingo = "Lộ trình". **NEXT**: `/speckit-plan`.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
