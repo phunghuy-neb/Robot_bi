@@ -425,7 +425,7 @@
     `SubjectDetail`: Lộ trình môn ngoài en/math/science = coming-soon + toast. View Lộ trình (modules cũ): **bỏ tab chuyển môn cũ**
     (subject-first — đã chọn ở lưới), hiện tên môn đã chọn. en/math/science vào module thật qua `getLearningModules`.
     Verify: build 73 modules OK; tests không đổi (FE-only).
-  - ✅ **007 POLISH (US10 + docs) DONE (2026-06-28, commit `<sẽ điền>`)** — 🎉 **LỚP 1 spec 007 HOÀN TẤT.**
+  - ✅ **007 POLISH (US10 + docs) DONE (2026-06-28, commit `4e6d9b2`)** — 🎉 **LỚP 1 spec 007 HOÀN TẤT.**
     T039 responsive: container browse `.learn-browse`=1280 / quiz `.learn-quiz`=640 đã chuẩn; `.subject-grid` auto-fill minmax(140)/132@≤360;
     `.subject-detail-grid` 1 cột→`2fr 1fr`@≥1024; thống nhất luồng học/đề cũ về `maxWidth:560` (hết "co giữa 480"). Không cuộn ngang 320→1920.
     T040 docs: `DESIGN_SYSTEM.md` (content-width browse/quiz + bp phụ 360/1024 + mastery bands + coming-soon) · `SYSTEM_MAP.md` (thêm row
