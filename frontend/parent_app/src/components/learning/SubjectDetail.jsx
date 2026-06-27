@@ -5,7 +5,7 @@ import ModeCard from './ModeCard.jsx';
 // Trang chi tiết 1 môn: thẻ chế độ (cấp 1) + gating + 2 thẻ nổi bật.
 // Lát US2: route các chế độ vào luồng học/đề hiện có. US3-US7 sẽ tinh chỉnh từng chế độ
 // (cấu hình timer, luyện theo bài, sổ lỗi, mastery, hỏi Bi).
-export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterExam }) {
+export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterExam, onEnterPractice }) {
   const key = subject?.subject;
   const hasLotrinh = ['en', 'math', 'science'].includes(key);
   const isBoGD = BO_GD_SUBJECTS.includes(key);
@@ -18,7 +18,7 @@ export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterEx
     },
     {
       icon: '📝', label: 'Luyện theo bài', sub: 'Từng câu, chấm ngay',
-      onClick: () => showToast('Luyện theo bài sẽ có ở bản cập nhật tới'),
+      onClick: onEnterPractice,
     },
     {
       icon: '📄', label: 'Luyện theo đề', sub: 'Làm trọn đề', onClick: onEnterExam,

@@ -335,3 +335,69 @@ async def get_streak(current_user: dict = Depends(get_current_user)):
         "last_activity_date": streak["last_activity_date"],
         "total_xp": streak["total_xp"],
     }
+
+
+# ── Luyện theo bài (spec 007 US4) — câu hỏi đơn lẻ, chấm từng câu ────────────────
+# Giữ đáp án ở server (không trả trong /practice); chỉ lộ khi chấm (/practice/grade).
+
+class PracticeGradeIn(BaseModel):
+    question_id: str
+    answer: str = ""
+
+
+@router.get("/api/learning/practice")
+async def practice_questions(
+    subject: str = Query(..., max_length=40),
+    topic: Optional[str] = Query(default=None, max_length=80),
+    limit: int = Query(default=10, ge=1, le=50),
+    current_user: dict = Depends(get_current_user),
+):
+    """Câu hỏi luyện theo bài cho 1 môn (family-scoped, chỉ MCQ). KHÔNG trả đáp án."""
+    family_id = _require_family(current_user)
+    params = [subject, family_id]
+    topic_clause = ""
+    if topic:
+        topic_clause = " AND topic = ?"
+        params.append(topic)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            f"""SELECT question_id, subject, topic, question, question_vi, emoji, options_json
+                FROM question_bank
+                WHERE subject = ? AND status = 'published' AND question_type = 'mcq'
+                  AND (family_id IS NULL OR family_id = ?){topic_clause}
+                ORDER BY RANDOM() LIMIT {int(limit)}""",
+            tuple(params),
+        ).fetchall()
+    questions = []
+    for r in rows:
+        try:
+            options = json.loads(r["options_json"] or "[]")
+        except Exception:
+            options = []
+        questions.append({
+            "question_id": r["question_id"], "subject": r["subject"], "topic": r["topic"],
+            "question": r["question"], "question_vi": r["question_vi"],
+            "emoji": r["emoji"], "options": options,
+        })
+    return {"questions": questions}
+
+
+@router.post("/api/learning/practice/grade")
+async def practice_grade(body: PracticeGradeIn, current_user: dict = Depends(get_current_user)):
+    """Chấm 1 câu luyện tập, trả đúng/sai + đáp án đúng + giải thích (family-scoped)."""
+    family_id = _require_family(current_user)
+    with get_db_connection() as conn:
+        row = conn.execute(
+            """SELECT answer, explanation FROM question_bank
+               WHERE question_id = ? AND (family_id IS NULL OR family_id = ?)""",
+            (body.question_id, family_id),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Khong tim thay cau hoi")
+    correct_answer = (row["answer"] or "").strip()
+    is_correct = body.answer.strip() == correct_answer
+    return {
+        "correct": is_correct,
+        "correct_answer": correct_answer,
+        "explanation": row["explanation"] or "",
+    }

@@ -7,6 +7,7 @@ import {
 import ExamBuilder from '../components/ExamBuilder.jsx';
 import SubjectGrid from '../components/learning/SubjectGrid.jsx';
 import SubjectDetail from '../components/learning/SubjectDetail.jsx';
+import QuestionRunner from '../components/learning/QuestionRunner.jsx';
 
 // TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
 const SW_TASK_LABELS = {
@@ -382,6 +383,18 @@ export default function LearningHubPage() {
         onBack={() => setHubView('subjects')}
         onEnterLearn={() => { switchMode('learn'); setHubView('inMode'); }}
         onEnterExam={openSubjectExams}
+        onEnterPractice={() => setHubView('practice')}
+      />
+    );
+  }
+
+  // spec 007 US4: luyện theo bài (câu đơn lẻ, chấm từng câu).
+  if (hubView === 'practice' && pickedSubject) {
+    return (
+      <QuestionRunner
+        subject={pickedSubject.subject}
+        subjectLabel={pickedSubject.label || pickedSubject.subject}
+        onExit={() => setHubView('subjectMenu')}
       />
     );
   }

@@ -9362,6 +9362,48 @@ test("101.3  family endpoints owner-only + cô lập theo gia đình",          
 test("101.4  Thêm member chặn user thuộc gia đình khác",                     test_101_add_member_blocks_other_family)
 test("101.5  Quyền con get/put chỉ owner",                                   test_101_permissions_owner_only)
 
+# == GROUP 102: Learning Hub US4 — luyện theo bài (spec 007) =================
+print("\n[Group 102] Learning Hub US4 — luyện theo bài (practice + grade)")
+
+
+def test_102_practice_no_answer_leak():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"prac-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("prac", fam, False)
+    client = TestClient(app)
+    r = client.get("/api/learning/practice?subject=math&limit=5", headers=h)
+    assert r.status_code == 200, r.text
+    qs = r.json()["questions"]
+    assert len(qs) > 0, "math phải có câu mcq để luyện"
+    for q in qs:
+        assert q.get("options"), "câu phải có options"
+        assert "answer" not in q, "KHÔNG được lộ đáp án ở /practice"
+
+
+def test_102_practice_grade():
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"pracg-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("pracg", fam, False)
+    client = TestClient(app)
+    q = client.get("/api/learning/practice?subject=math&limit=1", headers=h).json()["questions"][0]
+    qid = q["question_id"]
+    g1 = client.post("/api/learning/practice/grade", json={"question_id": qid, "answer": q["options"][0]}, headers=h)
+    assert g1.status_code == 200, g1.text
+    ca = g1.json()["correct_answer"]
+    assert ca, "chấm phải trả đáp án đúng"
+    g2 = client.post("/api/learning/practice/grade", json={"question_id": qid, "answer": ca}, headers=h)
+    assert g2.json()["correct"] is True, "đáp án đúng phải correct=True"
+    wrong = next((o for o in q["options"] if o != ca), ca + "_x")
+    g3 = client.post("/api/learning/practice/grade", json={"question_id": qid, "answer": wrong}, headers=h)
+    assert g3.json()["correct"] is False, "đáp án sai phải correct=False"
+    assert client.post("/api/learning/practice/grade", json={"question_id": "nope_xyz", "answer": "a"}, headers=h).status_code == 404
+
+
+test("102.1  /practice trả câu mcq, KHÔNG lộ đáp án",                        test_102_practice_no_answer_leak)
+test("102.2  /practice/grade chấm đúng/sai + đáp án + 404",                  test_102_practice_grade)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

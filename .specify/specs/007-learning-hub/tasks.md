@@ -42,11 +42,11 @@
 - [x] T016 [US3] `npm run build` OK (69 modules, 1.22s); FE-only (baseline 722 giữ) — file: `frontend/parent_app/`
 
 ## Phase 6: US4 (L1-D) — Luyện theo bài (chấm từng câu) · Test: làm câu đơn lẻ, server chấm + giải thích ngay, mọi môn
-- [ ] T017 [US4] `learning_hub_router.py`: `GET /api/learning/practice?subject=&topic=&limit=` (lấy câu từ question_bank, family-scope) + `POST /api/learning/practice/grade` (chấm 1 câu, trả đúng/sai + đáp án + explanation; giữ đáp án ở server) — file: `src/api/routers/learning_hub_router.py`
-- [ ] T018 [US4] `services/api.js`: `getPracticeQuestions`, `gradePractice` — file: `frontend/parent_app/src/services/api.js`
-- [ ] T019 [US4] `components/learning/QuestionRunner.jsx` — chạy câu hỏi: hiện câu + đáp án; sau trả lời → phản hồi + giải thích ngay; timer tùy chọn; nút "Câu tiếp" — file: `frontend/parent_app/src/components/learning/QuestionRunner.jsx`
-- [ ] T020 [US4] Test **Group mới**: practice trả câu theo môn (cô lập family); grade chấm đúng + không lộ đáp án ở list — file: `tests/run_tests.py`
-- [ ] T021 [US4] `npm run build` OK + `python tests/run_tests.py` PASS — file: `frontend/parent_app/`, `tests/`
+- [x] T017 [US4] `learning_hub_router.py`: `GET /api/learning/practice?subject=&topic=&limit=` (mcq từ question_bank, family-scope `(family_id IS NULL OR =?)`, KHÔNG trả đáp án) + `POST /api/learning/practice/grade` (chấm 1 câu → correct/đáp án/explanation, 404 nếu sai id) — file: `src/api/routers/learning_hub_router.py`
+- [x] T018 [US4] `services/api.js`: `getPracticeQuestions`/`gradePractice` (đã thêm từ US1) — file: `frontend/parent_app/src/services/api.js`
+- [x] T019 [US4] `components/learning/QuestionRunner.jsx` — config (5/10/20 câu) → làm từng câu → chấm + giải thích NGAY (đúng=xanh, sai=viền đỏ + đáp án đúng) → "Câu tiếp"/"Kết thúc" → màn điểm. Cột hẹp `.learn-quiz`. Wire qua SubjectDetail `onEnterPractice` + hubView 'practice' — file: `frontend/parent_app/src/components/learning/QuestionRunner.jsx`, `SubjectDetail.jsx`, `pages/LearningHubPage.jsx`
+- [x] T020 [US4] Test **Group 102** (2): /practice trả mcq + KHÔNG lộ đáp án; /grade đúng/sai + đáp án + 404 — file: `tests/run_tests.py`
+- [x] T021 [US4] `npm run build` OK (70 modules); `run_tests` = **734/734 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 7: US5 (L1-E) — Sổ lỗi · Test: gom đúng câu từng sai theo family, ôn lại được, đếm khớp
 - [ ] T022 [US5] `learning_hub_router.py`: `GET /api/learning/mistakes?subject=` — suy câu sai từ `exam_sessions.answers_json` × `question_bank.answer`, nhóm môn/chủ đề, scope family — file: `src/api/routers/learning_hub_router.py`
