@@ -415,12 +415,17 @@
     `masteryBand()`, trong CollapsibleSection gập). SubjectDetail render MasteryByTopic (yếu xếp trước = "chủ đề
     cần ôn") thay placeholder. Test **Group 104**. Verify: build 72 modules; **736/736 PASS**.
     (DEFER: vòng mastery trên SubjectCard — cần batch endpoint, tránh N request.)
-  - ✅ **007 US7 (L1-G) DONE (2026-06-28, commit `<sẽ điền>`)**: Hỏi Bi vì sao sai + Bi đọc đề ⭐ (lát gia sư).
+  - ✅ **007 US7 (L1-G) DONE (2026-06-28, commit `8cf0d3b`)**: Hỏi Bi vì sao sai + Bi đọc đề ⭐ (lát gia sư).
     `learning_hub_router.py` +`POST /api/learning/explain` (stream_chat role teacher Socratic — KHÔNG nói thẳng đáp án —
     → `_lh_safe_text` SafetyFilter → trả; run_in_threadpool; SKIP_LLM/lỗi→fallback). `AskBi.jsx` mới (hiện sau câu SAI).
     QuestionRunner: nút 🔊 "Bi đọc đề" (browser SpeechSynthesis vi-VN). Test **Group 105** (2, monkeypatch _llm_explain).
     Verify: build 73 modules; **738/738 PASS**.
-  - **NEXT lát: US9 (L1-H)** Khung "Lộ trình" (shell — en/math/science modules thật, môn khác "Sắp có") → rồi Polish (US10 + docs) là xong Lớp 1.
+  - ✅ **007 US9 (L1-H) DONE (2026-06-28, commit `94f59be`)**: Khung "Lộ trình" (shell). FE-only.
+    `ModeCard` thêm prop `comingSoon` → badge "Sắp có" + dáng mờ + chữ "Đang xây dựng" (không chỉ dựa màu — a11y).
+    `SubjectDetail`: Lộ trình môn ngoài en/math/science = coming-soon + toast. View Lộ trình (modules cũ): **bỏ tab chuyển môn cũ**
+    (subject-first — đã chọn ở lưới), hiện tên môn đã chọn. en/math/science vào module thật qua `getLearningModules`.
+    Verify: build 73 modules OK; tests không đổi (FE-only).
+  - **NEXT lát: Polish (US10 + docs)** — responsive sweep 320→1920, DESIGN_SYSTEM.md + SYSTEM_MAP/STATUS_MAP, run_tests cuối → xong Lớp 1.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

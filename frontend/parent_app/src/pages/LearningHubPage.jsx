@@ -1040,23 +1040,12 @@ export default function LearningHubPage() {
   return (
     <div style={{ padding: '16px', maxWidth: 480, margin: '0 auto' }}>
       <ModeToggle />
-      {/* Subject tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-        {SUBJECTS.map(subj => (
-          <button
-            key={subj.key}
-            onClick={() => setActiveSubject(subj.key)}
-            style={{
-              whiteSpace: 'nowrap', padding: '8px 16px', borderRadius: 99,
-              border: `2px solid ${subj.color}`,
-              background: activeSubject === subj.key ? subj.color : 'transparent',
-              color: activeSubject === subj.key ? '#fff' : subj.color,
-              fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            }}
-          >
-            {subj.label}
-          </button>
-        ))}
+      {/* spec 007 US9: subject-first — đã chọn môn ở lưới, hiện tên môn (bỏ tab chuyển môn cũ). */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <span style={{ fontSize: 22 }}>{pickedSubject?.emoji || subjectInfo.label?.[0] || '📚'}</span>
+        <div style={{ fontWeight: 800, fontSize: 18 }}>
+          🧭 Lộ trình {pickedSubject?.label || subjectInfo.label}
+        </div>
       </div>
 
       {/* Streak bar */}

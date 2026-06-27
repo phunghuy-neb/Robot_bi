@@ -70,8 +70,8 @@
 - [x] T036 [US7] `npm run build` OK (73 modules); `run_tests` = **738/738 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 10: US9 (L1-H) — Khung "Lộ trình" (shell) · Test: 3 môn (en/math/science) hiện module thật; môn khác "Sắp có"
-- [ ] T037 [US9] View "Lộ trình" trong SubjectDetail: en/math/science tái dùng `getLearningModules`/module cũ; môn khác hiện trạng thái "Sắp có" rõ ràng — file: `frontend/parent_app/src/pages/LearningHubPage.jsx` (+ components/learning)
-- [ ] T038 [US9] `npm run build` OK + kiểm 3 môn thật + 1 môn "Sắp có" — file: `frontend/parent_app/`
+- [x] T037 [US9] View "Lộ trình" trong SubjectDetail: en/math/science tái dùng `getLearningModules`/module cũ (bỏ tab chuyển môn cũ → subject-first, hiện tên môn đã chọn); môn khác → ModeCard `coming-soon` (badge "Sắp có" + dáng mờ + chữ "Đang xây dựng", không chỉ màu) + toast — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`, `components/learning/ModeCard.jsx`, `SubjectDetail.jsx`, `styles.css`
+- [x] T038 [US9] `npm run build` OK (73 modules) + kiểm 3 môn thật + 1 môn "Sắp có" — file: `frontend/parent_app/`
 
 ## Phase 11: Polish & Cross-Cutting (US10 + docs)
 - [ ] T039 [P] [US10] Responsive sweep: rà 320/360/390/414/600/768/1024/1280/1440/1920 — không cuộn ngang, browse rộng/quiz hẹp, tablet 1 cột/≥1024 2 cột; a11y (tap≥48, contrast, focus, màu+chữ) — file: `frontend/parent_app/src/`

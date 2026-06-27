@@ -28,8 +28,9 @@ export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterEx
 
   const modes = [
     {
-      icon: '🧭', label: 'Lộ trình', sub: hasLotrinh ? 'Học từng bước' : 'Sắp có',
-      onClick: () => (hasLotrinh ? onEnterLearn() : showToast('Lộ trình môn này sắp có')),
+      icon: '🧭', label: 'Lộ trình', sub: hasLotrinh ? 'Học từng bước' : 'Đang xây dựng',
+      comingSoon: !hasLotrinh,
+      onClick: () => (hasLotrinh ? onEnterLearn() : showToast('Lộ trình môn này đang được xây dựng, sắp có nhé!')),
     },
     {
       icon: '📝', label: 'Luyện theo bài', sub: 'Từng câu, chấm ngay',
