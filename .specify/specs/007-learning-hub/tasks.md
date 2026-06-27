@@ -62,12 +62,12 @@
 - [x] T030 [US6] Test **Group 104**: accuracy theo chủ đề + overall đúng (1 đúng/2 câu = 50%), accuracy ∈ [0,100] — file: `tests/run_tests.py`
 - [x] T031 [US6] `npm run build` OK (72 modules); `run_tests` = **736/736 PASS** — file: `frontend/parent_app/`, `tests/`
 
-## Phase 9: US7 (L1-G) — Hỏi Bi vì sao sai + Bi đọc đề · Test: explain qua SafetyFilter, Socratic; 🔊 đọc đề; con bị chặn? (explain child-safe)
-- [ ] T032 [US7] `learning_hub_router.py`: `POST /api/learning/explain` — `{question, child_answer, correct_answer}` → `stream_chat` role teacher (Socratic, không cho đáp án thẳng) → **SafetyFilter** → trả; `run_in_threadpool`; fallback `question_bank.explanation` — file: `src/api/routers/learning_hub_router.py`
-- [ ] T033 [US7] `services/api.js`: `askBiExplain`; `components/learning/AskBi.jsx` (nút "🤖 Hỏi Bi vì sao", hiển thị giải thích, trạng thái loading/error) — file: `frontend/parent_app/src/services/api.js`, `components/learning/AskBi.jsx`
-- [ ] T034 [US7] QuestionRunner: nút 🔊 "Bi đọc đề" (SpeechSynthesis vi-VN) + tích hợp AskBi sau câu sai — file: `frontend/parent_app/src/components/learning/QuestionRunner.jsx`
-- [ ] T035 [US7] Test: explain output đi qua SafetyFilter (không lộ nội dung chặn); fallback khi LLM lỗi — file: `tests/run_tests.py`
-- [ ] T036 [US7] `npm run build` + `run_tests` PASS — file: `frontend/parent_app/`, `tests/`
+## Phase 9: US7 (L1-G) — Hỏi Bi vì sao sai + Bi đọc đề · Test: explain qua SafetyFilter, Socratic; 🔊 đọc đề
+- [x] T032 [US7] `learning_hub_router.py`: `POST /api/learning/explain` — `stream_chat` role teacher (Socratic, KHÔNG nói thẳng đáp án) → **`_lh_safe_text` (SafetyFilter)** → trả; `run_in_threadpool`; SKIP_LLM/lỗi → fallback an toàn — file: `src/api/routers/learning_hub_router.py`
+- [x] T033 [US7] `askBiExplain` (đã có US1); `components/learning/AskBi.jsx` (nút "🤖 Hỏi Bi vì sao" → loading → giải thích) — file: `AskBi.jsx`
+- [x] T034 [US7] QuestionRunner: nút 🔊 "Bi đọc đề" (SpeechSynthesis vi-VN) cạnh câu hỏi + `AskBi` hiện sau câu SAI; CSS `.ask-bi-answer` — file: `QuestionRunner.jsx`, `styles.css`
+- [x] T035 [US7] Test **Group 105** (2): /explain trả giải thích + cần auth (monkeypatch _llm_explain); `_lh_safe_text` rỗng→fallback/an-toàn→giữ — file: `tests/run_tests.py`
+- [x] T036 [US7] `npm run build` OK (73 modules); `run_tests` = **738/738 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 10: US9 (L1-H) — Khung "Lộ trình" (shell) · Test: 3 môn (en/math/science) hiện module thật; môn khác "Sắp có"
 - [ ] T037 [US9] View "Lộ trình" trong SubjectDetail: en/math/science tái dùng `getLearningModules`/module cũ; môn khác hiện trạng thái "Sắp có" rõ ràng — file: `frontend/parent_app/src/pages/LearningHubPage.jsx` (+ components/learning)

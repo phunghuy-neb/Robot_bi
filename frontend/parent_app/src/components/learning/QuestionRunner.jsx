@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import { getPracticeQuestions, gradePractice, showToast } from '../../services/api.js';
 import SectionState from '../SectionState.jsx';
+import AskBi from './AskBi.jsx';
+
+// Bi đọc đề (TTS) qua browser SpeechSynthesis — không cần backend.
+function speak(text) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) {
+    showToast('Trình duyệt chưa hỗ trợ đọc');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new window.SpeechSynthesisUtterance(text);
+  u.lang = 'vi-VN';
+  u.rate = 0.95;
+  window.speechSynthesis.speak(u);
+}
 
 // Luyện theo bài (spec 007 US4): làm câu đơn lẻ, server chấm + giải thích NGAY sau mỗi câu.
 // (US7 sẽ thêm 🔊 Bi đọc đề + "Hỏi Bi vì sao".)
@@ -61,7 +75,10 @@ export default function QuestionRunner({ subject, subjectLabel, topic, providedQ
         {step === 'playing' && q && (
           <div className="card">
             <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8 }}>Câu {idx + 1}/{questions.length} · Đúng {score}</div>
-            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>{q.emoji ? `${q.emoji} ` : ''}{q.question}</div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 16, flex: 1 }}>{q.emoji ? `${q.emoji} ` : ''}{q.question}</div>
+              <button className="btn-sm secondary" title="Bi đọc đề" style={{ minWidth: 44 }} onClick={() => speak(q.question)}>🔊</button>
+            </div>
             {q.question_vi && q.question_vi !== q.question && (
               <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 12 }}>{q.question_vi}</div>
             )}
@@ -85,6 +102,9 @@ export default function QuestionRunner({ subject, subjectLabel, topic, providedQ
                   {!feedback.correct && <span>Đáp án đúng: {feedback.correct_answer}</span>}
                   {feedback.explanation && <span>{feedback.explanation}</span>}
                 </div>
+                {!feedback.correct && (
+                  <AskBi question={q.question} childAnswer={answer} correctAnswer={feedback.correct_answer} />
+                )}
                 <button className="btn-action primary" style={{ marginTop: 12 }} onClick={next}>
                   {idx + 1 < questions.length ? 'Câu tiếp →' : 'Kết thúc'}
                 </button>

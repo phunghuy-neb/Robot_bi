@@ -409,14 +409,18 @@
     `ErrorBook.jsx` mới (nhóm theo chủ đề + "🔁 Luyện lại n câu" qua QuestionRunner `providedQuestions`);
     QuestionRunner +prop providedQuestions. SubjectDetail thẻ "📕 Câu hay sai (n câu)" số thật + mở ErrorBook (hubView 'errorbook').
     Test **Group 103**. Verify: build 71 modules; **735/735 PASS**.
-  - ✅ **007 US6 (L1-F) DONE (2026-06-28, commit `<sẽ điền>`)**: Mastery theo chủ đề.
+  - ✅ **007 US6 (L1-F) DONE (2026-06-28, commit `e88cd6c`)**: Mastery theo chủ đề.
     `learning_hub_router.py` +`GET /api/learning/mastery?subject=` (accuracy theo `topic`, latest-wins, MCQ,
     family-scope → `{topics(yếu trước), overall}`). `MasteryByTopic.jsx` mới (thanh % + band màu KÈM chữ qua
     `masteryBand()`, trong CollapsibleSection gập). SubjectDetail render MasteryByTopic (yếu xếp trước = "chủ đề
     cần ôn") thay placeholder. Test **Group 104**. Verify: build 72 modules; **736/736 PASS**.
     (DEFER: vòng mastery trên SubjectCard — cần batch endpoint, tránh N request.)
-  - **NEXT lát: US7 (L1-G)** Hỏi Bi vì sao sai — BE `/api/learning/explain` (LLM Socratic + SafetyFilter, run_in_threadpool)
-    + AskBi.jsx + nút 🔊 SpeechSynthesis trong QuestionRunner.
+  - ✅ **007 US7 (L1-G) DONE (2026-06-28, commit `<sẽ điền>`)**: Hỏi Bi vì sao sai + Bi đọc đề ⭐ (lát gia sư).
+    `learning_hub_router.py` +`POST /api/learning/explain` (stream_chat role teacher Socratic — KHÔNG nói thẳng đáp án —
+    → `_lh_safe_text` SafetyFilter → trả; run_in_threadpool; SKIP_LLM/lỗi→fallback). `AskBi.jsx` mới (hiện sau câu SAI).
+    QuestionRunner: nút 🔊 "Bi đọc đề" (browser SpeechSynthesis vi-VN). Test **Group 105** (2, monkeypatch _llm_explain).
+    Verify: build 73 modules; **738/738 PASS**.
+  - **NEXT lát: US9 (L1-H)** Khung "Lộ trình" (shell — en/math/science modules thật, môn khác "Sắp có") → rồi Polish (US10 + docs) là xong Lớp 1.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

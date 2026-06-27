@@ -9495,6 +9495,40 @@ def test_104_mastery_accuracy():
 
 test("104.1  Mastery: accuracy theo chủ đề + overall đúng",                  test_104_mastery_accuracy)
 
+# == GROUP 105: Learning Hub US7 — Hỏi Bi vì sao sai (explain) ===============
+print("\n[Group 105] Learning Hub US7 — Hỏi Bi (explain) + SafetyFilter")
+
+
+def test_105_explain_endpoint():
+    import src.api.routers.learning_hub_router as lh
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    fam = f"exp-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("exp", fam, False)
+    client = TestClient(app)
+    orig = lh._llm_explain
+    lh._llm_explain = lambda q, ca, co: "Con thử so sánh lại từng lựa chọn nhé!"
+    try:
+        r = client.post("/api/learning/explain",
+                        json={"question": "1+1=?", "child_answer": "3", "correct_answer": "2"}, headers=h)
+        assert r.status_code == 200, r.text
+        assert r.json()["explanation"] == "Con thử so sánh lại từng lựa chọn nhé!"
+    finally:
+        lh._llm_explain = orig
+    # cần đăng nhập
+    assert client.post("/api/learning/explain", json={"question": "x"}).status_code in (401, 403)
+
+
+def test_105_safe_text_wrapper():
+    import src.api.routers.learning_hub_router as lh
+    assert lh._lh_safe_text("", "FB") == "FB", "rỗng → fallback"
+    out = lh._lh_safe_text("Con giỏi lắm, cố lên nhé!", "FB")
+    assert out and isinstance(out, str), "text an toàn → trả chuỗi"
+
+
+test("105.1  /explain trả giải thích (Socratic) + cần auth",                 test_105_explain_endpoint)
+test("105.2  _lh_safe_text: rỗng→fallback, an toàn→giữ",                     test_105_safe_text_wrapper)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

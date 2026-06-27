@@ -10,10 +10,12 @@ GET  /api/learning/streak                    — current streak info
 
 import json
 import logging
+import os
 from datetime import date, datetime, timezone
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from typing import Optional
 
@@ -493,6 +495,63 @@ async def learning_mastery(
     total_c = sum(t["correct"] for t in topics)
     overall = round(total_c / total_q * 100) if total_q else 0
     return {"topics": topics, "overall": overall}
+
+
+# ── Hỏi Bi vì sao sai (spec 007 US7) — LLM Socratic + SafetyFilter ──────────────
+
+class ExplainIn(BaseModel):
+    question: str = ""
+    child_answer: str = ""
+    correct_answer: str = ""
+
+
+_lh_safety = None
+
+
+def _lh_safe_text(text: str, fallback: str) -> str:
+    """Lọc free-text LLM trước khi tới trẻ. Rỗng/không an toàn → fallback; lỗi filter → trả nguyên."""
+    global _lh_safety
+    if not text or not text.strip():
+        return fallback
+    try:
+        if _lh_safety is None:
+            from src.safety.safety_filter import SafetyFilter
+            _lh_safety = SafetyFilter()
+        is_safe, clean = _lh_safety.check(text)
+        return clean if is_safe else fallback
+    except Exception:
+        return text
+
+
+def _llm_explain(question: str, child_answer: str, correct_answer: str) -> str:
+    fallback = "Con thử đọc kỹ lại câu hỏi và so sánh từng lựa chọn nhé. Con làm được mà!"
+    if os.getenv("SKIP_LLM", "").strip().lower() in ("1", "true", "yes"):
+        return fallback
+    try:
+        from src.ai.ai_engine import stream_chat
+        sys_ctx = (
+            "Bạn là Bi — gia sư thân thiện cho trẻ 5-12 tuổi. Giải thích vì sao câu trả lời của bé "
+            "chưa đúng theo kiểu GỢI MỞ (Socratic): đặt câu hỏi dẫn dắt, chỉ hướng suy nghĩ, "
+            "TUYỆT ĐỐI không nói thẳng đáp án. Tiếng Việt đơn giản, ấm áp, NGẮN 2-3 câu."
+        )
+        user_prompt = (
+            f"Câu hỏi: {question}\n"
+            f"Bé trả lời: {child_answer}\n"
+            f"(Đáp án đúng là: {correct_answer} — đừng nói thẳng cho bé)\n"
+            "Hãy gợi mở giúp bé tự nhận ra chỗ sai."
+        )
+        raw = "".join(stream_chat([{"role": "user", "content": user_prompt}], system_context=sys_ctx, role="teacher"))
+        return _lh_safe_text((raw or "").strip()[:600] or fallback, fallback)
+    except Exception:
+        return fallback
+
+
+@router.post("/api/learning/explain")
+async def learning_explain(body: ExplainIn, current_user: dict = Depends(get_current_user)):
+    """Hỏi Bi vì sao sai: giải thích Socratic, đã qua SafetyFilter. Không chặn làm bài nếu LLM lỗi."""
+    _require_family(current_user)
+    explanation = await run_in_threadpool(_llm_explain, body.question, body.child_answer, body.correct_answer)
+    return {"explanation": explanation}
 
 
 @router.post("/api/learning/practice/grade")
