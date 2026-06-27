@@ -370,7 +370,12 @@
   (read/LLM, family-scoped, không schema): `/api/learning/mistakes`, `/mastery`, `/practice`(+grade), `/explain`
   (LLM Socratic + SafetyFilter). FE tách LearningHubPage → SubjectGrid/SubjectDetail/ModeConfig/QuestionRunner/
   ErrorBook/MasteryByTopic/AskBi + hệ responsive (browse ≤1280 / quiz 640). 9 lát L1-A→L1-I. Bi đọc đề = browser
-  SpeechSynthesis. **NEXT**: `/speckit-tasks`.
+  SpeechSynthesis.
+  **/speckit-tasks ✅ DONE (2026-06-28)**: tasks.md — **42 task (T001-T042), 11 phase** theo 9 lát L1-A→L1-I.
+  Endpoint mới ở `learning_hub_router.py`. MVP = US1+US2+US3 (grid→môn→luyện đề). Thứ tự build:
+  Setup → US1 grid → US2 detail+gating → US3 luyện đề → US4 luyện bài (BE practice/grade) → US5 sổ lỗi (BE) →
+  US6 mastery (BE) → US7 Hỏi Bi (BE explain) → US9 Lộ trình shell → Polish (responsive+docs).
+  **NEXT**: build từng lát có review (bắt đầu Setup + US1). Spec/plan/tasks 007 đã sẵn.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
