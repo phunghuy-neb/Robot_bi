@@ -1757,6 +1757,9 @@ img { max-width: 100%; }
   font-size: 14px; font-weight: 600; cursor: pointer;
   padding: 8px 0; min-height: var(--tap-min); margin-bottom: 12px;
 }
+/* Trên header gradient tím, nút back tím chìm vào nền → đổi sang trắng cho rõ (contrast). */
+.page-header .btn-back { color: rgba(255, 255, 255, 0.95); }
+.page-header .btn-back:hover { color: #fff; }
 
 /* ── In-app game modal ── */
 .game-modal-backdrop {
