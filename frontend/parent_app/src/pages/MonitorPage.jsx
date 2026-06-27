@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
-import { apiFetch, startMomMic, stopMomMic, isMomMicActive, showToast, getToken } from '../services/api.js';
+import { apiFetch, startMomMic, stopMomMic, showToast, getToken } from '../services/api.js';
+import CollapsibleSection from '../components/CollapsibleSection.jsx';
 import SectionState from '../components/SectionState.jsx';
 
 export default function MonitorPage() {
   const [camOn, setCamOn] = useState(false);
   const [camError, setCamError] = useState(false);
   const [momMicOn, setMomMicOn] = useState(false);
-  const [weeklyState, setWeeklyState] = useState('loading');
-  const [weekly, setWeekly] = useState(null);
   const [eventsState, setEventsState] = useState('loading');
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    loadWeekly();
     loadEvents();
   }, []);
 
@@ -22,13 +20,6 @@ export default function MonitorPage() {
     window.addEventListener('bi:stopcamera', handleCameraStop);
     return () => window.removeEventListener('bi:stopcamera', handleCameraStop);
   }, []);
-
-  async function loadWeekly() {
-    setWeeklyState('loading');
-    const data = await apiFetch('/api/analytics/weekly');
-    if (data) { setWeekly(data); setWeeklyState('data'); }
-    else setWeeklyState('error');
-  }
 
   async function loadEvents() {
     setEventsState('loading');
@@ -79,19 +70,18 @@ export default function MonitorPage() {
     <div>
       <div className="page-header">
         <div className="page-title">📹 Giám sát</div>
-        <div className="page-subtitle">Camera · Điều khiển · Báo cáo</div>
+        <div className="page-subtitle">Camera · Điều khiển · Sự kiện</div>
       </div>
 
       <div className="page-body">
-        {/* Camera section */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">📷 Camera</span>
+        <CollapsibleSection
+          title="📷 Camera"
+          actions={
             <button className="btn-sm primary" onClick={handleToggleCam}>
               {camOn ? '⏹ Tắt Camera' : '▶ Bật Camera'}
             </button>
-          </div>
-
+          }
+        >
           <div className="camera-section">
             {camOn && !camError ? (
               <img
@@ -107,13 +97,9 @@ export default function MonitorPage() {
               </div>
             )}
           </div>
-        </div>
+        </CollapsibleSection>
 
-        {/* Mom-talk controls */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">🎤 Nói chuyện với Bi</span>
-          </div>
+        <CollapsibleSection title="🎤 Nói chuyện với Bi">
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 14 }}>
             Nhấn để bật micro và nói chuyện trực tiếp với robot.
           </p>
@@ -133,13 +119,9 @@ export default function MonitorPage() {
               🟠 Mẹ đang nói — Bi đang tạm dừng
             </p>
           )}
-        </div>
+        </CollapsibleSection>
 
-        {/* Motor controls */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">🕹️ Điều khiển robot</span>
-          </div>
+        <CollapsibleSection title="🕹️ Điều khiển robot">
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 14 }}>
             Điều khiển hướng di chuyển của Robot Bi.
           </p>
@@ -154,44 +136,14 @@ export default function MonitorPage() {
             <button className="motor-btn" onClick={() => sendMotor(0, 1)} title="Lùi">⬇️</button>
             <div />
           </div>
-        </div>
+        </CollapsibleSection>
 
-        {/* Weekly report detail */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">📈 Báo cáo tuần chi tiết</span>
-            <button className="btn-sm secondary" onClick={loadWeekly}>↻</button>
-          </div>
-          {weeklyState === 'loading' && <SectionState state="loading" loadingText="Đang tải báo cáo..." />}
-          {weeklyState === 'error' && <SectionState state="error" errorText="Không tải được báo cáo tuần." onRetry={loadWeekly} />}
-          {weeklyState === 'data' && weekly && (
-            <div className="weekly-stat-row">
-              <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.total_sessions ?? weekly.conversations ?? 0}</div>
-                <div className="weekly-stat-label">Hội thoại</div>
-              </div>
-              <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.total_minutes ?? weekly.hours ?? 0}</div>
-                <div className="weekly-stat-label">Phút học</div>
-              </div>
-              <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.homework_count ?? 0}</div>
-                <div className="weekly-stat-label">Bài tập</div>
-              </div>
-              <div className="weekly-stat">
-                <div className="weekly-stat-num">{weekly.task_completion ?? weekly.tasks_completed ?? 0}</div>
-                <div className="weekly-stat-label">Hoàn thành</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Recent events */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">🔔 Sự kiện gần đây</span>
+        <CollapsibleSection
+          title="🔔 Sự kiện gần đây"
+          actions={
             <button className="btn-sm secondary" onClick={loadEvents}>↻</button>
-          </div>
+          }
+        >
           {eventsState === 'loading' && <SectionState state="loading" loadingText="Đang tải sự kiện..." />}
           {eventsState === 'error' && <SectionState state="error" errorText="Không tải được sự kiện." onRetry={loadEvents} />}
           {eventsState === 'empty' && <SectionState state="empty" emptyText="Chưa có sự kiện nào." emptyIcon="📭" />}
@@ -210,7 +162,7 @@ export default function MonitorPage() {
               ))}
             </div>
           )}
-        </div>
+        </CollapsibleSection>
       </div>
     </div>
   );

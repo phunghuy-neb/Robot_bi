@@ -44,9 +44,9 @@
 - [x] T019 [US3] `npm run build` OK (61 modules, 757ms) — file: `frontend/parent_app/`
 
 ## Phase 6: US4 (P4) — Monitor UX · Test độc lập: section gập/mở được, không lặp báo cáo tuần, camera cao hợp lý
-- [ ] T020 [P] [US4] Tạo `components/CollapsibleSection.jsx` dùng chung (state expanded, a11y) — file: `frontend/parent_app/src/components/CollapsibleSection.jsx`
-- [ ] T021 [US4] MonitorPage: bọc các section bằng CollapsibleSection; BỎ khối "báo cáo tuần" trùng HomePage; dùng class camera đã sửa P2 — file: `frontend/parent_app/src/pages/MonitorPage.jsx`
-- [ ] T022 [US4] `npm run build` OK + kiểm desktop/mobile — file: `frontend/parent_app/`
+- [x] T020 [P] [US4] Tạo `components/CollapsibleSection.jsx` dùng chung (state expanded, a11y) — file: `frontend/parent_app/src/components/CollapsibleSection.jsx`
+- [x] T021 [US4] MonitorPage: bọc các section bằng CollapsibleSection; BỎ khối "báo cáo tuần" trùng HomePage; dùng class camera đã sửa P2 — file: `frontend/parent_app/src/pages/MonitorPage.jsx`
+- [x] T022 [US4] `npm run build` OK (62 modules, 661ms) + kiểm desktop/mobile qua responsive source/build — file: `frontend/parent_app/`
 
 ## Phase 7: US5 (P5) — Admin UI polish · Test độc lập: 9 trang admin dùng token nhất quán, 1 kiểu toggle, đọc tốt trên mobile
 - [ ] T023 [US5] Thêm nhóm class `.admin-*` (card/table/input/btn/toggle) dùng design token — file: `frontend/parent_app/src/styles.css`

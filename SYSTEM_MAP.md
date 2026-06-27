@@ -103,6 +103,8 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 **Parent App content UI**: `MorePage` shows backend radio/video/game content. Word Quiz and Voice Quiz game metadata open a playable in-app modal (Voice Quiz accepts typed answers when mic/loa hardware is unavailable); external game URLs open in a new tab. Admin Content has game presets for these in-app modes.
 
+**Parent App monitor UI**: `MonitorPage` groups Camera, mom-talk, motor controls, and recent events into collapsible sections. Weekly analytics remain on HomePage to avoid duplicate weekly-report content in the monitor view.
+
 **Parent App journal/profile UI**: `JournalPage` has real client-side advanced conversation filters (search, minimum turns, sort), the "Trò chuyện" tab excludes homework sessions, and conversation detail playback uses browser `speechSynthesis` with stop/highlight controls. `SpecialMemories` can write today's due memories into the family event journal as idempotent `special_memory_due` events. The sidebar user card opens a real child-profile picker backed by `/api/children` and links to Settings for profile management.
 
 **Remaining visible device-backed validation**: Camera, mom-talk audio, motor movement, and other hardware views can be opened in the UI but still need real devices for end-to-end validation.

@@ -28,20 +28,23 @@
   - `docs/DESIGN_SYSTEM.md`: sửa mâu thuẫn btn-sm 36→48 + ghi chú ngoại lệ + camera + more-grid.
   - CÒN LẠI cho US5 (admin): `ContentAdminPage` còn 1 inline `minHeight:40`.
   - Verify: `npm run build` OK (61 modules, 654ms). US2 thuần FE/CSS.
-- ✅ **US3 (P3) DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: cấu trúc tab + theo dõi học tập.
+- ✅ **US3 (P3) DONE — spec 006 (2026-06-27, commit `9511498`)**: cấu trúc tab + theo dõi học tập.
   - Sidebar/BottomNav: `learninghub` "Học Anh văn"→**"Học tập"** (icon 📚), `learning` "Học tập"→**"Theo dõi học tập"** (icon 📊).
   - LearningPage: tiêu đề "📊 Theo dõi học tập"; thêm card **"Tiến độ theo môn"** (en/math/science từ `/api/education/summary`
     `subject_progress` + streak, empty state); **wire progress ring về dữ liệu thật** (trước hardcode 75%/"Từ vựng Gia đình").
     Dùng `apiFetch` trực tiếp (không thêm helper). `toPct()` chấp nhận accuracy 0-1 hoặc 0-100.
   - styles.css: thêm `.subject-progress-*`. DESIGN_SYSTEM.md: cập nhật nhãn 2 tab.
   - Verify: `npm run build` OK (61 modules, 757ms). US3 thuần FE.
-  - **NEXT: US4 (P4)** Monitor UX — T020-T022 (CollapsibleSection, bỏ "báo cáo tuần" trùng HomePage, camera). → có thể giao Codex.
-- ⚠️ **WORKING TREE hiện có 11 file polish UNCOMMITTED (KHÔNG phải của phiên spec 2026-06-27)**:
-  `frontend/parent_app/src/{App.jsx, components/SpecialMemories.jsx, pages/JournalPage.jsx,
-  pages/MorePage.jsx, pages/admin/AdminApp.jsx, pages/admin/ContentAdminPage.jsx, services/api.js,
-  styles.css}`, `src/api/routers/control_router.py`, `src/infrastructure/notifications/notifier.py`,
-  `tests/run_tests.py` — là phần polish 2026-06-26 (xem bullet PARENT/ADMIN APP NON-HARDWARE POLISH bên dưới),
-  cố ý để nguyên, CHƯA commit. Phiên spec 006 không đụng các file này. Quyết định commit/bỏ tùy user.
+- ✅ **US4 (P4) DONE — spec 006 (2026-06-27, commit `0af2fc2`)**: Monitor UX.
+  - T020: thêm `CollapsibleSection.jsx` dùng chung, có state expanded + `aria-expanded`/`aria-controls`.
+  - T021: `MonitorPage` bọc Camera / Nói chuyện với Bi / Điều khiển robot / Sự kiện gần đây bằng collapsible section;
+    bỏ hẳn khối "Báo cáo tuần chi tiết" và không còn fetch `/api/analytics/weekly` ở Monitor (HomePage vẫn sở hữu báo cáo tuần).
+  - T022: `npm run build` OK (62 modules, 661ms; warning sandbox `Failed to create stream fd` nhưng build thành công).
+  - Baseline trước khi sửa đã đỏ sẵn: `.venv/bin/python tests/run_tests.py` = **721/722 PASS**, fail `stress: safety filter pass tat ca`
+    do 2 response bị SafetyFilter block trong stress AI/quota fallback (không thuộc US4, xảy ra trước code change).
+  - Verify cuối sau US4: `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
+  - **NEXT: US5 (P5) Admin polish** — T023-T028; **US7** để cuối vì đụng schema/JWT/role.
+- ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`
   (xem dòng "Active spec" bên dưới). NEXT: `/speckit-implement` hoặc làm tay MVP = US1+US2. Chưa code.
@@ -294,10 +297,10 @@
   - **Test Group 87** (5): cô lập family, channel_id sai→422, xóa+upsert, admin global CRUD+RBAC
     (redirect `_CHANNELS_PATH` sang temp để KHÔNG đụng file thật), fetch merge family khi global rỗng.
     Suite **674/674 PASS** (trước 669). SYSTEM_MAP cập nhật.
-- **Active branch**: `003-web-search-integration`.
+- **Active branch**: `main` (local ahead `origin/main`; spec 006 work đang làm trực tiếp trên main local).
 - **Active spec**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
-  P7 gia đình+role; P8 parity xuyên suốt). spec.md + checklist + **plan.md ✅ DONE** (2026-06-27, UNCOMMITTED).
+  P7 gia đình+role; P8 parity xuyên suốt). spec.md + checklist + **plan.md ✅ DONE** (2026-06-27).
   plan.md có: Constitution/Protected-Fixes check, Architecture & Affected Files theo P1-P7,
   schema P7 (ALTER users +role/+child_profile_id, bảng family_permissions granular), endpoint family/wifi/child-login,
   phases, risks. **/speckit-clarify ✅ DONE (2026-06-27)** — 4 quyết định: (1) con login = chọn hồ sơ
@@ -306,8 +309,8 @@
   avatar/tên + WiFi, các mục khác owner bật/tắt (family_permissions granular). spec.md + plan.md đã reconcile.
   **/speckit-tasks ✅ DONE (2026-06-27)** — `tasks.md`: 49 task (T001-T049), 10 phase theo US1-US7 + Polish.
   OQ-2 chốt: mã gia đình = family_id, ghi nhớ localStorage trên thiết bị. PIN con 4-6 số, Argon2.
-  **NEXT**: `/speckit-implement` (hoặc làm tay từng phase). Thứ tự: Setup→US1→US2→US3→(US4∥US5∥US6)→US7(C1→C2→C3)→Polish.
-  MVP = US1+US2. Chưa code gì.
+  **CURRENT**: US1-US4 đã làm tay. **NEXT**: US5 Admin polish hoặc US6 WiFi UI;
+  US7(C1→C2→C3) làm cuối vì đụng schema/JWT/role.
 - **(legacy) Active spec**: none yet. When a Spec Kit feature is running, set this to its path,
   e.g. `.specify/specs/004-toeic-sw/` — read its `tasks.md` and continue from the first
   unticked task. (Spec Kit `.specify/` structure is created on the first `/speckit-specify`.)
