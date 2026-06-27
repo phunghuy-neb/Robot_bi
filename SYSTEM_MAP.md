@@ -63,8 +63,8 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 |---|---|
 | `admin_router.py` | Admin family create/list/delete under `/api/admin/families`, sanitized system logs under `/api/admin/logs`, and user account management under `/api/admin/users` (list, lock/unlock, grant/revoke admin, reset password, delete — all `require_admin`, with self-action guards), config under `/api/admin/config/*` (view/set/clear/test PUBLIC API keys, view/set feature toggles) backed by `src/config/env_admin.py` — whitelist-only, never exposes LLM/JWT secrets — the GLOBAL YouTube allowlist under `/api/admin/youtube/channels` (list/add/delete; writes `resources/youtube_channels.json` + reloads singleton), GLOBAL child-safety under `/api/admin/safety/*` (config/blocklist/topics/policy/stats[/reset] — writes `resources/safety_config.json` + live-reloads SafetyFilter), GLOBAL content metadata under `/api/admin/content` (radio/video/game CRUD on `content_items`, family_id NULL = visible to all; Admin Content UI has presets for in-app Word Quiz and Voice Quiz), an overview dashboard under `/api/admin/stats` (user/family/exam/content/channel/safety counts), and the GLOBAL default persona under `/api/admin/persona` (name/gender/voice/language/personality that unconfigured families inherit), and a Radio Browser curation helper under `/api/admin/radio/search`; all `require_admin`. |
 | `analytics_router.py` | Weekly/daily analytics and camera clip list/delete endpoints. |
-| `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. Refresh is per-IP rate-limited (counter resets on success); replaying an already-rotated refresh token triggers reuse-detection (`rotate_refresh_token` revokes ALL of the user's tokens + bumps token_version). |
-| `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings (age filter / time limits / sleep — their defaults for unconfigured families come from the admin GLOBAL safety policy), chat logs, RAG memory CRUD/export, special memories (`/api/memories/special` — Stage 2: structured family-scoped birthdays/milestones/favorites, also seeded into RAG so Bi recalls them; list flags `due_today` for date matches; `POST /api/memories/special/remind-due` writes idempotent unread `special_memory_due` events for today's matches), puppet text queue, tasks, and star counters. CSV report export neutralizes spreadsheet formula injection. |
+| `auth_router.py` | Legacy PIN login/logout, username/password registration/login, JWT refresh/logout, account lookup, and password change routes. Refresh is per-IP rate-limited (counter resets on success); replaying an already-rotated refresh token triggers reuse-detection (`rotate_refresh_token` revokes ALL of the user's tokens + bumps token_version). JWT now carries a `role` claim (`owner`/`parent`/`child`); `/api/auth/me` and `/auth/login/v2` return `role` (+ family permissions on `me`). Child login: `GET /api/auth/child-profiles?family=` (public — id/name/avatar only) and `POST /api/auth/child-login` (`{family, child_profile_id, pin}` → JWT role=child, rate-limited via `login_attempts` key `child:{family}:{child_id}`). |
+| `control_router.py` | Robot status, device connection QR metadata, robot room/location metadata, report export, events with advanced filters, parent event notes, child profiles, parent settings (age filter / time limits / sleep — their defaults for unconfigured families come from the admin GLOBAL safety policy), chat logs, RAG memory CRUD/export, special memories (`/api/memories/special` — Stage 2: structured family-scoped birthdays/milestones/favorites, also seeded into RAG so Bi recalls them; list flags `due_today` for date matches; `POST /api/memories/special/remind-due` writes idempotent unread `special_memory_due` events for today's matches), puppet text queue, tasks, and star counters. CSV report export neutralizes spreadsheet formula injection. The settings-mutation routes (age-filter / time-limits / sleep) are gated by `require_role('owner','parent')` so a child account cannot change parental controls even by calling the API directly. |
 | `conversation_router.py` | Conversation list/detail/delete, homework conversation routes, and parent-to-Bi chat history routes. |
 | `education_router.py` | Flashcard session routes, learning summary, vocabulary, and learning schedule routes. |
 | `emotion_router.py` | Current-day, weekly, and monthly emotion summary routes. |
@@ -81,6 +81,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 | `video_call_router.py` | Video call start/end, contacts, and history routes. |
 | `webrtc_router.py` | WebRTC camera offer and peer close routes mounted with `/api/webrtc`. |
 | `wifi_router.py` | ESP32 motor registration, WiFi status, and WiFi credential forwarding routes. |
+| `family_router.py` | Family roles & permissions (US7). Owner-only (`require_role('owner')`, scope from JWT family): `POST /api/family/create` (caller→owner), `GET /api/family/members`, `POST /api/family/members/add` (add a registered adult by username + role; blocks users already in another family), `POST /api/family/members/child` (create a child account from an existing child profile + PIN, 1↔1), `PUT /api/family/members/{id}/role`, `DELETE /api/family/members/{id}` (blocks self-delete + last owner), `GET/PUT /api/family/permissions` (granular `child_can_*`). |
 
 ## 6. Frontend Structure
 
@@ -93,7 +94,7 @@ Robot Bi is a Python/FastAPI AI tutor robot project with a voice conversation lo
 
 `frontend/parent_app/` contains a React 18 + Vite 5 SPA serving as the parent-facing management interface.
 
-**Navigation**: 6-tab sidebar (Trang chủ, Giám sát, Học tập, Học Anh văn, Nhật ký, Thêm) on desktop ≥768px; mobile bottom navigation bar (6 tabs) on smaller screens. Sidebar bottom order (locked): RobotStatusCard → UserCard → Cài đặt → Đăng xuất.
+**Navigation**: 6-tab sidebar (Trang chủ, Giám sát, Theo dõi học tập, Học tập, Nhật ký, Thêm) on desktop ≥768px; mobile bottom navigation bar (6 tabs) on smaller screens. Tabs are **role-filtered**: owner/parent see all; a child account sees only Học tập + Thêm, plus Giám sát/Nhật ký if the owner enabled those in family permissions. Sidebar bottom order (locked): RobotStatusCard → UserCard → Cài đặt → Đăng xuất.
 
 **Design system**: "Công nghệ ấm áp" — Be Vietnam Pro font, 16px body, 48px tap targets, WCAG AA contrast, card radius 22px, primary #2563eb.
 
@@ -115,18 +116,24 @@ src/
   main.jsx           — React entry point
   App.jsx            — Auth gate + tab routing + layout + WebSocket
                        (is_admin login → Admin UI instead of the parent tabs);
-                       parent users can select the active child profile locally
+                       parent users can select the active child profile locally.
+                       Role-aware: filters visible tabs + hides settings sections
+                       for a child account based on family permissions
   pages/admin/       — AdminApp (sidebar shell, admin-only) + 9 sections:
                        UsersAdminPage, ApiKeysPage, ExamsAdminPage,
                        YouTubeAdminPage, SafetyAdminPage, PersonaAdminPage,
                        ContentAdminPage, LogsAdminPage, StatsAdminPage
   styles.css         — Design tokens, base styles, responsive layout
-  services/api.js    — All API/WebSocket/auth behavior; radio/video/games/emotions return real backend data (empty when none) — no mock fallback. Knowledge explorer via knowledgeQuery(); in-app Word Quiz/Voice Quiz helpers back MorePage.
+  services/api.js    — All API/WebSocket/auth behavior; radio/video/games/emotions return real backend data (empty when none) — no mock fallback. Knowledge explorer via knowledgeQuery(); in-app Word Quiz/Voice Quiz helpers back MorePage. WiFi (get/addWifi), family roles (createFamily/members/permissions), and child login (getChildProfilesPublic/childLogin) helpers; login/session expose role + permissions.
   data/mockData.js   — legacy Vietnamese mock data (no longer used as a runtime fallback)
-  components/        — Sidebar, BottomNav, RobotStatusCard, UserCard,
-                       SettingsOverlay, SpecialMemories, FeatureBadge,
-                       SectionState, Toast
-  pages/             — LoginPage, HomePage, MonitorPage, LearningPage,
+  components/        — Sidebar, BottomNav (both role-filter tabs), RobotStatusCard,
+                       UserCard, SettingsOverlay (WiFi section; hides parent-only
+                       sections for child), FamilyMembers (owner-only: members +
+                       child accounts + permission toggles), CollapsibleSection,
+                       admin/Toggle, SpecialMemories, FeatureBadge, SectionState, Toast
+  pages/             — LoginPage (parent username/pw + "child login" by family code →
+                       profile grid → PIN), HomePage, MonitorPage (collapsible sections),
+                       LearningPage,
                        LearningHubPage (học kiểu Duolingo: module en/math/science,
                        XP, streak, quiz, TOEIC S&W), JournalPage, MorePage
 ```
@@ -170,7 +177,9 @@ Current runtime artifact locations include:
 - SQLite runtime schema includes the `youtube_channels` table (per-family approved YouTube channels: `family_id`, `channel_id`, `label`, `language`, `age_min`, `age_max`, `tags_json`, unique per family+channel). The global allowlist stays in `resources/youtube_channels.json`.
 - SQLite runtime schema includes the `special_memories` table (Stage 2 — per-family structured memories: `memory_id`, `family_id`, `kind`, `title`, `memory_date`, `note`, `created_at`). Due special-memory reminders are stored as `events.type='special_memory_due'` with a per-family/per-memory/per-day `import_key` so repeated reminders do not duplicate rows.
 - Global child-safety config lives in `resources/youtube_channels.json`'s sibling `resources/safety_config.json` (admin blocklist words, blocked topics, default age/time/sleep policy) — not in SQLite. Safety block monitoring is in-memory only.
-- `delete_family_record` purges ALL family-scoped tables (incl. `special_memories`, `youtube_channels`, `exam_sessions`, `exam_papers`, `question_bank`, `learning_progress`, `learning_streaks`) so a reused `family_id` can't inherit a deleted family's data.
+- SQLite `users` table carries a `role` column (`owner`/`parent`/`child`, default `parent`) and a nullable `child_profile_id` (set only for child accounts, 1↔1 with a `child_profiles` row). A child account's login credential is a PIN hashed with Argon2 in `password_hash`. `role` is separate from the system `is_admin` flag.
+- SQLite runtime schema includes the `family_permissions` table (per-family, keyed by `family_name`): `child_can_monitor`, `child_can_journal`, `child_can_notifications`, `child_can_sleep`, `child_can_safety`, `child_can_device`, `child_can_members` (all default 0 = hidden from child). Owner edits via `/api/family/permissions`.
+- `delete_family_record` purges ALL family-scoped tables (incl. `special_memories`, `youtube_channels`, `exam_sessions`, `exam_papers`, `question_bank`, `learning_progress`, `learning_streaks`, and `family_permissions` keyed by `family_name`) so a reused `family_id` can't inherit a deleted family's data.
 - The WebSocket broadcaster (`state.ConnectionManager.broadcast`) is fail-closed: an event without a resolvable `family_id` is dropped, and clients are keyed by the WebSocket object (not `id()`); connection family is bound from the JWT claim only.
 - `runtime/chroma_db/`
 - `runtime/.hf_cache/`

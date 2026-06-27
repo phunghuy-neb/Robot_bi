@@ -1,6 +1,6 @@
 # STATUS_MAP.md — Trạng Thái Thực Tế Từng Tính Năng
 
-> Phiên bản: 1.6 | Cập nhật: 2026-06-27
+> Phiên bản: 1.7 | Cập nhật: 2026-06-27
 > File này là bức tranh trung thực về code hiện có — không phải docs, không phải kế hoạch.
 > Cập nhật khi code thực sự thay đổi trạng thái, không khi docs thay đổi.
 >
@@ -67,6 +67,12 @@
 | Games | 🟢 | `/api/games/interactive` | Real API + in-app quiz modal |
 | System logs | 🟢 | `/api/admin/logs` | Sanitized real API (mock đã xóa) |
 | Settings (child profile, age filter, time limits) | 🟡 | `src/` | Nối API thật; còn vài nút save dạng stub |
+| WiFi UI cho robot | 🟢 | `components/SettingsOverlay.jsx` | `/api/wifi/status` + `/api/wifi/add` (BE wifi_router) |
+| Theo dõi học tập (tiến độ 3 môn) | 🟢 | `pages/LearningPage.jsx` | `/api/education/summary` subject_progress + streak; ring dữ liệu thật |
+| Monitor sections gập/mở | 🟢 | `pages/MonitorPage.jsx` + `components/CollapsibleSection.jsx` | Bỏ "báo cáo tuần" trùng HomePage |
+| Admin UI design-system | 🟢 | `pages/admin/*` + `components/admin/Toggle.jsx` | 9 trang dùng token `.admin-*`, toggle thống nhất |
+| Vai trò gia đình + phân quyền | 🟢 | `family_router.py` + `components/FamilyMembers.jsx` | owner/parent/child; `family_permissions`; require_role; SC-6 enforce server-side |
+| Đăng nhập con (chọn hồ sơ + PIN) | 🟢 | `pages/LoginPage.jsx` + `/api/auth/child-login` | mã gia đình → lưới hồ sơ → PIN (Argon2) |
 | Dashboard tùy chỉnh | ⚪ | — | Không có code |
 | Báo cáo tuần email | ⚪ | — | Không có code |
 | Push notification PWA | ⚪ | — | Không có code |
@@ -174,15 +180,15 @@
 | Domain | 🟢 Done | 🟡 Partial | 🔴 Stub | ⚪ Zero |
 |---|---|---|---|---|
 | Backend Brain | 17 | 5 | 0 | 0 |
-| Parent App | 20 | 2 | 0 | 3 |
+| Parent App | 26 | 2 | 0 | 3 |
 | Voice System | 7 | 1 | 0 | 3 |
 | Robot Control | 3 | 0 | 3 | 5 |
 | Learning | 5 | 4 | 0 | 2 |
 | Safety/Privacy | 11 | 0 | 2 | 2 |
 | Infrastructure | 6 | 1 | 0 | 4 |
-| **Tổng** | **69** | **13** | **5** | **19** |
+| **Tổng** | **75** | **13** | **5** | **19** |
 
-**Tổng cộng: 106 items — 65% Done, 12% Partial, 5% Stub, 18% Zero**
+**Tổng cộng: 112 items — 67% Done, 12% Partial, 4% Stub, 17% Zero**
 
 ---
 

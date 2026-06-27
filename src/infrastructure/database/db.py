@@ -2500,6 +2500,10 @@ def delete_family_record(family_id: str) -> bool:
             except Exception:
                 pass
 
+        # family_permissions dùng cột family_name (như users) → xóa tường minh để
+        # tránh orphan khi family_id bị tái dùng (cùng lớp bug special_memories trước đây).
+        conn.execute("DELETE FROM family_permissions WHERE family_name = ?", (fid,))
+
         # Step 13: users (FK → families)
         conn.execute("DELETE FROM users WHERE family_name = ?", (fid,))
         # Step 14: families (parent row — delete last)

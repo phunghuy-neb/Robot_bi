@@ -209,7 +209,8 @@ Do not regress these behaviors without explicit user approval and full verificat
 ## Current Database Schema Targets
 
 - `families`: `family_id`, `display_name`, `created_at`
-- `users`: `user_id`, `username`, `password_hash`, `family_name`, `created_at`, `is_active`, `is_admin`
+- `users`: `user_id`, `username`, `password_hash`, `family_name`, `created_at`, `is_active`, `is_admin`, `token_version`, `role` (`owner`/`parent`/`child`), `child_profile_id` (chỉ cho tài khoản con, 1↔1 `child_profiles`)
+- `family_permissions`: `family_name` (PK), `child_can_monitor`, `child_can_journal`, `child_can_notifications`, `child_can_sleep`, `child_can_safety`, `child_can_device`, `child_can_members` (mặc định 0 = ẩn với con), `updated_at`
 - `auth_tokens`: `token_id`, `user_id`, `refresh_token_hash`, `expires_at`, `created_at`
 - `login_attempts`: `ip_address`, `attempt_count`, `first_attempt_at`, `locked_until`
 - `conversations`: `session_id`, `family_id`, `started_at`, `ended_at`, `title`, `turn_count`, `is_homework`, `homework_marked_at`

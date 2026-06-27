@@ -77,7 +77,7 @@
   - `control_router.py`: POST age-filter/time-limits/sleep nay `require_role('owner','parent')` → **con bị 403** (SC-6).
   - Test **Group 101** (5) — owner tạo con→login PIN, SC-6 chặn con, owner-only + cô lập A/B, chặn add user family khác, quyền owner-only.
   - Verify: `tests/run_tests.py` = **732/732 PASS** (lần đầu 731/732 do flaky `stress: safety filter` — AI thật, re-run 732/732). Protected Fixes giữ nguyên.
-- ✅ **US7 LÁT C3 DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: FE phân quyền + đăng nhập con. **US7 HOÀN TẤT.**
+- ✅ **US7 LÁT C3 DONE — spec 006 (2026-06-27, commit `1fba3da`)**: FE phân quyền + đăng nhập con. **US7 HOÀN TẤT.**
   - `auth_router /me`: +`permissions` (để app con biết quyền).
   - `api.js`: 10 helper family + childLogin + getChildProfilesPublic; login/checkExistingSession trả `role`+`permissions`.
   - `App.jsx`: user mang role+permissions; `allowedTabs` lọc tab cho con (learninghub+more, +monitor/journal nếu owner bật);
@@ -87,7 +87,14 @@
     tạo con từ hồ sơ+PIN + 7 toggle quyền con. SettingsOverlay ẩn section 1-5 với con (con chỉ thấy WiFi).
   - Verify: `npm run build` OK; suite **732/732 PASS**.
   - **DEFER (ghi nhận)**: con tự sửa avatar/tên (cần endpoint self-profile) — chưa làm; createFamily UI (owner đã có family qua migration/admin).
-  - **NEXT: Phase 10 Polish** — parity desktop/mobile sweep + cập nhật SYSTEM_MAP/STATUS_MAP (vai trò gia đình, WiFi UI, family_permissions, login con) + test cuối.
+- ✅ **PHASE 10 POLISH DONE — spec 006 (2026-06-27, commit `<sẽ điền>`)**: 🎉 **SPEC 006 HOÀN TẤT (US1-US7 + Polish).**
+  - Parity sweep static: màn mới responsive (auto-fit grid, flex form, nav lọc cả Sidebar+BottomNav). Real-device check vẫn nên làm.
+  - Docs sync: `SYSTEM_MAP.md` (nav role-filter, family_router, auth child-login, control settings gated, users role/child_profile_id, family_permissions, delete cleanup, frontend components); `docs/STATUS_MAP.md` v1.7 (+6 row Parent App, count 112); `PROJECT.md` schema (+role/child_profile_id +family_permissions) → `sync.py` regen CLAUDE/AGENTS.
+  - **Correctness fix**: `delete_family_record` nay xóa `family_permissions` (chống orphan khi tái dùng family_id).
+  - Verify: suite **732/732 PASS**; Protected Fixes không hồi quy.
+  - **TỔNG KẾT spec 006**: US1 bug `b7ba796` · US2 design `c1c6334` · US3 tab `9511498` · US4 monitor `b7ea3b5`(Codex) · US5 admin `773d839`(Codex) · US6 wifi `cd54cfe` · US7 C1 `8fce3ce`/C2 `32cda21`/C3 `1fba3da` · Polish `<sẽ điền>`.
+  - **DEFER (ngoài spec 006)**: con tự sửa avatar/tên (cần endpoint self-profile); createFamily UI; còn vài Settings save stub cũ; dashboard tùy chỉnh/goals/push (vẫn ⬜ backlog).
+  - **Chưa push** (1 máy). Working tree sạch trừ settings.local.json.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`

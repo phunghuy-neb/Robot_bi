@@ -84,10 +84,10 @@
 - [x] T045 [US7] `npm run build` OK (666ms) + `/me` trả permissions; suite **732/732 PASS** — file: `frontend/parent_app/`, `src/api/routers/auth_router.py`
 
 ## Phase 10: Polish & Cross-Cutting (P8 parity + docs + final)
-- [ ] T046 [P] Parity sweep: rà mọi màn đã đổi đảm bảo desktop=mobile, không cắt nội dung (SC-4) — file: `frontend/parent_app/src/`
-- [ ] T047 [P] Cập nhật `SYSTEM_MAP.md` + `docs/STATUS_MAP.md`: vai trò gia đình, WiFi UI, family_permissions, login con — file: `SYSTEM_MAP.md`, `docs/STATUS_MAP.md`
-- [ ] T048 `python tests/run_tests.py` toàn bộ PASS (bao gồm Group P7 mới) + đối chiếu Protected Fixes không hồi quy (SC-7, SC-8) — file: `tests/run_tests.py`
-- [ ] T049 Cập nhật `.claude/handoff.md` (Rule 9) + đánh dấu các phase đã commit — file: `.claude/handoff.md`
+- [x] T046 [P] Parity sweep (static): màn mới dùng pattern responsive (child-login-grid auto-fit, FamilyMembers flex/form, Settings full-screen, nav lọc cả Sidebar+BottomNav) — không width cứng gây vỡ. Real-device check vẫn nên làm (standing note) — file: `frontend/parent_app/src/`
+- [x] T047 [P] Cập nhật `SYSTEM_MAP.md` (nav role-filter, auth/family/control routers, users role/child_profile_id, family_permissions, delete cleanup, frontend components) + `docs/STATUS_MAP.md` (v1.7, +6 row Parent App, count 112) + `PROJECT.md` schema (users role/child_profile_id + family_permissions) → `sync.py` regen CLAUDE/AGENTS — file: `SYSTEM_MAP.md`, `docs/STATUS_MAP.md`, `PROJECT.md`
+- [x] T048 Suite **732/732 PASS**; **correctness fix**: `delete_family_record` xóa `family_permissions` (chống orphan khi tái dùng family_id). Protected Fixes không hồi quy (SC-7, SC-8) — file: `tests/run_tests.py`, `src/infrastructure/database/db.py`
+- [x] T049 Cập nhật `.claude/handoff.md` (Rule 9) — file: `.claude/handoff.md`
 
 ---
 
