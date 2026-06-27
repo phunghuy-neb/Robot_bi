@@ -445,7 +445,7 @@
   - 🔧 **ĐỢT ĐẸP GIAO DIỆN (redesign round, 2026-06-28)** — user feedback: UI Học tập "quá xấu", thừa khoảng trống/mất cân đối,
     chữ gần màu nền khó đọc; thiếu nút thoát khi làm đề + lỡ chuyển tab là mất đề; "tạo đề chưa có tải đề lên".
     Hướng chốt: (1) **tinh chỉnh + claymorphism nhẹ** (giữ bản sắc emoji/màu Robot Bi); (2) **Tải đề = dán/upload văn bản → AI tách** (cần 1 endpoint BE).
-    - ✅ **R1 DONE (commit `6c0cf9f`)**: nút "← Thoát đề thi" (44px, có confirm) ở cả MCQ + TOEIC S&W playing; resume đề đang làm qua
+    - ✅ **R1 DONE (commit `f352276`)**: nút "← Thoát đề thi" (44px, có confirm) ở cả MCQ + TOEIC S&W playing; resume đề đang làm qua
       sessionStorage (`EXAM_RESUME_KEY`, lưu đáp án/câu/deadline tuyệt đối, restore khi mở lại tab — "Tiếp tục đề đang làm dở"; trừ Speaking).
       Xóa snapshot khi nộp/thoát. FE-only. App.jsx render mỗi tab active (`tabComponents[activeTab]`) → unmount khi rời tab, nên dùng sessionStorage.
     - **NEXT R2**: tinh chỉnh giao diện (clay tokens: viền dày + bóng mềm kép + bo 20px; thang spacing nhất quán; sửa tương phản chữ `--muted` trên card;
