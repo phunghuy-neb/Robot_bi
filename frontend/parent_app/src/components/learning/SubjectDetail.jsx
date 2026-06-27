@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BO_GD_SUBJECTS, MOCK_EXAM_SUBJECTS } from './constants.js';
-import { showToast, getMistakes } from '../../services/api.js';
+import { showToast, getMistakes, getTopicMastery } from '../../services/api.js';
 import ModeCard from './ModeCard.jsx';
+import MasteryByTopic from './MasteryByTopic.jsx';
 
 // Trang chi tiết 1 môn: thẻ chế độ (cấp 1) + gating + 2 thẻ nổi bật.
 // Lát US2: route các chế độ vào luồng học/đề hiện có. US3-US7 sẽ tinh chỉnh từng chế độ
@@ -9,10 +10,16 @@ import ModeCard from './ModeCard.jsx';
 export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterExam, onEnterPractice, onOpenErrorBook }) {
   const key = subject?.subject;
   const [mistakeCount, setMistakeCount] = useState(null);
+  const [masteryTopics, setMasteryTopics] = useState(null);
+  const [masteryLoading, setMasteryLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     getMistakes(key).then(d => { if (alive) setMistakeCount(d?.count ?? 0); }).catch(() => {});
+    setMasteryLoading(true);
+    getTopicMastery(key)
+      .then(d => { if (alive) { setMasteryTopics(d?.topics || []); setMasteryLoading(false); } })
+      .catch(() => { if (alive) setMasteryLoading(false); });
     return () => { alive = false; };
   }, [key]);
   const hasLotrinh = ['en', 'math', 'science'].includes(key);
@@ -61,9 +68,7 @@ export default function SubjectDetail({ subject, onBack, onEnterLearn, onEnterEx
             <button type="button" className="card highlight-card" onClick={onOpenErrorBook}>
               📕 Câu hay sai <span className="muted">({mistakeCount == null ? '…' : `${mistakeCount} câu`})</span>
             </button>
-            <button type="button" className="card highlight-card" onClick={() => showToast('Chủ đề cần ôn sắp có (bản tới)')}>
-              🎯 Chủ đề cần ôn <span className="muted">(sắp có)</span>
-            </button>
+            <MasteryByTopic topics={masteryTopics} loading={masteryLoading} />
           </aside>
         </div>
       </div>

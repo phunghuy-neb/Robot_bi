@@ -9455,6 +9455,46 @@ def test_103_mistakes_latest_wins_and_no_leak():
 
 test("103.1  Sổ lỗi: câu sai vào sổ, latest-wins, không lộ đáp án",          test_103_mistakes_latest_wins_and_no_leak)
 
+# == GROUP 104: Learning Hub US6 — mastery theo chủ đề ======================
+print("\n[Group 104] Learning Hub US6 — mastery theo chủ đề")
+
+
+def test_104_mastery_accuracy():
+    import json as _json
+    from fastapi.testclient import TestClient
+    from src.api.server import app
+    from src.infrastructure.database.db import get_db_connection
+    fam = f"mas-{_uuid.uuid4().hex[:6]}"
+    _, h = _admin_mk_user("mas", fam, False)
+    client = TestClient(app)
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            "SELECT question_id, answer, options_json FROM question_bank "
+            "WHERE subject='math' AND question_type='mcq' AND status='published' LIMIT 2"
+        ).fetchall()
+        assert len(rows) >= 2, "cần ≥2 câu math mcq"
+        q1, q2 = rows[0], rows[1]
+        opts2 = _json.loads(q2["options_json"] or "[]")
+        wrong2 = next((o for o in opts2 if o != q2["answer"]), q2["answer"] + "_x")
+        conn.execute(
+            "INSERT INTO exam_sessions (session_id,family_id,paper_id,started_at,completed_at,score,"
+            "max_score,correct_count,total_questions,time_spent_seconds,answers_json,status) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,'completed')",
+            (f"ms-{_uuid.uuid4().hex[:6]}", fam, "math_x", "2026-03-01T00:00:00", "2026-03-01T00:10:00",
+             1, 2, 1, 2, 60, _json.dumps({q1["question_id"]: q1["answer"], q2["question_id"]: wrong2})),
+        )
+        conn.commit()
+    r = client.get("/api/learning/mastery?subject=math", headers=h)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["overall"] == 50, f"overall phải = 50 (1 đúng / 2 câu), có {data['overall']}"
+    assert data["topics"], "phải có chủ đề"
+    for t in data["topics"]:
+        assert 0 <= t["accuracy"] <= 100, "accuracy trong [0,100]"
+
+
+test("104.1  Mastery: accuracy theo chủ đề + overall đúng",                  test_104_mastery_accuracy)
+
 # == RESULTS ================================================================
 print("\n" + "=" * 60)
 total = len(passed) + len(failed)

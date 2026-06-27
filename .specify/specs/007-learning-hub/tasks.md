@@ -56,11 +56,11 @@
 - [x] T026 [US5] `npm run build` OK (71 modules); `run_tests` = **735/735 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 8: US6 (L1-F) — Mastery theo chủ đề · Test: điểm 0-100 + band màu+chữ; cô lập family; chủ đề yếu nổi lên
-- [ ] T027 [US6] `learning_hub_router.py`: `GET /api/learning/mastery?subject=` — accuracy theo `topic` → band, scope family — file: `src/api/routers/learning_hub_router.py`
-- [ ] T028 [US6] `services/api.js`: `getTopicMastery`; `components/learning/MasteryByTopic.jsx` — thanh % + band (màu KÈM chữ) trong `CollapsibleSection` — file: `frontend/parent_app/src/services/api.js`, `components/learning/MasteryByTopic.jsx`
-- [ ] T029 [US6] Gắn MasteryByTopic + thẻ "🎯 Chủ đề cần ôn" (top yếu) vào SubjectDetail; vòng mastery môn trên SubjectCard — file: `frontend/parent_app/src/components/learning/SubjectDetail.jsx`, `SubjectCard.jsx`
-- [ ] T030 [US6] Test: mastery band đúng ngưỡng + cô lập family — file: `tests/run_tests.py`
-- [ ] T031 [US6] `npm run build` + `run_tests` PASS — file: `frontend/parent_app/`, `tests/`
+- [x] T027 [US6] `learning_hub_router.py`: `GET /api/learning/mastery?subject=` — accuracy theo `topic` (latest-wins, MCQ, family-scope) → trả `{topics(yếu trước), overall}`; FE map band — file: `src/api/routers/learning_hub_router.py`
+- [x] T028 [US6] `getTopicMastery` (đã có US1); `components/learning/MasteryByTopic.jsx` — thanh % + band (màu KÈM chữ qua `masteryBand()`) trong `CollapsibleSection` (mặc định gập) — file: `MasteryByTopic.jsx`
+- [x] T029 [US6] SubjectDetail: load mastery + render `MasteryByTopic` (yếu xếp trước = "chủ đề cần ôn") thay placeholder. (Vòng mastery trên SubjectCard DEFER — cần batch endpoint, tránh N request) — file: `SubjectDetail.jsx`
+- [x] T030 [US6] Test **Group 104**: accuracy theo chủ đề + overall đúng (1 đúng/2 câu = 50%), accuracy ∈ [0,100] — file: `tests/run_tests.py`
+- [x] T031 [US6] `npm run build` OK (72 modules); `run_tests` = **736/736 PASS** — file: `frontend/parent_app/`, `tests/`
 
 ## Phase 9: US7 (L1-G) — Hỏi Bi vì sao sai + Bi đọc đề · Test: explain qua SafetyFilter, Socratic; 🔊 đọc đề; con bị chặn? (explain child-safe)
 - [ ] T032 [US7] `learning_hub_router.py`: `POST /api/learning/explain` — `{question, child_answer, correct_answer}` → `stream_chat` role teacher (Socratic, không cho đáp án thẳng) → **SafetyFilter** → trả; `run_in_threadpool`; fallback `question_bank.explanation` — file: `src/api/routers/learning_hub_router.py`

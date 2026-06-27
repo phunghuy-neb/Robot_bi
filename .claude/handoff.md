@@ -403,13 +403,20 @@
     (config 5/10/20 câu → làm từng câu → chấm+giải thích NGAY → điểm), cột hẹp `.learn-quiz`; wire qua
     SubjectDetail `onEnterPractice` + hubView 'practice'. Test **Group 102** (2). Verify: build 70 modules; **734/734 PASS**.
     (api.js getPracticeQuestions/gradePractice đã có từ US1.)
-  - ✅ **007 US5 (L1-E) DONE (2026-06-28, commit `<sẽ điền>`)**: Sổ lỗi.
+  - ✅ **007 US5 (L1-E) DONE (2026-06-28, commit `c15d941`)**: Sổ lỗi.
     `learning_hub_router.py` +`GET /api/learning/mistakes?subject=` (suy câu sai từ exam_sessions.answers_json ×
     question_bank.answer, **latest-wins** — làm đúng lần gần nhất thì khỏi sổ, MCQ, family-scope, KHÔNG lộ đáp án).
     `ErrorBook.jsx` mới (nhóm theo chủ đề + "🔁 Luyện lại n câu" qua QuestionRunner `providedQuestions`);
     QuestionRunner +prop providedQuestions. SubjectDetail thẻ "📕 Câu hay sai (n câu)" số thật + mở ErrorBook (hubView 'errorbook').
     Test **Group 103**. Verify: build 71 modules; **735/735 PASS**.
-  - **NEXT lát: US6 (L1-F)** Mastery theo chủ đề — BE `/api/learning/mastery` (accuracy theo topic → band) + MasteryByTopic + thẻ "Chủ đề cần ôn".
+  - ✅ **007 US6 (L1-F) DONE (2026-06-28, commit `<sẽ điền>`)**: Mastery theo chủ đề.
+    `learning_hub_router.py` +`GET /api/learning/mastery?subject=` (accuracy theo `topic`, latest-wins, MCQ,
+    family-scope → `{topics(yếu trước), overall}`). `MasteryByTopic.jsx` mới (thanh % + band màu KÈM chữ qua
+    `masteryBand()`, trong CollapsibleSection gập). SubjectDetail render MasteryByTopic (yếu xếp trước = "chủ đề
+    cần ôn") thay placeholder. Test **Group 104**. Verify: build 72 modules; **736/736 PASS**.
+    (DEFER: vòng mastery trên SubjectCard — cần batch endpoint, tránh N request.)
+  - **NEXT lát: US7 (L1-G)** Hỏi Bi vì sao sai — BE `/api/learning/explain` (LLM Socratic + SafetyFilter, run_in_threadpool)
+    + AskBi.jsx + nút 🔊 SpeechSynthesis trong QuestionRunner.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

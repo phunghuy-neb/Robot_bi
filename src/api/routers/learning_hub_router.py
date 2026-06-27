@@ -438,6 +438,63 @@ async def learning_mistakes(
     return {"mistakes": mistakes, "count": len(mistakes)}
 
 
+@router.get("/api/learning/mastery")
+async def learning_mastery(
+    subject: Optional[str] = Query(default=None, max_length=40),
+    current_user: dict = Depends(get_current_user),
+):
+    """Mastery theo chủ đề (spec 007 US6): accuracy 0-100 theo `topic` (latest-wins, MCQ,
+    family-scoped). FE map sang band màu+chữ. Trả topics (yếu trước) + overall."""
+    family_id = _require_family(current_user)
+    with get_db_connection() as conn:
+        sessions = conn.execute(
+            """SELECT answers_json FROM exam_sessions
+               WHERE family_id = ? AND status = 'completed' ORDER BY completed_at DESC""",
+            (family_id,),
+        ).fetchall()
+        latest = {}
+        for s in sessions:
+            try:
+                ans = json.loads(s["answers_json"] or "{}")
+            except Exception:
+                ans = {}
+            for qid, a in ans.items():
+                if qid not in latest:
+                    latest[qid] = a
+        if not latest:
+            return {"topics": [], "overall": 0}
+        qids = list(latest.keys())
+        ph = ",".join("?" for _ in qids)
+        params = qids + [family_id]
+        subj_clause = ""
+        if subject:
+            subj_clause = " AND subject = ?"
+            params.append(subject)
+        rows = conn.execute(
+            f"""SELECT question_id, topic, answer FROM question_bank
+                WHERE question_id IN ({ph}) AND question_type = 'mcq'
+                  AND (family_id IS NULL OR family_id = ?){subj_clause}""",
+            tuple(params),
+        ).fetchall()
+    agg = {}
+    for r in rows:
+        topic = r["topic"] or "Khác"
+        ok = str(latest.get(r["question_id"], "")).strip() == (r["answer"] or "").strip()
+        cell = agg.setdefault(topic, [0, 0])  # [correct, total]
+        cell[1] += 1
+        if ok:
+            cell[0] += 1
+    topics = [
+        {"topic": t, "correct": c, "total": n, "accuracy": round(c / n * 100)}
+        for t, (c, n) in agg.items() if n
+    ]
+    topics.sort(key=lambda x: x["accuracy"])  # yếu trước
+    total_q = sum(t["total"] for t in topics)
+    total_c = sum(t["correct"] for t in topics)
+    overall = round(total_c / total_q * 100) if total_q else 0
+    return {"topics": topics, "overall": overall}
+
+
 @router.post("/api/learning/practice/grade")
 async def practice_grade(body: PracticeGradeIn, current_user: dict = Depends(get_current_user)):
     """Chấm 1 câu luyện tập, trả đúng/sai + đáp án đúng + giải thích (family-scoped)."""
