@@ -56,6 +56,10 @@ const SUBJECTS = [
   { key: 'science', label: '🔬 Khoa học',  color: '#2e7d32' },
 ];
 
+// Lưu phiên đề ĐANG LÀM vào sessionStorage để không mất bài khi lỡ chuyển tab
+// (App chỉ mount tab đang mở → rời tab = unmount). Không lưu đề Speaking (audio không serialize được).
+const EXAM_RESUME_KEY = 'rb_exam_inprogress';
+
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -107,6 +111,7 @@ export default function LearningHubPage() {
   const [examSubmitting, setExamSubmitting] = useState(false);
   const examStartRef = useRef(0);
   const examTimerRef = useRef(null);
+  const examDeadlineRef = useRef(null); // mốc hết giờ tuyệt đối (ms) để resume tính lại thời gian còn lại
   // TOEIC S&W speaking: browser-native speech-to-text (no extra deps).
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
@@ -117,6 +122,41 @@ export default function LearningHubPage() {
   const audioBlobsRef = useRef({});  // { [questionId]: Blob }
 
   useEffect(() => { loadModules(); }, []);
+
+  // Khôi phục đề đang làm (nếu lỡ rời tab / reload). Chạy 1 lần khi mở tab Học tập.
+  useEffect(() => {
+    let snap = null;
+    try { snap = JSON.parse(sessionStorage.getItem(EXAM_RESUME_KEY) || 'null'); } catch { snap = null; }
+    if (!snap?.examData?.paper) return;
+    setMode('exam');
+    setExamData(snap.examData);
+    setExamAnswers(snap.examAnswers || {});
+    setExamQIndex(snap.examQIndex || 0);
+    setExamNoTimer(!!snap.examNoTimer);
+    examStartRef.current = snap.startTotal || 0;
+    examDeadlineRef.current = snap.deadline || null;
+    setExamTimeLeft(snap.deadline ? Math.max(0, Math.round((snap.deadline - Date.now()) / 1000)) : 0);
+    setExamFromSubject(!!snap.examFromSubject);
+    if (snap.pickedSubject) setPickedSubject(snap.pickedSubject);
+    if (snap.selectedTrack) setSelectedTrack(snap.selectedTrack);
+    setHubView('inMode');
+    setExamView('playing');
+    showToast('Tiếp tục đề đang làm dở 📝');
+  }, []);
+
+  // Lưu snapshot đề đang làm (trừ Speaking — audio không serialize được).
+  useEffect(() => {
+    const isSpeaking = examData?.paper?.subject === 'toeic_sw'
+      && (examData?.paper?.skill || '').toLowerCase() === 'speaking';
+    if (mode !== 'exam' || examView !== 'playing' || !examData?.paper || isSpeaking) return;
+    try {
+      sessionStorage.setItem(EXAM_RESUME_KEY, JSON.stringify({
+        examData, examAnswers, examQIndex, examNoTimer,
+        startTotal: examStartRef.current, deadline: examDeadlineRef.current,
+        examFromSubject, pickedSubject, selectedTrack,
+      }));
+    } catch { /* quota/full — bỏ qua, vẫn còn nút thoát */ }
+  }, [mode, examView, examData, examAnswers, examQIndex, examNoTimer, examFromSubject, pickedSubject, selectedTrack]);
 
   // Exam countdown timer.
   useEffect(() => {
@@ -180,7 +220,21 @@ export default function LearningHubPage() {
     setExamNoTimer(noTimer);
     setExamTimeLeft(noTimer ? 0 : mins * 60);
     examStartRef.current = noTimer ? 0 : mins * 60;
+    examDeadlineRef.current = noTimer ? null : Date.now() + mins * 60 * 1000;
     setExamView('playing');
+  }
+
+  // Thoát đề đang làm (có xác nhận để tránh bấm nhầm) → quay lại danh sách/môn.
+  function exitExam() {
+    if (!window.confirm('Thoát đề thi? Bài làm hiện tại sẽ không được lưu.')) return;
+    clearInterval(examTimerRef.current);
+    stopRecording();
+    try { sessionStorage.removeItem(EXAM_RESUME_KEY); } catch { /* noop */ }
+    setExamData(null);
+    setExamAnswers({});
+    setExamResult(null);
+    if (examFromSubject) setHubView('subjectMenu');
+    else setExamView('list');
   }
 
   function pickAnswer(questionId, option) {
@@ -280,6 +334,7 @@ export default function LearningHubPage() {
     }
     setExamSubmitting(false);
     if (res) {
+      try { sessionStorage.removeItem(EXAM_RESUME_KEY); } catch { /* noop */ }
       setExamResult({ ...res, auto });
       setExamView('result');
     } else {
@@ -572,6 +627,7 @@ export default function LearningHubPage() {
       return (
         <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <button className="btn-exam-exit" onClick={exitExam} title="Thoát đề thi" aria-label="Thoát đề thi">←</button>
             <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
             <div style={{
               fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
@@ -666,6 +722,7 @@ export default function LearningHubPage() {
       return (
         <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <button className="btn-exam-exit" onClick={exitExam} title="Thoát đề thi" aria-label="Thoát đề thi">←</button>
             <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
             <div style={{
               fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,

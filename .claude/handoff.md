@@ -16,6 +16,13 @@
   với giọng nói nên prototype TTS API/voice có sẵn trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
   Định hướng sản phẩm: giọng thanh thoát, dễ nghe, không chói; độ tự nhiên hội thoại tăng bằng short-turn policy,
   child profile memory, parent context, tool calls, eval suite, rồi mới tính fine-tune.
+- ▶️ **SERVER RUNNING (2026-06-27)**: backend FastAPI đang chạy trong Codex session `83523` (PID `82778`) bằng
+  `.venv/bin/python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8443 --ssl-certfile ssl/cert.pem --ssl-keyfile ssl/key.pem`.
+  Health OK: `https://127.0.0.1:8443/health` → `{"status":"ok"}`. Chưa chạy Vite dev server.
+- 🔐 **TEST LOGIN (2026-06-27)**: tài khoản runtime để test đã tạo/reset OK qua DB helper:
+  username `robotbi_test`, password `TestRobotBi2026!`, family `test-family`, role `owner`.
+  Verify `POST /auth/login/v2` OK, có access+refresh token. Runtime admin khác vẫn được seed từ `.env`
+  qua `ADMIN_USERNAME`/`ADMIN_PASSWORD` nếu bảng `users` trống; mật khẩu user hiện có chỉ lưu hash, không khôi phục được.
 - ✅ **US1 (P1) DONE — spec 006 (2026-06-27)**: sửa bug hiển thị FE.
   - T004 HomePage: 3 metric-label cứng → "Phút học"/"Cảm xúc"/"Nhiệm vụ" (giữ metric-num dữ liệu thật).
   - T005 MorePage: 5 thẻ shortcut `<div>`→`<button>` + `scrollIntoView` (refs radio/music/knowledge/games/video).
@@ -433,8 +440,17 @@
     T041: build 73 modules; **738/738 PASS**; Protected Fixes không hồi quy. T042: handoff (dòng này).
   - **TỔNG KẾT spec 007 Lớp 1**: US1 lưới môn · US2 chi tiết môn+gating (gộp US8) · US3 vào đề theo môn+timer · US4 luyện theo bài+grade ·
     US5 Sổ lỗi · US6 Mastery · US7 Hỏi Bi+đọc đề ⭐ · US9 Lộ trình shell · Polish. Endpoint mới: `/practice`(+grade)`/mistakes`/`/mastery`/`/explain`.
-  - **NEXT (Lớp 2, cần BE — đợt sau)**: US11-US14 — nội dung Lộ trình Duolingo mọi môn, spaced repetition, adaptive difficulty,
+  - **(Lớp 2, cần BE — đợt sau)**: US11-US14 — nội dung Lộ trình Duolingo mọi môn, spaced repetition, adaptive difficulty,
     báo cáo phụ huynh nâng cao + "Bi tóm tắt ngày học", gamification đầy đủ (đóng băng streak, huy hiệu, family leaderboard).
+  - 🔧 **ĐỢT ĐẸP GIAO DIỆN (redesign round, 2026-06-28)** — user feedback: UI Học tập "quá xấu", thừa khoảng trống/mất cân đối,
+    chữ gần màu nền khó đọc; thiếu nút thoát khi làm đề + lỡ chuyển tab là mất đề; "tạo đề chưa có tải đề lên".
+    Hướng chốt: (1) **tinh chỉnh + claymorphism nhẹ** (giữ bản sắc emoji/màu Robot Bi); (2) **Tải đề = dán/upload văn bản → AI tách** (cần 1 endpoint BE).
+    - ✅ **R1 DONE (commit `6c0cf9f`)**: nút "← Thoát đề thi" (44px, có confirm) ở cả MCQ + TOEIC S&W playing; resume đề đang làm qua
+      sessionStorage (`EXAM_RESUME_KEY`, lưu đáp án/câu/deadline tuyệt đối, restore khi mở lại tab — "Tiếp tục đề đang làm dở"; trừ Speaking).
+      Xóa snapshot khi nộp/thoát. FE-only. App.jsx render mỗi tab active (`tabComponents[activeTab]`) → unmount khi rời tab, nên dùng sessionStorage.
+    - **NEXT R2**: tinh chỉnh giao diện (clay tokens: viền dày + bóng mềm kép + bo 20px; thang spacing nhất quán; sửa tương phản chữ `--muted` trên card;
+      bỏ khoảng trống thừa; chuẩn hoá inline-style exam views → class). Tham khảo claymorphism (DB ui-ux-pro-max gợi ý cho app trẻ em).
+    - **NEXT R3**: "Tải đề lên" — endpoint BE mới (LLM tách văn bản→câu hỏi+đáp án, qua SafetyFilter, family-scoped, review trước khi lưu) + UI dán/upload trong ExamBuilder + test.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

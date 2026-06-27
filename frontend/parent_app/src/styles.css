@@ -882,6 +882,15 @@ img { max-width: 100%; }
   background: var(--muted); color: #fff; font-size: 11px; font-weight: 800; line-height: 1.4;
 }
 .highlight-card { display: block; width: 100%; text-align: left; cursor: pointer; margin-bottom: 12px; font-weight: 700; font-family: inherit; }
+/* Nút thoát đề thi — luôn hiện trong lúc làm bài, đủ to để bấm (a11y tap≥44). */
+.btn-exam-exit {
+  flex-shrink: 0; min-width: 44px; min-height: 44px; border-radius: 12px; cursor: pointer;
+  border: 2px solid var(--border); background: var(--card); color: var(--text);
+  font-size: 18px; font-weight: 800; font-family: inherit; line-height: 1;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-exam-exit:hover { border-color: #ef5350; color: #ef5350; }
+.btn-exam-exit:active { transform: translateY(1px); }
 .highlight-card .muted { color: var(--muted); font-weight: 400; font-size: 12px; }
 .ask-bi-answer { margin-top: 10px; background: var(--primary-soft); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; line-height: 1.5; color: var(--text); }
 
