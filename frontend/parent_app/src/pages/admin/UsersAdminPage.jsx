@@ -44,68 +44,63 @@ export default function UsersAdminPage({ currentUsername }) {
     run(u.user_id, () => adminDeleteUser(u.user_id), 'Đã xóa tài khoản');
   }
 
-  if (loading) return <div className="spinner" style={{ margin: 40 }} />;
-
-  const th = { textAlign: 'left', padding: '10px 12px', fontSize: 13, color: 'var(--muted,#64748b)', borderBottom: '2px solid var(--border,#e2e8f0)' };
-  const td = { padding: '10px 12px', borderBottom: '1px solid var(--border,#eef1f6)', fontSize: 14 };
-  const btn = (bg) => ({ padding: '5px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#fff', background: bg });
+  if (loading) return <div className="spinner admin-loading" />;
 
   return (
-    <div style={{ background: 'var(--card,#fff)', borderRadius: 14, padding: 12, overflowX: 'auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, padding: '0 4px' }}>
-        <span style={{ fontSize: 13, color: 'var(--muted,#64748b)' }}>{users.length} tài khoản</span>
-        <button onClick={load} style={btn('#475569')}>↻ Tải lại</button>
+    <div className="admin-card compact">
+      <div className="admin-toolbar">
+        <span className="admin-page-note">{users.length} tài khoản</span>
+        <button className="admin-btn secondary small" onClick={load}>↻ Tải lại</button>
       </div>
-      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
-        <thead>
-          <tr>
-            <th style={th}>Tài khoản</th>
-            <th style={th}>Gia đình</th>
-            <th style={th}>Trạng thái</th>
-            <th style={th}>Quyền</th>
-            <th style={th}>Tạo lúc</th>
-            <th style={th}>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => {
-            const self = u.username === currentUsername;
-            const b = busy === u.user_id;
-            return (
-              <tr key={u.user_id} style={{ opacity: b ? 0.5 : 1 }}>
-                <td style={td}>
-                  <b>{u.username}</b>{self && <span style={{ fontSize: 11, color: '#2563eb' }}> (bạn)</span>}
-                </td>
-                <td style={td}>{u.family_name}</td>
-                <td style={td}>
-                  <span style={{ color: u.is_active ? '#16a34a' : '#dc2626', fontWeight: 700 }}>
-                    {u.is_active ? '● Hoạt động' : '● Đã khóa'}
-                  </span>
-                </td>
-                <td style={td}>{u.is_admin ? '👑 Admin' : 'Người dùng'}</td>
-                <td style={{ ...td, fontSize: 12, color: 'var(--muted,#64748b)' }}>
-                  {(u.created_at || '').slice(0, 10)}
-                </td>
-                <td style={{ ...td, whiteSpace: 'nowrap' }}>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <button disabled={b || self} onClick={() => toggleActive(u)}
-                      style={{ ...btn(u.is_active ? '#d97706' : '#16a34a'), opacity: self ? 0.4 : 1 }}>
-                      {u.is_active ? 'Khóa' : 'Mở'}
-                    </button>
-                    <button disabled={b || self} onClick={() => toggleAdmin(u)}
-                      style={{ ...btn('#7c3aed'), opacity: self ? 0.4 : 1 }}>
-                      {u.is_admin ? 'Bỏ admin' : 'Cấp admin'}
-                    </button>
-                    <button disabled={b} onClick={() => resetPw(u)} style={btn('#2563eb')}>Đặt lại MK</button>
-                    <button disabled={b || self} onClick={() => del(u)}
-                      style={{ ...btn('#dc2626'), opacity: self ? 0.4 : 1 }}>Xóa</button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="admin-table-scroll">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th className="admin-th">Tài khoản</th>
+              <th className="admin-th">Gia đình</th>
+              <th className="admin-th">Trạng thái</th>
+              <th className="admin-th">Quyền</th>
+              <th className="admin-th">Tạo lúc</th>
+              <th className="admin-th">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(u => {
+              const self = u.username === currentUsername;
+              const b = busy === u.user_id;
+              return (
+                <tr key={u.user_id} className={b ? 'admin-row-busy' : ''}>
+                  <td className="admin-td">
+                    <b>{u.username}</b>{self && <span className="admin-status info"> (bạn)</span>}
+                  </td>
+                  <td className="admin-td">{u.family_name}</td>
+                  <td className="admin-td">
+                    <span className={`admin-status ${u.is_active ? 'ok' : 'bad'}`}>
+                      {u.is_active ? '● Hoạt động' : '● Đã khóa'}
+                    </span>
+                  </td>
+                  <td className="admin-td">{u.is_admin ? '👑 Admin' : 'Người dùng'}</td>
+                  <td className="admin-td small admin-muted">
+                    {(u.created_at || '').slice(0, 10)}
+                  </td>
+                  <td className="admin-td nowrap">
+                    <div className="admin-inline-actions">
+                      <button disabled={b || self} className={`admin-btn small ${u.is_active ? 'warning' : 'success'}`} onClick={() => toggleActive(u)}>
+                        {u.is_active ? 'Khóa' : 'Mở'}
+                      </button>
+                      <button disabled={b || self} className="admin-btn small purple" onClick={() => toggleAdmin(u)}>
+                        {u.is_admin ? 'Bỏ admin' : 'Cấp admin'}
+                      </button>
+                      <button disabled={b} className="admin-btn small primary" onClick={() => resetPw(u)}>Đặt lại MK</button>
+                      <button disabled={b || self} className="admin-btn small danger" onClick={() => del(u)}>Xóa</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

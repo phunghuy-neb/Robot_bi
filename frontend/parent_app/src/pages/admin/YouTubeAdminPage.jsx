@@ -9,7 +9,7 @@ import {
 export default function YouTubeAdminPage() {
   return (
     <div>
-      <p style={{ fontSize: 13, color: 'var(--muted,#64748b)', margin: '0 0 14px' }}>
+      <p className="admin-page-note">
         Danh sách kênh chung cho <b>toàn bộ tài khoản</b>. Chỉ video từ các kênh ở đây mới hiển thị
         (không tìm kiếm mở YouTube) — đây là ranh giới an toàn cho trẻ. Mỗi phụ huynh có thể thêm
         kênh riêng cho gia đình mình trong app.
@@ -18,7 +18,7 @@ export default function YouTubeAdminPage() {
         loadFn={adminGetYoutubeChannels}
         addFn={adminAddYoutubeChannel}
         removeFn={adminRemoveYoutubeChannel}
-        accent="#2563eb"
+        buttonTone="primary"
       />
     </div>
   );

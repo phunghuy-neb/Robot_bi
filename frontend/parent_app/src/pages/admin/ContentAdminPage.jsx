@@ -3,6 +3,7 @@ import {
   adminListContent, adminCreateContent, adminUpdateContent, adminDeleteContent,
   adminRadioSearch, showToast,
 } from '../../services/api.js';
+import Toggle from '../../components/admin/Toggle.jsx';
 
 const TYPES = [
   { key: 'radio', label: '📻 Radio' },
@@ -26,12 +27,6 @@ const GAME_PRESETS = [
   },
 ];
 const EMPTY = { type: 'radio', title: '', description: '', source_url: '', thumbnail_url: '', age_min: 5, age_max: 12, language: 'vi', tags: '', enabled: true, sort_order: 0 };
-
-const card = { background: 'var(--card,#fff)', borderRadius: 14, padding: 16 };
-const inp = { padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', fontSize: 14, width: '100%' };
-const lbl = { display: 'grid', gap: 4, fontSize: 12, color: 'var(--muted,#64748b)' };
-const th = { textAlign: 'left', padding: '10px 12px', fontSize: 13, color: 'var(--muted,#64748b)', borderBottom: '2px solid var(--border,#e2e8f0)' };
-const td = { padding: '10px 12px', borderBottom: '1px solid var(--border,#eef1f6)', fontSize: 14 };
 
 export default function ContentAdminPage() {
   const [filter, setFilter] = useState('');
@@ -123,120 +118,121 @@ export default function ContentAdminPage() {
 
   return (
     <div>
-      <p style={{ fontSize: 13, color: 'var(--muted,#64748b)', margin: '0 0 14px' }}>
+      <p className="admin-page-note">
         Nội dung <b>chung</b> (radio / video / trò chơi) hiển thị cho mọi gia đình. Mục tạo ở đây là
         global; nội dung riêng của từng gia đình không nằm trong danh sách quản trị này.
       </p>
 
-      <form onSubmit={submit} style={{ ...card, marginBottom: 16, display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', alignItems: 'end' }}>
-        <label style={lbl}>Loại
-          <select style={inp} value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+      <form onSubmit={submit} className="admin-card admin-form-grid">
+        <label className="admin-field">Loại
+          <select className="admin-select" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
             {TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
           </select>
         </label>
-        <label style={lbl}>Tiêu đề<input style={inp} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required /></label>
-        <label style={lbl}>URL nguồn<input style={inp} value={form.source_url} onChange={e => setForm({ ...form, source_url: e.target.value })} /></label>
-        <label style={lbl}>Ảnh thumbnail (URL)<input style={inp} value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })} /></label>
-        <label style={lbl}>Ngôn ngữ<input style={inp} value={form.language} onChange={e => setForm({ ...form, language: e.target.value })} /></label>
-        <label style={lbl}>Tuổi từ<input style={inp} type="number" min={0} max={18} value={form.age_min} onChange={e => setForm({ ...form, age_min: e.target.value })} /></label>
-        <label style={lbl}>đến<input style={inp} type="number" min={0} max={18} value={form.age_max} onChange={e => setForm({ ...form, age_max: e.target.value })} /></label>
-        <label style={lbl}>Thứ tự<input style={inp} type="number" min={0} value={form.sort_order} onChange={e => setForm({ ...form, sort_order: e.target.value })} /></label>
-        <label style={{ ...lbl, gridColumn: '1 / -1' }}>Mô tả<input style={inp} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
-        <label style={lbl}>Thẻ (phẩy)<input style={inp} value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="science, music" /></label>
+        <label className="admin-field">Tiêu đề<input className="admin-input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required /></label>
+        <label className="admin-field">URL nguồn<input className="admin-input" value={form.source_url} onChange={e => setForm({ ...form, source_url: e.target.value })} /></label>
+        <label className="admin-field">Ảnh thumbnail (URL)<input className="admin-input" value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })} /></label>
+        <label className="admin-field">Ngôn ngữ<input className="admin-input" value={form.language} onChange={e => setForm({ ...form, language: e.target.value })} /></label>
+        <label className="admin-field">Tuổi từ<input className="admin-input" type="number" min={0} max={18} value={form.age_min} onChange={e => setForm({ ...form, age_min: e.target.value })} /></label>
+        <label className="admin-field">đến<input className="admin-input" type="number" min={0} max={18} value={form.age_max} onChange={e => setForm({ ...form, age_max: e.target.value })} /></label>
+        <label className="admin-field">Thứ tự<input className="admin-input" type="number" min={0} value={form.sort_order} onChange={e => setForm({ ...form, sort_order: e.target.value })} /></label>
+        <label className="admin-field full">Mô tả<input className="admin-input" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
+        <label className="admin-field">Thẻ (phẩy)<input className="admin-input" value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="science, music" /></label>
         {form.type === 'game' && (
-          <div style={{ gridColumn: '1 / -1', padding: 10, borderRadius: 10, background: 'var(--bg,#f5f6fa)', display: 'grid', gap: 8 }}>
-            <div style={{ fontSize: 12, color: 'var(--muted,#64748b)' }}>
+          <div className="admin-subpanel">
+            <div className="admin-detail">
               Game mở trong Parent App khi URL là <code>/api/game/word-quiz/start</code> hoặc <code>/api/game/voice-quiz/start</code>.
               URL ngoài vẫn mở ở tab mới.
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="admin-inline-actions">
               {GAME_PRESETS.map(p => (
                 <button key={p.source_url} type="button" onClick={() => applyGamePreset(p)}
-                  style={{ padding: '7px 12px', minHeight: 40, borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+                  className="admin-btn ghost small">
                   Dùng preset {p.label}
                 </button>
               ))}
             </div>
           </div>
         )}
-        <label style={{ ...lbl, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <input type="checkbox" checked={!!form.enabled} onChange={e => setForm({ ...form, enabled: e.target.checked })} /> Bật
+        <label className="admin-field inline">
+          <Toggle checked={!!form.enabled} label="Bật nội dung" onChange={enabled => setForm({ ...form, enabled })} /> Bật
         </label>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="submit" disabled={busy} style={{ padding: '9px 16px', borderRadius: 8, border: 'none', background: '#16a34a', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+        <div className="admin-actions">
+          <button type="submit" disabled={busy} className="admin-btn success">
             {editId ? 'Cập nhật' : '+ Thêm'}
           </button>
-          {editId && <button type="button" onClick={resetForm} style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: 'transparent', cursor: 'pointer' }}>Hủy</button>}
+          {editId && <button type="button" onClick={resetForm} className="admin-btn ghost">Hủy</button>}
         </div>
       </form>
 
-      {/* Radio Browser — tìm đài để duyệt rồi điền vào form bên trên */}
-      <details style={{ ...card, marginBottom: 16 }}>
-        <summary style={{ cursor: 'pointer', fontWeight: 700 }}>🔎 Tìm đài radio (Radio Browser)</summary>
-        <p style={{ fontSize: 12, color: 'var(--muted,#64748b)', margin: '8px 0' }}>
+      <details className="admin-card">
+        <summary className="admin-section-title">🔎 Tìm đài radio (Radio Browser)</summary>
+        <p className="admin-page-note">
           Tìm ứng viên đài; bấm "Dùng" để điền vào form ở trên — bạn duyệt & lưu thủ công (an toàn cho trẻ).
         </p>
-        <form onSubmit={searchRadio} style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-          <input style={{ ...inp, flex: 1 }} value={radioQ} placeholder="VD: kids, classical, lullaby…"
+        <form onSubmit={searchRadio} className="admin-row fill">
+          <input className="admin-input compact grow" value={radioQ} placeholder="VD: kids, classical, lullaby…"
             onChange={e => setRadioQ(e.target.value)} />
-          <button type="submit" disabled={radioSearching} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+          <button type="submit" disabled={radioSearching} className="admin-btn primary">
             {radioSearching ? 'Đang tìm…' : 'Tìm'}
           </button>
         </form>
         {radioResults != null && (radioResults.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'var(--muted,#64748b)' }}>Không tìm thấy đài phù hợp.</div>
+          <div className="admin-page-note">Không tìm thấy đài phù hợp.</div>
         ) : (
-          <div style={{ display: 'grid', gap: 6 }}>
+          <div className="admin-radio-results">
             {radioResults.map((st, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 8, background: 'var(--bg,#f5f6fa)' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{st.name}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted,#64748b)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div key={i} className="admin-result-row">
+                <div className="admin-grow">
+                  <div><b>{st.name}</b></div>
+                  <div className="admin-detail admin-truncate">
                     {[st.country, (st.tags || []).slice(0, 3).join(', ')].filter(Boolean).join(' · ')}
                   </div>
                 </div>
-                <button onClick={() => useStation(st)} style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: 'transparent', cursor: 'pointer', fontSize: 12, whiteSpace: 'nowrap' }}>Dùng</button>
+                <button onClick={() => useStation(st)} className="admin-btn ghost small">Dùng</button>
               </div>
             ))}
           </div>
         ))}
       </details>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={() => setFilter('')} style={chip(filter === '')}>Tất cả</button>
-        {TYPES.map(t => <button key={t.key} onClick={() => setFilter(t.key)} style={chip(filter === t.key)}>{t.label}</button>)}
+      <div className="admin-chip-row">
+        <button onClick={() => setFilter('')} className={`admin-chip${filter === '' ? ' active' : ''}`}>Tất cả</button>
+        {TYPES.map(t => <button key={t.key} onClick={() => setFilter(t.key)} className={`admin-chip${filter === t.key ? ' active' : ''}`}>{t.label}</button>)}
       </div>
 
-      {loading ? <div className="spinner" style={{ margin: 40 }} /> : (
-        <div style={{ ...card, overflowX: 'auto' }}>
-          {items.length === 0 ? <div style={{ padding: 24, textAlign: 'center', color: 'var(--muted,#64748b)' }}>Chưa có nội dung.</div> : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+      {loading ? <div className="spinner admin-loading" /> : (
+        <div className="admin-card compact admin-table-scroll">
+          {items.length === 0 ? <div className="admin-empty">Chưa có nội dung.</div> : (
+            <table className="admin-table">
               <thead><tr>
-                <th style={th}>Loại</th><th style={th}>Tiêu đề</th><th style={th}>Phạm vi</th>
-                <th style={th}>Tuổi</th><th style={th}>Bật</th><th style={th}></th>
+                <th className="admin-th">Loại</th><th className="admin-th">Tiêu đề</th><th className="admin-th">Phạm vi</th>
+                <th className="admin-th">Tuổi</th><th className="admin-th">Bật</th><th className="admin-th"></th>
               </tr></thead>
               <tbody>
                 {items.map(it => (
-                  <tr key={it.content_id} style={{ opacity: busy ? 0.6 : 1 }}>
-                    <td style={td}>{TYPES.find(t => t.key === it.type)?.label || it.type}</td>
-                    <td style={td}>
+                  <tr key={it.content_id} className={busy ? 'admin-row-busy' : ''}>
+                    <td className="admin-td">{TYPES.find(t => t.key === it.type)?.label || it.type}</td>
+                    <td className="admin-td">
                       <b>{it.title}</b>
                       {it.type === 'game' && (
-                        <div style={{ fontSize: 11, color: 'var(--muted,#64748b)', marginTop: 2 }}>
+                        <div className="admin-detail">
                           {String(it.source_url || '').startsWith('/api/game/')
                             ? 'Chơi trong Parent App'
                             : (it.source_url ? 'Mở URL ngoài' : 'Chưa cấu hình URL')}
                         </div>
                       )}
                     </td>
-                    <td style={td}>{it.scope === 'global' ? <span style={{ color: '#2563eb' }}>🌐 Chung</span> : <span style={{ color: '#7c3aed' }}>👪 {it.family_id}</span>}</td>
-                    <td style={td}>{it.age_min}–{it.age_max}</td>
-                    <td style={td}>
-                      <button onClick={() => toggleEnabled(it)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18 }} title="Bật/tắt">{it.enabled ? '✅' : '⬜'}</button>
+                    <td className="admin-td">{it.scope === 'global' ? <span className="admin-status info">🌐 Chung</span> : <span className="admin-status purple">👪 {it.family_id}</span>}</td>
+                    <td className="admin-td">{it.age_min}–{it.age_max}</td>
+                    <td className="admin-td">
+                      <Toggle checked={!!it.enabled} label={`Bật/tắt ${it.title}`} onChange={() => toggleEnabled(it)} />
                     </td>
-                    <td style={td}>
-                      <button onClick={() => startEdit(it)} style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid var(--border,#cbd5e1)', background: 'transparent', cursor: 'pointer', fontSize: 12, marginRight: 6 }}>Sửa</button>
-                      <button onClick={() => del(it)} style={{ padding: '5px 10px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>Xóa</button>
+                    <td className="admin-td">
+                      <div className="admin-inline-actions">
+                        <button onClick={() => startEdit(it)} className="admin-btn ghost small">Sửa</button>
+                        <button onClick={() => del(it)} className="admin-btn danger small">Xóa</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -247,12 +243,4 @@ export default function ContentAdminPage() {
       )}
     </div>
   );
-}
-
-function chip(active) {
-  return {
-    padding: '7px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600,
-    border: active ? 'none' : '1px solid var(--border,#cbd5e1)',
-    background: active ? '#2563eb' : 'transparent', color: active ? '#fff' : 'var(--text,#0f172a)',
-  };
 }

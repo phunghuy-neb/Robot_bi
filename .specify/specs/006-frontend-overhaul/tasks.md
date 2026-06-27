@@ -49,12 +49,12 @@
 - [x] T022 [US4] `npm run build` OK (62 modules, 661ms) + kiểm desktop/mobile qua responsive source/build — file: `frontend/parent_app/`
 
 ## Phase 7: US5 (P5) — Admin UI polish · Test độc lập: 9 trang admin dùng token nhất quán, 1 kiểu toggle, đọc tốt trên mobile
-- [ ] T023 [US5] Thêm nhóm class `.admin-*` (card/table/input/btn/toggle) dùng design token — file: `frontend/parent_app/src/styles.css`
-- [ ] T024 [P] [US5] Tạo `components/admin/Toggle.jsx` (1 kiểu công tắc thống nhất) — file: `frontend/parent_app/src/components/admin/Toggle.jsx`
-- [ ] T025 [US5] AdminApp: màu active + bo góc dùng token thay `#334155`/`10` — file: `frontend/parent_app/src/pages/admin/AdminApp.jsx`
-- [ ] T026 [P] [US5] Chuyển inline style → class design-system: Users/ApiKeys/Exams/YouTube — file: `frontend/parent_app/src/pages/admin/UsersAdminPage.jsx`, `ApiKeysPage.jsx`, `ExamsAdminPage.jsx`, `YouTubeAdminPage.jsx`
-- [ ] T027 [P] [US5] Chuyển inline style → class + Toggle: Safety/Persona/Content/Logs/Stats — file: `frontend/parent_app/src/pages/admin/SafetyAdminPage.jsx`, `PersonaAdminPage.jsx`, `ContentAdminPage.jsx`, `LogsAdminPage.jsx`, `StatsAdminPage.jsx`
-- [ ] T028 [US5] `npm run build` OK + kiểm 9 trang admin trên màn hẹp — file: `frontend/parent_app/`
+- [x] T023 [US5] Thêm nhóm class `.admin-*` (card/table/input/btn/toggle) dùng design token — file: `frontend/parent_app/src/styles.css`
+- [x] T024 [P] [US5] Tạo `components/admin/Toggle.jsx` (1 kiểu công tắc thống nhất) — file: `frontend/parent_app/src/components/admin/Toggle.jsx`
+- [x] T025 [US5] AdminApp: màu active + bo góc dùng token thay `#334155`/`10` — file: `frontend/parent_app/src/pages/admin/AdminApp.jsx`
+- [x] T026 [P] [US5] Chuyển inline style → class design-system: Users/ApiKeys/Exams/YouTube — file: `frontend/parent_app/src/pages/admin/UsersAdminPage.jsx`, `ApiKeysPage.jsx`, `ExamsAdminPage.jsx`, `YouTubeAdminPage.jsx`
+- [x] T027 [P] [US5] Chuyển inline style → class + Toggle: Safety/Persona/Content/Logs/Stats — file: `frontend/parent_app/src/pages/admin/SafetyAdminPage.jsx`, `PersonaAdminPage.jsx`, `ContentAdminPage.jsx`, `LogsAdminPage.jsx`, `StatsAdminPage.jsx`
+- [x] T028 [US5] `npm run build` OK (63 modules, 660ms) + kiểm 9 trang admin bằng responsive class/source sweep — file: `frontend/parent_app/`
 
 ## Phase 8: US6 (P6) — WiFi UI cho robot · Test độc lập: nhập SSID/pass gửi xuống robot, hiện trạng thái
 - [ ] T029 [US6] `services/api.js`: `getWifiStatus()`→`GET /api/wifi/status`, `addWifi({ssid,password})`→`POST /api/wifi/add` — file: `frontend/parent_app/src/services/api.js`

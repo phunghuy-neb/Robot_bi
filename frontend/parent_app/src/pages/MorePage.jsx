@@ -375,7 +375,7 @@ export default function MorePage() {
               loadFn={getMyYoutubeChannels}
               addFn={addMyYoutubeChannel}
               removeFn={removeMyYoutubeChannel}
-              accent="#7c3aed"
+              buttonTone="purple"
             />
           )}
         </div>

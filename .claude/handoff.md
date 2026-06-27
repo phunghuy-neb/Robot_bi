@@ -35,7 +35,7 @@
     Dùng `apiFetch` trực tiếp (không thêm helper). `toPct()` chấp nhận accuracy 0-1 hoặc 0-100.
   - styles.css: thêm `.subject-progress-*`. DESIGN_SYSTEM.md: cập nhật nhãn 2 tab.
   - Verify: `npm run build` OK (61 modules, 757ms). US3 thuần FE.
-- ✅ **US4 (P4) DONE — spec 006 (2026-06-27, commit `0af2fc2`)**: Monitor UX.
+- ✅ **US4 (P4) DONE — spec 006 (2026-06-27, commit `b7ea3b5`)**: Monitor UX.
   - T020: thêm `CollapsibleSection.jsx` dùng chung, có state expanded + `aria-expanded`/`aria-controls`.
   - T021: `MonitorPage` bọc Camera / Nói chuyện với Bi / Điều khiển robot / Sự kiện gần đây bằng collapsible section;
     bỏ hẳn khối "Báo cáo tuần chi tiết" và không còn fetch `/api/analytics/weekly` ở Monitor (HomePage vẫn sở hữu báo cáo tuần).
@@ -43,7 +43,14 @@
   - Baseline trước khi sửa đã đỏ sẵn: `.venv/bin/python tests/run_tests.py` = **721/722 PASS**, fail `stress: safety filter pass tat ca`
     do 2 response bị SafetyFilter block trong stress AI/quota fallback (không thuộc US4, xảy ra trước code change).
   - Verify cuối sau US4: `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
-  - **NEXT: US5 (P5) Admin polish** — T023-T028; **US7** để cuối vì đụng schema/JWT/role.
+  - **NEXT: US6 (P6) WiFi UI** hoặc **US7** để cuối vì đụng schema/JWT/role.
+- ✅ **US5 (P5) DONE — spec 006 (2026-06-27, commit pending)**: Admin UI polish.
+  - T023-T024: thêm nhóm `.admin-*` dùng design token + responsive mobile; tạo `components/admin/Toggle.jsx`.
+  - T025-T027: AdminApp + 9 trang admin dùng class/token thống nhất; Users/API keys/Exams/YouTube/Safety/Persona/Content/Logs/Stats
+    bỏ inline style trong admin path; Safety/API keys/Content dùng Toggle chung; YouTubeChannelManager đổi `accent` màu cứng sang `buttonTone`.
+  - T028: `npm run build` OK (63 modules, 660ms; warning sandbox `Failed to create stream fd` nhưng build thành công);
+    `.venv/bin/python tests/run_tests.py` = **722/722 PASS**.
+  - **NEXT: US6 (P6) WiFi UI** nếu muốn làm nhanh; **US7** làm cuối vì đụng schema/JWT/role.
 - ⚠️ **WORKING TREE hiện tại (2026-06-27)**: `.claude/settings.local.json` là local user config, không đụng.
 - 📐 **SPEC KIT 006-frontend-overhaul (2026-06-27, ✅ committed `3d634a7`, docs-only)**:
   spec + plan + tasks + checklist cho đợt đại tu FE. Active spec đã trỏ tới `.specify/specs/006-frontend-overhaul/`
