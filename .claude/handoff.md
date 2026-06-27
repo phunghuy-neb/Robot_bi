@@ -13,7 +13,9 @@
 
 - **Q&A ONLY (2026-06-27)**: giải thích "train AI", train qua API, custom giọng AI trẻ con/TTS, và cân nhắc thuê GPU NVIDIA.
   Không sửa code, không chạy test. Next nếu triển khai: ưu tiên RAG/knowledge/memory/eval trước fine-tuning;
-  với giọng nói nên prototype TTS API trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
+  với giọng nói nên prototype TTS API/voice có sẵn trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
+  Định hướng sản phẩm: giọng thanh thoát, dễ nghe, không chói; độ tự nhiên hội thoại tăng bằng short-turn policy,
+  child profile memory, parent context, tool calls, eval suite, rồi mới tính fine-tune.
 - ✅ **US1 (P1) DONE — spec 006 (2026-06-27)**: sửa bug hiển thị FE.
   - T004 HomePage: 3 metric-label cứng → "Phút học"/"Cảm xúc"/"Nhiệm vụ" (giữ metric-num dữ liệu thật).
   - T005 MorePage: 5 thẻ shortcut `<div>`→`<button>` + `scrollIntoView` (refs radio/music/knowledge/games/video).
@@ -362,7 +364,13 @@
   Backend đã đủ cho Lớp 1 (/api/learning/subjects, /exams?subject=&track=, exam_sessions, LLM, TTS/STT).
   **/speckit-clarify ✅ DONE (2026-06-28)**: Q1 map danh mục = đề xuất (5 nhóm) · Q2 HSG/Chuyển cấp =
   Toán/Lý/Hóa/Sinh/Văn/Sử/Địa/GDCD/Anh/Tin (còn lại Nâng cao) **+ IELTS/TOEIC thêm chế độ "Thi thử mô phỏng đề thật"** ·
-  Q3 tên chế độ Duolingo = "Lộ trình". **NEXT**: `/speckit-plan`.
+  Q3 tên chế độ Duolingo = "Lộ trình".
+  **/speckit-plan ✅ DONE (2026-06-28)**: plan.md — Lớp 1 KHÁ THI đã xác minh (Sổ lỗi + Mastery suy từ
+  `exam_sessions.answers_json` × `question_bank.topic`, KHÔNG bảng mới). Lớp 1 cần vài endpoint BE mỏng
+  (read/LLM, family-scoped, không schema): `/api/learning/mistakes`, `/mastery`, `/practice`(+grade), `/explain`
+  (LLM Socratic + SafetyFilter). FE tách LearningHubPage → SubjectGrid/SubjectDetail/ModeConfig/QuestionRunner/
+  ErrorBook/MasteryByTopic/AskBi + hệ responsive (browse ≤1280 / quiz 640). 9 lát L1-A→L1-I. Bi đọc đề = browser
+  SpeechSynthesis. **NEXT**: `/speckit-tasks`.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
