@@ -5,6 +5,7 @@ import {
   getExamSessions, deleteExam,
 } from '../services/api.js';
 import ExamBuilder from '../components/ExamBuilder.jsx';
+import SubjectGrid from '../components/learning/SubjectGrid.jsx';
 
 // TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
 const SW_TASK_LABELS = {
@@ -82,6 +83,8 @@ export default function LearningHubPage() {
 
   // ── Exam mode state ──────────────────────────────────────────────────────
   const [mode, setMode] = useState('learn'); // 'learn' | 'exam'
+  // spec 007: cửa trước subject-first. 'subjects' = lưới môn; 'detail' = vào 1 môn (UI cũ, US2 sẽ thay).
+  const [hubView, setHubView] = useState('subjects');
   const [examView, setExamView] = useState('tracks'); // 'tracks' | 'list' | 'playing' | 'result'
   const [tracks, setTracks] = useState([]);
   const [examLoading, setExamLoading] = useState(false);
@@ -262,6 +265,15 @@ export default function LearningHubPage() {
     if (next === 'exam') setExamView('tracks');
   }
 
+  // spec 007 US1: chọn 1 môn từ lưới → vào trang môn. Môn có Lộ trình (en/math/science)
+  // mở chế độ Học; còn lại mở chế độ Làm đề (mọi môn đều có đề).
+  function pickSubject(s) {
+    const key = s.subject;
+    setActiveSubject(key);
+    switchMode(['en', 'math', 'science'].includes(key) ? 'learn' : 'exam');
+    setHubView('detail');
+  }
+
   async function loadModules() {
     setLoading(true);
     const data = await getLearningModules();
@@ -322,8 +334,32 @@ export default function LearningHubPage() {
 
   // ── Views ────────────────────────────────────────────────────────────────
 
+  // spec 007 US1: lưới môn là màn đầu (cửa trước). Vào 1 môn mới hiện UI học/đề.
+  if (hubView === 'subjects') {
+    return (
+      <div>
+        <div className="page-header">
+          <div className="page-title">📚 Học tập</div>
+          <div className="page-subtitle">Chọn môn để học và luyện tập</div>
+        </div>
+        <div className="page-body">
+          <SubjectGrid onPick={pickSubject} />
+        </div>
+      </div>
+    );
+  }
+
   const ModeToggle = () => (
     <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <button
+        onClick={() => setHubView('subjects')}
+        title="Tất cả môn"
+        style={{
+          padding: '10px 12px', borderRadius: 12, fontWeight: 700, fontSize: 14,
+          border: '2px solid var(--border)', background: 'var(--card)',
+          color: 'var(--text)', cursor: 'pointer',
+        }}
+      >← Môn</button>
       {[['learn', '📚 Học theo chủ đề'], ['exam', '📝 Làm đề & Thi thử']].map(([key, label]) => (
         <button
           key={key}

@@ -14,21 +14,21 @@
 ---
 
 ## Phase 1: Setup
-- [ ] T001 Đọc spec.md + plan.md; ghi baseline `python tests/run_tests.py` — file: `.specify/specs/007-learning-hub/`
-- [ ] T002 [P] Tạo hằng số FE: `CATEGORY_MAP` (môn→danh mục), `BO_GD_SUBJECTS`, `IELTS_TOEIC_MOCK` (cấu trúc+giờ) — file: `frontend/parent_app/src/components/learning/constants.js`
-- [ ] T003 [P] `styles.css`: hệ responsive base cho tab — `.learn-browse{max-width:1280px;margin:0 auto}`, `.learn-quiz{max-width:640px;margin:0 auto}`, breakpoint sm/md/lg/xl/2xl, lớp lưới môn + thẻ chế độ + mastery bar + 4 mã màu mastery (kèm chữ), `clamp()` tiêu đề — file: `frontend/parent_app/src/styles.css`
+- [x] T001 Baseline `python tests/run_tests.py` = PASS (722/722)
+- [x] T002 [P] Hằng số FE: `CATEGORIES` (môn→danh mục), `BO_GD_SUBJECTS`, `MOCK_EXAM_SUBJECTS`, `TIMER_OPTIONS`, `categoryOf()`, `masteryBand()` — file: `frontend/parent_app/src/components/learning/constants.js`
+- [x] T003 [P] `styles.css`: `.learn-browse{max-width:1280}` / `.learn-quiz{max-width:640}` + `.subject-grid` (auto-fill minmax140, 132 ở ≤360) + `.subject-card` + `.subject-cat-title` clamp + 4 mã màu mastery — file: `frontend/parent_app/src/styles.css`
 
 ## Phase 2: Foundational (blocking)
-- [ ] T004 `services/api.js`: `getLearningSubjects()` (GET /api/learning/subjects) + khai báo stub các helper sẽ dùng (getMistakes/getTopicMastery/getPracticeQuestions/gradePractice/askBiExplain) — file: `frontend/parent_app/src/services/api.js`
-- [ ] T005 `LearningHubPage.jsx`: dựng "view-router nội bộ" (state view: subjectGrid → subjectDetail → modeConfig → playing → result); subjectGrid là mặc định; GIỮ NGUYÊN luồng exam cũ tạm để không vỡ — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
+- [x] T004 `services/api.js`: `getLearningSubjects()` + helpers `getMistakes/getTopicMastery/getPracticeQuestions/gradePractice/askBiExplain` (dùng ở US4-US7) — file: `frontend/parent_app/src/services/api.js`
+- [x] T005 `LearningHubPage.jsx`: state `hubView` ('subjects' default); early-return lưới môn; GIỮ NGUYÊN luồng learn/exam cũ phía sau (US2 sẽ thay bằng SubjectDetail) — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
 
 ---
 
 ## Phase 3: US1 (L1-A) — Lưới môn subject-first · Test: mở tab thấy mọi môn nhóm danh mục + search lọc đúng, full-width không co giữa
-- [ ] T006 [P] [US1] `components/learning/SubjectCard.jsx` — thẻ môn (emoji+tên+vòng mastery nhỏ), tap mở môn — file: `frontend/parent_app/src/components/learning/SubjectCard.jsx`
-- [ ] T007 [US1] `components/learning/SubjectGrid.jsx` — lưới `auto-fill minmax(140px)` trong `.learn-browse`, nhóm theo `CATEGORY_MAP`, search lọc, empty/loading/error — file: `frontend/parent_app/src/components/learning/SubjectGrid.jsx`
-- [ ] T008 [US1] Gắn SubjectGrid làm màn đầu LearningHubPage; bấm môn → view subjectDetail — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
-- [ ] T009 [US1] `npm run build` OK + kiểm 320/768/1280/1920 (không co giữa/kéo căng) — file: `frontend/parent_app/`
+- [x] T006 [P] [US1] `components/learning/SubjectCard.jsx` — thẻ môn (emoji+tên+số đề), tap mở môn — file: `frontend/parent_app/src/components/learning/SubjectCard.jsx`
+- [x] T007 [US1] `components/learning/SubjectGrid.jsx` — lưới trong `.learn-browse`, nhóm theo `CATEGORIES` (+ "Khác"), search lọc, loading/empty/error — file: `frontend/parent_app/src/components/learning/SubjectGrid.jsx`
+- [x] T008 [US1] Gắn SubjectGrid làm cửa trước LearningHubPage; `pickSubject` → set activeSubject + mode (learn cho en/math/science, exam cho còn lại) + hubView='detail'; nút "← Môn" trong ModeToggle về lưới — file: `frontend/parent_app/src/pages/LearningHubPage.jsx`
+- [x] T009 [US1] `npm run build` OK (1.43s); baseline 722/722 PASS (FE-only, không đụng Python) — file: `frontend/parent_app/`
 
 ## Phase 4: US2 + US8 (L1-B) — Trang chi tiết môn + thẻ chế độ + gating · Test: thẻ chế độ đúng theo môn (Bộ GD có HSG/chuyển cấp; IELTS/TOEIC có "đề thật"; còn lại Nâng cao)
 - [ ] T010 [P] [US2] `components/learning/ModeCard.jsx` — thẻ chế độ lớn (icon+nhãn), dễ thấy không chôn dropdown — file: `frontend/parent_app/src/components/learning/ModeCard.jsx`

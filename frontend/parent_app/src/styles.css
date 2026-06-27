@@ -839,6 +839,33 @@ img { max-width: 100%; }
 .more-card-label { font-size: 16px; font-weight: 700; color: var(--text); text-align: center; }
 .more-card-sub { font-size: 12px; color: var(--text-secondary); text-align: center; }
 
+/* ── Learning Hub redesign (spec 007) ── */
+/* Containers: rộng khi DUYỆT, hẹp khi LÀM BÀI */
+.learn-browse { width: 100%; max-width: 1280px; margin: 0 auto; }
+.learn-quiz { width: 100%; max-width: 640px; margin: 0 auto; }
+
+/* Lưới môn subject-first */
+.subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+@media (max-width: 360px) { .subject-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; } }
+.subject-cat-title { font-size: clamp(15px, 2vw, 18px); font-weight: 800; margin: 18px 0 10px; color: var(--text); }
+.subject-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 10px; border-radius: var(--radius-md); border: 2px solid var(--border);
+  background: var(--card); cursor: pointer; min-height: var(--tap-min); text-align: center;
+  font-family: inherit; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.subject-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
+.subject-card-emoji { font-size: 34px; line-height: 1; }
+.subject-card-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.subject-card-meta { font-size: 12px; color: var(--muted); }
+.learn-search { width: 100%; margin-bottom: 4px; }
+
+/* Mastery color (band) — luôn dùng KÈM chữ (không chỉ màu) */
+.mastery-low { color: #dc2626; }
+.mastery-mid { color: #f59e0b; }
+.mastery-good { color: #16a34a; }
+.mastery-master { color: #2563eb; }
+
 /* ── Subject progress bars (Theo dõi học tập) ── */
 .subject-progress-row { margin-bottom: 12px; }
 .subject-progress-head { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text); }

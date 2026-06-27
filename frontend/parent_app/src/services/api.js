@@ -441,6 +441,35 @@ export async function getLearningModules() {
   return apiFetch('/api/learning/modules');
 }
 
+// —— Learning Hub redesign (spec 007) ——
+export async function getLearningSubjects() {
+  const data = await apiFetch('/api/learning/subjects');
+  return data?.subjects || [];
+}
+// Stub helpers — nối backend ở các lát sau (US4-US7):
+export async function getMistakes(subject) {
+  return apiFetch(`/api/learning/mistakes${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`);
+}
+export async function getTopicMastery(subject) {
+  return apiFetch(`/api/learning/mastery${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`);
+}
+export async function getPracticeQuestions(subject, topic, limit = 10) {
+  const qs = new URLSearchParams({ subject, ...(topic ? { topic } : {}), limit: String(limit) });
+  return apiFetch(`/api/learning/practice?${qs.toString()}`);
+}
+export async function gradePractice(questionId, answer) {
+  return apiFetch('/api/learning/practice/grade', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question_id: questionId, answer }),
+  });
+}
+export async function askBiExplain({ question, childAnswer, correctAnswer }) {
+  return apiFetch('/api/learning/explain', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question, child_answer: childAnswer, correct_answer: correctAnswer }),
+  });
+}
+
 export async function getLearningLesson(lessonId) {
   return apiFetch(`/api/learning/lessons/${lessonId}`);
 }

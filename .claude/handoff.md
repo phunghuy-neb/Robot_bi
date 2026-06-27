@@ -375,7 +375,14 @@
   Endpoint mới ở `learning_hub_router.py`. MVP = US1+US2+US3 (grid→môn→luyện đề). Thứ tự build:
   Setup → US1 grid → US2 detail+gating → US3 luyện đề → US4 luyện bài (BE practice/grade) → US5 sổ lỗi (BE) →
   US6 mastery (BE) → US7 Hỏi Bi (BE explain) → US9 Lộ trình shell → Polish (responsive+docs).
-  **NEXT**: build từng lát có review (bắt đầu Setup + US1). Spec/plan/tasks 007 đã sẵn.
+  **NEXT**: build từng lát có review. Spec/plan/tasks 007 đã sẵn.
+  - ✅ **007 US1 (L1-A) DONE (2026-06-28, commit `<sẽ điền>`)**: Setup+Foundational+lưới môn.
+    `components/learning/{constants.js, SubjectCard.jsx, SubjectGrid.jsx}` mới; `api.js` +getLearningSubjects
+    +5 stub helper (mistakes/mastery/practice/grade/explain); `styles.css` +`.learn-browse/.learn-quiz`/`.subject-*`/mã màu mastery.
+    `LearningHubPage`: state `hubView` ('subjects' default) → early-return SubjectGrid là **cửa trước**; `pickSubject`
+    (learn cho en/math/science, exam cho còn lại) → vào UI cũ; nút "← Môn" trong ModeToggle về lưới. Build OK; baseline 722/722.
+    **LƯU Ý**: phía sau lưới vẫn là UI learn/exam CŨ (chưa subject-scoped) — **US2 (L1-B) sẽ thay bằng SubjectDetail**.
+  - **NEXT lát: US2 (L1-B)** trang chi tiết môn + thẻ chế độ + gating (Bộ GD/Nâng cao/IELTS-TOEIC mock).
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →
