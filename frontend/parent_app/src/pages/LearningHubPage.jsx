@@ -625,27 +625,20 @@ export default function LearningHubPage() {
       const low = examTimeLeft <= 60;
       const taskLabel = SW_TASK_LABELS[q.topic] || (isSpeaking ? 'Nói' : 'Viết');
       return (
-        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <div style={{ padding: '16px', maxWidth: 640, margin: '0 auto' }}>
+          <div className="exam-bar">
             <button className="btn-exam-exit" onClick={exitExam} title="Thoát đề thi" aria-label="Thoát đề thi">←</button>
-            <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
-            <div style={{
-              fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
-              background: low ? '#ffebee' : '#ede7f6', color: low ? '#c62828' : '#5e35b1',
-            }}>⏱️ {fmtTime(examTimeLeft)}</div>
+            <div className="exam-title">{examData.paper.title}</div>
+            <div className={`exam-timer${low ? ' low' : ''}`}>⏱️ {fmtTime(examTimeLeft)}</div>
           </div>
 
           {/* Task nav dots */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+          <div className="exam-dots">
             {examData.questions.map((qq, i) => {
               const done = (examAnswers[qq.question_id] || '').trim().length > 0;
               return (
                 <button key={qq.question_id} onClick={() => { stopRecording(); setExamQIndex(i); }}
-                  style={{
-                    width: 32, height: 32, borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
-                    border: `2px solid ${i === examQIndex ? '#7c3aed' : '#ccc'}`,
-                    background: done ? '#d1c4e9' : 'var(--card)', color: 'var(--text)',
-                  }}>{i + 1}</button>
+                  className={`exam-dot${done ? ' done' : ''}${i === examQIndex ? ' active' : ''}`}>{i + 1}</button>
               );
             })}
           </div>
@@ -720,57 +713,43 @@ export default function LearningHubPage() {
       const answered = Object.keys(examAnswers).length;
       const low = examTimeLeft <= 60;
       return (
-        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <div style={{ padding: '16px', maxWidth: 640, margin: '0 auto' }}>
+          <div className="exam-bar">
             <button className="btn-exam-exit" onClick={exitExam} title="Thoát đề thi" aria-label="Thoát đề thi">←</button>
-            <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{examData.paper.title}</div>
-            <div style={{
-              fontWeight: 800, fontSize: 18, padding: '4px 12px', borderRadius: 10,
-              background: (!examNoTimer && low) ? '#ffebee' : '#e3f2fd', color: (!examNoTimer && low) ? '#c62828' : '#1565c0',
-            }}>⏱️ {examNoTimer ? 'Không giờ' : fmtTime(examTimeLeft)}</div>
+            <div className="exam-title">{examData.paper.title}</div>
+            <div className={`exam-timer${(!examNoTimer && low) ? ' low' : ''}`}>
+              ⏱️ {examNoTimer ? 'Không giờ' : fmtTime(examTimeLeft)}
+            </div>
           </div>
 
           {/* Question nav dots */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+          <div className="exam-dots">
             {examData.questions.map((qq, i) => {
               const done = examAnswers[qq.question_id] != null;
               return (
                 <button key={qq.question_id} onClick={() => setExamQIndex(i)}
-                  style={{
-                    width: 32, height: 32, borderRadius: 8, fontWeight: 700, fontSize: 13,
-                    cursor: 'pointer',
-                    border: `2px solid ${i === examQIndex ? 'var(--primary, #2196f3)' : '#ccc'}`,
-                    background: done ? '#c8e6c9' : 'var(--card)',
-                    color: 'var(--text)',
-                  }}>{i + 1}</button>
+                  className={`exam-dot${done ? ' done' : ''}${i === examQIndex ? ' active' : ''}`}>{i + 1}</button>
               );
             })}
           </div>
 
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '20px 16px', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6 }}>
-              Câu {examQIndex + 1}/{total} {q.emoji}
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{q.question}</div>
-            {q.question_vi && <div style={{ fontSize: 14, color: 'var(--muted)' }}>{q.question_vi}</div>}
+          <div className="exam-qcard">
+            <div className="exam-qmeta">Câu {examQIndex + 1}/{total} {q.emoji}</div>
+            <div className="exam-qtext">{q.question}</div>
+            {q.question_vi && <div className="exam-qsub">{q.question_vi}</div>}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+          <div className="exam-opts">
             {q.options.map(option => {
               const chosen = examAnswers[q.question_id] === option;
               return (
                 <button key={option} onClick={() => pickAnswer(q.question_id, option)}
-                  style={{
-                    minHeight: 52, fontSize: 16, fontWeight: 600, borderRadius: 12, textAlign: 'left',
-                    padding: '0 16px', cursor: 'pointer',
-                    border: `2px solid ${chosen ? 'var(--primary, #2196f3)' : 'var(--border, #e0e0e0)'}`,
-                    background: chosen ? '#e3f2fd' : 'var(--card)', color: 'var(--text)',
-                  }}>{option}</button>
+                  className={`exam-opt${chosen ? ' chosen' : ''}`}>{option}</button>
               );
             })}
           </div>
 
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div className="exam-actions">
             <button className="btn-sm secondary" style={{ flex: 1, minHeight: 48 }}
               disabled={examQIndex === 0}
               onClick={() => setExamQIndex(i => Math.max(0, i - 1))}>← Trước</button>
@@ -811,15 +790,15 @@ export default function LearningHubPage() {
 
     if (examView === 'list' && selectedTrack) {
       return (
-        <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <button className="btn-sm secondary" style={{ minWidth: 40 }}
+        <div style={{ padding: '16px', maxWidth: 640, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <button className="btn-sm secondary" style={{ minWidth: 44, minHeight: 44 }}
               onClick={() => (examFromSubject ? setHubView('subjectMenu') : setExamView('tracks'))}>←</button>
-            <div style={{ fontWeight: 700, fontSize: 18 }}>{selectedTrack.label}</div>
+            <div style={{ fontWeight: 800, fontSize: 19 }}>{selectedTrack.label}</div>
           </div>
           {/* US3: cấu hình thời gian trước khi làm đề */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            <span style={{ fontSize: 13, color: 'var(--muted)' }}>⏱ Thời gian:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>⏱ Thời gian:</span>
             {[[null, 'Theo đề'], [0, 'Không giờ'], [15, '15′'], [30, '30′'], [45, '45′'], [60, '60′']].map(([val, label]) => (
               <button key={String(val)} onClick={() => setExamTimerMin(val)}
                 className={`pill-tab${examTimerMin === val ? ' active' : ''}`}>
@@ -830,26 +809,21 @@ export default function LearningHubPage() {
           {examLoading ? (
             <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
           ) : examList.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 40, color: 'var(--muted)' }}>
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>
               Chưa có đề thi cho mục này. Nội dung sẽ được bổ sung dần.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {examList.map(ex => {
                 const own = ex.source === 'custom' && ex.family_id;
                 return (
                   <div key={ex.paper_id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-                    <button onClick={() => startExam(ex)}
-                      style={{
-                        flex: 1, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                        borderRadius: 12, background: 'var(--card)', cursor: 'pointer', textAlign: 'left',
-                        border: '2px solid var(--border, #e0e0e0)',
-                      }}>
+                    <button className="exam-row" onClick={() => startExam(ex)}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700 }}>
-                          {ex.title}{own && <span style={{ fontSize: 11, color: '#2563eb' }}> · đề của tôi</span>}
+                        <div style={{ fontWeight: 800 }}>
+                          {ex.title}{own && <span style={{ fontSize: 11, color: 'var(--primary-dark)' }}> · đề của tôi</span>}
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                        <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', marginTop: 2 }}>
                           {ex.total_questions} câu · {ex.duration_minutes} phút · đạt ≥{ex.pass_percent}%
                           {ex.attempts > 0 && ` · đã làm ${ex.attempts} lần`}
                         </div>
@@ -857,7 +831,7 @@ export default function LearningHubPage() {
                       {ex.best_percent != null && (
                         <div style={{
                           fontWeight: 800, fontSize: 15,
-                          color: ex.best_percent >= ex.pass_percent ? '#2e7d32' : '#ef5350',
+                          color: ex.best_percent >= ex.pass_percent ? '#15803D' : '#DC2626',
                         }}>{ex.best_percent}%</div>
                       )}
                       <span style={{ fontSize: 18, color: 'var(--muted)' }}>▶</span>
@@ -871,8 +845,8 @@ export default function LearningHubPage() {
                           else showToast('Xóa thất bại');
                         }}
                         style={{
-                          width: 44, borderRadius: 12, border: '2px solid #ef5350',
-                          background: 'transparent', color: '#ef5350', cursor: 'pointer', fontSize: 16,
+                          width: 48, borderRadius: 'var(--radius-md)', border: '2.5px solid #FCA5A5',
+                          background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', fontSize: 16,
                         }}>🗑️</button>
                     )}
                   </div>
@@ -892,32 +866,21 @@ export default function LearningHubPage() {
       exam: '🎓 Thi chuyển cấp', roadmap: '🌐 Lộ trình ngoại ngữ',
     };
     return (
-      <div style={{ padding: '16px', maxWidth: 560, margin: '0 auto' }}>
+      <div style={{ padding: '16px', maxWidth: 760, margin: '0 auto' }}>
         <ModeToggle />
-        <button onClick={() => setExamView('builder')}
-          style={{
-            width: '100%', marginBottom: 16, padding: '12px', borderRadius: 12,
-            border: '2px dashed var(--primary, #2196f3)', background: 'transparent',
-            color: 'var(--primary, #2196f3)', fontWeight: 700, fontSize: 14, cursor: 'pointer',
-          }}>➕ Tạo đề của tôi</button>
+        <button className="btn-create-exam" onClick={() => setExamView('builder')}>➕ Tạo đề của tôi</button>
         {examLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><div className="spinner" /></div>
         ) : (
           Object.entries(grouped).map(([kind, items]) => (
-            <div key={kind} style={{ marginBottom: 20 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
-                {KIND_LABELS[kind] || kind}
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div key={kind} style={{ marginBottom: 22 }}>
+              <div className="exam-section-title">{KIND_LABELS[kind] || kind}</div>
+              <div className="track-grid">
                 {items.map(t => (
-                  <button key={t.track} onClick={() => openTrack(t)}
-                    style={{
-                      background: 'var(--card)', borderRadius: 14, padding: '16px 12px',
-                      border: `2px solid ${TRACK_KIND_COLORS[t.kind] || '#999'}33`,
-                      cursor: 'pointer', textAlign: 'left',
-                    }}>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>{t.label}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                  <button key={t.track} className="track-card" onClick={() => openTrack(t)}
+                    style={{ borderLeftColor: TRACK_KIND_COLORS[t.kind] || 'var(--primary)' }}>
+                    <div className="track-card-title">{t.label}</div>
+                    <div className="track-card-meta">
                       {t.paper_count} đề{t.levels?.length ? ` · ${t.levels.length} cấp độ` : ''}
                     </div>
                   </button>

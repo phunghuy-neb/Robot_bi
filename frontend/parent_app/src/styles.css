@@ -16,12 +16,16 @@
   --border: #E2E8F0;
   --text: #1E293B;
   --text-secondary: #64748B;
-  --muted: #94A3B8;
+  /* WCAG AA: #94A3B8 (cũ) chỉ ~2.8:1 trên nền trắng — chữ phụ khó đọc. Bump lên ~4.7:1. */
+  --muted: #647084;
   --radius-lg: 24px;
   --radius-modal: 28px;
   --radius-md: 20px;
   --radius-sm: 16px;
   --shadow: 0px 10px 30px -5px rgba(112, 144, 176, 0.12);
+  /* Claymorphism nhẹ (spec 007 R2): bóng mềm KÉP lúc nghỉ → thẻ có chiều sâu, hết "phẳng/trống". */
+  --clay-shadow: 0 6px 16px -6px rgba(99, 102, 241, 0.18), 0 2px 5px rgba(15, 23, 42, 0.04);
+  --clay-shadow-hover: 0 14px 26px -8px rgba(99, 102, 241, 0.28), 0 3px 7px rgba(15, 23, 42, 0.05);
   --side-w: 248px;
   --nav-h: 72px;
   /* Legacy compat */
@@ -850,38 +854,59 @@ img { max-width: 100%; }
 .subject-cat-title { font-size: clamp(15px, 2vw, 18px); font-weight: 800; margin: 18px 0 10px; color: var(--text); }
 .subject-card {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  padding: 16px 10px; border-radius: var(--radius-md); border: 2px solid var(--border);
+  padding: 18px 12px; border-radius: var(--radius-md); border: 2.5px solid var(--border);
   background: var(--card); cursor: pointer; min-height: var(--tap-min); text-align: center;
-  font-family: inherit; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit; box-shadow: var(--clay-shadow);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
-.subject-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
-.subject-card-emoji { font-size: 34px; line-height: 1; }
-.subject-card-name { font-weight: 700; font-size: 14px; color: var(--text); }
-.subject-card-meta { font-size: 12px; color: var(--muted); }
+.subject-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: var(--clay-shadow-hover); }
+.subject-card:active { transform: translateY(0); box-shadow: var(--clay-shadow); }
+.subject-card-emoji {
+  font-size: 30px; line-height: 1; width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--primary-soft);
+}
+.subject-card-name { font-weight: 800; font-size: 14px; color: var(--text); }
+.subject-card-meta { font-size: 12px; color: var(--text-secondary); }
 .learn-search { width: 100%; margin-bottom: 4px; }
 
 /* Trang chi tiết môn: 2 cột ≥1024 (chế độ | nổi bật), 1 cột tablet/mobile */
-.subject-detail-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 1024px) { .subject-detail-grid { grid-template-columns: 2fr 1fr; } }
-.mode-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+/* Cân đối: cap bề ngang trang chi tiết (1280 quá rộng → trống), aside không kéo dãn */
+.subject-detail-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 980px; margin: 0 auto; }
+@media (min-width: 1024px) { .subject-detail-grid { grid-template-columns: 1.6fr 1fr; align-items: start; } }
+.mode-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
 .mode-card {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-  padding: 16px; border-radius: var(--radius-md); border: 2px solid var(--border);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  padding: 18px; border-radius: var(--radius-md); border: 2.5px solid var(--border);
   background: var(--card); cursor: pointer; min-height: var(--tap-min);
-  text-align: left; font-family: inherit; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  text-align: left; font-family: inherit; box-shadow: var(--clay-shadow);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
-.mode-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
-.mode-card-icon { font-size: 28px; line-height: 1; }
+.mode-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: var(--clay-shadow-hover); }
+.mode-card:active { transform: translateY(0); box-shadow: var(--clay-shadow); }
+.mode-card-icon {
+  font-size: 24px; line-height: 1; width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; background: var(--primary-soft);
+}
 .mode-card-label { font-weight: 800; font-size: 15px; color: var(--text); }
-.mode-card-sub { font-size: 12px; color: var(--muted); }
+.mode-card-sub { font-size: 12.5px; color: var(--text-secondary); }
 /* spec 007 US9: chế độ chưa sẵn sàng — phân biệt rõ bằng badge + chữ + dáng mờ (không chỉ dựa màu). */
-.mode-card.coming-soon { position: relative; border-style: dashed; border-color: var(--border); opacity: 0.72; }
+.mode-card.coming-soon { position: relative; border-style: dashed; border-color: var(--border); opacity: 0.7; box-shadow: none; }
 .mode-card.coming-soon:hover { transform: none; border-color: var(--border); box-shadow: none; }
+.mode-card.coming-soon .mode-card-icon { background: #EEF1F6; filter: grayscale(0.4); }
 .mode-card-badge {
   position: absolute; top: 8px; right: 8px; padding: 2px 8px; border-radius: 999px;
   background: var(--muted); color: #fff; font-size: 11px; font-weight: 800; line-height: 1.4;
 }
-.highlight-card { display: block; width: 100%; text-align: left; cursor: pointer; margin-bottom: 12px; font-weight: 700; font-family: inherit; }
+.highlight-card {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  cursor: pointer; margin-bottom: 14px; font-weight: 800; font-size: 15px; color: var(--text);
+  font-family: inherit; padding: 16px 18px; border-radius: var(--radius-md);
+  border: 2.5px solid var(--border); background: var(--card); box-shadow: var(--clay-shadow);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.highlight-card:hover { transform: translateY(-3px); border-color: var(--warning); box-shadow: var(--clay-shadow-hover); }
+.highlight-card:active { transform: translateY(0); box-shadow: var(--clay-shadow); }
 /* Nút thoát đề thi — luôn hiện trong lúc làm bài, đủ to để bấm (a11y tap≥44). */
 .btn-exam-exit {
   flex-shrink: 0; min-width: 44px; min-height: 44px; border-radius: 12px; cursor: pointer;
@@ -891,7 +916,69 @@ img { max-width: 100%; }
 }
 .btn-exam-exit:hover { border-color: #ef5350; color: #ef5350; }
 .btn-exam-exit:active { transform: translateY(1px); }
-.highlight-card .muted { color: var(--muted); font-weight: 400; font-size: 12px; }
+.highlight-card .muted { color: var(--text-secondary); font-weight: 600; font-size: 13px; }
+
+/* ── Exam views (spec 007 R2): chuẩn hoá inline-style lộn xộn → clay nhất quán ── */
+.exam-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.exam-title { flex: 1; font-weight: 800; font-size: 15px; color: var(--text); }
+.exam-timer {
+  flex-shrink: 0; font-weight: 800; font-size: 17px; padding: 7px 14px; border-radius: 12px;
+  background: var(--primary-soft); color: var(--primary-dark);
+}
+.exam-timer.low { background: #FEE2E2; color: #B91C1C; }
+.exam-dots { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.exam-dot {
+  width: 36px; height: 36px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer;
+  border: 2px solid var(--border); background: var(--card); color: var(--text-secondary);
+  font-family: inherit; transition: border-color 0.12s, box-shadow 0.12s;
+}
+.exam-dot.done { background: #DCFCE7; border-color: #86EFAC; color: #166534; }
+.exam-dot.active { border-color: var(--primary); color: var(--primary-dark); box-shadow: 0 0 0 3px var(--primary-soft); }
+.exam-qcard {
+  background: var(--card); border: 2.5px solid var(--border); border-radius: var(--radius-md);
+  padding: 22px 18px; margin-bottom: 18px; box-shadow: var(--clay-shadow);
+}
+.exam-qmeta { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
+.exam-qtext { font-size: 19px; font-weight: 800; color: var(--text); line-height: 1.4; }
+.exam-qsub { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+.exam-opts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.exam-opt {
+  min-height: 54px; font-size: 16px; font-weight: 600; border-radius: 14px; text-align: left;
+  padding: 12px 18px; cursor: pointer; font-family: inherit; color: var(--text);
+  border: 2.5px solid var(--border); background: var(--card); box-shadow: var(--clay-shadow);
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+.exam-opt:hover { border-color: var(--primary); }
+.exam-opt:active { transform: translateY(1px); }
+.exam-opt.chosen { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); }
+.exam-actions { display: flex; gap: 10px; }
+/* Catalog track + list rows */
+.track-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.track-card {
+  background: var(--card); border-radius: var(--radius-md); padding: 16px 14px;
+  border: 2.5px solid var(--border); border-left-width: 6px; cursor: pointer; text-align: left;
+  font-family: inherit; box-shadow: var(--clay-shadow); transition: transform 0.15s, box-shadow 0.15s;
+}
+.track-card:hover { transform: translateY(-3px); box-shadow: var(--clay-shadow-hover); }
+.track-card:active { transform: translateY(0); box-shadow: var(--clay-shadow); }
+.track-card-title { font-weight: 800; font-size: 14px; color: var(--text); }
+.track-card-meta { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; }
+.exam-section-title { font-weight: 800; font-size: 16px; margin-bottom: 12px; color: var(--text); }
+.exam-row {
+  flex: 1; display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+  border-radius: var(--radius-md); background: var(--card); cursor: pointer; text-align: left;
+  border: 2.5px solid var(--border); box-shadow: var(--clay-shadow); font-family: inherit;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.exam-row:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--clay-shadow-hover); }
+.exam-row:active { transform: translateY(0); box-shadow: var(--clay-shadow); }
+.btn-create-exam {
+  width: 100%; margin-bottom: 18px; padding: 14px; border-radius: var(--radius-md);
+  border: 2.5px dashed var(--primary); background: var(--primary-soft);
+  color: var(--primary-dark); font-weight: 800; font-size: 14.5px; cursor: pointer; font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-create-exam:hover { background: #E0E7FF; }
 .ask-bi-answer { margin-top: 10px; background: var(--primary-soft); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; line-height: 1.5; color: var(--text); }
 
 /* Mastery color (band) — luôn dùng KÈM chữ (không chỉ màu) */
