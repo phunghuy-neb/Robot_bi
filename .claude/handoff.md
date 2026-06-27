@@ -376,13 +376,21 @@
   Setup → US1 grid → US2 detail+gating → US3 luyện đề → US4 luyện bài (BE practice/grade) → US5 sổ lỗi (BE) →
   US6 mastery (BE) → US7 Hỏi Bi (BE explain) → US9 Lộ trình shell → Polish (responsive+docs).
   **NEXT**: build từng lát có review. Spec/plan/tasks 007 đã sẵn.
-  - ✅ **007 US1 (L1-A) DONE (2026-06-28, commit `<sẽ điền>`)**: Setup+Foundational+lưới môn.
+  - ✅ **007 US1 (L1-A) DONE (2026-06-28, commit `e0cd28b`)**: Setup+Foundational+lưới môn.
     `components/learning/{constants.js, SubjectCard.jsx, SubjectGrid.jsx}` mới; `api.js` +getLearningSubjects
     +5 stub helper (mistakes/mastery/practice/grade/explain); `styles.css` +`.learn-browse/.learn-quiz`/`.subject-*`/mã màu mastery.
     `LearningHubPage`: state `hubView` ('subjects' default) → early-return SubjectGrid là **cửa trước**; `pickSubject`
     (learn cho en/math/science, exam cho còn lại) → vào UI cũ; nút "← Môn" trong ModeToggle về lưới. Build OK; baseline 722/722.
     **LƯU Ý**: phía sau lưới vẫn là UI learn/exam CŨ (chưa subject-scoped) — **US2 (L1-B) sẽ thay bằng SubjectDetail**.
-  - **NEXT lát: US2 (L1-B)** trang chi tiết môn + thẻ chế độ + gating (Bộ GD/Nâng cao/IELTS-TOEIC mock).
+  - ✅ **007 US2 (L1-B) DONE (2026-06-28, commit `<sẽ điền>`)**: trang chi tiết môn + thẻ chế độ + gating.
+    `components/learning/{ModeCard.jsx, SubjectDetail.jsx}` mới. hubView nay 3 trạng thái:
+    subjects(lưới)→subjectMenu(SubjectDetail)→inMode(luồng học/đề cũ). Gating: Lộ trình (en/math/science thật,
+    còn lại "Sắp có" toast) · Luyện theo bài (toast interim — US4) · Luyện theo đề (mọi môn) · Bộ GD→HSG+Chuyển cấp ·
+    IELTS/TOEIC→"Thi thử như thật" · còn lại→Nâng cao. Chọn chế độ đề→switchMode('exam')+inMode; Lộ trình→learn.
+    Bố cục 2 cột ≥1024. styles.css +`.mode-card*`/`.subject-detail-grid`/`.highlight-card`. Build OK 69 modules.
+    **LƯU Ý**: chế độ đề vào luồng exam CŨ (chưa lọc theo môn + chưa cấu hình timer) — **US3 (L1-C) sẽ thêm cấu hình
+    + lọc theo môn**; Luyện-theo-bài/Sổ-lỗi/Mastery/Hỏi-Bi ở US4-US7.
+  - **NEXT lát: US3 (L1-C)** Luyện theo đề (tái dùng) + ModeConfig timer (Không/15/30/45/60) + lọc theo môn.
   --- spec 006 (Đại tu FE) ✅ HOÀN TẤT trước đó (commit `ee6a75d`, US1-US7+Polish).
 - **(cũ) Active spec 006**: `.specify/specs/006-frontend-overhaul/` — Đại tu FE Parent App + Admin
   (P1 bug → P2 design system → P3 cấu trúc tab → P4 monitor → P5 admin polish → P6 WiFi UI →

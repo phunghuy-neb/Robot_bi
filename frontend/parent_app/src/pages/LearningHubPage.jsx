@@ -6,6 +6,7 @@ import {
 } from '../services/api.js';
 import ExamBuilder from '../components/ExamBuilder.jsx';
 import SubjectGrid from '../components/learning/SubjectGrid.jsx';
+import SubjectDetail from '../components/learning/SubjectDetail.jsx';
 
 // TOEIC S&W task type -> Vietnamese label (drives the free-text prompt header).
 const SW_TASK_LABELS = {
@@ -83,8 +84,10 @@ export default function LearningHubPage() {
 
   // ── Exam mode state ──────────────────────────────────────────────────────
   const [mode, setMode] = useState('learn'); // 'learn' | 'exam'
-  // spec 007: cửa trước subject-first. 'subjects' = lưới môn; 'detail' = vào 1 môn (UI cũ, US2 sẽ thay).
+  // spec 007: cửa trước subject-first. 'subjects' = lưới môn; 'subjectMenu' = trang chi tiết môn
+  // (thẻ chế độ); 'inMode' = đang trong luồng học/đề (UI cũ).
   const [hubView, setHubView] = useState('subjects');
+  const [pickedSubject, setPickedSubject] = useState(null);
   const [examView, setExamView] = useState('tracks'); // 'tracks' | 'list' | 'playing' | 'result'
   const [tracks, setTracks] = useState([]);
   const [examLoading, setExamLoading] = useState(false);
@@ -268,10 +271,9 @@ export default function LearningHubPage() {
   // spec 007 US1: chọn 1 môn từ lưới → vào trang môn. Môn có Lộ trình (en/math/science)
   // mở chế độ Học; còn lại mở chế độ Làm đề (mọi môn đều có đề).
   function pickSubject(s) {
-    const key = s.subject;
-    setActiveSubject(key);
-    switchMode(['en', 'math', 'science'].includes(key) ? 'learn' : 'exam');
-    setHubView('detail');
+    setPickedSubject(s);
+    setActiveSubject(s.subject);
+    setHubView('subjectMenu');
   }
 
   async function loadModules() {
@@ -349,11 +351,23 @@ export default function LearningHubPage() {
     );
   }
 
+  // spec 007 US2: trang chi tiết môn (thẻ chế độ). Chọn chế độ → vào luồng học/đề.
+  if (hubView === 'subjectMenu' && pickedSubject) {
+    return (
+      <SubjectDetail
+        subject={pickedSubject}
+        onBack={() => setHubView('subjects')}
+        onEnterLearn={() => { switchMode('learn'); setHubView('inMode'); }}
+        onEnterExam={() => { switchMode('exam'); setHubView('inMode'); }}
+      />
+    );
+  }
+
   const ModeToggle = () => (
     <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
       <button
-        onClick={() => setHubView('subjects')}
-        title="Tất cả môn"
+        onClick={() => setHubView('subjectMenu')}
+        title="Quay lại chế độ của môn"
         style={{
           padding: '10px 12px', borderRadius: 12, fontWeight: 700, fontSize: 14,
           border: '2px solid var(--border)', background: 'var(--card)',

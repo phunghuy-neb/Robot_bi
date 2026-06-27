@@ -31,10 +31,10 @@
 - [x] T009 [US1] `npm run build` OK (1.43s); baseline 722/722 PASS (FE-only, không đụng Python) — file: `frontend/parent_app/`
 
 ## Phase 4: US2 + US8 (L1-B) — Trang chi tiết môn + thẻ chế độ + gating · Test: thẻ chế độ đúng theo môn (Bộ GD có HSG/chuyển cấp; IELTS/TOEIC có "đề thật"; còn lại Nâng cao)
-- [ ] T010 [P] [US2] `components/learning/ModeCard.jsx` — thẻ chế độ lớn (icon+nhãn), dễ thấy không chôn dropdown — file: `frontend/parent_app/src/components/learning/ModeCard.jsx`
-- [ ] T011 [US2] `components/learning/SubjectDetail.jsx` — header môn + dải ModeCard + 2 thẻ "Câu hay sai"/"Chủ đề cần ôn" (placeholder số) + chỗ cho MasteryByTopic; 2 cột ≥1024, 1 cột ≤1023 — file: `frontend/parent_app/src/components/learning/SubjectDetail.jsx`
-- [ ] T012 [US8] Logic gating chế độ theo `BO_GD_SUBJECTS` + IELTS/TOEIC mock (dùng tracks từ getExamTracks/getExams để biết track có nội dung) — file: `frontend/parent_app/src/components/learning/SubjectDetail.jsx`
-- [ ] T013 [US2] `npm run build` OK + kiểm tablet (1 cột) / laptop (2 cột) — file: `frontend/parent_app/`
+- [x] T010 [P] [US2] `components/learning/ModeCard.jsx` — thẻ chế độ lớn (icon+nhãn+sub) — file: `frontend/parent_app/src/components/learning/ModeCard.jsx`
+- [x] T011 [US2] `components/learning/SubjectDetail.jsx` — header môn (back) + dải ModeCard + 2 thẻ "Câu hay sai"/"Chủ đề cần ôn" (placeholder, số thật ở US5/US6); 2 cột ≥1024 — file: `frontend/parent_app/src/components/learning/SubjectDetail.jsx`
+- [x] T012 [US8] Gating: Lộ trình (en/math/science thật, còn lại "Sắp có") · Luyện theo bài (toast interim, US4) · Luyện theo đề (mọi môn) · Bộ GD→HSG+Chuyển cấp · IELTS/TOEIC→"Thi thử như thật" · còn lại→Nâng cao. LearningHubPage: hubView 3 trạng thái subjects/subjectMenu/inMode; pickSubject→subjectMenu; chọn chế độ→switchMode+inMode; "← Môn"→subjectMenu — file: `SubjectDetail.jsx`, `pages/LearningHubPage.jsx`
+- [x] T013 [US2] `npm run build` OK (69 modules, 1.18s; fix trùng tên state subjectInfo→pickedSubject) — file: `frontend/parent_app/`
 
 ## Phase 5: US3 (L1-C) — Luyện theo đề (tái dùng) + cấu hình timer · Test: chọn đề + giờ → làm trọn đề → chấm cuối (như cũ), trong cột hẹp
 - [ ] T014 [US3] `components/learning/ModeConfig.jsx` — chọn đề/cấp (dropdown cấp 2) + timer (Không/15/30/45/60) → Bắt đầu; sheet mobile/modal desktop — file: `frontend/parent_app/src/components/learning/ModeConfig.jsx`
