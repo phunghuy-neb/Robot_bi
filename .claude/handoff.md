@@ -16,9 +16,18 @@
   với giọng nói nên prototype TTS API/voice có sẵn trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
   Định hướng sản phẩm: giọng thanh thoát, dễ nghe, không chói; độ tự nhiên hội thoại tăng bằng short-turn policy,
   child profile memory, parent context, tool calls, eval suite, rồi mới tính fine-tune.
-- ▶️ **SERVER RUNNING (2026-06-27)**: backend FastAPI đang chạy trong Codex session `83523` (PID `82778`) bằng
-  `.venv/bin/python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8443 --ssl-certfile ssl/cert.pem --ssl-keyfile ssl/key.pem`.
-  Health OK: `https://127.0.0.1:8443/health` → `{"status":"ok"}`. Chưa chạy Vite dev server.
+- **Q&A ONLY (2026-06-28)**: giải thích `start_robot.bat` là script Windows, không chạy trực tiếp trên Linux;
+  Linux chạy nhanh bằng `.venv/bin/python src/main.py` cho robot đầy đủ, hoặc `.venv/bin/python -m uvicorn ...`
+  cho API server-only; FE chạy `cd frontend/parent_app && npm run dev` (Vite proxy sang BE 8443);
+  sync/SSL chỉ cần khi cần. Không sửa code, không chạy test.
+- **Q&A ONLY (2026-06-28)**: liệt kê toàn bộ chức năng/tab **Học tập** hiện có trong Parent App:
+  LearningHub subject-first, lộ trình en/math/science, luyện câu, sổ lỗi, mastery, đề thi/track, TOEIC S&W,
+  tạo/tách đề, danh sách môn từ `resources/learning`. Không sửa code, không chạy test.
+- ▶️ **FE+BE RUNNING (2026-06-28)**: để test frontend có DB nhưng không chạy STT/TTS.
+  DB schema đã init OK. Backend API-only đang chạy trong Codex session `52211` bằng
+  `.venv/bin/python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8443 --ssl-certfile ssl/cert.pem --ssl-keyfile ssl/key.pem`;
+  health OK: `https://127.0.0.1:8443/health` → `{"status":"ok"}`. Frontend Vite đang chạy trong session `85708`
+  bằng `npm run dev -- --host 0.0.0.0`; URL local `http://localhost:5173/`, network `http://192.168.100.4:5173/`.
 - 🔐 **TEST LOGIN (2026-06-27)**: tài khoản runtime để test đã tạo/reset OK qua DB helper:
   username `robotbi_test`, password `TestRobotBi2026!`, family `test-family`, role `owner`.
   Verify `POST /auth/login/v2` OK, có access+refresh token. Runtime admin khác vẫn được seed từ `.env`
