@@ -11,6 +11,9 @@
 > If a Spec Kit feature is active, the **Active spec** line below points to its folder —
 > reading this file then leads straight to `tasks.md` (the real progress tracker).
 
+- ✅ **GIT PUSH DONE (2026-06-28)**: đã push toàn bộ commit hiện có trên `main` lên `origin/main`.
+  Remote verify trước dòng handoff này: `origin/main` = `cc6a2e826288cca2d4e28bb466899064b232946e`.
+  Next: không có tác vụ git pending; `.claude/settings.local.json` còn dirty local và không push vì là user config.
 - **Q&A ONLY (2026-06-27)**: giải thích "train AI", train qua API, custom giọng AI trẻ con/TTS, và cân nhắc thuê GPU NVIDIA.
   Không sửa code, không chạy test. Next nếu triển khai: ưu tiên RAG/knowledge/memory/eval trước fine-tuning;
   với giọng nói nên prototype TTS API/voice có sẵn trước, chỉ train local khi đã có dữ liệu giọng hợp pháp + checklist consent/privacy.
